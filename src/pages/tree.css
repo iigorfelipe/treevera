@@ -1,0 +1,103 @@
+.tree {
+  --tree-spacing: 1.5rem;
+  --tree-radius: 10px;
+}
+
+.tree li {
+  display: block;
+  position: relative;
+  padding-left: calc(2 * var(--tree-spacing) - var(--tree-radius) - 2px);
+}
+
+.tree ul {
+  margin-left: calc(var(--tree-radius) - var(--tree-spacing));
+  padding-left: 0;
+}
+
+.tree ul li {
+  border-left: 2px solid #a3d6a3;
+}
+
+.tree summary,
+.tree li {
+  padding-bottom: 10px;
+}
+
+.tree summary:last-child,
+.tree li:last-child {
+  padding-bottom: 0px;
+}
+
+.tree .kingdoms-img {
+  width: calc(var(--tree-spacing) * 1);
+  height: var(--tree-spacing);
+}
+
+.item {
+  cursor: pointer;
+  display: flex;
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 12px;
+}
+
+.item:hover {
+  background-color: #a3d6a338;
+}
+
+.tree ul li:last-child {
+  border-color: transparent;
+}
+
+.tree ul li::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: calc(var(--tree-spacing) / -2);
+  left: -2px;
+  width: calc(var(--tree-spacing) + 2px);
+  height: calc(var(--tree-spacing) + 1px);
+  border: solid rgb(163, 214, 163);
+  border-width: 0 0 2px 2px;
+}
+
+.tree summary {
+  display: block;
+  cursor: pointer;
+}
+
+.tree summary::marker,
+.tree summary::-webkit-details-marker {
+  display: none;
+}
+
+.tree summary:focus {
+  outline: none;
+}
+
+.tree summary:focus-visible {
+  outline: 1px dotted #000;
+}
+
+.tree li::after,
+.tree summary::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: calc(var(--tree-spacing) / 2 - var(--tree-radius));
+  left: calc(var(--tree-spacing) - var(--tree-radius) - 1px);
+  width: calc(2 * var(--tree-radius));
+  height: calc(2 * var(--tree-radius));
+  border-radius: 50%;
+  background: green;
+}
+
+.tree summary::before {
+  z-index: 1;
+  background: rgb(163, 214, 163) url("/assets/expand-collapse.svg") 0 0;
+}
+
+.tree details[open] > summary::before {
+  background-position: calc(-2 * var(--tree-radius)) 0;
+}
