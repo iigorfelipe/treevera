@@ -1,11 +1,11 @@
-import type { Taxon } from "@/common/types/api";
+import type { SpecieDetail, Taxon } from "@/common/types/api";
 import type { StatusCode } from "@/components/vulnerability-badge";
 
-const BASE_URL = "https://api.gbif.org/v1";
-const SPECIES_URL = `${BASE_URL}/species`;
+const GBIF_BASE_URL = "https://api.gbif.org/v1";
+const SPECIES_URL = `${GBIF_BASE_URL}/species`;
 const KINGDOM_URL = `${SPECIES_URL}/search?rank=KINGDOM&status=ACCEPTED&limit=100&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`;
 
-const OCCURRENCE_URL = `${BASE_URL}/occurrence`; //Resposta tem country, decimalLatitude, decimalLongitude
+const OCCURRENCE_URL = `${GBIF_BASE_URL}/occurrence`; //Resposta tem country, decimalLatitude, decimalLongitude
 
 const WIKI = `https://en.wikipedia.org/api/rest_v1/page/summary`;
 const INATURALIST = `https://api.inaturalist.org/v1`;
@@ -21,14 +21,17 @@ export const getKingdoms = async () => {
 };
 
 export const getChildren = async (parentKey: number) => {
-  const res = await fetch(`${SPECIES_URL}/${parentKey}/children?limit=1000`); // necessário limit 1000 para trazer corretamente os nós!
+  const res = await fetch(
+    `${SPECIES_URL}/${parentKey}/children?limit=1000&status=ACCEPTED`,
+  ); // necessário limit 1000 para trazer corretamente os nós!
   const data = await res.json();
   return data.results as Taxon[];
 };
 
 export const getSpecieDetail = async (key: number) => {
   const res = await fetch(`${SPECIES_URL}/${key}`);
-  return await res.json();
+  const data = await res.json();
+  return data as SpecieDetail;
 };
 
 export const getSpecieBySuggestName = async (suggestName: string) => {
@@ -145,9 +148,9 @@ export async function getSpeciesStatusFromWikidata(
     if (!res.ok) throw new Error("Erro na requisição SPARQL");
 
     const data = await res.json();
-    console.log("Wikidata SPARQL Response:", data);
+    // console.log("Wikidata SPARQL Response:", data);
     const label = data?.results?.bindings?.[0]?.iucnStatusLabel?.value;
-    console.log("IUCN Status Label:", label);
+    // console.log("IUCN Status Label:", label);
     const code = labelToCode[label] ?? null;
 
     return code;
@@ -169,21 +172,21 @@ export const getSpecieImage = async ({
     `${INATURALIST}/search?q=${encodeURIComponent(canonicalName)}&sources=taxa`,
   );
   const searchData = await inatSearch.json();
-  console.log("iNaturalist Search Data:", searchData);
+  // console.log("iNaturalist Search Data:", searchData);
   const taxon = searchData.results?.[0]?.record;
   if (taxon?.id) {
     const iNatTaxon = await fetch(`${INATURALIST}/taxa/${taxon.id}`);
     const taxonData = await iNatTaxon.json();
-    console.log("iNaturalist Taxon Data:", taxonData);
+    // console.log("iNaturalist Taxon Data:", taxonData);
     const iNatImage =
       taxonData.results?.[0]?.taxon_photos?.[0]?.photo?.original_url;
     if (iNatImage) return iNatImage;
   }
 
-  // 2. Wikipedia (você já faz isso, pode manter)
+  // 2. Wikipedia
   const wikiRes = await fetch(`${WIKI}/${encodeURIComponent(canonicalName)}`);
   const wikiData = await wikiRes.json();
-  console.log("Wikipedia Data:", wikiData);
+  // console.log("Wikipedia Data:", wikiData);
   if (wikiData && wikiData?.thumbnail?.source) return wikiData.thumbnail.source;
 
   // 3. GBIF
@@ -191,7 +194,7 @@ export const getSpecieImage = async ({
     `https://api.gbif.org/v1/occurrence/search?mediaType=StillImage&taxon_key=${specieKey}&limit=1`,
   );
   const gbifData = await gbifRes.json();
-  console.log("GBIF Data:", gbifData);
+  // console.log("GBIF Data:", gbifData);
   const gbifImage = gbifData.results?.[0]?.media?.[0]?.identifier;
   if (gbifImage) return gbifImage;
 
