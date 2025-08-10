@@ -33,11 +33,34 @@ export default {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        grow: {
+          "0%": {
+            transform: "scaleY(0.7) scaleX(0.95)",
+            opacity: "0.7",
+          },
+          "30%": {
+            transform: "scaleY(1.08) scaleX(1.02)",
+            opacity: "1",
+          },
+          "60%": {
+            transform: "scaleY(0.97) scaleX(0.98)",
+            opacity: "0.95",
+          },
+          "80%": {
+            transform: "scaleY(1.03) scaleX(1.01)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "scaleY(1) scaleX(1)",
+            opacity: "1",
+          },
+        },
       },
       animation: {
         wiggle: "wiggle 1.5s ease-in-out infinite",
         pulse: "pulse 2s ease-in-out infinite",
         skeleton: "shine 1.2s linear infinite",
+        grow: "grow 1.6s cubic-bezier(0.4,0,0.2,1) infinite",
       },
       backgroundImage: {
         skeleton: `linear-gradient(90deg, 
