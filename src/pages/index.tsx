@@ -1,52 +1,38 @@
-import { specieKeyAtom } from "@/store/tree";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { Tree } from "./tree";
 import { SpecieDetail } from "./specie-detail";
+// import { DailyChallenge } from "./challenge";
+import { treeAtom } from "@/store/tree";
+import { ExploreInfo } from "./explore-info";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { Header } from "@/modules/header";
+import { Menu } from "@/modules/header/menu";
 
 export const Home = () => {
-  const [specieKey, setSpecieKey] = useAtom(specieKeyAtom);
+  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
+  const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
 
   return (
-    <div className="flex h-[calc(100vh-100px)] w-full flex-row gap-4">
-      {/* {specieKey ? (
-        <button
-          className="group flex hover:cursor-pointer"
-          title="voltar"
-          onClick={() => setSpecieKey(null)}
-        >
-          <img
-            src="./assets/arrow-x-icon.png"
-            className="h-7 w-fit rotate-y-180 group-hover:scale-105"
-            alt=""
-          />
-        </button>
-      ) : ( */}
-
-      <Tree />
-      {/* )} */}
-      {specieKey ? (
-        <SpecieDetail />
-      ) : (
-        <div className="flex-1 p-6">
-          <div>
-            <div className="p-6">
-              <div className="py-12 text-center">
-                <img
-                  src="./assets/microscope.svg"
-                  className="mx-auto mb-4 h-16 w-16 text-gray-400"
-                />
-                <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                  Selecione um item da taxonomia
-                </h3>
-                <p className="mx-auto max-w-md text-gray-600">
-                  Explore a árvore taxonômica à esquerda para visualizar
-                  informações detalhadas sobre cada classificação biológica.
-                </p>
-              </div>
-            </div>
-          </div>
+    <ResizablePanelGroup direction="horizontal">
+      <ResizablePanel
+        className="relative h-screen w-full max-w-3/5 min-w-24 overflow-auto"
+        defaultSize={30}
+      >
+        <Header />
+        <Tree />
+        <Menu />
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel className="flex w-full flex-col gap-4">
+        {/* <DailyChallenge /> */}
+        <div className="h-[100vh] w-full overflow-auto">
+          {isSpecie ? <SpecieDetail /> : <ExploreInfo />}
         </div>
-      )}
-    </div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 };
