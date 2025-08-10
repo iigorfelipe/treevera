@@ -5,11 +5,13 @@ import {
   SkeletonTaxonomy,
   SkeletonText,
 } from "@/modules/specie-detail/skeletons";
-import { specieKeyAtom } from "@/store/tree";
+import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
 
 export const SpecieDetail = () => {
-  const specieKey = useAtomValue(specieKeyAtom);
+  const specieKey = useAtomValue(treeAtom.expandedNodes).find(
+    (node) => node.rank === "SPECIES",
+  )?.key;
 
   const { data: specieDetail, isLoading } = useGetSpecieDetail({
     specieKey: specieKey!,
@@ -26,12 +28,10 @@ export const SpecieDetail = () => {
   if (!specieDetail) return <p>Nnehuma dado foi encontrado</p>;
 
   return (
-    <div className="h-full w-full rounded-3xl border border-gray-200 bg-white py-4 pr-[1px] pl-4 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-      <div className="h-full w-full overflow-auto">
-        <div className="grid grid-cols-1 gap-6 pr-2 md:grid-cols-2">
-          <SpecieInfos specieDetail={specieDetail} />
-          <SpecieImageDetail specieDetail={specieDetail} />
-        </div>
+    <div style={{ containerType: "inline-size" }}>
+      <div className="m-4 grid grid-cols-1 gap-6 py-4 pr-[1px] pl-4 [@container(min-width:820px)]:grid-cols-2">
+        <SpecieInfos />
+        <SpecieImageDetail />
       </div>
     </div>
   );

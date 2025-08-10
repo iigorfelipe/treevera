@@ -1,12 +1,26 @@
 import { getRankIcon } from "@/common/utils/ranks";
+import { Image } from "@/components/image";
+import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
+import { treeAtom } from "@/store/tree";
+import { useAtomValue } from "jotai";
 
-export const SpecieImageDetail = ({ specieDetail }: { specieDetail: any }) => {
+export const SpecieImageDetail = () => {
+  const specieKey = useAtomValue(treeAtom.expandedNodes).find(
+    (node) => node.rank === "SPECIES",
+  )?.key;
+
+  const { data: specieDetail } = useGetSpecieDetail({
+    specieKey: specieKey!,
+  });
+
   const { data: imageUrl, isLoading: isLoadingImage } = useGetSpecieImage(
-    specieDetail?.key,
+    specieKey,
     specieDetail?.canonicalName,
   );
+
+  if (!specieDetail) return;
 
   if (isLoadingImage) {
     return <SkeletonImage />;
@@ -14,14 +28,14 @@ export const SpecieImageDetail = ({ specieDetail }: { specieDetail: any }) => {
 
   if (!imageUrl) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-2 rounded-xl border border-dashed p-4 text-center text-sm text-gray-500 dark:border-zinc-700 dark:text-gray-400">
-        <img
+      <div className="flex flex-col items-center justify-center space-y-2 rounded-xl border border-dashed p-4 text-center text-sm">
+        <Image
           src={getRankIcon(specieDetail.kingdom)}
           alt={specieDetail.scientificName}
           className={`opacity-30`}
         />
         <span>Imagem não encontrada.</span>
-        <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900 dark:border-yellow-600 dark:bg-yellow-900 dark:text-yellow-100">
+        <div className="rounded-md border p-3 text-xs">
           <p>
             As imagens são obtidas através da <strong>Wikipedia</strong>,{" "}
             <strong>iNaturalist</strong> e <strong>GBIF</strong>, e podem estar
@@ -35,7 +49,7 @@ export const SpecieImageDetail = ({ specieDetail }: { specieDetail: any }) => {
           )}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-500 hover:underline"
+          className="text-blue-600 hover:underline"
         >
           Ver no Google Imagens
         </a>
@@ -52,7 +66,7 @@ export const SpecieImageDetail = ({ specieDetail }: { specieDetail: any }) => {
             className="h-full w-fit"
           />
         </figure>
-        <div className="rounded-md border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-900 dark:border-yellow-600 dark:bg-yellow-900 dark:text-yellow-100">
+        <div className="rounded-md border p-3 text-xs">
           <p>
             A imagem é obtida de fontes como{" "}
             <span className="font-semibold">Wikipedia</span> ou{" "}
