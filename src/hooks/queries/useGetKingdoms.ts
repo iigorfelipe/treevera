@@ -15,6 +15,7 @@ export function useGetKingdoms() {
 
       const kingdoms = data.filter((item) => {
         if (seen.has(item.kingdom)) return false;
+        if (item.kingdom.toLocaleLowerCase() === "viruses") return false;
         seen.add(item.kingdom);
         return true;
       });
