@@ -1,20 +1,31 @@
 import { useTranslation } from "react-i18next";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 export const Translation = () => {
   const { t, i18n } = useTranslation();
 
   return (
     <div className="flex flex-row items-center gap-2">
-      <h1>{t("welcome")}</h1>
-      <select
+      <span className="text-sm font-medium">{t("welcome")}</span>
+      <Select
         value={i18n.language}
-        onChange={(e) => i18n.changeLanguage(e.target.value)}
-        className="rounded border border-gray-300 p-2 font-medium dark:bg-zinc-900"
+        onValueChange={(value) => i18n.changeLanguage(value)}
       >
-        <option value="en">English</option>
-        <option value="pt">Português</option>
-        <option value="es">Español</option>
-      </select>
+        <SelectTrigger className="w-[7.5rem] rounded-lg border text-sm font-medium">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="rounded-lg text-sm font-medium">
+          <SelectItem value="en">English</SelectItem>
+          <SelectItem value="pt">Português</SelectItem>
+          <SelectItem value="es">Español</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 };

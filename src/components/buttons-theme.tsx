@@ -1,28 +1,25 @@
 import { useTheme } from "@/hooks/theme";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 export const ButtonsTheme = () => {
-  const { changeTheme } = useTheme();
+  const { changeTheme, theme } = useTheme();
 
   return (
-    <>
-      <button
-        onClick={() => changeTheme("light")}
-        className="rounded-md border border-gray-300 p-2 font-medium"
-      >
-        Claro
-      </button>
-      <button
-        onClick={() => changeTheme("dark")}
-        className="rounded-md border border-gray-300 p-2 font-medium"
-      >
-        Escuro
-      </button>
-      <button
-        onClick={() => changeTheme("system")}
-        className="rounded-md border border-gray-300 p-2 font-medium"
-      >
-        Sistema
-      </button>
-    </>
+    <Select onValueChange={changeTheme} value={theme}>
+      <SelectTrigger className="w-[7.5rem] rounded-lg text-sm font-medium">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent className="rounded-lg text-sm font-medium">
+        <SelectItem value="light">Claro</SelectItem>
+        <SelectItem value="dark">Escuro</SelectItem>
+        <SelectItem value="system">Sistema</SelectItem>
+      </SelectContent>
+    </Select>
   );
 };
