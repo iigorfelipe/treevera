@@ -21,7 +21,7 @@ export const ZoomableImage = ({ src, alt }: ZoomableImageProps) => {
   return (
     <>
       <div
-        className="relative hidden cursor-zoom-in overflow-hidden md:block dark:border-zinc-700"
+        className="relative hidden cursor-zoom-in overflow-hidden md:block"
         onMouseEnter={() => setZoomVisible(true)}
         onMouseLeave={() => setZoomVisible(false)}
         onMouseMove={handleMouseMove}

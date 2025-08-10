@@ -8,7 +8,7 @@ export const Skeleton = ({
   children?: React.ReactNode;
 }) => (
   <div
-    className={`bg-skeleton bg-skeleton-size animate-skeleton rounded bg-gray-200 dark:bg-zinc-700 ${className}`}
+    className={`bg-skeleton bg-skeleton-size animate-skeleton rounded ${className}`}
   >
     {children}
   </div>
@@ -26,7 +26,7 @@ export const SkeletonTaxonomy = () => (
     {Array.from({ length: 6 }).map((_, i) => (
       <div key={i}>
         <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="mt-1 h-4 w-1/2 bg-gray-300 dark:bg-zinc-800" />
+        <Skeleton className="mt-1 h-4 w-1/2" />
       </div>
     ))}
   </div>
