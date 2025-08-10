@@ -1,4 +1,14 @@
-import type { Rank } from "../types/api";
+import animaliaUrl from "@/assets/images/avif-animalia.avif?url";
+import archaeaUrl from "@/assets/images/avif-archaea.avif?url";
+import bacteriaUrl from "@/assets/images/avif-bacteria.avif?url";
+import chromistaUrl from "@/assets/images/avif-chromista.avif?url";
+import fungiUrl from "@/assets/images/avif-fungi.avif?url";
+import plantaeUrl from "@/assets/images/avif-plantae.avif?url";
+import protozoaUrl from "@/assets/images/avif-protozoa.avif?url";
+import virusesUrl from "@/assets/images/avif-viruses.avif?url";
+
+import type { Kingdom, Rank, Taxon } from "../types/api";
+import { capitalizar } from "./string";
 
 export const RANK_ORDER: Rank[] = [
   "KINGDOM",
@@ -12,30 +22,56 @@ export const RANK_ORDER: Rank[] = [
 
 export function getNextRank(currentRank: string): Rank | null {
   const index = RANK_ORDER.indexOf(currentRank.toUpperCase() as Rank);
-  return index >= 0 && index < RANK_ORDER.length - 1
-    ? RANK_ORDER[index + 1]
-    : null;
+
+  if (index >= 0 && index < RANK_ORDER.length - 1) {
+    return RANK_ORDER[index + 1];
+  }
+  return null;
 }
 
-export const getRankIcon = (rank: string) => {
+export const RANK_FIXES: Record<string, string> = {
+  Crocodylia: "Order",
+  Squamata: "Order",
+  Testudines: "Order",
+  Sphenodontia: "Order",
+};
+
+export function getDisplayRank(taxon: Taxon) {
+  const realRank = capitalizar(taxon.rank);
+  const fixRank = RANK_FIXES[taxon.canonicalName || taxon.scientificName];
+
+  if (fixRank && fixRank.toUpperCase() !== realRank.toUpperCase()) {
+    return {
+      name: fixRank,
+      icon: true,
+    };
+  }
+
+  return {
+    name: realRank,
+    icon: false,
+  };
+}
+
+export const getRankIcon = (rank: Kingdom) => {
   switch (rank.toLowerCase()) {
     case "animalia":
-      return "/assets/animalia.png";
+      return animaliaUrl;
     case "archaea":
-      return "/assets/archaea.png";
+      return archaeaUrl;
     case "bacteria":
-      return "/assets/bacteria.png";
+      return bacteriaUrl;
     case "chromista":
-      return "/assets/chromista.png";
+      return chromistaUrl;
     case "fungi":
-      return "/assets/fungi.png";
+      return fungiUrl;
     case "plantae":
-      return "/assets/plantae.png";
+      return plantaeUrl;
     case "protozoa":
-      return "/assets/protozoa.png";
+      return protozoaUrl;
     case "viruses":
-      return "/assets/viruses.png";
+      return virusesUrl;
     default:
-      return "/assets/plantae.png";
+      return plantaeUrl;
   }
 };
