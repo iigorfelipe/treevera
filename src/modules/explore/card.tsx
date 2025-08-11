@@ -94,18 +94,18 @@ export const CardInfo = () => {
                     </CardContent>
                   </Card>
                 ))
-              : curiosidades[expandedNodes[expandedNodes.length - 1].rank].map(
-                  (item, index) => (
-                    <Card
-                      key={index}
-                      className="transition-shadow duration-200 hover:shadow-lg"
-                    >
-                      <CardContent>
-                        <p className="text-foreground/90">{item}</p>
-                      </CardContent>
-                    </Card>
-                  ),
-                )}
+              : curiosidades[
+                  expandedNodes[expandedNodes.length - 1].rank as "PHYLUM"
+                ].map((item, index) => (
+                  <Card
+                    key={index}
+                    className="transition-shadow duration-200 hover:shadow-lg"
+                  >
+                    <CardContent>
+                      <p className="text-foreground/90">{item}</p>
+                    </CardContent>
+                  </Card>
+                ))}
           </div>
         </section>
       )}
