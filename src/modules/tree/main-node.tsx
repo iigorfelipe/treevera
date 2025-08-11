@@ -27,7 +27,10 @@ export const MainNode = memo(({ taxon }: { taxon: Taxon }) => {
         <TooltipNode
           trigger={
             <span
-              className={cn("group-hover:font-bold", isExpanded && "font-bold")}
+              className={cn(
+                "transition-transform duration-200 ease-in-out group-hover:scale-105",
+                isExpanded && "font-bold",
+              )}
             >
               {taxon.canonicalName || taxon.scientificName}
             </span>
@@ -45,8 +48,8 @@ export const MainNode = memo(({ taxon }: { taxon: Taxon }) => {
 
         <Badge
           className={cn(
-            "bg-primary-foreground text-primary mr-auto hidden items-center gap-1 rounded-xl px-1 py-[1px] text-[11px] outline-1 group-hover:flex group-hover:font-bold",
-            isExpanded && "flex font-bold",
+            "bg-primary-foreground text-primary mr-auto flex items-center gap-1 rounded-xl px-1 py-[0px] text-[11px] opacity-0 outline-1 group-hover:opacity-100",
+            isExpanded && "font-bold opacity-100",
           )}
         >
           {classificação.name}
@@ -54,7 +57,7 @@ export const MainNode = memo(({ taxon }: { taxon: Taxon }) => {
 
         <TooltipNode
           trigger={
-            <span className="text-xs group-hover:font-bold">
+            <span className="text-xs">
               {taxon.numDescendants &&
                 taxon.numDescendants.toLocaleString("pt-BR")}
             </span>

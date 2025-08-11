@@ -28,34 +28,41 @@ export const NodeSpecie = memo(({ taxon }: { taxon: Taxon }) => {
     <li key={taxon.key} onClick={handleClick} className="group w-full">
       <div
         className={cn(
-          "item flex w-full items-center gap-2 transition-colors duration-200",
+          "item flex w-full items-center justify-between transition-colors duration-200",
         )}
       >
-        <TooltipNode
-          trigger={
-            <i
-              className={cn("group-hover:font-bold", isSelected && "font-bold")}
-            >
-              {taxon.canonicalName || taxon.scientificName}
-            </i>
-          }
-          content={
-            <span>
-              Canonical name: <i>{taxon.canonicalName}</i>
-              <br />
-              Scientific name: <i>{taxon.scientificName}</i>
-            </span>
-          }
-        />
+        <div className="flex items-center gap-2">
+          <TooltipNode
+            trigger={
+              <i
+                className={cn(
+                  "w-max transition-transform duration-200 ease-in-out group-hover:scale-105",
+                  isSelected && "font-bold",
+                )}
+              >
+                {taxon.canonicalName || taxon.scientificName}
+              </i>
+            }
+            content={
+              <span>
+                Canonical name: <i>{taxon.canonicalName}</i>
+                <br />
+                Scientific name: <i>{taxon.scientificName}</i>
+              </span>
+            }
+          />
 
-        <Badge
-          className={cn(
-            "bg-primary-foreground text-primary hidden rounded-xl px-1 py-[1px] text-[11px] outline-1 group-hover:flex",
-            isSelected && "flex font-bold",
-          )}
-        >
-          {capitalizar(taxon.rank.slice(0, -1))}
-        </Badge>
+          <Badge
+            className={cn(
+              "bg-primary-foreground text-primary mr-auto flex items-center gap-1 rounded-xl px-1 py-[0px] text-[11px] opacity-0 outline-1 group-hover:opacity-100",
+              isSelected && "font-bold opacity-100",
+            )}
+          >
+            {capitalizar(taxon.rank.slice(0, -1))}
+          </Badge>
+        </div>
+
+        <>&nbsp;</>
       </div>
     </li>
   );
