@@ -43,7 +43,6 @@
 }
 
 .item:hover {
-  /* background-color: var(--color-accent); */
   background: linear-gradient(
     to right,
     color-mix(in srgb, transparent, transparent),

@@ -30,7 +30,10 @@ export const Tree = () => {
   if (!kingdoms || kingdoms.length === 0) return <h1>Sem dados</h1>;
 
   return (
-    <div className="flex h-full w-full flex-col gap-6 overflow-auto px-4 py-28">
+    <div
+      className="flex h-full w-full flex-col gap-6 overflow-auto px-4 py-28"
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
       {/* <Filters /> */}
 
       <ul>
