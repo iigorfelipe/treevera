@@ -20,6 +20,7 @@ export const useAutoScroll = ({
   const [expandedNodes] = useAtom(treeAtom.expandedNodes);
   const ref = useRef<HTMLLIElement>(null);
 
+  // Atualiza o loadingMap no atom
   useEffect(() => {
     setTreeScroll((prev) => ({
       ...prev,
@@ -30,11 +31,12 @@ export const useAutoScroll = ({
     }));
   }, [isLoading, taxonKey, setTreeScroll]);
 
+  // Função para checar se há loading nos nós do índice atual até o final
   const hasLoadingAfterCurrent = useMemo(() => {
     const map = treeScroll.loadingMap || {};
     for (let i = treeScroll.scrollIndex; i < expandedNodes.length; i++) {
       if (!expandedNodes[i]) continue;
-      if (map[expandedNodes[i].key]) return true;
+      if (map[expandedNodes[i].key as never]) return true;
     }
     return false;
   }, [treeScroll.loadingMap, expandedNodes, treeScroll.scrollIndex]);
@@ -67,6 +69,7 @@ export const useAutoScroll = ({
       });
     };
 
+    // Se nenhum nó está carregando, pula direto pro último nó
     if (
       !hasLoadingAfterCurrent &&
       treeScroll.scrollIndex !== expandedNodes.length - 1
@@ -78,8 +81,10 @@ export const useAutoScroll = ({
       return;
     }
 
+    // Rola para o nó atual
     doScroll();
 
+    // Avança para o próximo nó só se nó atual já carregou
     if (!isLoading) {
       const timeout = setTimeout(() => {
         if (treeScroll.scrollIndex < expandedNodes.length - 1) {
@@ -87,9 +92,11 @@ export const useAutoScroll = ({
             ...prev,
             scrollIndex: prev.scrollIndex + 1,
           }));
+        } else {
+          // Finaliza scroll automático
+          setTreeScroll({ autoScroll: false, scrollIndex: 0, loadingMap: {} });
         }
-        setTreeScroll({ autoScroll: false, scrollIndex: 0, loadingMap: {} });
-      }, 350);
+      }, 350); // tempo para o scroll "smooth" completar
 
       return () => clearTimeout(timeout);
     }
@@ -104,6 +111,10 @@ export const useAutoScroll = ({
     hasLoadingAfterCurrent,
   ]);
 
+  // Scroll quando:
+  // - autoScroll está ativo
+  // - este nó é o da posição scrollIndex na sequência expandedNodes
+  // - está expandido (só nesse caso o nó está visível)
   useEffect(() => {
     if (!treeScroll.autoScroll) return;
     if (treeScroll.scrollIndex !== currentNodeIndex) return;
@@ -133,14 +144,17 @@ export const useAutoScroll = ({
         });
       }
 
+      // Se o nó atual não está carregando mais e existe próximo na fila
       if (!isLoading && treeScroll.scrollIndex < expandedNodes.length - 1) {
         setTreeScroll((prev) => {
           return {
             ...prev,
             scrollIndex: prev.scrollIndex + 1,
           };
-        });
+        }); // vai para próximo nó na lista
       } else if (!isLoading) {
+        // acabou a sequência, desliga o autoScroll e reseta índice
+
         setTreeScroll({
           autoScroll: false,
           scrollIndex: 0,

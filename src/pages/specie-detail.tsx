@@ -25,7 +25,8 @@ export const SpecieDetail = () => {
       </>
     );
   }
-  if (!specieDetail) return <p>Nnehuma dado foi encontrado</p>;
+
+  if (!specieDetail) return <p>Nenhum dado foi encontrado</p>;
 
   return (
     <div style={{ containerType: "inline-size" }}>
