@@ -67,9 +67,7 @@ export const TreeNode = memo(({ taxon }: { taxon: Taxon }) => {
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.preventDefault();
-
       handleAnimate();
-
       setExpandedNodes((prev) => {
         if (taxon.rank === "KINGDOM") {
           if (prev.length === 0 || prev[0].key !== taxon.key) {

@@ -19,7 +19,7 @@ export const Home = () => {
   return (
     <ResizablePanelGroup direction="horizontal">
       <ResizablePanel
-        className="relative h-screen w-full max-w-3/5 min-w-24 overflow-auto"
+        className="relative h-screen w-full max-w-3/5 min-w-max overflow-auto"
         defaultSize={30}
       >
         <Header />

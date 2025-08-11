@@ -39,11 +39,16 @@
   width: 100%;
   padding-left: 8px;
   padding-right: 8px;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .item:hover {
-  background-color: var(--color-accent);
+  /* background-color: var(--color-accent); */
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, transparent, transparent),
+    var(--color-accent)
+  );
 }
 
 .tree ul li:last-child {
