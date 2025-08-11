@@ -1,4 +1,7 @@
 {
   "welcome": "¡Bienvenido!",
-  "language": "Idioma"
+  "language": "Idioma",
+  "light": "Claro",
+  "dark": "Oscuro",
+  "system": "Sistema"
 }
