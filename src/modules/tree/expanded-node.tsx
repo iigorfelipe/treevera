@@ -84,9 +84,14 @@ export const ExpandedNode = memo(({ taxon }: { taxon: Taxon }) => {
 
         <p className="text-sm text-gray-600">
           Você pode tentar buscar mais informações no Google pesquisando por:{" "}
-          <span className="text-blue-600 underline hover:cursor-pointer">
+          <a
+            className="text-blue-600 hover:cursor-pointer hover:underline"
+            href={`https://www.google.com/search?q=+${encodeURIComponent(taxon.scientificName || taxon.canonicalName)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {taxon.scientificName || taxon.canonicalName}
-          </span>
+          </a>
         </p>
       </div>
     );
