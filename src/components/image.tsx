@@ -16,6 +16,10 @@ export const Image = ({
 }: Props) => {
   const [imgSrc, setImgSrc] = useState(src);
 
+  useEffect(() => {
+    setImgSrc(src);
+  }, [src]);
+
   const isFallback = imgSrc === fallbackSrc;
 
   useEffect(() => {
