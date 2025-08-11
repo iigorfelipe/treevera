@@ -104,6 +104,11 @@ export const dataFake = [
             key: 2,
             kingdom: "Archaea",
           },
+          {
+            rank: "PHYLUM",
+            key: 10807497,
+            kingdom: "Archaea",
+          },
         ],
       },
       {
@@ -139,31 +144,6 @@ export const dataFake = [
     description:
       "Organismos unicelulares procariontes, encontrados em praticamente todos os ambientes.",
     mainGroups: [
-      {
-        groupName: "Lactobacillales",
-        PathNode: [
-          {
-            rank: "KINGDOM",
-            key: 3,
-            kingdom: "Bacteria",
-          },
-          {
-            rank: "PHYLUM",
-            key: 87,
-            kingdom: "Bacteria",
-          },
-          {
-            rank: "CLASS",
-            key: 303,
-            kingdom: "Bacteria",
-          },
-          {
-            rank: "ORDER",
-            key: 577,
-            kingdom: "Bacteria",
-          },
-        ],
-      },
       {
         groupName: "Cyanobacteria",
         pathNode: [
