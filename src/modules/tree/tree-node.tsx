@@ -103,7 +103,7 @@ export const TreeNode = memo(({ taxon }: { taxon: Taxon }) => {
   return (
     <li
       ref={ref}
-      className={`${taxon.rank === "PHYLUM" ? "ml-12" : "tree ml-0"}`}
+      className={`${taxon.rank === "PHYLUM" ? "ml-3.5" : "tree ml-0"}`}
       style={
         {
           "--tree-color": `${kingdomColors[taxon.kingdom as "Animalia"][1]}`,

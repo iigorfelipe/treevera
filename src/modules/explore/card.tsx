@@ -41,20 +41,23 @@ export const CardInfo = () => {
   };
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl p-10">
+    <main
+      className="mx-auto min-h-screen max-w-6xl p-10"
+      style={{ containerType: "inline-size" }}
+    >
       <header className="flex rounded-xl border p-6 pr-10 shadow-sm">
         <div className="space-y-2">
           <Badge variant="secondary">Reino</Badge>
 
           <h1
-            className="text-4xl font-bold tracking-tight sm:text-5xl"
+            className="[@container(min-width:350px)]text-4xl text-3xl font-bold tracking-tight [@container(min-width:450px)]:text-5xl"
             style={{
               color: kingdomColors[selectedData.kingdomName as "Animalia"][1],
             }}
           >
             {selectedData.kingdomName}
           </h1>
-          <p className="text-muted-foreground max-w-3xl">
+          <p className="text-muted-foreground w-full">
             {selectedData.description}
           </p>
           <div className="flex flex-wrap gap-1">
@@ -71,7 +74,7 @@ export const CardInfo = () => {
         </div>
         <Image
           src={getRankIcon(selectedData.kingdomName)}
-          className="my-auto ml-auto size-20"
+          className="mt-8 size-8 [@container(min-width:350px)]:size-12 [@container(min-width:450px)]:my-auto [@container(min-width:450px)]:ml-auto [@container(min-width:450px)]:size-20"
         />
       </header>
 
@@ -80,7 +83,7 @@ export const CardInfo = () => {
           <h2 className="mb-6 text-center text-2xl font-semibold tracking-tight">
             Fatos e curiosidades sobre {message}
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+          <div className="grid gap-4 [@container(min-width:350px)]:grid-cols-2">
             {expandedNodes.length === 1
               ? curiosidades.KINGDOM[
                   expandedNodes[0].kingdom as "Animalia"

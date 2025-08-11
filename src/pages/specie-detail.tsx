@@ -30,7 +30,7 @@ export const SpecieDetail = () => {
 
   return (
     <div style={{ containerType: "inline-size" }}>
-      <div className="m-4 grid grid-cols-1 gap-6 py-4 pr-[1px] pl-4 [@container(min-width:820px)]:grid-cols-2">
+      <div className="m-4 mt-28 grid grid-cols-1 gap-6 py-4 pr-[1px] pl-4 md:mt-4 [@container(min-width:820px)]:grid-cols-2">
         <SpecieInfos />
         <SpecieImageDetail />
       </div>

@@ -11,15 +11,30 @@ import {
 } from "@/components/ui/resizable";
 import { Header } from "@/modules/header";
 import { Menu } from "@/modules/header/menu";
+import { useResponsive } from "@/hooks/use-responsive";
 
 export const Home = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
 
-  return (
+  const { isTablet } = useResponsive();
+
+  return isTablet ? (
+    <>
+      <Header />
+      {isSpecie ? (
+        <SpecieDetail />
+      ) : (
+        <>
+          <Tree />
+          <ExploreInfo />
+        </>
+      )}
+    </>
+  ) : (
     <ResizablePanelGroup direction="horizontal">
       <ResizablePanel
-        className="relative h-screen w-full max-w-3/5 min-w-max overflow-auto"
+        className="sm relative h-screen w-full max-w-3/5 min-w-max overflow-auto"
         defaultSize={30}
       >
         <Header />

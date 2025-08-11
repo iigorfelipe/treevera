@@ -55,7 +55,7 @@ export const SpecieInfos = () => {
       </header>
 
       {taxonomyFields.length > 0 && (
-        <dl className="grid grid-cols-3 gap-3 text-sm [@container(min-width:780px)]:grid-cols-2">
+        <dl className="grid grid-cols-2 gap-3 text-sm [@container(min-width:1280px)]:grid-cols-3">
           {taxonomyFields.map(([label, value]) => (
             <div key={label}>
               <dt className="font-semibold">{label}:</dt>

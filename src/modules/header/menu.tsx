@@ -1,31 +1,26 @@
-import { useTheme } from "@/hooks/theme";
-// import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "@/hooks/theme";
 import { Settings } from "lucide-react";
+
+const user = false;
 
 export const Menu = () => {
   const { changeTheme, theme } = useTheme();
-
-  // const { i18n } = useTranslation();
-
-  const user = false;
+  const { t } = useTranslation();
 
   return (
-    <div className="group absolute bottom-0 z-50 overflow-hidden rounded-tr-3xl p-3 backdrop-blur-2xl">
+    <div className="group bottom-0 z-50 m-[1px] overflow-hidden rounded-3xl p-3 backdrop-blur-2xl md:absolute">
       <span className="bg-accent-foreground absolute inset-0 origin-center scale-0 rounded-full transition-transform delay-500 duration-500 group-hover:scale-100 group-hover:delay-0"></span>
 
       <DropdownMenu>
@@ -40,44 +35,43 @@ export const Menu = () => {
             )}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuLabel className="flex items-center gap-2">
-            Configurações
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <div className="flex w-full flex-col gap-1">
-              <span className="mb-1 text-xs">Tema</span>
-              <Select onValueChange={changeTheme} value={theme}>
-                <SelectTrigger className="h-8 w-full rounded-md border px-2 text-sm font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded-md text-sm font-medium">
-                  <SelectItem value="light">Claro</SelectItem>
-                  <SelectItem value="dark">Escuro</SelectItem>
-                  <SelectItem value="system">Sistema</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </DropdownMenuItem>
-          {/* <DropdownMenuItem asChild>
-            <div className="flex w-full flex-col gap-1">
-              <span className="text-muted-foreground mb-1 text-xs">Idioma</span>
-              <Select
-                value={i18n.language}
-                onValueChange={(value) => i18n.changeLanguage(value)}
-              >
-                <SelectTrigger className="h-8 w-full rounded-md border px-2 text-sm font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded-md text-sm font-medium">
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="pt">Português</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </DropdownMenuItem> */}
+        <DropdownMenuContent className="m-1 w-max min-w-42" align="start">
+          <DropdownMenuGroup>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Tema: {t(theme)}</DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="m-1">
+                  <DropdownMenuItem onClick={() => changeTheme("light")}>
+                    Claro
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("dark")}>
+                    Escuro
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("system")}>
+                    Sistema
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            {/* <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                Idioma: {i18n.language}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent className="m-1">
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage("pt")}>
+                    Português
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage("en")}>
+                    Inglês
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage("es")}>
+                    Espanhol
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub> */}
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

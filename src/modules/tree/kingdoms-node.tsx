@@ -48,7 +48,7 @@ export const KingdomNode = memo(({ taxon }: { taxon: Taxon }) => {
     <div
       className={cn(
         "group flex min-w-2xs cursor-pointer items-center gap-4 rounded-lg p-3",
-        isExpanded && "border-2",
+        isExpanded && "rounded-bl-none border-2",
         isExpanded && kingdomColors[currentNode.kingdom as "Animalia"][0],
         !isExpanded && "hover:bg-accent",
       )}
