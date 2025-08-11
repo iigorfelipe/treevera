@@ -46,20 +46,20 @@ export const SpecieInfos = () => {
   ].filter(([, value]) => !!value);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-3xl font-extrabold">
-          {specieDetail.canonicalName}
-        </h2>
-        {specieDetail.scientificName && <i>{specieDetail.scientificName}</i>}
-      </div>
+    <div className="space-y-9">
+      <header>
+        <h1 className="text-3xl font-bold">{specieDetail.canonicalName}</h1>
+        {specieDetail.scientificName && (
+          <i className="text-primary/87">{specieDetail.scientificName}</i>
+        )}
+      </header>
 
       {taxonomyFields.length > 0 && (
-        <dl className="grid grid-cols-2 gap-4 text-sm">
+        <dl className="grid grid-cols-3 gap-3 text-sm [@container(min-width:780px)]:grid-cols-2">
           {taxonomyFields.map(([label, value]) => (
             <div key={label}>
               <dt className="font-semibold">{label}:</dt>
-              <dd>{value}</dd>
+              <dd className="text-primary/87">{value}</dd>
             </div>
           ))}
         </dl>
@@ -74,16 +74,27 @@ export const SpecieInfos = () => {
       {isLoadingWiki ? (
         <SkeletonDescription />
       ) : wikiDetails?.extract || wikiDetails?.description ? (
-        <div>
-          <h3 className="mt-4 font-semibold">Descrição:</h3>
-          <p className="text-sm">
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold">Descrição:</h3>
+          <p className="text-primary/87 text-sm leading-relaxed">
             {wikiDetails.extract || wikiDetails.description}
           </p>
         </div>
       ) : null}
 
       {(specieDetail.authorship || specieDetail.publishedIn) && (
-        <div className="border-t-1 pt-2 text-sm">
+        <div className="text-primary/90 space-y-1">
+          <header className="mb-6 space-y-1">
+            <h3 className="text-xl font-semibold">
+              Detalhes da Nomenclatura e Fontes
+            </h3>
+
+            <p className="text-primary/87 text-xs">
+              Informações sobre a autoria, publicação e fontes de dados do nome
+              científico da espécie.
+            </p>
+          </header>
+
           {specieDetail.authorship && (
             <p>
               <strong>Autor:</strong> {specieDetail.authorship}
