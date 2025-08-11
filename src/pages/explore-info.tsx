@@ -1,30 +1,13 @@
+import { Image } from "@/components/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetKingdoms } from "@/hooks/queries/useGetKingdoms";
 import { CardInfo } from "@/modules/explore/card";
 import { treeAtom } from "@/store/tree";
 import { useAtom, useAtomValue } from "jotai";
-import { useEffect } from "react";
 
 export const ExploreInfo = () => {
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
-  const [exploreInfos, setExploreInfos] = useAtom(treeAtom.exploreInfos);
+  const exploreInfos = useAtomValue(treeAtom.exploreInfos);
   const [expandedNodes, setExpandedNodes] = useAtom(treeAtom.expandedNodes);
-  const { data: kingdoms } = useGetKingdoms();
-
-  useEffect(() => {
-    if (kingdoms) {
-      setExploreInfos((prev) => {
-        if (!Array.isArray(prev)) return prev;
-        return prev.map((item) => {
-          const kingdomData = kingdoms.find((k) => k.key === item.kingdomKey);
-          return kingdomData
-            ? { ...item, numDescendants: kingdomData.numDescendants }
-            : item;
-        });
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kingdoms]);
 
   if (!challengeMode && expandedNodes.length) return <CardInfo />;
 
@@ -62,7 +45,11 @@ export const ExploreInfo = () => {
                     className="flex h-12 w-12 items-center justify-center rounded-xl text-xl shadow-sm"
                     style={{ backgroundColor: item.lightColor }}
                   >
-                    <img src={item.icon} className="size-6" alt="" />
+                    <Image
+                      src={item.icon}
+                      className="size-6"
+                      alt={item.kingdomName + "icon"}
+                    />
                   </div>
                   <CardTitle className="mb-2 text-xl font-bold">
                     {item.kingdomName}
