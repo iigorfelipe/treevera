@@ -18,7 +18,10 @@ const homeRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([homeRoute]);
 
-export const router = createRouter({ routeTree });
+export const router = createRouter({
+  routeTree,
+  basepath: "/treevera",
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
