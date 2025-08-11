@@ -5,6 +5,7 @@ import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
+import { useState } from "react";
 
 export const SpecieImageDetail = () => {
   const specieKey = useAtomValue(treeAtom.expandedNodes).find(
@@ -15,10 +16,12 @@ export const SpecieImageDetail = () => {
     specieKey: specieKey!,
   });
 
-  const { data: imageUrl, isLoading: isLoadingImage } = useGetSpecieImage(
+  const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
     specieKey,
     specieDetail?.canonicalName,
   );
+
+  const [isFallback, setIsFallback] = useState(false);
 
   if (!specieDetail) return;
 
@@ -26,13 +29,15 @@ export const SpecieImageDetail = () => {
     return <SkeletonImage />;
   }
 
-  if (!imageUrl) {
+  const fallbackImage = getRankIcon(specieDetail.kingdom);
+
+  if (!imageData || isFallback) {
     return (
       <div className="flex flex-col items-center justify-center space-y-2 rounded-xl border border-dashed p-4 text-center text-sm">
         <Image
-          src={getRankIcon(specieDetail.kingdom)}
+          src={fallbackImage}
           alt={specieDetail.scientificName}
-          className={`opacity-30`}
+          className="opacity-30"
         />
         <span>Imagem não encontrada.</span>
         <div className="rounded-md border p-3 text-xs">
@@ -56,25 +61,26 @@ export const SpecieImageDetail = () => {
       </div>
     );
   }
+
   return (
-    <div className="flex justify-center">
-      <div className="flex flex-col items-center gap-2">
-        <figure className="flex w-full items-center justify-center rounded-xl shadow-md">
-          <img
-            src={imageUrl}
-            alt={specieDetail.title}
-            className="h-full w-fit"
-          />
-        </figure>
-        <div className="rounded-md border p-3 text-xs">
-          <p>
-            A imagem é obtida de fontes como{" "}
-            <span className="font-semibold">Wikipedia</span> ou{" "}
-            <span className="font-semibold">iNaturalist</span> e pode não
-            representar exatamente a espécie pesquisada.
-          </p>
-        </div>
-      </div>
+    <div className="relative mx-auto h-fit w-full">
+      <figure>
+        <Image
+          src={imageData.imgUrl || fallbackImage}
+          fallbackSrc={fallbackImage}
+          alt={`Imagem da espécie "${specieDetail.scientificName}"`}
+          onFallbackChange={setIsFallback}
+          className="h-auto w-full rounded-lg"
+        />
+      </figure>
+
+      {imageData.source && (
+        <p className="absolute right-0 -bottom-4 px-1 text-[11px]">
+          Fonte: {imageData.source}
+          {imageData.author && ` por @${imageData.author}`}
+          {imageData.licenseCode && `, licenciada sob ${imageData.licenseCode}`}
+        </p>
+      )}
     </div>
   );
 };
