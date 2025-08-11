@@ -14,7 +14,7 @@ export const TooltipNode = ({ trigger, content }: TooltipNodeProps) => {
     <Tooltip delayDuration={600}>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
       {content && (
-        <TooltipContent side="right" className="text-sm">
+        <TooltipContent side="top" className="text-sm">
           {content}
         </TooltipContent>
       )}
