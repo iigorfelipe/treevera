@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getKingdoms } from "@/services/api";
+import { getKingdoms } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
 
 export function useGetKingdoms() {

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getWikiSpecieDetail } from "@/services/api";
+import { getWikiSpecieDetail } from "@/services/apis/wikipedia";
 
 export const useGetWikiDetails = (canonicalName?: string) => {
   return useQuery({

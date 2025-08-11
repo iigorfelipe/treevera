@@ -1,4 +1,4 @@
-import { getSpeciesStatusFromWikidata } from "@/services/api";
+import { getSpeciesStatusFromWikidata } from "@/services/apis/wikipedia";
 import { useQuery } from "@tanstack/react-query";
 
 export const useGetStatusCode = ({ specieName }: { specieName: string }) => {

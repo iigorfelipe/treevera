@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getChildren } from "@/services/api";
+import { getChildren } from "@/services/apis/gbif";
 import queryClient from "@/services/queryClient";
 import { QUERY_KEYS } from "./keys";
 

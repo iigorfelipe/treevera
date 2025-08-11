@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSpecieDetail } from "@/services/api";
+import { getSpecieDetail } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
 
 type UseGetSpecieDetail = {
