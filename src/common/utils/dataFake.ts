@@ -474,7 +474,7 @@ export const curiosidades = {
       "Vivem principalmente em ambientes aquáticos ou úmidos e podem ser de vida livre ou parasitas.",
       "O termo 'protozoário' vem do grego e significa 'primeiro animal', embora eles não sejam animais de fato.",
       "Movimentam-se por flagelos, cílios ou pseudópodes, dependendo do grupo.",
-      "Alguns protozoários causam doenças em humanos, como a malária (*Plasmodium*) e a doença de Chagas (*Trypanosoma*).",
+      "Alguns protozoários causam doenças em humanos, como a malária (Plasmodium) e a doença de Chagas (Trypanosoma).",
       "São importantes na cadeia alimentar aquática, atuando como consumidores primários de bactérias e algas.",
       "A classificação de protozoários tem sido revista, e muitos são hoje redistribuídos em supergrupos e domínios modernos.",
       "Apesar de sua simplicidade estrutural, podem ter ciclos de vida complexos com várias fases e hospedeiros.",
