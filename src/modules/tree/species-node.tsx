@@ -4,9 +4,9 @@ import { useAtom } from "jotai";
 import { memo } from "react";
 
 import { TooltipNode } from "./components/tooltip-node";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/cn";
 import { treeAtom } from "@/store/tree";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/common/components/ui/badge";
 
 export const NodeSpecie = memo(({ taxon }: { taxon: Taxon }) => {
   const [expandedNodes, setExpandedNodes] = useAtom(treeAtom.expandedNodes);

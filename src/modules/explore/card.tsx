@@ -1,9 +1,9 @@
 import { curiosidades, kingdomColors } from "@/common/utils/dataFake";
 import { getRankIcon } from "@/common/utils/ranks";
 import { capitalizar } from "@/common/utils/string";
-import { Image } from "@/components/image";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Image } from "@/common/components/image";
+import { Badge } from "@/common/components/ui/badge";
+import { Card, CardContent } from "@/common/components/ui/card";
 import { treeAtom, type PathNode } from "@/store/tree";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useMemo } from "react";
@@ -45,7 +45,7 @@ export const CardInfo = () => {
       className="mx-auto min-h-screen max-w-6xl p-10"
       style={{ containerType: "inline-size" }}
     >
-      <header className="flex rounded-xl border p-6 pr-10 shadow-sm">
+      <header className="bg-card flex rounded-xl border p-6 pr-10 shadow-sm">
         <div className="space-y-2">
           <Badge variant="secondary">Reino</Badge>
 

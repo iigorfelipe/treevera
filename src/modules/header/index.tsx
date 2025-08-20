@@ -1,4 +1,4 @@
-import { Image } from "@/components/image";
+import { Image } from "@/common/components/image";
 import logoUrl from "@/assets/images/avif-new-logo.avif?url";
 import { Menu } from "./menu";
 import { useResponsive } from "@/hooks/use-responsive";

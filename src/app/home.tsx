@@ -1,14 +1,14 @@
 import { useAtomValue } from "jotai";
-import { Tree } from "./tree";
-import { SpecieDetail } from "./specie-detail";
+import { Tree } from "./tree/tree";
+import { SpecieDetail } from "./details/specie-detail";
 // import { DailyChallenge } from "./challenge";
 import { treeAtom } from "@/store/tree";
-import { ExploreInfo } from "./explore-info";
+import { ExploreInfo } from "./details/explore-info";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
+} from "@/common/components/ui/resizable";
 import { Header } from "@/modules/header";
 import { Menu } from "@/modules/header/menu";
 import { useResponsive } from "@/hooks/use-responsive";

@@ -1,4 +1,4 @@
-import type { StatusCode } from "@/components/vulnerability-badge";
+import type { StatusCode } from "@/common/components/vulnerability-badge";
 
 const WIKI = `https://en.wikipedia.org/api/rest_v1/page/summary`;
 

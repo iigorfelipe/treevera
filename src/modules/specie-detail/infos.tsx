@@ -1,4 +1,4 @@
-import { VulnerabilityBadge } from "@/components/vulnerability-badge";
+import { VulnerabilityBadge } from "@/common/components/vulnerability-badge";
 import { RANK_FIXES } from "@/common/utils/ranks";
 import { useGetStatusCode } from "@/hooks/queries/useGetIucnRedListCategory";
 import { useGetWikiDetails } from "@/hooks/queries/useGetWikiDetails";

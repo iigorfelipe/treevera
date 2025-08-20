@@ -1,5 +1,5 @@
 import { getRankIcon } from "@/common/utils/ranks";
-import { Image } from "@/components/image";
+import { Image } from "@/common/components/image";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";

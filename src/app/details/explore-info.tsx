@@ -1,5 +1,10 @@
-import { Image } from "@/components/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Image } from "@/common/components/image";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/common/components/ui/card";
 import { CardInfo } from "@/modules/explore/card";
 import { treeAtom } from "@/store/tree";
 import { useAtom, useAtomValue } from "jotai";

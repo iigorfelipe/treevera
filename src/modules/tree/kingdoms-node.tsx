@@ -7,9 +7,9 @@ import { memo, useMemo } from "react";
 
 import { TooltipNode } from "./components/tooltip-node";
 import { formatNumber } from "@/common/utils/format";
-import { cn } from "@/lib/utils";
+import { cn } from "@/common/utils/cn";
 import { treeAtom } from "@/store/tree";
-import { Image } from "@/components/image";
+import { Image } from "@/common/components/image";
 import { kingdomColors } from "@/common/utils/dataFake";
 
 export const KingdomNode = memo(({ taxon }: { taxon: Taxon }) => {
