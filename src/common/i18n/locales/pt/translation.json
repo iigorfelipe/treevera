@@ -3,5 +3,12 @@
   "language": "Idioma",
   "light": "Claro",
   "dark": "Escuro",
-  "system": "Sistema"
+  "system": "Sistema",
+  "en": "Inglês",
+  "es": "Espanhol",
+  "pt": "Português",
+  "profile": "Perfil",
+  "logout": "Sair",
+  "theme": "Tema",
+  "loginWithGoogle": "Login com Google"
 }
