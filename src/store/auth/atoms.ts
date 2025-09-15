@@ -1,27 +1,31 @@
 import { atom } from "jotai";
-import { supabase } from "@/common/utils/supabase-client";
-import type { User } from "@/common/types/user";
-import { syncProfile } from "@/services/auth";
+import type { Session } from "@supabase/supabase-js";
+import type { DbUser } from "@/common/types/user";
 
-type AuthUser = User | null;
-type AuthError = string | null;
-type AuthStatus = "idle" | "loading-login" | "loading-logout" | "error";
+export type AuthStatus = "idle" | "loading" | "success" | "error";
+export type AuthError = { code?: string; message: string } | null;
 
-export const authUser = atom<AuthUser>(null);
-export const authError = atom<AuthError>(null);
-export const authStatus = atom<AuthStatus>("idle");
+export const sessionAtom = atom<Session | null>(null);
+export const userDbAtom = atom<DbUser | null>(null);
 
-authUser.onMount = (set) => {
-  const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
-   
-    if (!session?.user) {
-      set(null);
-      return;
-    }
+export const loginStatusAtom = atom<AuthStatus>("idle");
+export const logoutStatusAtom = atom<AuthStatus>("idle");
 
-    const profile = await syncProfile(session.user);
-    set(profile);
-  });
+export const authInitializedAtom = atom<boolean>(false);
+export const authErrorAtom = atom<AuthError>(null);
 
-  return () => data.subscription.unsubscribe();
-};
+export const isAuthenticatedAtom = atom((get) => {
+  const session = get(sessionAtom);
+  const userDb = get(userDbAtom);
+  const initialized = get(authInitializedAtom);
+  return initialized && !!session?.user && !!userDb;
+});
+
+export const isLoadingAnyAuthAtom = atom((get) => {
+  return (
+    get(loginStatusAtom) === "loading" || get(logoutStatusAtom) === "loading"
+  );
+});
+
+export const lastAuthCheckAtom = atom<number | null>(null);
+export const offlineModeAtom = atom<boolean>(false);
