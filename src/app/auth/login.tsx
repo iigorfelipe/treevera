@@ -6,12 +6,14 @@ import {
   CardTitle,
 } from "@/common/components/ui/card";
 import { Button } from "@/common/components/ui/button";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { authStore } from "@/store/auth";
-import { benefits } from "@/common/utils/benefits";
+import { benefits } from "@/common/utils/game/benefits";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { useAuthActions } from "@/hooks/auth-user";
 
 const GoogleLogo = (
   <svg className="mr-3 size-5" viewBox="0 0 24 24">
@@ -35,17 +37,24 @@ const GoogleLogo = (
 );
 
 export const Login = () => {
-  const isLoggingIn =
-    useAtomValue(authStore.states.authStatus) === "loading-login";
-  const login = useSetAtom(authStore.actions.loginWithGoogle);
+  const isLoggingIn = useAtomValue(authStore.loginStatus) === "loading";
+  const { loginWithGoogle } = useAuthActions();
+  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
+
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.navigate({ to: "/profile" });
+    }
+  }, [isAuthenticated, router]);
 
   const handleBack = () => {
     if (window.history.length > 1) {
       window.history.back();
     }
-    navigate({ to: "/" });
+    router.navigate({ to: ".." });
   };
 
   return (
@@ -61,7 +70,7 @@ export const Login = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <Button
-              onClick={login}
+              onClick={loginWithGoogle}
               disabled={isLoggingIn}
               className="h-12 w-full border border-gray-300 text-base font-medium shadow-sm hover:bg-gray-50"
               variant="outline"
