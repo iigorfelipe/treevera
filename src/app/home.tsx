@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { Tree } from "./tree/tree";
+import { Tree } from "./tree";
 import { SpecieDetail } from "./details/specie-detail";
 import { ExploreInfo } from "./details/explore-info";
 import {
