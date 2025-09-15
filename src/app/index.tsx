@@ -1,30 +1,16 @@
-import { useEffect, useState } from "react";
 import { RouterProvider } from "@tanstack/react-router";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import queryClient, { persistOptions } from "@/services/queryClient";
 import { router } from "@/routes";
+import { useAuth } from "@/hooks/auth-user2";
+import { useIsRestoring } from "@tanstack/react-query";
 
 export const App = () => {
-  const [isReady, setIsReady] = useState(false);
+  useAuth();
 
-  useEffect(() => {
-    const restoreCache = async () => {
-      const [, restorePromise] = persistQueryClient(persistOptions);
-      await restorePromise;
-      setIsReady(true);
-    };
+  const isRestoring = useIsRestoring();
 
-    restoreCache();
-  }, []);
-
-  if (!isReady) {
-    return <p>Restaurando cache...</p>;
+  if (isRestoring) {
+    return <div>Restaurando cache...</div>;
   }
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
+  return <RouterProvider router={router} />;
 };

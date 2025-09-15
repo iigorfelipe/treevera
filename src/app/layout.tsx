@@ -3,16 +3,9 @@ import { Outlet } from "@tanstack/react-router";
 import Logo from "@/assets/images/avif-new-logo.avif";
 import { useResponsive } from "@/hooks/use-responsive";
 import { cn } from "@/common/utils/cn";
-import { useAtomValue } from "jotai";
-import { authStore } from "@/store/auth";
 
 export const Layout = () => {
   const { isMobile } = useResponsive();
-  const status = useAtomValue(authStore.states.authStatus);
-  const user = useAtomValue(authStore.states.authUser);
-
-  console.log("-- STATUS: ", status);
-  console.log("-- USER: ", user);
 
   return (
     <div className="relative">
