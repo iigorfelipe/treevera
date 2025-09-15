@@ -1,14 +1,19 @@
-import { authUser, authStatus, authError } from "./atoms";
-import { loginWithGoogle, logout } from "./actions";
+import {
+  sessionAtom,
+  userDbAtom,
+  loginStatusAtom,
+  logoutStatusAtom,
+  authErrorAtom,
+  authInitializedAtom,
+  isAuthenticatedAtom,
+} from "./atoms";
 
 export const authStore = {
-  states: {
-    authUser,
-    authStatus,
-    authError,
-  },
-  actions: {
-    loginWithGoogle,
-    logout,
-  },
+  session: sessionAtom,
+  userDb: userDbAtom,
+  loginStatus: loginStatusAtom,
+  logoutStatus: logoutStatusAtom,
+  error: authErrorAtom,
+  initialized: authInitializedAtom,
+  isAuthenticated: isAuthenticatedAtom,
 };

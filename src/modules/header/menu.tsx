@@ -12,7 +12,7 @@ import {
 } from "@/common/components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/theme";
-import { LogIn, LogOut, MenuIcon } from "lucide-react";
+import { Loader, LogIn, LogOut, MenuIcon } from "lucide-react";
 import i18n from "@/common/i18n";
 import { Link } from "@tanstack/react-router";
 import {
@@ -20,19 +20,20 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 
 import { Button } from "@/common/components/ui/button";
 import { authStore } from "@/store/auth";
+import { useAuth } from "@/hooks/auth/use-auth-profile";
 
 export const Menu = () => {
   const { changeTheme, theme } = useTheme();
   const { t } = useTranslation();
 
-  const isLoggingOut =
-    useAtomValue(authStore.states.authStatus) === "loading-logout";
-  const user = useAtomValue(authStore.states.authUser);
-  const logout = useSetAtom(authStore.actions.logout);
+  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
+  const userDb = useAtomValue(authStore.userDb);
+  const isLoggingOut = useAtomValue(authStore.logoutStatus) === "loading";
+  const { logout } = useAuth();
 
   return (
     <DropdownMenu>
@@ -41,11 +42,11 @@ export const Menu = () => {
         className="group bottom-0 z-50 flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-xl rounded-l-none rounded-b-none backdrop-blur-2xl md:absolute"
       >
         <div className="rounded-full">
-          {user ? (
+          {isAuthenticated && userDb ? (
             <Avatar>
-              <AvatarImage src={user.avatar_url} alt={"User"} />
+              <AvatarImage src={userDb.avatar_url} alt={"User"} />
               <AvatarFallback className="bg-green-600 text-xs text-white">
-                {user.full_name[0]}
+                {userDb.name[0]}
               </AvatarFallback>
             </Avatar>
           ) : (
@@ -55,7 +56,7 @@ export const Menu = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="m-1 w-full" align="start">
         <DropdownMenuGroup>
-          {!user && (
+          {!isAuthenticated && (
             <>
               <DropdownMenuItem>
                 <Link to="/login" className="flex w-full items-center">
@@ -66,17 +67,19 @@ export const Menu = () => {
               <DropdownMenuSeparator />
             </>
           )}
-          {user && (
-            <>
-              <div className="px-2 py-1.5 text-sm">
-                <div className="font-medium">{user.full_name}</div>
-                <div className="text-muted-foreground text-xs">
-                  {user.email}
+          {isAuthenticated && userDb && (
+            <DropdownMenuItem>
+              <Link to="/profile">
+                <div className="px-2 py-1.5 text-sm">
+                  <div className="font-medium">{userDb.name}</div>
+                  <div className="text-muted-foreground text-xs">
+                    {userDb.email}
+                  </div>
                 </div>
-              </div>
+              </Link>
 
               <DropdownMenuSeparator />
-            </>
+            </DropdownMenuItem>
           )}
 
           <DropdownMenuSub>
@@ -117,28 +120,30 @@ export const Menu = () => {
             </DropdownMenuPortal>
           </DropdownMenuSub>
 
-          {user && (
+          {isAuthenticated && (
             <DropdownMenuSub>
+              <DropdownMenuSeparator />
               <DropdownMenuSubTrigger disabled={isLoggingOut}>
                 <LogOut className="mr-2 size-4" />
                 <span>{t("logout")}</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent className="w-72 max-w-[90vw] p-4">
-                  <p className="mb-3 text-sm leading-relaxed text-gray-600">
+                  <p className="mb-3 text-center text-sm leading-relaxed">
                     Ao sair, seus recursos e progresso só ficarão disponíveis
                     quando entrar novamente.
                   </p>
 
                   <Button
-                    onClick={() => {
-                      logout();
-                      (document.activeElement as HTMLElement | null)?.blur();
-                    }}
+                    onClick={logout}
                     variant="destructive"
                     className="w-full"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    {isLoggingOut ? (
+                      <Loader className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <LogOut className="mr-2 h-4 w-4" />
+                    )}
                     Sair mesmo assim
                   </Button>
                 </DropdownMenuSubContent>

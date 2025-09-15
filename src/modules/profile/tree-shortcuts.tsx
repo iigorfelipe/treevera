@@ -4,14 +4,14 @@ import type { Shortcuts } from "@/common/types/user";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { authStore } from "@/store/auth";
-import { type PathNode } from "@/store/tree";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { Zap, Pencil, X, Check } from "lucide-react";
 import { useState, useRef, useEffect, Fragment } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import type { Kingdom } from "@/common/types/api";
-import { setExpandedPathAtom } from "@/store/new-tree";
+import { setExpandedPathAtom } from "@/store/tree";
+import type { PathNode } from "@/common/types/tree-atoms";
 
 export const TreeShortcuts = () => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);

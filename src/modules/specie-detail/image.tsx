@@ -1,11 +1,12 @@
-import { getRankIcon } from "@/common/utils/ranks";
+import { getRankIcon } from "@/common/utils/tree/ranks";
 import { Image } from "@/common/components/image";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
-import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
+import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
+import { treeAtom } from "@/store/tree";
 
 export const SpecieImageDetail = () => {
   const specieKey = useAtomValue(treeAtom.expandedNodes).find(
@@ -29,7 +30,7 @@ export const SpecieImageDetail = () => {
     return <SkeletonImage />;
   }
 
-  const fallbackImage = getRankIcon(specieDetail.kingdom);
+  const fallbackImage = getRankIcon(KEY_KINGDOM_BY_NAME[specieDetail.kingdom]);
 
   if (!imageData || isFallback) {
     return (

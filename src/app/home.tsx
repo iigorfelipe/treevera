@@ -10,10 +10,10 @@ import {
 import { Header } from "@/modules/header";
 import { Menu } from "@/modules/header/menu";
 import { useResponsive } from "@/hooks/use-responsive";
-import { expandedNodesAtom } from "@/store/new-tree";
+import { treeAtom } from "@/store/tree";
 
 export const Home = () => {
-  const expandedNodes = useAtomValue(expandedNodesAtom);
+  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
 
   const { isTablet } = useResponsive();
