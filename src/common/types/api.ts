@@ -14,8 +14,7 @@ export type Kingdom =
   | "chromista"
   | "fungi"
   | "protozoa"
-  | "plantae"
-  | "viruses";
+  | "plantae";
 
 export interface Taxon {
   key: number;
@@ -24,9 +23,16 @@ export interface Taxon {
   kingdom: Kingdom;
   canonicalName: string;
   numDescendants: number;
-  class: string;
-  taxonomicStatus: string;
+  phylum: string;
+  class?: string;
+  order?: string;
+  family?: string;
+  genus?: string;
 }
+
+export type RootTaxonNode = Pick<Taxon, "key" | "rank" | "numDescendants"> & {
+  color: string;
+};
 
 export type SpecieDetail = {
   canonicalName: string;
