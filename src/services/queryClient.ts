@@ -1,25 +1,25 @@
 import { QueryClient } from "@tanstack/react-query";
-import { type PersistQueryClientOptions } from "@tanstack/react-query-persist-client";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import localforage from "localforage";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 15,
-      gcTime: 1000 * 60 * 60,
+      gcTime: 1000 * 60 * 60 * 24, // 24h
+      staleTime: 1000 * 60 * 5, // 5min
+      retry: 1,
       refetchOnWindowFocus: false,
     },
   },
 });
 
-const persister = createSyncStoragePersister({
-  storage: typeof window !== "undefined" ? window.localStorage : undefined,
+const forageStore = localforage.createInstance({
+  name: "treevera-db",
+  storeName: "react-query-cache",
 });
 
-export const persistOptions: PersistQueryClientOptions = {
-  queryClient,
-  persister,
-  maxAge: 1000 * 60 * 60,
-};
-
-export default queryClient;
+export const indexedDbPersister = createAsyncStoragePersister({
+  storage: forageStore,
+  key: "treevera-react-query-cache",
+  throttleTime: 1000,
+});

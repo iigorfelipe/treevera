@@ -3,9 +3,16 @@ import { createRoot } from "react-dom/client";
 import { App } from "./app";
 import "@/common/i18n";
 import "./index.css";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { indexedDbPersister, queryClient } from "@/services/queryClient";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister: indexedDbPersister }}
+    >
+      <App />
+    </PersistQueryClientProvider>
   </StrictMode>,
 );
