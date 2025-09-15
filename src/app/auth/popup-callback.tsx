@@ -1,20 +1,44 @@
 import { useEffect } from "react";
-import { supabase } from "@/common/utils/supabase-client";
+import { supabase } from "@/common/utils/supabase/client";
 
 export const PopupCallback = () => {
   useEffect(() => {
-    const channel = new BroadcastChannel("supabase-auth");
+    const run = async () => {
+      try {
+        await supabase.auth.getSession();
+      } catch {
+        //
+      }
 
-    const handleAuth = async () => {
-      await supabase.auth.getSession();
+      try {
+        const bc = new BroadcastChannel("supabase-auth");
+        bc.postMessage("oauth_complete");
+        bc.close();
+      } catch {
+        //
+      }
 
-      // notifica a janela principal que o login terminou
-      channel.postMessage("oauth_complete");
-      channel.close();
-      window.close();
+      try {
+        if (window.opener && window.opener !== window) {
+          window.opener.postMessage(
+            { type: "OAUTH_COMPLETE" },
+            window.location.origin,
+          );
+        }
+      } catch {
+        //
+      }
+
+      setTimeout(() => {
+        try {
+          window.close();
+        } catch {
+          //
+        }
+      }, 50);
     };
 
-    handleAuth();
+    run();
   }, []);
 
   return null;

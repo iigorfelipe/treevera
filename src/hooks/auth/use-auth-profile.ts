@@ -13,7 +13,7 @@ import {
 } from "@/store/auth/atoms";
 
 import { useGetUserDb } from "../queries/user-db/useGetUser";
-import { openOAuthWindow, waitOAuthResult } from "@/features/auth/popup";
+import { openOAuthWindow, waitOAuthResult } from "@/services/auth/popup";
 
 const redirectTo = `${window.location.origin}/treevera/popup-callback`;
 
