@@ -1,31 +1,52 @@
 import { useQuery } from "@tanstack/react-query";
 import { getChildren } from "@/services/apis/gbif";
-import queryClient from "@/services/queryClient";
 import { QUERY_KEYS } from "./keys";
+import type { Rank, Taxon } from "@/common/types/api";
+import { filterChildrenByRank } from "@/common/utils/tree/children";
 
 type UseGetChildrenParams = {
   parentKey: number;
   expanded: boolean;
   numDescendants: number;
+  rank: Rank;
 };
 
-export function useGetChildren({
+export const mapToTaxon = (item: Taxon): Taxon => {
+  const taxon: Taxon = {
+    key: item.key,
+    scientificName: item.scientificName,
+    canonicalName: item.canonicalName,
+    rank: item.rank,
+    kingdom: item.kingdom,
+    numDescendants: item.numDescendants,
+    phylum: item.phylum,
+  };
+
+  if (item.class) taxon.class = item.class;
+  if (item.order) taxon.order = item.order;
+  if (item.family) taxon.family = item.family;
+  if (item.genus) taxon.genus = item.genus;
+
+  return taxon;
+};
+
+export const useGetChildren = ({
   parentKey,
   expanded,
   numDescendants,
-}: UseGetChildrenParams) {
+  rank,
+}: UseGetChildrenParams) => {
   const { children_key } = QUERY_KEYS;
 
-  return useQuery({
+  return useQuery<Taxon[]>({
     queryKey: [children_key, parentKey],
-    queryFn: () => getChildren(parentKey),
-    staleTime: 1000 * 60 * 15,
-    gcTime: 1000 * 60 * 60,
+    queryFn: async () => {
+      const data = await getChildren(parentKey);
+      const filteredChildren = filterChildrenByRank(rank, data);
+      return filteredChildren.map(mapToTaxon);
+    },
     enabled: !!parentKey && expanded && numDescendants !== 0,
-    refetchOnMount: false,
-    initialData: () =>
-      parentKey
-        ? queryClient.getQueryData([children_key, parentKey])
-        : undefined,
+    staleTime: 1000 * 60 * 60 * 24, // 1 dia
+    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 dias
   });
-}
+};
