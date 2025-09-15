@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
@@ -16,17 +16,11 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
-  const currentNodeIndex = expandedNodes.findIndex(
-    (node) => node.key === node.key && node.rank === node.rank,
-  );
-
-  const currentNode = expandedNodes[currentNodeIndex];
-  const isExpanded = currentNode?.key === node.key;
+  const isExpanded = node.expanded;
+  const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
 
   const saveShortcut = async () => {
     if (!userDb) return;
-
-    const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
 
     void updateUserShortcut(userDb, (prev) => {
       const currentShortcuts = prev[taxonRank] ?? [];
@@ -63,9 +57,12 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     });
   };
 
-  const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
-  const shortcutsOfKingdom = userDb?.game_info?.shortcuts[taxonRank] ?? [];
-  const hasReachedLimit = shortcutsOfKingdom.length >= 3;
+  const hasReachedLimit = useMemo(() => {
+    const shortcuts = userDb?.game_info?.shortcuts;
+    if (!shortcuts) return false;
+    if (shortcuts[taxonRank]?.length >= 3) return true;
+    return false;
+  }, [taxonRank, userDb?.game_info?.shortcuts]);
 
   return (
     <div className="item group flex h-full w-full flex-row items-center gap-2">

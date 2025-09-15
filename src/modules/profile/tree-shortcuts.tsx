@@ -39,10 +39,12 @@ export const TreeShortcuts = () => {
     setExpandedPath(pathNode);
     navigate({ to: "/" });
   };
+
   const removeShortcut = async (kingdom: keyof Shortcuts, index: number) => {
     if (!userDb) return;
+    if (!treeShortcuts) return null;
 
-    const shortcutsOfKingdom = userDb.game_info.shortcuts[kingdom] ?? [];
+    const shortcutsOfKingdom = treeShortcuts[kingdom] ?? [];
     const updatedShortcutsOfKingdom = shortcutsOfKingdom.filter(
       (_, i) => i !== index,
     );
@@ -64,7 +66,7 @@ export const TreeShortcuts = () => {
     const { kingdom, index, newName } = editName;
     if (!newName.trim()) return;
 
-    const shortcutsOfKingdom = userDb.game_info.shortcuts[kingdom] ?? [];
+    const shortcutsOfKingdom = treeShortcuts[kingdom] ?? [];
     if (!shortcutsOfKingdom[index!]) return;
 
     const updatedShortcutsOfKingdom = [...shortcutsOfKingdom];
@@ -130,6 +132,7 @@ export const TreeShortcuts = () => {
                           ref={inputRef}
                           type="text"
                           value={editName.newName}
+                          maxLength={52}
                           onChange={(e) =>
                             setEditName((prev) => ({
                               ...prev,

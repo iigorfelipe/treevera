@@ -37,11 +37,12 @@ export const CardInfo = () => {
   }, [expandedNodes, selectedData]);
 
   const shortcuts = useMemo(() => {
-    if (userDb) {
-      const kingdom =
-        selectedData?.kingdomName.toLocaleLowerCase() as "animalia";
-      return userDb.game_info.shortcuts[kingdom];
-    }
+    if (!userDb) return null;
+
+    if (!userDb.game_info?.shortcuts) return null;
+
+    const kingdom = selectedData?.kingdomName.toLocaleLowerCase() as "animalia";
+    return userDb.game_info.shortcuts[kingdom];
   }, [selectedData?.kingdomName, userDb]);
 
   if (!selectedData) return;
@@ -82,7 +83,7 @@ export const CardInfo = () => {
               ))}
             </div>
 
-            {userDb && shortcuts && (
+            {shortcuts && (
               <div className="flex flex-wrap items-center gap-1">
                 {shortcuts.map(({ name, nodes }, index) => {
                   if (nodes[0].key === selectedData.kingdomKey) {
