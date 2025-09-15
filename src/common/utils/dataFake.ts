@@ -1,15 +1,5 @@
-import { getRankIcon } from "./ranks";
-
-export const kingdomColors = {
-  Animalia: ["border-[#ff6b4d]", "#ff6b4d"],
-  Archaea: ["border-[#b561ff]", "#b561ff"],
-  Bacteria: ["border-[#2fb5a0]", "#2fb5a0"],
-  Chromista: ["border-[#ffb700]", "#ffb700"],
-  Fungi: ["border-[#c84726]", "#c84726"],
-  Plantae: ["border-[#5bbd38]", "#5bbd38"],
-  Protozoa: ["border-[#2196f3]", "#2196f3"],
-  Viruses: ["border-[#ef3e6b]", "#ef3e6b"],
-};
+import { COLOR_KINGDOM_BY_KEY } from "../constants/tree";
+import { getRankIcon } from "./tree/ranks";
 
 export const dataFake = [
   {
@@ -17,8 +7,8 @@ export const dataFake = [
     kingdomName: "Animalia",
     numDescendants: 0,
     explored: 0,
-    icon: getRankIcon("animalia"),
-    primaryColor: "#ff6b4d",
+    icon: getRankIcon(1),
+    primaryColor: COLOR_KINGDOM_BY_KEY[1],
     lightColor: "#fff3f0",
     description:
       "Organismos multicelulares heterótrofos que se alimentam de outros seres vivos.",
@@ -29,17 +19,15 @@ export const dataFake = [
           {
             key: 1,
             rank: "KINGDOM",
-            kingdom: "Animalia",
+            name: "Animalia",
           },
           {
             rank: "PHYLUM",
             key: 44,
-            kingdom: "Animalia",
           },
           {
             rank: "CLASS",
             key: 359,
-            kingdom: "Animalia",
           },
         ],
       },
@@ -49,17 +37,15 @@ export const dataFake = [
           {
             key: 1,
             rank: "KINGDOM",
-            kingdom: "Animalia",
+            name: "Animalia",
           },
           {
             rank: "PHYLUM",
             key: 44,
-            kingdom: "Animalia",
           },
           {
             rank: "CLASS",
             key: 212,
-            kingdom: "Animalia",
           },
         ],
       },
@@ -69,17 +55,15 @@ export const dataFake = [
           {
             key: 1,
             rank: "KINGDOM",
-            kingdom: "Animalia",
+            name: "Animalia",
           },
           {
             rank: "PHYLUM",
             key: 54,
-            kingdom: "Animalia",
           },
           {
             rank: "CLASS",
             key: 216,
-            kingdom: "Animalia",
           },
         ],
       },
@@ -90,8 +74,8 @@ export const dataFake = [
     kingdomName: "Archaea",
     numDescendants: 0,
     explored: 0,
-    icon: getRankIcon("archaea"),
-    primaryColor: "#b561ff",
+    icon: getRankIcon(2),
+    primaryColor: COLOR_KINGDOM_BY_KEY[2],
     lightColor: "#f8f3ff",
     description:
       "Micro-organismos unicelulares procariontes que vivem em ambientes extremos.",
@@ -102,12 +86,11 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 2,
-            kingdom: "Archaea",
+            name: "Archaea",
           },
           {
             rank: "PHYLUM",
             key: 10807497,
-            kingdom: "Archaea",
           },
         ],
       },
@@ -117,17 +100,15 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 2,
-            kingdom: "Archaea",
+            name: "Archaea",
           },
           {
             rank: "PHYLUM",
             key: 10706191,
-            kingdom: "Archaea",
           },
           {
             rank: "CLASS",
             key: 10809188,
-            kingdom: "Archaea",
           },
         ],
       },
@@ -138,8 +119,8 @@ export const dataFake = [
     kingdomName: "Bacteria",
     numDescendants: 0,
     explored: 0,
-    icon: getRankIcon("bacteria"),
-    primaryColor: "#2fb5a0",
+    icon: getRankIcon(3),
+    primaryColor: COLOR_KINGDOM_BY_KEY[3],
     lightColor: "#f0fbf9",
     description:
       "Organismos unicelulares procariontes, encontrados em praticamente todos os ambientes.",
@@ -150,12 +131,11 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 3,
-            kingdom: "Bacteria",
+            name: "Bacteria",
           },
           {
             rank: "PHYLUM",
             key: 68,
-            kingdom: "Bacteria",
           },
         ],
       },
@@ -165,22 +145,19 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 3,
-            kingdom: "Bacteria",
+            name: "Bacteria",
           },
           {
             rank: "PHYLUM",
             key: 10707955,
-            kingdom: "Bacteria",
           },
           {
             rank: "CLASS",
             key: 7498440,
-            kingdom: "Bacteria",
           },
           {
             rank: "ORDER",
             key: 569,
-            kingdom: "Bacteria",
           },
         ],
       },
@@ -191,8 +168,8 @@ export const dataFake = [
     kingdomName: "Chromista",
     numDescendants: 0,
     explored: 0,
-    icon: getRankIcon("chromista"),
-    primaryColor: "#ffb700",
+    icon: getRankIcon(4),
+    primaryColor: COLOR_KINGDOM_BY_KEY[4],
     lightColor: "#fff9ed",
     description:
       "Grupo diverso de organismos, incluindo algas marrons e diatomáceas, geralmente fotossintéticos.",
@@ -203,17 +180,16 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 4,
-            kingdom: "Chromista",
+            name: "Chromista",
           },
           {
             rank: "PHYLUM",
             key: 7765738,
-            kingdom: "Chromista",
           },
           {
             rank: "CLASS",
             key: 8235041,
-            kingdom: "Chromista",
+            name: "Chromista",
           },
         ],
       },
@@ -223,17 +199,15 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 4,
-            kingdom: "Chromista",
+            name: "Chromista",
           },
           {
             rank: "PHYLUM",
             key: 98,
-            kingdom: "Chromista",
           },
           {
             rank: "CLASS",
             key: 7947184,
-            kingdom: "Chromista",
           },
         ],
       },
@@ -244,8 +218,8 @@ export const dataFake = [
     kingdomName: "Fungi",
     numDescendants: 0,
     explored: 0,
-    icon: getRankIcon("fungi"),
-    primaryColor: "#c84726",
+    icon: getRankIcon(5),
+    primaryColor: COLOR_KINGDOM_BY_KEY[5],
     lightColor: "#fff3ef",
     description:
       "Organismos heterótrofos com parede celular quitinosa, decompositores na natureza.",
@@ -256,12 +230,10 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 5,
-            kingdom: "Fungi",
           },
           {
             rank: "PHYLUM",
             key: 34,
-            kingdom: "Fungi",
           },
         ],
       },
@@ -271,22 +243,19 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 5,
-            kingdom: "Fungi",
+            name: "Fungi",
           },
           {
             rank: "PHYLUM",
             key: 95,
-            kingdom: "Fungi",
           },
           {
             rank: "CLASS",
             key: 182,
-            kingdom: "Fungi",
           },
           {
             rank: "ORDER",
             key: 1281,
-            kingdom: "Fungi",
           },
         ],
       },
@@ -297,8 +266,8 @@ export const dataFake = [
     kingdomName: "Plantae",
     numDescendants: 0,
     explored: 0,
-    icon: getRankIcon("plantae"),
-    primaryColor: "#5bbd38",
+    icon: getRankIcon(6),
+    primaryColor: COLOR_KINGDOM_BY_KEY[6],
     lightColor: "#f3fbf0",
     description:
       "Organismos fotossintéticos multicelulares, produtores de oxigênio e base das cadeias alimentares.",
@@ -309,17 +278,15 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 6,
-            kingdom: "Plantae",
+            name: "Plantae",
           },
           {
             rank: "PHYLUM",
             key: 7707728,
-            kingdom: "Plantae",
           },
           {
             rank: "CLASS",
             key: 220,
-            kingdom: "Plantae",
           },
         ],
       },
@@ -329,17 +296,15 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 6,
-            kingdom: "Plantae",
+            name: "Plantae",
           },
           {
             rank: "PHYLUM",
             key: 9,
-            kingdom: "Plantae",
           },
           {
             rank: "CLASS",
             key: 126,
-            kingdom: "Plantae",
           },
         ],
       },
@@ -349,12 +314,11 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 6,
-            kingdom: "Plantae",
+            name: "Plantae",
           },
           {
             rank: "PHYLUM",
             key: 35,
-            kingdom: "Plantae",
           },
         ],
       },
@@ -365,8 +329,8 @@ export const dataFake = [
     kingdomName: "Protozoa",
     numDescendants: 0,
     explored: 0,
-    icon: getRankIcon("protozoa"),
-    primaryColor: "#2196f3",
+    icon: getRankIcon(7),
+    primaryColor: COLOR_KINGDOM_BY_KEY[7],
     lightColor: "#f0f7ff",
     description:
       "Organismos unicelulares eucariontes, geralmente móveis e heterótrofos.",
@@ -377,12 +341,11 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 7,
-            kingdom: "Protozoa",
+            name: "Protozoa",
           },
           {
             rank: "PHYLUM",
             key: 7509337,
-            kingdom: "Protozoa",
           },
         ],
       },
@@ -392,34 +355,31 @@ export const dataFake = [
           {
             rank: "KINGDOM",
             key: 7,
-            kingdom: "Protozoa",
+            name: "Protozoa",
           },
           {
             rank: "PHYLUM",
             key: 41,
-            kingdom: "Protozoa",
           },
         ],
       },
     ],
   },
-  // {
-  //   kingdomKey: 8,
-  //   kingdomName: "Viruses",
-  //   numDescendants: 0,
-  //   explored: 0,
-  //   icon: getRankIcon("viruses"),
-  //   primaryColor: "#ef3e6b",
-  //   lightColor: "#fff0f5",
-  //   description:
-  //     "Agentes infecciosos acelulares, dependentes de células hospedeiras para reprodução.",
-  //   mainGroups: ["Coronavírus", "Influenza", "HIV", "Bacteriófagos"],
-  // },
 ];
 
-export const curiosidades = {
+type Kingdom = { [key: number]: string[] };
+
+type Curiosidades = {
+  KINGDOM: Kingdom;
+  PHYLUM: string[];
+  CLASS: string[];
+  ORDER: string[];
+  FAMILY: string[];
+  GENUS: string[];
+};
+export const curiosidades: Curiosidades = {
   KINGDOM: {
-    Animalia: [
+    1: [
       "O reino Animalia foi descrito pela primeira vez por Carl Linnaeus em seu livro Systema Naturae, publicado em 1758.",
       "O termo 'Animalia' tem origem no latim. É o plural de 'animalis', que significa 'ser vivo' ou 'ser que respira'.",
       "Inclui todos os animais multicelulares, heterotróficos e geralmente com mobilidade em alguma fase da vida.",
@@ -429,7 +389,7 @@ export const curiosidades = {
       "Representantes do reino Animalia vivem em praticamente todos os ambientes da Terra, incluindo ambientes extremos.",
       "Animalia é um dos cinco (ou seis) reinos na classificação biológica tradicional, ao lado de Plantae, Fungi, Protista, Bacteria e Archaea.",
     ],
-    Archaea: [
+    2: [
       "O reino Archaea inclui organismos procariontes que se distinguem das bactérias por sua bioquímica e genética.",
       "Archaea foram reconhecidos como um grupo separado das bactérias apenas na década de 1970, por Carl Woese.",
       "Esses microrganismos vivem em ambientes extremos, como fontes termais, lagos salgados e regiões com pH extremo — por isso são chamados de extremófilos.",
@@ -439,7 +399,7 @@ export const curiosidades = {
       "São importantes para processos ecológicos, como a produção de metano em ambientes anaeróbicos.",
       "Atualmente, Archaea é considerado um domínio separado de Bacteria e Eukarya, na árvore da vida moderna.",
     ],
-    Bacteria: [
+    3: [
       "O reino Bacteria inclui organismos unicelulares procariontes, presentes em praticamente todos os ambientes da Terra.",
       "São extremamente diversos e numerosos — uma colher de solo pode conter bilhões de bactérias.",
       "Bactérias têm papel fundamental na decomposição, ciclos biogeoquímicos e simbioses com outros organismos.",
@@ -449,7 +409,7 @@ export const curiosidades = {
       "Muitas bactérias podem formar esporos resistentes, sobrevivendo a condições extremas por longos períodos.",
       "São amplamente usadas na biotecnologia, agricultura, medicina e indústria alimentar (como na produção de iogurte e queijos).",
     ],
-    Chromista: [
+    4: [
       "Chromista é um reino proposto para agrupar organismos como algas marrons, diatomáceas e oomicetos.",
       "Foi introduzido por Thomas Cavalier-Smith em 1981 como uma alternativa ao reino Protista.",
       "A maioria dos organismos do reino Chromista é fotossintetizante, possuindo cloroplastos com origem secundária.",
@@ -459,7 +419,7 @@ export const curiosidades = {
       "Alguns membros são patógenos de plantas, como os oomicetos que causam a requeima em batatas.",
       "Ainda há debates sobre a validade do reino Chromista, e sua classificação pode variar entre sistemas taxonômicos.",
     ],
-    Fungi: [
+    5: [
       "O reino Fungi inclui organismos eucariontes como cogumelos, leveduras e bolores.",
       "Todos os fungos são heterotróficos e obtêm nutrientes por absorção, após secretar enzimas digestivas no ambiente.",
       "Sua parede celular é composta por quitina, um polissacarídeo também encontrado no exoesqueleto de artrópodes.",
@@ -469,7 +429,7 @@ export const curiosidades = {
       "Vários fungos são fontes de medicamentos importantes, como a penicilina.",
       "Apesar de parecerem plantas, fungos são mais próximos dos animais na árvore evolutiva.",
     ],
-    Protozoa: [
+    6: [
       "Protozoários são organismos eucariontes unicelulares tradicionalmente agrupados no reino Protista (ou Protozoa, em classificações alternativas).",
       "Vivem principalmente em ambientes aquáticos ou úmidos e podem ser de vida livre ou parasitas.",
       "O termo 'protozoário' vem do grego e significa 'primeiro animal', embora eles não sejam animais de fato.",
@@ -479,7 +439,7 @@ export const curiosidades = {
       "A classificação de protozoários tem sido revista, e muitos são hoje redistribuídos em supergrupos e domínios modernos.",
       "Apesar de sua simplicidade estrutural, podem ter ciclos de vida complexos com várias fases e hospedeiros.",
     ],
-    Plantae: [
+    7: [
       "O reino Plantae inclui organismos eucariontes multicelulares, autotróficos e com parede celular de celulose.",
       "Realizam fotossíntese utilizando clorofila, sendo a base da maioria das cadeias alimentares terrestres.",
       "O termo 'Plantae' vem do latim e significa literalmente 'plantas'.",
@@ -488,16 +448,6 @@ export const curiosidades = {
       "Existem mais de 390 mil espécies de plantas descritas, das quais cerca de 90% são plantas com flores (angiospermas).",
       "Possuem ciclo de vida com alternância de gerações (esporófito e gametófito).",
       "Plantas são utilizadas pela humanidade desde a antiguidade para alimentação, medicina, construção, rituais e decoração.",
-    ],
-    Viruses: [
-      "Os vírus não são considerados organismos vivos por muitos cientistas, pois não possuem metabolismo próprio nem células.",
-      "São compostos basicamente por uma cápsula proteica (capsídeo) envolvendo material genético (DNA ou RNA).",
-      "Para se reproduzir, os vírus precisam invadir células hospedeiras e usar sua maquinaria biológica.",
-      "Vírus infectam todos os tipos de seres vivos, incluindo animais, plantas, fungos, bactérias (bacteriófagos) e arqueias.",
-      "Podem causar doenças graves como gripe, AIDS, COVID-19, hepatite, ebola e muitas outras.",
-      "Apesar de causarem doenças, vírus também têm papel importante na regulação de populações microbianas e na transferência de genes entre organismos.",
-      "O estudo de vírus é chamado de virologia, um ramo da microbiologia.",
-      "A origem dos vírus ainda é debatida — teorias incluem evolução a partir de células, fragmentos de RNA/DNA ou estruturas anteriores à vida celular.",
     ],
   },
 
@@ -555,4 +505,19 @@ export const curiosidades = {
     "Com o avanço da genética, a classificação de muitos gêneros tem sido revisada e atualizada.",
     "Existem dezenas de milhares de gêneros descritos na natureza, e esse número continua crescendo com novas descobertas.",
   ],
+};
+
+export const game_info_fake = {
+  activities: [],
+  species_book: [],
+  shortcuts: [],
+  progress: {
+    exploited_species: 0,
+    challenges_completed: 0,
+    accuracy_of_hits: 0,
+    num_achievements: 0,
+    consecutive_days: 0,
+    global_ranking: 0,
+  },
+  achievements: { unlocked: [], locked: [] },
 };
