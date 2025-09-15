@@ -7,11 +7,13 @@ import {
 type TooltipNodeProps = {
   trigger: React.ReactNode;
   content: React.ReactNode;
+  delay?: number;
 };
 
-export const TooltipNode = ({ trigger, content }: TooltipNodeProps) => {
+// TODO: ta pesado, refatore ou descarte!
+export const TooltipNode = ({ trigger, content, delay }: TooltipNodeProps) => {
   return (
-    <Tooltip delayDuration={600}>
+    <Tooltip delayDuration={delay ?? 600}>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
       {content && (
         <TooltipContent side="top" className="text-sm">

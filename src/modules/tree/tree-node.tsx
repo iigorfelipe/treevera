@@ -1,126 +1,108 @@
-import type { Taxon } from "@/common/types/api";
+import { ContentNode } from "./content-node";
+import { RootNode } from "./root-node";
+import { SpecieNode } from "./specie-node";
+import {
+  TREE_TOGGLE_BUTTON_DIAMETER_PX,
+  TREE_TOGGLE_BUTTON_OFFSET_X_PX,
+  COLOR_KINGDOM_BY_NAME,
+  TREE_LEVEL_INDENT_PX,
+} from "@/common/constants/tree";
+import { useEffect } from "react";
 import { useGetChildren } from "@/hooks/queries/useGetChildren";
-
 import { useAtom, useSetAtom } from "jotai";
-import { memo, useCallback } from "react";
+import {
+  nodeAtomFamily,
+  setNodeChildrenAtom,
+  toggleNodeAtom,
+} from "@/store/tree";
+import { Loader } from "lucide-react";
 
-import { ExpandedNode } from "@/modules/tree/expanded-node";
-import { treeAtom } from "@/store/tree";
-import { kingdomColors } from "@/common/utils/dataFake";
-import { KingdomNode } from "./kingdoms-node";
-import { useAutoScroll } from "./hooks/auto-scroll";
-import { MainNode } from "./main-node";
+export const TreeNodeLiContent = ({
+  nodeKey,
+  level,
+}: {
+  nodeKey: number;
+  level: number;
+}) => {
+  const [node] = useAtom(nodeAtomFamily(nodeKey));
+  const setNodeChildren = useSetAtom(setNodeChildrenAtom);
+  const [, toggleNode] = useAtom(toggleNodeAtom);
 
-export const TreeNode = memo(({ taxon }: { taxon: Taxon }) => {
-  const [expandedNodes, setExpandedNodes] = useAtom(treeAtom.expandedNodes);
-  const setTreeAnimate = useSetAtom(treeAtom.animate);
+  const isExpanded = node?.expanded;
 
-  const currentNodeIndex = expandedNodes.findIndex(
-    (node) => node.key === taxon.key && node.rank === taxon.rank,
-  );
-
-  const currentNode = expandedNodes[currentNodeIndex];
-  const isExpanded = currentNode?.key === taxon.key;
-
-  const { isLoading } = useGetChildren({
-    parentKey: taxon.key,
-    expanded: isExpanded,
-    numDescendants: taxon.numDescendants,
+  const { data: childrenData, isLoading } = useGetChildren({
+    parentKey: node?.key,
+    expanded: !!isExpanded,
+    numDescendants: node?.numDescendants,
+    rank: node?.rank,
   });
 
-  const { ref } = useAutoScroll({
-    currentNodeIndex,
-    isExpanded,
-    isLoading,
-    taxonKey: taxon.key,
-  });
+  useEffect(() => {
+    if (isExpanded && childrenData) {
+      setNodeChildren({ key: node.key, children: childrenData });
+    }
+  }, [isExpanded, childrenData, node?.key, setNodeChildren]);
 
-  const handleAnimate = useCallback(() => {
-    setTreeAnimate({
-      isShaking: true,
-      shakeDirection: true,
-    });
+  if (!node) return null;
 
-    setTimeout(
-      () =>
-        setTreeAnimate((prev) => {
-          return {
-            ...prev,
-            shakeDirection: false,
-          };
-        }),
-      150,
-    );
-    setTimeout(
-      () =>
-        setTreeAnimate((prev) => {
-          return {
-            ...prev,
-            isShaking: false,
-          };
-        }),
-      300,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const isKingdom = node.rank === "KINGDOM";
+  const isSpecie = node.rank === "SPECIES";
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      e.preventDefault();
-      handleAnimate();
-      setExpandedNodes((prev) => {
-        if (taxon.rank === "KINGDOM") {
-          if (prev.length === 0 || prev[0].key !== taxon.key) {
-            return [
-              { rank: "KINGDOM", key: taxon.key, kingdom: taxon.kingdom },
-            ];
-          }
-          return [];
-        }
+  const kingdomColor =
+    COLOR_KINGDOM_BY_NAME[
+      node?.kingdom?.toLocaleLowerCase() as keyof typeof COLOR_KINGDOM_BY_NAME
+    ];
 
-        const idx = prev.findIndex((n) => n.rank === taxon.rank);
-        if (idx !== -1) {
-          if (prev[idx].key === taxon.key) {
-            return prev.slice(0, idx);
-          } else {
-            return [
-              ...prev.slice(0, idx),
-              { rank: taxon.rank, key: taxon.key, kingdom: taxon.kingdom },
-            ];
-          }
-        }
-
-        return [
-          ...prev,
-          { rank: taxon.rank, key: taxon.key, kingdom: taxon.kingdom },
-        ];
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleAnimate, taxon.rank, taxon.key, taxon.kingdom],
-  );
+  const marginLeft = level * TREE_LEVEL_INDENT_PX;
 
   return (
-    <li
-      ref={ref}
-      className={`${taxon.rank === "PHYLUM" ? "ml-3.5" : "tree ml-0"}`}
+    <div
+      className="flex"
       style={
         {
-          "--tree-color": `${kingdomColors[taxon.kingdom as "Animalia"][1]}`,
+          marginLeft,
+
+          height: isKingdom ? "4.25rem" : "2.125rem",
+          zIndex: 1,
+
+          "--tree-color": kingdomColor,
         } as React.CSSProperties
       }
+      onClick={() => (isLoading ? null : toggleNode(nodeKey))}
     >
-      <details open={isExpanded}>
-        <summary onClick={handleClick}>
-          {taxon.rank === "KINGDOM" ? (
-            <KingdomNode taxon={taxon} />
+      {!isKingdom && (
+        <div
+          className="z-50 mt-1.5 flex items-center justify-center rounded-full p-px text-white"
+          style={{
+            backgroundColor: kingdomColor,
+            width: TREE_TOGGLE_BUTTON_DIAMETER_PX,
+            height: TREE_TOGGLE_BUTTON_DIAMETER_PX,
+            marginLeft: TREE_TOGGLE_BUTTON_OFFSET_X_PX,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: "700",
+          }}
+        >
+          {isLoading ? (
+            <Loader className="animate-spin" />
+          ) : isSpecie ? (
+            ""
           ) : (
-            <MainNode taxon={taxon} />
+            <span className="flex size-5 items-center justify-center pb-0.5 font-bold">
+              {isExpanded ? "−" : "+"}
+            </span>
           )}
-        </summary>
+        </div>
+      )}
 
-        {isExpanded && <ExpandedNode taxon={taxon} />}
-      </details>
-    </li>
+      {isKingdom ? (
+        <RootNode node={node} isLoading={isLoading} />
+      ) : isSpecie ? (
+        <SpecieNode node={node} />
+      ) : (
+        <ContentNode node={node} />
+      )}
+    </div>
   );
-});
+};
