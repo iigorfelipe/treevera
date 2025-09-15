@@ -14,8 +14,29 @@ import {
 
 import { useGetUserDb } from "../queries/user-db/useGetUser";
 import { openOAuthWindow, waitOAuthResult } from "@/services/auth/popup";
+import { fetchUser } from "@/common/utils/supabase/fetch-user";
+import { createUser } from "@/common/utils/supabase/create-user";
+import type { User } from "@supabase/supabase-js";
 
 const redirectTo = `${window.location.origin}/treevera/popup-callback`;
+
+const ensureUserInDb = async (user: User | undefined | null) => {
+  if (!user?.id) return null;
+  try {
+    const existing = await fetchUser(user.id);
+
+    if (!existing) {
+      const created = await createUser(user);
+      if (!created) throw new Error("createUser retornou null");
+
+      return created;
+    }
+    return existing;
+  } catch (err) {
+    console.error("[auth] erro ao garantir user no DB:", err);
+    throw err;
+  }
+};
 
 export const useAuth = () => {
   const setSession = useSetAtom(sessionAtom);
@@ -58,6 +79,17 @@ export const useAuth = () => {
 
             if (newSession?.user?.id) {
               setSession(newSession);
+              try {
+                await ensureUserInDb(newSession.user);
+              } catch (err) {
+                console.error(
+                  "[auth] erro criando user no onAuthStateChange:",
+                  err,
+                );
+                setAuthError({
+                  message: err instanceof Error ? err.message : String(err),
+                });
+              }
               await refetchUser();
             } else {
               setSession(null);
@@ -97,33 +129,25 @@ export const useAuth = () => {
       setLoginStatus("loading");
       setAuthError(null);
 
-      const res = await supabase.auth.signInWithOAuth({
+      const { data } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { skipBrowserRedirect: true, redirectTo },
       });
 
-      if (!res?.data?.url) throw new Error("OAuth sem URL");
+      if (!data.url) throw new Error("OAuth sem URL");
 
-      const popup = openOAuthWindow(res.data.url);
+      const popup = openOAuthWindow(data.url);
       if (!popup) throw new Error("Popup bloqueado");
 
       const result = await waitOAuthResult(popup, {
         expectedOrigin: window.location.origin,
       });
+      if (!result.ok) throw new Error(result.reason);
 
-      if (!result.ok) {
-        const map = {
-          popup_blocked: "Popup bloqueado pelo navegador.",
-          popup_closed: "Login cancelado (popup fechado).",
-          timeout: "Tempo limite excedido aguardando autenticação.",
-          message_error: "Falha ao receber confirmação do login.",
-        } as const;
-        throw new Error(map[result.reason]);
-      }
+      const sessionData = await supabase.auth.getSession();
+      setSession(sessionData.data.session ?? null);
 
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session ?? null);
-      if (data.session?.user?.id) await refetchUser();
+      if (sessionData.data.session?.user?.id) await refetchUser();
 
       setLoginStatus("success");
 

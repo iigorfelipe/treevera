@@ -29,10 +29,10 @@ export const createUser = async (u: SupabaseUser) => {
 
   if (error) {
     console.error("Error creating user:", error);
-    return null;
+    throw error;
   }
 
-  if (data) {
-    return JSON.parse(JSON.stringify(data)) as DbUser;
-  }
+  if (!data) throw new Error("createUser: upsert retornou vazio");
+
+  return JSON.parse(JSON.stringify(data)) as DbUser;
 };

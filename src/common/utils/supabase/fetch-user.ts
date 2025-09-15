@@ -6,7 +6,7 @@ export const fetchUser = async (id: string): Promise<DbUser | null> => {
     .from("users")
     .select("*")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Error fetching user:", error);
