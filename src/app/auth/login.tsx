@@ -13,7 +13,7 @@ import { authStore } from "@/store/auth";
 import { benefits } from "@/common/utils/game/benefits";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useEffect } from "react";
-import { useAuthActions } from "@/hooks/auth-user";
+import { useAuth } from "@/hooks/auth/use-auth-profile";
 
 const GoogleLogo = (
   <svg className="mr-3 size-5" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@ const GoogleLogo = (
 
 export const Login = () => {
   const isLoggingIn = useAtomValue(authStore.loginStatus) === "loading";
-  const { loginWithGoogle } = useAuthActions();
+  const { login } = useAuth();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
 
   const { t } = useTranslation();
@@ -70,7 +70,7 @@ export const Login = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <Button
-              onClick={loginWithGoogle}
+              onClick={login}
               disabled={isLoggingIn}
               className="h-12 w-full border border-gray-300 text-base font-medium shadow-sm hover:bg-gray-50"
               variant="outline"
