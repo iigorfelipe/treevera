@@ -1,0 +1,16 @@
+.item {
+  cursor: pointer;
+  display: flex;
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 8px;
+}
+
+.item:hover {
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, transparent, transparent),
+    var(--color-accent)
+  );
+}
