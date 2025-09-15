@@ -1,5 +1,5 @@
 import { VulnerabilityBadge } from "@/common/components/vulnerability-badge";
-import { RANK_FIXES } from "@/common/utils/ranks";
+import { RANK_FIXES } from "@/common/utils/tree/ranks";
 import { useGetStatusCode } from "@/hooks/queries/useGetIucnRedListCategory";
 import { useGetWikiDetails } from "@/hooks/queries/useGetWikiDetails";
 import {
@@ -8,7 +8,11 @@ import {
   SkeletonVulnerabilityBadge,
 } from "@/modules/specie-detail/skeletons";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { Heart } from "lucide-react";
+import { authStore } from "@/store/auth";
+import { updateUserSpeciesBook } from "@/common/utils/supabase/add_species_book";
+import { useEffect, useState } from "react";
 import { treeAtom } from "@/store/tree";
 
 export const SpecieInfos = () => {
@@ -20,6 +24,13 @@ export const SpecieInfos = () => {
     specieKey: specieKey!,
   });
 
+  const [userDb, setUserDb] = useAtom(authStore.userDb);
+  const specieBook = userDb?.game_info?.species_book?.find(
+    (book) => book.key === specieKey,
+  );
+
+  const [fav, setFav] = useState(specieBook?.fav ?? false);
+
   const { data: status, isLoading: isLoadingStatus } = useGetStatusCode({
     specieName:
       (specieDetail?.canonicalName || specieDetail?.scientificName) ?? "",
@@ -28,6 +39,39 @@ export const SpecieInfos = () => {
   const { data: wikiDetails, isLoading: isLoadingWiki } = useGetWikiDetails(
     specieDetail?.canonicalName,
   );
+
+  useEffect(() => {
+    setFav(specieBook?.fav ?? false);
+  }, [specieBook?.fav]);
+
+  const toggleFav = async () => {
+    if (!userDb || specieKey == null) return;
+
+    const newFav = !fav;
+    setFav(newFav);
+
+    void updateUserSpeciesBook(userDb, (prev) => {
+      const updated = [...prev];
+      const index = updated.findIndex((item) => item.key === specieKey);
+
+      if (index !== -1) {
+        updated[index] = { ...updated[index], fav: newFav };
+      } else if (specieDetail) {
+        updated.push({
+          key: specieKey,
+          date: new Date().toISOString(),
+          fav: newFav,
+          specie_name:
+            specieDetail.canonicalName || specieDetail.scientificName,
+          family_name: specieDetail?.family || "—",
+        });
+      }
+
+      return updated;
+    }).then((updatedUser) => {
+      if (updatedUser) setUserDb(updatedUser);
+    });
+  };
 
   if (!specieDetail) return <p className="text-center">Dados indisponíveis.</p>;
 
@@ -48,7 +92,16 @@ export const SpecieInfos = () => {
   return (
     <div className="space-y-9">
       <header>
-        <h1 className="text-3xl font-bold">{specieDetail.canonicalName}</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-bold">{specieDetail.canonicalName}</h1>
+
+          <Heart
+            className="ml-auto size-6 cursor-pointer text-red-500"
+            fill={fav ? "red" : "transparent"}
+            strokeWidth={fav ? 0 : 2}
+            onClick={toggleFav}
+          />
+        </div>
         {specieDetail.scientificName && (
           <i className="text-primary/87">{specieDetail.scientificName}</i>
         )}
