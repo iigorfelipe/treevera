@@ -1,14 +1,14 @@
-import type { DbUser } from "@/common/types/user";
+import type { DbUser, Species_book } from "@/common/types/user";
 import { supabase } from "./client";
 
 export const updateUserSpeciesBook = async (
   user: DbUser,
-  updater: (
-    prev: DbUser["game_info"]["species_book"],
-  ) => DbUser["game_info"]["species_book"],
+  updater: (prev: Species_book[]) => Species_book[],
 ) => {
   try {
-    const newSpeciesBook = updater(user.game_info.species_book);
+    const currentSpecies = user.game_info?.species_book ?? [];
+
+    const newSpeciesBook = updater(currentSpecies);
     const { data, error } = await supabase
       .from("users")
       .update({

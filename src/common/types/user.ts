@@ -28,7 +28,7 @@ type Activities = {
   date: string;
 };
 
-type Species_book = {
+export type Species_book = {
   key: number;
   date: string;
   fav: boolean;
@@ -51,11 +51,11 @@ type Achievements = {
 
 type GameInfo = {
   activities: Activities[];
-  species_book: Species_book[];
-  shortcuts: Shortcuts;
-  progress: Progress;
+  species_book?: Species_book[];
+  shortcuts?: Shortcuts;
+  progress?: Progress;
   top_fav_species?: Node[];
-  achievements: Achievements;
+  achievements?: Achievements;
 };
 
 export type DbUser = {

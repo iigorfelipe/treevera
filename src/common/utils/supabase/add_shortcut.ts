@@ -1,14 +1,15 @@
-import type { DbUser } from "@/common/types/user";
+import type { DbUser, Shortcuts } from "@/common/types/user";
 import { supabase } from "./client";
 
 export const updateUserShortcut = async (
   user: DbUser,
-  updater: (
-    prev: DbUser["game_info"]["shortcuts"],
-  ) => DbUser["game_info"]["shortcuts"],
+  updater: (prev: Shortcuts) => Shortcuts,
 ) => {
   try {
-    const newShortcuts = updater(user.game_info.shortcuts);
+    const currentShortcuts = user.game_info.shortcuts ?? ({} as Shortcuts);
+
+    const newShortcuts = updater(currentShortcuts);
+
     const { data, error } = await supabase
       .from("users")
       .update({ game_info: { ...user.game_info, shortcuts: newShortcuts } })
