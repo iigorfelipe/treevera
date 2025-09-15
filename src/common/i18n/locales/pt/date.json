@@ -1,0 +1,8 @@
+{
+  "time": {
+    "now": "Agora mesmo",
+    "minutesAgo": "{{count}}m atrás",
+    "yesterday": "Ontem",
+    "daysAgo": "{{count}} dias atrás"
+  }
+}
