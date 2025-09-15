@@ -13,8 +13,7 @@ dist-ssr
 *.local
 .env
 
-features.md
-gamificação.md
+src/store/auth/atoms.md
 
 # Editor directories and files
 .vscode/*
