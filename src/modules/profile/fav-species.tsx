@@ -1,40 +1,96 @@
 import { Image } from "@/common/components/image";
 import { cn } from "@/common/utils/cn";
+import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { authStore } from "@/store/auth";
 import { useAtomValue } from "jotai";
-import { Plus } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
+import { useMemo } from "react";
 
 export const FavoriteSpecies = () => {
   const userDb = useAtomValue(authStore.userDb);
 
-  const favSpecies = userDb?.game_info.top_fav_species || [];
+  const topFavSpecies = useMemo(() => {
+    const topFav = userDb?.game_info.top_fav_species ?? [];
+    const speciesBook = userDb?.game_info.species_book ?? [];
+
+    if (topFav.length === 4) {
+      return topFav;
+    }
+
+    const bookFavs = speciesBook
+      .filter((s) => s.fav)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    const existingKeys = new Set(topFav.map((n) => n.key));
+
+    const missing = bookFavs
+      .filter((s) => !existingKeys.has(s.key))
+      .slice(0, 4 - topFav.length)
+      .map((s) => ({
+        key: s.key,
+        name: s.specie_name,
+        family: s.family_name,
+      }));
+
+    const result = [...topFav, ...missing].slice(0, 4).map((item, idx) => ({
+      ...item,
+      rank: idx + 1,
+    }));
+
+    return result;
+  }, [userDb]);
+
+  const [first, second, third, fourth] = topFavSpecies;
+
+  const img1 = useGetSpecieImage(first?.key, first?.name);
+  const img2 = useGetSpecieImage(second?.key, second?.name);
+  const img3 = useGetSpecieImage(third?.key, third?.name);
+  const img4 = useGetSpecieImage(fourth?.key, fourth?.name);
+
+  const speciesWithImages = useMemo(
+    () =>
+      [
+        { ...first, image: img1.data, isLoading: img1.isLoading },
+        { ...second, image: img2.data, isLoading: img2.isLoading },
+        { ...third, image: img3.data, isLoading: img3.isLoading },
+        { ...fourth, image: img4.data, isLoading: img4.isLoading },
+      ].filter(Boolean),
+    [first, second, third, fourth, img1, img2, img3, img4],
+  );
 
   return (
     <div className="space-y-3">
       <h2 className="border-b">ESPÉCIES FAVORITAS</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {favSpecies.map((species, index) => (
+        {speciesWithImages.map((species, index) => (
           <div
             key={index}
             className="group flex cursor-pointer flex-col items-center gap-2"
           >
-            {species ? (
+            {species && species.image?.imgUrl ? (
               <>
                 <figure className="h-[277px] w-[194px] overflow-hidden rounded-lg shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
-                  <Image
-                    src={""}
-                    alt={species.name}
-                    className={cn(
-                      "size-full object-cover",
-                      index === 3 && "object-[63%_center]",
-                    )}
-                  />
+                  {species.isLoading ? (
+                    <div className="bg-accent flex size-full animate-pulse items-center justify-center">
+                      <Loader className="size-5 animate-spin" />
+                    </div>
+                  ) : (
+                    <Image
+                      src={species.image?.imgUrl ?? ""}
+                      alt={species.name}
+                      loading="lazy"
+                      className={cn(
+                        "size-full object-cover",
+                        // index === 3 && "object-[63%_center]",
+                      )}
+                    />
+                  )}
                 </figure>
 
                 <div className="text-center">
                   <div className="text-xs font-medium">{species.name}</div>
-                  <div className="text-xs italic">{species.name}</div>
+                  <div className="text-xs italic">{species.family}</div>
                 </div>
               </>
             ) : (
