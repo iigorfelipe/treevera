@@ -1,6 +1,13 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { Rank } from "./api";
 
+type FavSpecies = {
+  key: number;
+  name: string;
+  img: string;
+  family: string;
+};
+
 type Node = {
   rank: Rank;
   key: number;
@@ -54,7 +61,7 @@ type GameInfo = {
   species_book?: Species_book[];
   shortcuts?: Shortcuts;
   progress?: Progress;
-  top_fav_species?: Node[];
+  top_fav_species?: FavSpecies[];
   achievements?: Achievements;
 };
 
