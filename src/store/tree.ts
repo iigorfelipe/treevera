@@ -88,55 +88,62 @@ export const setNodeChildrenAtom = atom(
 );
 
 export const toggleNodeAtom = atom(null, (get, set, key: number) => {
-  const nodes = get(nodesAtom);
-  const node = nodes[key];
-  if (!node) return;
+  const allNodes = get(nodesAtom);
+  const targetNode = allNodes[key];
 
-  if (node.expanded) {
+  if (!targetNode) return;
+
+  const expandedPath = get(expandedNodes);
+  const pathIndex = expandedPath.findIndex((n) => n.key === key);
+
+  if (pathIndex !== -1) {
     set(nodesAtom, (prev) => ({
       ...prev,
       [key]: { ...prev[key], expanded: false },
     }));
 
-    const currentPath = get(expandedNodes);
-    const idx = currentPath.findIndex((n) => n.key === key);
-    if (idx !== -1) {
-      set(expandedNodes, currentPath.slice(0, idx));
-    }
-  } else {
-    const path: NodeEntity[] = [];
-    let current: NodeEntity | undefined = node;
-
-    while (current) {
-      path.unshift(current);
-      current = current.parentKey ? nodes[current.parentKey] : undefined;
-    }
-
-    set(nodesAtom, (prev) => {
-      const next: Record<number, NodeEntity> = {};
-
-      for (const k in prev) {
-        next[+k] = { ...prev[+k], expanded: false };
-      }
-
-      for (const n of path) {
-        next[n.key] = { ...next[n.key], expanded: true };
-      }
-
-      return next;
-    });
-
-    const pathNodes: PathNode[] = path.map((n) => ({
-      key: n.key,
-      rank: n.rank,
-      name:
-        n.rank === "KINGDOM"
-          ? capitalizar(NAME_KINGDOM_BY_KEY[n.key])
-          : n.canonicalName || n.scientificName || "",
-    }));
-
-    set(expandedNodes, pathNodes);
+    set(expandedNodes, expandedPath.slice(0, pathIndex));
+    return;
   }
+
+  const ancestorPath: NodeEntity[] = [];
+  let currentNode: NodeEntity | undefined = targetNode;
+
+  while (currentNode) {
+    ancestorPath.unshift(currentNode);
+    currentNode = currentNode.parentKey
+      ? allNodes[currentNode.parentKey]
+      : undefined;
+  }
+
+  set(nodesAtom, (prev) => {
+    const updatedNodes: Record<number, NodeEntity> = {};
+
+    for (const keyStr in prev) {
+      updatedNodes[+keyStr] = { ...prev[+keyStr], expanded: false };
+    }
+
+    for (const node of ancestorPath) {
+      const shouldExpand = node.rank !== "SPECIES";
+      updatedNodes[node.key] = {
+        ...updatedNodes[node.key],
+        expanded: shouldExpand,
+      };
+    }
+
+    return updatedNodes;
+  });
+
+  const newPathNodes: PathNode[] = ancestorPath.map((node) => ({
+    key: node.key,
+    rank: node.rank,
+    name:
+      node.rank === "KINGDOM"
+        ? capitalizar(NAME_KINGDOM_BY_KEY[node.key])
+        : node.canonicalName || node.scientificName || "",
+  }));
+
+  set(expandedNodes, newPathNodes);
 });
 
 export const syncExpandedWithNodesAtom = atom(null, (get, set) => {
@@ -152,10 +159,11 @@ export const syncExpandedWithNodesAtom = atom(null, (get, set) => {
     }
 
     for (const path of pathNodes) {
+      const shouldExpand = path.rank !== "SPECIES";
       if (next[path.key]) {
-        next[path.key] = { ...next[path.key], expanded: true };
+        next[path.key] = { ...next[path.key], expanded: shouldExpand };
       } else {
-        next[path.key] = { ...path, numDescendants: 0, expanded: true };
+        next[path.key] = { ...path, numDescendants: 0, expanded: shouldExpand };
       }
     }
 
