@@ -72,7 +72,7 @@ export const TreeNodeLiContent = ({
     >
       {!isKingdom && (
         <div
-          className="z-50 mt-1.5 flex items-center justify-center rounded-full p-px text-white"
+          className="z-50 mt-1.5 flex cursor-pointer items-center justify-center rounded-full p-px text-white"
           style={{
             backgroundColor: kingdomColor,
             width: TREE_TOGGLE_BUTTON_DIAMETER_PX,
@@ -87,7 +87,7 @@ export const TreeNodeLiContent = ({
           {isLoading ? (
             <Loader className="animate-spin" />
           ) : isSpecie ? (
-            ""
+            <span className="size-5" />
           ) : (
             <span className="flex size-5 items-center justify-center pb-0.5 font-bold">
               {isExpanded ? "−" : "+"}
