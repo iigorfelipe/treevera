@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
+export type ImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
   fallbackSrc?: string;
   onFallbackChange?: (isFallback: boolean) => void;
 };
@@ -13,7 +13,7 @@ export const Image = ({
   decoding = "async",
   onFallbackChange,
   ...props
-}: Props) => {
+}: ImageProps) => {
   const [imgSrc, setImgSrc] = useState(src);
 
   useEffect(() => {

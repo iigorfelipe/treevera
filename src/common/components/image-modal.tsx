@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ZoomableImage } from "./zoomable-image";
+import { ImageWithZoom } from "./image-with-zoom";
 
 type ImageModalProps = {
   src: string;
@@ -25,7 +25,7 @@ export const ImageModal = ({ src, alt, onClose }: ImageModalProps) => {
         className="relative max-h-[100%] max-w-[100%] overflow-hidden shadow-xl transition-all"
         onClick={(e) => e.stopPropagation()}
       >
-        <ZoomableImage src={src} alt={alt} />
+        <ImageWithZoom src={src} alt={alt} />
       </div>
     </div>
   );

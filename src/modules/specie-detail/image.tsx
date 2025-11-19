@@ -7,6 +7,7 @@ import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { treeAtom } from "@/store/tree";
+import { ImageWithZoom } from "@/common/components/image-with-zoom";
 
 export const SpecieImageDetail = () => {
   const specieKey = useAtomValue(treeAtom.expandedNodes).find(
@@ -66,11 +67,12 @@ export const SpecieImageDetail = () => {
   return (
     <div className="relative mx-auto h-fit w-full">
       <figure>
-        <Image
+        <ImageWithZoom
           src={imageData.imgUrl || fallbackImage}
           fallbackSrc={fallbackImage}
           alt={`Imagem da espécie "${specieDetail.scientificName}"`}
           onFallbackChange={setIsFallback}
+          zoom={3}
           className="h-auto w-full rounded-lg"
         />
       </figure>
