@@ -31,7 +31,9 @@ export const SpecieImageDetail = () => {
     return <SkeletonImage />;
   }
 
-  const fallbackImage = getRankIcon(KEY_KINGDOM_BY_NAME[specieDetail.kingdom]);
+  const fallbackImage = getRankIcon(
+    KEY_KINGDOM_BY_NAME[specieDetail.kingdom.toLowerCase() as "animalia"],
+  );
 
   if (!imageData || isFallback) {
     return (
@@ -39,7 +41,7 @@ export const SpecieImageDetail = () => {
         <Image
           src={fallbackImage}
           alt={specieDetail.scientificName}
-          className="opacity-30"
+          className="max-h-48 opacity-30"
         />
         <span>Imagem não encontrada.</span>
         <div className="rounded-md border p-3 text-xs">
