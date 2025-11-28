@@ -70,7 +70,7 @@ export const ImageWithZoom = ({ zoom = 3, ...imageProps }: Props) => {
           <Image
             src={imageProps.src}
             alt={imageProps.alt}
-            className="max-height-[95vh] max-w-[95vw] rounded-lg object-contain"
+            className="max-h-[95vh] max-w-[95vw] rounded-lg object-contain"
             draggable={false}
           />
         </div>
