@@ -42,7 +42,7 @@ export const getSpecieImageFromGBIF = async ({ specieKey }: Params) => {
 // *****************************************************************************************************
 // ## TODO: buscar ocorrencias e traduções
 
-// const OCCURRENCE_URL = `${GBIF_BASE_URL}/occurrence`;
+const OCCURRENCE_URL = `${GBIF_BASE_URL}/occurrence`;
 
 // export const getSpecieBySuggestName = async (suggestName: string) => {
 //   const url = `${SPECIES_URL}/suggest?q=${suggestName}&limit=1`;
@@ -58,11 +58,11 @@ export const getSpecieImageFromGBIF = async ({ specieKey }: Params) => {
 // Tem language (ex: "pt", "es", "en")
 // Tem source (ex: "ITIS", "COL", etc.)
 
-// export const getOccurrence = async (key: number) => {
-//   const url = `${OCCURRENCE_URL}/search?taxonKey=${key}&limit=1`;
-//   const data = await fetch(url).then((res) => res.json());
-//   return data.json();
-// };
+export const getOccurrence = async (key: number) => {
+  const url = `${OCCURRENCE_URL}/search?taxonKey=${key}`;
+  const data = await fetch(url).then((res) => res.json());
+  return data;
+};
 // Resposta tem country, decimalLatitude, decimalLongitude
 // Mesmo taxonKey do species
 
