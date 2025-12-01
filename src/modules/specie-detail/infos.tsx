@@ -96,12 +96,14 @@ export const SpecieInfos = () => {
         <div className="flex items-center gap-4">
           <h1 className="text-3xl font-bold">{specieDetail.canonicalName}</h1>
 
-          <Heart
-            className="ml-auto size-6 cursor-pointer text-red-500"
-            fill={fav ? "red" : "transparent"}
-            strokeWidth={fav ? 0 : 2}
-            onClick={toggleFav}
-          />
+          {userDb && (
+            <Heart
+              className="ml-auto size-6 cursor-pointer text-red-500"
+              fill={fav ? "red" : "transparent"}
+              strokeWidth={fav ? 0 : 2}
+              onClick={toggleFav}
+            />
+          )}
         </div>
         {specieDetail.scientificName && (
           <i className="text-primary/87">{specieDetail.scientificName}</i>
