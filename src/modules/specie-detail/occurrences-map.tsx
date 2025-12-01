@@ -60,12 +60,12 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
                     <strong>País:</strong> {o.country ?? "Não informado"}
                   </p>
                   <p>
-                    <strong>Data:</strong>
+                    <strong>Data: </strong>
                     {o.eventDate
                       ? new Date(o.eventDate).toLocaleDateString()
                       : "Sem data"}
                   </p>
-                  <p>
+                  <p className="wrap-break-word">
                     <strong>Registrado por:</strong>{" "}
                     {o.recordedBy ?? "Desconhecido"}
                   </p>
