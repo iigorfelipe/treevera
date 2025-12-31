@@ -37,10 +37,7 @@ export const Menu = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        asChild
-        className="group bottom-0 z-50 flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-xl rounded-l-none rounded-b-none backdrop-blur-2xl md:absolute"
-      >
+      <DropdownMenuTrigger asChild className="group cursor-pointer">
         <div className="rounded-full">
           {isAuthenticated && userDb ? (
             <Avatar>

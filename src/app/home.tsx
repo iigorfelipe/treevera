@@ -8,7 +8,6 @@ import {
   ResizablePanelGroup,
 } from "@/common/components/ui/resizable";
 import { Header } from "@/modules/header";
-import { Menu } from "@/modules/header/menu";
 import { useResponsive } from "@/hooks/use-responsive";
 import { treeAtom } from "@/store/tree";
 
@@ -17,8 +16,9 @@ export const Home = () => {
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
 
   const { isTablet } = useResponsive();
+
   return isTablet ? (
-    <>
+    <div className="flex flex-col">
       <Header />
       {isSpecie ? (
         <SpecieDetail />
@@ -28,22 +28,21 @@ export const Home = () => {
           <ExploreInfo />
         </>
       )}
-    </>
+    </div>
   ) : (
     <ResizablePanelGroup direction="horizontal">
       <ResizablePanel
         className="relative"
-        defaultSize={30}
-        minSize={20}
-        maxSize={40}
+        defaultSize={35}
+        minSize={35}
+        maxSize={55}
       >
         <Header />
         <Tree />
-        <Menu />
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel className="flex w-full flex-col gap-4">
-        <div className="h-[100vh] w-full overflow-auto">
+        <div className="h-screen w-full overflow-auto">
           {isSpecie ? <SpecieDetail /> : <ExploreInfo />}
         </div>
       </ResizablePanel>
