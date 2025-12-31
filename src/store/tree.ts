@@ -97,11 +97,6 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
   const pathIndex = expandedPath.findIndex((n) => n.key === key);
 
   if (pathIndex !== -1) {
-    set(nodesAtom, (prev) => ({
-      ...prev,
-      [key]: { ...prev[key], expanded: false },
-    }));
-
     set(expandedNodes, expandedPath.slice(0, pathIndex));
     return;
   }
@@ -115,24 +110,6 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
       ? allNodes[currentNode.parentKey]
       : undefined;
   }
-
-  set(nodesAtom, (prev) => {
-    const updatedNodes: Record<number, NodeEntity> = {};
-
-    for (const keyStr in prev) {
-      updatedNodes[+keyStr] = { ...prev[+keyStr], expanded: false };
-    }
-
-    for (const node of ancestorPath) {
-      const shouldExpand = node.rank !== "SPECIES";
-      updatedNodes[node.key] = {
-        ...updatedNodes[node.key],
-        expanded: shouldExpand,
-      };
-    }
-
-    return updatedNodes;
-  });
 
   const newPathNodes: PathNode[] = ancestorPath.map((node) => ({
     key: node.key,

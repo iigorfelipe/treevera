@@ -15,7 +15,6 @@ export const Tree = () => {
       mergeNodes(
         kingdoms.map((kingdom) => ({
           ...kingdom,
-          expanded: false,
         })),
       );
       setRootKeys(kingdoms.map((k) => k.key));
