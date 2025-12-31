@@ -22,13 +22,10 @@ export const Header = () => {
         <p className="line-clamp-1 text-base/4">Taxonomia interativa</p>
       </div>
 
-      <div className="relative">
-        {isSpecie ? (
-          <ArrowLeft onClick={handleBack} className="size-8 cursor-pointer" />
-        ) : (
-          <Menu />
-        )}
-      </div>
+      {isSpecie && (
+        <ArrowLeft onClick={handleBack} className="size-8 cursor-pointer" />
+      )}
+      <Menu />
     </header>
   );
 };
