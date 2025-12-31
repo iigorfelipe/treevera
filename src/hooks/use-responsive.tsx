@@ -1,24 +1,20 @@
 import { BREAKPOINTS } from "@/design-system/tokens/breakpoints";
 import { useState, useEffect } from "react";
 
-const MOBILE_BREAKPOINT = Number(BREAKPOINTS.sm.split("px")[0]);
-const TABLET_BREAKPOINT = Number(BREAKPOINTS.md.split("px")[0]);
-
-const inititalMobileValue =
-  typeof window !== "undefined" && window.innerWidth <= MOBILE_BREAKPOINT;
-
-const inititalTabletValue =
-  typeof window !== "undefined" && window.innerWidth <= MOBILE_BREAKPOINT;
+const MOBILE_BREAKPOINT = Number(BREAKPOINTS.sm.replace("px", ""));
+const TABLET_BREAKPOINT = Number(BREAKPOINTS.md.replace("px", ""));
 
 export const useResponsive = () => {
-  const [isMobile, setIsMobile] = useState(inititalMobileValue);
-  const [isTablet, setIsTablet] = useState(inititalTabletValue);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
       setIsTablet(window.innerWidth <= TABLET_BREAKPOINT);
     };
+
+    handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

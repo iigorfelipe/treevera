@@ -49,7 +49,7 @@ export const CardInfo = () => {
 
   return (
     <main
-      className="mx-auto min-h-screen max-w-6xl p-10"
+      className="mx-auto min-h-screen w-full max-w-6xl p-10"
       style={{ containerType: "inline-size" }}
     >
       <header className="bg-card flex rounded-xl border p-6 pr-10 shadow-sm">
