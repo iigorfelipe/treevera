@@ -40,6 +40,25 @@ export const getSpecieImageFromGBIF = async ({ specieKey }: Params) => {
 };
 
 // *****************************************************************************************************
+
+export const searchTaxa = async (q: string, kingdom?: string) => {
+  let url = `${SPECIES_URL}/search?q=${encodeURIComponent(q)}&status=ACCEPTED&limit=50`;
+  if (kingdom) {
+    url += `&kingdom=${encodeURIComponent(kingdom)}`;
+  }
+
+  const data = await fetch(url).then((res) => res.json());
+  const results = (data.results ?? []) as Taxon[];
+
+  return results;
+};
+
+export const getParents = async (key: number) => {
+  const url = `${SPECIES_URL}/${key}/parents`;
+  const data = await fetch(url).then((res) => res.json());
+  return (data ?? []) as Taxon[];
+};
+
 // ## TODO: buscar ocorrencias e traduções
 
 const OCCURRENCE_URL = `${GBIF_BASE_URL}/occurrence`;
