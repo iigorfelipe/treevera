@@ -32,12 +32,10 @@ export const FavoriteSpecies = () => {
         family: s.family_name,
       }));
 
-    const result = [...topFav, ...missing].slice(0, 4).map((item, idx) => ({
+    return [...topFav, ...missing].slice(0, 4).map((item, idx) => ({
       ...item,
       rank: idx + 1,
     }));
-
-    return result;
   }, [userDb]);
 
   const [first, second, third, fourth] = topFavSpecies;
@@ -62,15 +60,15 @@ export const FavoriteSpecies = () => {
     <div className="space-y-3">
       <h2 className="border-b">ESPÉCIES FAVORITAS</h2>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 overflow-visible sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {speciesWithImages.map((species, index) => (
           <div
             key={index}
-            className="group flex cursor-pointer flex-col items-center gap-2"
+            className="group relative flex cursor-pointer flex-col items-center gap-2"
           >
             {species && species.image?.imgUrl ? (
               <>
-                <figure className="h-[277px] w-[194px] overflow-hidden rounded-lg shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
+                <figure className="relative h-[277px] w-[194px] overflow-hidden rounded-lg bg-neutral-100 shadow-sm transition-all duration-300 ease-out group-hover:z-20 group-hover:scale-140 group-hover:shadow-xl">
                   {species.isLoading ? (
                     <div className="bg-accent flex size-full animate-pulse items-center justify-center">
                       <Loader className="size-5 animate-spin" />
@@ -81,20 +79,20 @@ export const FavoriteSpecies = () => {
                       alt={species.name}
                       loading="lazy"
                       className={cn(
-                        "size-full object-cover",
-                        // index === 3 && "object-[63%_center]",
+                        "size-full transition-all duration-300 ease-out",
+                        "object-cover group-hover:object-contain",
                       )}
                     />
                   )}
                 </figure>
 
-                <div className="text-center">
+                <div className="text-center transition-opacity duration-300 group-hover:opacity-100">
                   <div className="text-xs font-medium">{species.name}</div>
                   <div className="text-xs italic">{species.family}</div>
                 </div>
               </>
             ) : (
-              <div className="dark:bg-accent flex h-[277px] w-[194px] items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-400 bg-slate-50 transition-all duration-300 hover:bg-transparent">
+              <div className="dark:bg-accent flex h-[277px] w-[194px] items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-slate-400 bg-slate-50 transition-all duration-300 hover:scale-105">
                 <div className="text-center">
                   <Plus className="mx-auto mb-2 h-8 w-8 text-slate-400" />
                   <div className="text-xs text-slate-500">
