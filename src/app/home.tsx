@@ -10,6 +10,7 @@ import {
 import { Header } from "@/modules/header";
 import { useResponsive } from "@/hooks/use-responsive";
 import { treeAtom } from "@/store/tree";
+import { DailyChallenge } from "./auth/challenge";
 
 export const Home = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
@@ -43,7 +44,14 @@ export const Home = () => {
       <ResizableHandle />
       <ResizablePanel className="flex w-full flex-col gap-4">
         <div className="h-screen w-full overflow-auto">
-          {isSpecie ? <SpecieDetail /> : <ExploreInfo />}
+          {isSpecie ? (
+            <SpecieDetail />
+          ) : (
+            <>
+              <DailyChallenge />
+              <ExploreInfo />
+            </>
+          )}
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>
