@@ -1,9 +1,10 @@
 import type { StatusCode } from "@/common/components/vulnerability-badge";
 
-const WIKI = `https://en.wikipedia.org/api/rest_v1/page/summary`;
+// const WIKI_EN = `https://en.wikipedia.org/api/rest_v1/page/summary`;
+const WIKI_PT = `https://pt.wikipedia.org/api/rest_v1/page/summary`;
 
 export const getWikiSpecieDetail = async (name: string) => {
-  const res = await fetch(`${WIKI}/${name}`);
+  const res = await fetch(`${WIKI_PT}/${name}`);
   return await res.json();
 };
 
@@ -70,7 +71,7 @@ type Params = { canonicalName: string };
 export const getSpecieImageFromWikipedia = async ({
   canonicalName,
 }: Params) => {
-  const url = `${WIKI}/${encodeURIComponent(canonicalName)}`;
+  const url = `${WIKI_PT}/${encodeURIComponent(canonicalName)}`;
 
   const wikiRes = await fetch(url).then((res) => res.json());
 
