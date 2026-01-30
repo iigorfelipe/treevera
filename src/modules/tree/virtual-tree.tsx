@@ -9,6 +9,7 @@ import { Overlay } from "./overlay";
 import { Search } from "./search";
 
 import "./tree.css";
+import { getDailySpecies } from "@/common/utils/game/daily-species";
 
 export const VirtualTree = () => {
   useExpandedSync();
@@ -16,6 +17,9 @@ export const VirtualTree = () => {
   const parentRef = useRef<HTMLDivElement>(null);
   const nodes = useAtomValue(treeAtom.nodes);
   const roots = useAtomValue(treeAtom.rootKeys);
+  const challengeStarted =
+    useAtomValue(treeAtom.challenge).status === "IN_PROGRESS";
+  const speciesName = getDailySpecies();
 
   const { flattened, rowVirtualizer, connectors } = useVirtualTree(
     nodes,
@@ -26,7 +30,16 @@ export const VirtualTree = () => {
   return (
     <>
       <div className="mt-28 mb-4 px-4">
-        <Search />
+        {challengeStarted ? (
+          <p className="text-lg leading-relaxed font-medium text-gray-700">
+            Expanda os nós até encontrar a espécie{" "}
+            <i className="font-semibold tracking-wide text-emerald-600 dark:text-green-500">
+              {speciesName}
+            </i>
+          </p>
+        ) : (
+          <Search />
+        )}
       </div>
 
       <div
