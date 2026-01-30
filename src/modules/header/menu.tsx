@@ -12,7 +12,7 @@ import {
 } from "@/common/components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/theme";
-import { Loader, LogIn, LogOut, MenuIcon } from "lucide-react";
+import { Loader, LogIn, LogOut, MenuIcon, Target } from "lucide-react";
 import i18n from "@/common/i18n";
 import { Link } from "@tanstack/react-router";
 import {
@@ -20,11 +20,12 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 
 import { Button } from "@/common/components/ui/button";
 import { authStore } from "@/store/auth";
 import { useAuth } from "@/hooks/auth/use-auth-profile";
+import { treeAtom } from "@/store/tree";
 
 export const Menu = () => {
   const { changeTheme, theme } = useTheme();
@@ -33,6 +34,7 @@ export const Menu = () => {
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
   const isLoggingOut = useAtomValue(authStore.logoutStatus) === "loading";
+  const setChallenge = useSetAtom(treeAtom.challenge);
   const { logout } = useAuth();
 
   return (
@@ -78,6 +80,16 @@ export const Menu = () => {
               <DropdownMenuSeparator />
             </DropdownMenuItem>
           )}
+
+          <DropdownMenuItem
+            onClick={() =>
+              setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
+            }
+          >
+            <Target /> Desafios
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
