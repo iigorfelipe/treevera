@@ -1,6 +1,10 @@
 import { Badge } from "@/common/components/ui/badge";
 import type { Rank } from "@/common/types/api";
 import { cn } from "@/common/utils/cn";
+import {
+  getDailySpecies,
+  speciesPaths,
+} from "@/common/utils/game/daily-species";
 
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
@@ -18,14 +22,17 @@ const kingdoms: Rank[] = [
 
 export const TaxonomicPath = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
+  const speciesName = getDailySpecies();
+  const correctPath = speciesPaths[speciesName] || [];
 
-  const getBadgeClassName = (rank: Rank) => {
-    const idx = expandedNodes.findIndex((n) => n.rank === rank);
-    if (idx === -1) return "";
-    if (idx === expandedNodes.length - 1) {
-      return "bg-blue-500 ";
+  const getBadgeClassName = (rank: Rank, index: number) => {
+    const expandedNode = expandedNodes[index];
+    const expected = correctPath[index];
+    if (!expandedNode || expandedNode.rank !== rank) return "";
+    if (expected && expandedNode.name === expected.name) {
+      return "bg-green-500 text-white";
     }
-    return "bg-emerald-400 ";
+    return "bg-red-500 text-white";
   };
 
   return (
@@ -36,8 +43,7 @@ export const TaxonomicPath = () => {
       </div>
       <div className="flex items-center gap-2">
         {kingdoms.map((rank, index) => {
-          const badgeClass = getBadgeClassName(rank);
-
+          const badgeClass = getBadgeClassName(rank, index);
           return (
             <div key={rank} className="flex items-center">
               <Badge variant="outline" className={cn(badgeClass)}>
