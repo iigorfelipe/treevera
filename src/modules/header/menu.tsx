@@ -12,7 +12,14 @@ import {
 } from "@/common/components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/theme";
-import { Loader, LogIn, LogOut, MenuIcon, Target } from "lucide-react";
+import {
+  Loader,
+  LogIn,
+  LogOut,
+  MenuIcon,
+  Target,
+  Telescope,
+} from "lucide-react";
 import i18n from "@/common/i18n";
 import { Link } from "@tanstack/react-router";
 import {
@@ -87,6 +94,14 @@ export const Menu = () => {
             }
           >
             <Target /> Desafios
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            onClick={() => setChallenge({ mode: null, status: "NOT_STARTED" })}
+          >
+            <Telescope /> Explorar
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
