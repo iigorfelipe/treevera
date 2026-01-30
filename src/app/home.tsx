@@ -31,12 +31,12 @@ export const Home = () => {
       )}
     </div>
   ) : (
-    <ResizablePanelGroup direction="horizontal">
+    <ResizablePanelGroup orientation="horizontal">
       <ResizablePanel
         className="relative"
-        defaultSize={35}
-        minSize={35}
-        maxSize={55}
+        defaultSize={480}
+        minSize={452}
+        maxSize={855}
       >
         <Header />
         <Tree />
