@@ -1,6 +1,6 @@
 import type { Kingdom, Rank } from "./api";
 
-export type ChallengeMode = "DAILY" | "RANDOM" | null;
+export type ChallengeMode = "DAILY" | "RANDOM" | "UNSET" | null;
 type ChallengeStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 
 export type Challenge = {
