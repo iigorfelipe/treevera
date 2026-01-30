@@ -14,6 +14,7 @@ import { DailyChallenge } from "./auth/challenge";
 
 export const Home = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
+  const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
 
   const { isTablet } = useResponsive();
@@ -44,12 +45,15 @@ export const Home = () => {
       <ResizableHandle />
       <ResizablePanel className="flex w-full flex-col gap-4">
         <div className="h-screen w-full overflow-auto">
-          {isSpecie ? (
-            <SpecieDetail />
+          {!challengeMode ? (
+            isSpecie ? (
+              <SpecieDetail />
+            ) : (
+              <ExploreInfo />
+            )
           ) : (
             <>
               <DailyChallenge />
-              <ExploreInfo />
             </>
           )}
         </div>
