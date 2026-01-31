@@ -9,7 +9,9 @@ import { Overlay } from "./overlay";
 import { Search } from "./search";
 
 import "./tree.css";
-import { getDailySpecies } from "@/common/utils/game/daily-species";
+import { useResponsive } from "@/hooks/use-responsive";
+import { DailyChallenge } from "@/app/auth/challenge";
+import { cn } from "@/common/utils/cn";
 
 export const VirtualTree = () => {
   useExpandedSync();
@@ -17,9 +19,9 @@ export const VirtualTree = () => {
   const parentRef = useRef<HTMLDivElement>(null);
   const nodes = useAtomValue(treeAtom.nodes);
   const roots = useAtomValue(treeAtom.rootKeys);
-  const challengeStarted =
-    useAtomValue(treeAtom.challenge).status === "IN_PROGRESS";
-  const speciesName = getDailySpecies();
+  const challenge = useAtomValue(treeAtom.challenge);
+
+  const { isTablet } = useResponsive();
 
   const { flattened, rowVirtualizer, connectors } = useVirtualTree(
     nodes,
@@ -29,22 +31,24 @@ export const VirtualTree = () => {
 
   return (
     <>
-      <div className="mt-28 mb-4 px-4">
-        {challengeStarted ? (
-          <p className="text-lg leading-relaxed font-medium text-gray-700">
-            Expanda os nós até encontrar a espécie{" "}
-            <i className="font-semibold tracking-wide text-emerald-600 dark:text-green-500">
-              {speciesName}
-            </i>
-          </p>
-        ) : (
-          <Search />
+      <div
+        className={cn(
+          "mt-22 mb-4 px-4",
+          challenge.status === "IN_PROGRESS" && isTablet && "m-0 mb-2",
         )}
+      >
+        {challenge.mode && isTablet && <DailyChallenge />}
+
+        {!challenge.mode && <Search />}
       </div>
 
       <div
         ref={parentRef}
-        className="h-[calc(100dvh-230px)] w-full overflow-auto px-4 pb-28"
+        className={cn(
+          "h-[calc(100dvh-230px)] w-full overflow-auto px-4 pb-28",
+          challenge.mode && !isTablet && "h-[calc(100dvh-130px)]",
+          challenge.mode === "UNSET" && "pointer-events-none opacity-40",
+        )}
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <ul
