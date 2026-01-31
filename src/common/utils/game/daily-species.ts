@@ -1,33 +1,43 @@
 import type { Rank } from "@/common/types/api";
 
 export const dailySpecies = [
-  "Homo sapiens Linnaeus, 1758",
-  "Apis mellifera Linnaeus, 1758",
-  "Manis culionensis (de Elera, 1915)",
-  "Pestalotiopsis microspora (Speg.) G.C.Zhao & Nan Li",
-  "Turritopsis dohrnii (Weismann, 1883)",
+  "Homo sapiens",
+  "Apis mellifera",
+  "Manis culionensis",
+  "Pestalotiopsis microspora",
+  "Turritopsis dohrnii",
   "Mimosa pudica L.",
   "Halobacterium salinarum",
   "Deinococcus radiodurans",
-  "Naegleria fowleri R.F.Carter, 1970",
-  "Phytophthora infestans (Mont.) de Bary",
-  "Inia geoffrensis (Blainville, 1817)",
+  "Naegleria fowleri",
+  "Phytophthora infestans",
+  "Inia geoffrensis",
 ];
 
-export const getDailySpecies = (date: Date = new Date()) => {
-  const start = new Date(date.getFullYear(), 0, 0);
-  const diff = date.getTime() - start.getTime();
-  const oneDay = 1000 * 60 * 60 * 24;
-  const dayOfYear = Math.floor(diff / oneDay);
-  const idx = dayOfYear % dailySpecies.length;
-  return dailySpecies[idx];
+export const getDailySpecies = () => {
+  // const start = new Date(date.getFullYear(), 0, 0);
+  // const diff = date.getTime() - start.getTime();
+  // const oneDay = 1000 * 60 * 60 * 24;
+  // const dayOfYear = Math.floor(diff / oneDay);
+  // const idx = dayOfYear % dailySpecies.length;
+  // return dailySpecies[idx];
+  return dailySpecies[0];
 };
 
 export const speciesPaths: Record<
   string,
   Array<{ rank: Rank; name: string }>
 > = {
-  "Apis mellifera Linnaeus, 1758": [
+  "Homo sapiens": [
+    { rank: "KINGDOM", name: "Animalia" },
+    { rank: "PHYLUM", name: "Chordata" },
+    { rank: "CLASS", name: "Mammalia" },
+    { rank: "ORDER", name: "Primates" },
+    { rank: "FAMILY", name: "Hominidae" },
+    { rank: "GENUS", name: "Homo" },
+    { rank: "SPECIES", name: "Homo sapiens" },
+  ],
+  "Apis mellifera": [
     { rank: "KINGDOM", name: "Animalia" },
     { rank: "PHYLUM", name: "Arthropoda" },
     { rank: "CLASS", name: "Insecta" },
@@ -36,7 +46,7 @@ export const speciesPaths: Record<
     { rank: "GENUS", name: "Apis" },
     { rank: "SPECIES", name: "Apis mellifera" },
   ],
-  "Manis culionensis (de Elera, 1915)": [
+  "Manis culionensis": [
     { rank: "KINGDOM", name: "Animalia" },
     { rank: "PHYLUM", name: "Chordata" },
     { rank: "CLASS", name: "Mammalia" },
@@ -45,7 +55,7 @@ export const speciesPaths: Record<
     { rank: "GENUS", name: "Manis" },
     { rank: "SPECIES", name: "Manis culionensis" },
   ],
-  "Pestalotiopsis microspora (Speg.) G.C.Zhao & Nan Li": [
+  "Pestalotiopsis microspora": [
     { rank: "KINGDOM", name: "Fungi" },
     { rank: "PHYLUM", name: "Ascomycota" },
     { rank: "CLASS", name: "Sordariomycetes" },
@@ -54,7 +64,7 @@ export const speciesPaths: Record<
     { rank: "GENUS", name: "Pestalotiopsis" },
     { rank: "SPECIES", name: "Pestalotiopsis microspora" },
   ],
-  "Turritopsis dohrnii (Weismann, 1883)": [
+  "Turritopsis dohrnii": [
     { rank: "KINGDOM", name: "Animalia" },
     { rank: "PHYLUM", name: "Cnidaria" },
     { rank: "CLASS", name: "Hydrozoa" },
@@ -90,7 +100,7 @@ export const speciesPaths: Record<
     { rank: "GENUS", name: "Deinococcus" },
     { rank: "SPECIES", name: "Deinococcus radiodurans" },
   ],
-  "Naegleria fowleri R.F.Carter, 1970": [
+  "Naegleria fowleri": [
     { rank: "KINGDOM", name: "Protozoa" },
     { rank: "PHYLUM", name: "Percolozoa" },
     { rank: "CLASS", name: "Heterolobosea" },
@@ -99,7 +109,7 @@ export const speciesPaths: Record<
     { rank: "GENUS", name: "Naegleria" },
     { rank: "SPECIES", name: "Naegleria fowleri" },
   ],
-  "Phytophthora infestans (Mont.) de Bary": [
+  "Phytophthora infestans": [
     { rank: "KINGDOM", name: "Chromista" },
     { rank: "PHYLUM", name: "Oomycota" },
     { rank: "CLASS", name: "Oomycetes" },
@@ -108,7 +118,7 @@ export const speciesPaths: Record<
     { rank: "GENUS", name: "Phytophthora" },
     { rank: "SPECIES", name: "Phytophthora infestans" },
   ],
-  "Inia geoffrensis (Blainville, 1817)": [
+  "Inia geoffrensis": [
     { rank: "KINGDOM", name: "Animalia" },
     { rank: "PHYLUM", name: "Chordata" },
     { rank: "CLASS", name: "Mammalia" },
