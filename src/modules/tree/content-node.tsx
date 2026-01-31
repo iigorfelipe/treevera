@@ -4,13 +4,18 @@ import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
 
 import { capitalizar } from "@/common/utils/string";
-import { Route } from "lucide-react";
+import { CheckCircle2, Route, XCircle } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 import { authStore } from "@/store/auth";
 import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom } from "@/store/tree";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
+import {
+  getDailySpecies,
+  speciesPaths,
+} from "@/common/utils/game/daily-species";
+import { motion } from "framer-motion";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
@@ -18,6 +23,27 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
 
   const isExpanded = node.expanded;
   const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
+
+  const challengeInProgress =
+    useAtomValue(treeAtom.challenge).status === "IN_PROGRESS";
+
+  const feedback = useMemo<"success" | "error" | null>(() => {
+    if (!challengeInProgress) return null;
+
+    const index = expandedNodes.findIndex((n) => n.key === node.key);
+    if (index === -1) return null;
+
+    const speciesName = getDailySpecies();
+    const correctPath = speciesPaths[speciesName] || [];
+    const expected = correctPath[index];
+
+    if (!expected) return null;
+
+    return node.canonicalName === expected.name ||
+      node.scientificName === expected.name
+      ? "success"
+      : "error";
+  }, [expandedNodes, node, challengeInProgress]);
 
   const saveShortcut = async () => {
     if (!userDb) return;
@@ -65,23 +91,41 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   }, [taxonRank, userDb?.game_info?.shortcuts]);
 
   return (
-    <div className="item group flex h-full w-full flex-row items-center gap-2">
+    <motion.div
+      key={`${node.key}-${feedback}`}
+      className="item group flex h-full w-full flex-row items-center gap-2"
+      animate={
+        feedback === "success"
+          ? { scale: [1, 1.05, 1] }
+          : feedback === "error"
+            ? { x: [-4, 4, -2, 2, 0] }
+            : {}
+      }
+      transition={{ duration: 0.3 }}
+    >
       <div className="flex w-full items-center justify-between gap-2">
         <div className="mr-auto flex items-center gap-2">
           <div className="flex flex-col items-start justify-center">
             <span
               className={cn(
-                "transition-transform duration-200 ease-in-out group-hover:scale-105",
+                "transition-all duration-200 ease-in-out",
                 isExpanded && "font-bold",
+                feedback === "success" && "text-emerald-600",
+                feedback === "error" && "text-red-500",
               )}
             >
               {node.canonicalName || node.scientificName}
             </span>
           </div>
 
+          {feedback === "success" && (
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          )}
+          {feedback === "error" && <XCircle className="h-4 w-4 text-red-500" />}
+
           <Badge
             className={cn(
-              "bg-primary-foreground text-primary flex items-center gap-1 rounded-xl px-1 py-[0px] text-[11px] opacity-0 outline-1 group-hover:opacity-100",
+              "bg-primary-foreground text-primary flex items-center gap-1 rounded-xl px-1 py-0 text-[11px] opacity-0 outline-1 group-hover:opacity-100",
               isExpanded && "opacity-100",
             )}
           >
@@ -105,6 +149,6 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
           {node.numDescendants && node.numDescendants.toLocaleString("pt-BR")}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 });
