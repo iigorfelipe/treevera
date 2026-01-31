@@ -5,32 +5,52 @@ import { cn } from "@/common/utils/cn";
 import Alvo from "@/assets/alvo.gif";
 import { TaxonomicPath } from "@/modules/challenge/taxonomic-path";
 import { authStore } from "@/store/auth";
-
 import { treeAtom } from "@/store/tree";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useMemo } from "react";
-import { getDailySpecies } from "@/common/utils/game/daily-species";
+import {
+  getDailySpecies,
+  speciesPaths,
+} from "@/common/utils/game/daily-species";
+import { Timer } from "@/modules/challenge/timer";
+import { motion, AnimatePresence } from "framer-motion";
+import { useResponsive } from "@/hooks/use-responsive";
 
 export const DailyChallenge = () => {
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);
+  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const navigate = useNavigate();
+  const { isTablet } = useResponsive();
+
   const speciesName = getDailySpecies();
+
+  const correctPath = useMemo(
+    () => speciesPaths[speciesName] || [],
+    [speciesName],
+  );
 
   const inProgress = useMemo(
     () => challenge.status === "IN_PROGRESS",
     [challenge.status],
   );
 
-  const handleCkick = useCallback(() => {
+  const correctSteps = useMemo(() => {
+    return expandedNodes.filter((node, index) => {
+      const expected = correctPath[index];
+      return expected && node.name === expected.name;
+    }).length;
+  }, [expandedNodes, correctPath]);
+
+  const progress = (correctSteps / 7) * 100;
+  const isCompleted = correctSteps === 7;
+
+  const handleClick = useCallback(() => {
     if (inProgress) {
-      setChallenge((prev) => ({
-        ...prev,
-        status: "NOT_STARTED",
-        mode: "UNSET"
-      }));
+      setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
+      setExpandedNodes([]);
       return;
     }
 
@@ -39,70 +59,127 @@ export const DailyChallenge = () => {
       return;
     }
 
-    setChallenge((prev) => ({
-      ...prev,
-      status: "IN_PROGRESS",
-      mode: "DAILY"
-    }));
+    setChallenge({ status: "IN_PROGRESS", mode: "DAILY" });
     setExpandedNodes([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inProgress, isAuthenticated]);
+  }, [inProgress, isAuthenticated, navigate, setChallenge, setExpandedNodes]);
+
+  const lastStepWasError = useMemo(() => {
+    const index = expandedNodes.length - 1;
+    if (index < 0) return false;
+
+    const node = expandedNodes[index];
+    const expected = correctPath[index];
+
+    return !!node && !!expected && node.name !== expected.name;
+  }, [expandedNodes, correctPath]);
 
   return (
-    <div className="px-4 py-6">
-      <Card className="mx-auto rounded-2xl border bg-transparent shadow-sm">
+    <div className="md:px-4 md:py-6">
+      <Card className="mx-auto rounded-3xl border bg-transparent shadow-sm">
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            
-            <div className="group flex items-center font-semibold">
+            <div className="flex items-center gap-3">
               <Image src={Alvo} className="size-12" alt="Alvo gif" />
-              <div className="flex flex-col items-start">
-                <h2 className="text-xl font-bold 2xl:text-2xl">Desafio Diário</h2>
-                <p>
+              <div>
+                <h2 className="text-xl font-bold 2xl:text-2xl">
+                  Desafio Diário
+                </h2>
+                <p className="text-sm">
                   Encontre:{" "}
-                  <i className="font-semibold text-emerald-600 dark:text-green-500">
+                  <span className="font-semibold text-emerald-600 dark:text-green-500">
                     {speciesName}
-                  </i>
+                  </span>
                 </p>
               </div>
             </div>
 
-            <div className="text-right">
-              <div className="mb-1 text-sm">Tempo restante</div>
-              <div className="text-lg font-bold">24:00</div>
-            </div>
+            <Timer />
           </div>
 
-          {inProgress && <TaxonomicPath />}
+          {inProgress && (
+            <div className="space-y-1">
+              <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                <motion.div
+                  key={`${expandedNodes.length}-${lastStepWasError ? "error" : "ok"}`}
+                  className={cn(
+                    "h-full rounded-full",
+                    lastStepWasError ? "bg-red-500" : "bg-emerald-500",
+                  )}
+                  initial={{ width: `${progress}%` }}
+                  animate={{
+                    width: `${progress}%`,
+                    x: lastStepWasError ? [-4, 4, -2, 2, 0] : 0,
+                    opacity: lastStepWasError ? [1, 0.6, 1] : 1,
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <motion.p
+                key={`steps-${expandedNodes.length}-${lastStepWasError}`}
+                className={cn(
+                  "text-xs",
+                  lastStepWasError ? "text-red-500" : "text-muted-foreground",
+                )}
+                animate={{
+                  scale: lastStepWasError ? [1, 1.1, 1] : 1,
+                }}
+                transition={{ duration: 0.25 }}
+              >
+                {correctSteps}/7 etapas concluídas
+              </motion.p>
+            </div>
+          )}
 
-          {/* <div className="mb-6 grid grid-cols-3 gap-4">
-            <div className="rounded-xl border p-4 text-center">
-              <div className="text-2xl font-bold">+100</div>
-              <div className="text-sm">XP Base</div>
-            </div>
-            <div className="rounded-xl border p-4 text-center">
-              <div className="text-2xl font-bold">+50</div>
-              <div className="text-sm">Precisão</div>
-            </div>
-            <div className="rounded-xl border p-4 text-center">
-              <div className="text-2xl font-bold">+25</div>
-              <div className="text-sm">Velocidade</div>
-            </div>
-          </div> */}
+          {!isTablet && (
+            <AnimatePresence mode="wait">
+              {isCompleted ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl bg-green-600 px-4 py-3 text-center text-white"
+                >
+                  🎉 Desafio diário concluído!
+                </motion.div>
+              ) : inProgress ? (
+                <motion.div
+                  key="game"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <TaxonomicPath activeIndex={expandedNodes.length} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="intro"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-accent/40 rounded-xl p-6 text-center"
+                >
+                  <p className="mb-2 text-lg font-semibold">Missão do dia</p>
+                  <p className="text-muted-foreground text-sm">
+                    Complete o caminho taxonômico antes do tempo acabar para
+                    ganhar recompensas e manter seu streak diário.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
 
-          <Button
-            size="lg"
-            className={cn(
-              "cursor-pointer bg-emerald-600 p-6 hover:bg-emerald-600/90",
-              inProgress && "bg-red-500 p-6 hover:bg-red-500/90",
-            )}
-            onClick={handleCkick}
-          >
-            <span className="text-xl">
+          {!isCompleted && (
+            <Button
+              size="lg"
+              className={cn(
+                "text-lg transition-all md:mt-2 md:p-6",
+                inProgress
+                  ? "bg-red-500 hover:bg-red-500/90"
+                  : "bg-emerald-600 hover:bg-emerald-600/90",
+              )}
+              onClick={handleClick}
+            >
               {inProgress ? "Cancelar Desafio" : "Iniciar Desafio"}
-            </span>
-          </Button>
- 
+            </Button>
+          )}
         </CardContent>
       </Card>
     </div>
