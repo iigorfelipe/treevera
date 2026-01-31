@@ -22,7 +22,7 @@ export const Home = () => {
   return isTablet ? (
     <div className="flex flex-col">
       <Header />
-      {isSpecie ? (
+      {!challenge.mode && isSpecie ? (
         <SpecieDetail />
       ) : (
         <>
