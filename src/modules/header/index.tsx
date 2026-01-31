@@ -1,20 +1,31 @@
 import { Image } from "@/common/components/image";
 import logoUrl from "@/assets/images/avif-new-logo.avif?url";
 import { Menu } from "./menu";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { treeAtom } from "@/store/tree";
 import { ArrowLeft } from "lucide-react";
+import { cn } from "@/common/utils/cn";
+import { useResponsive } from "@/hooks/use-responsive";
 
 export const Header = () => {
   const [expandedNodes, setExpandedNodes] = useAtom(treeAtom.expandedNodes);
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
+  const challengeMode =
+    useAtomValue(treeAtom.challenge).status === "IN_PROGRESS";
+  const { isTablet } = useResponsive();
 
   const handleBack = () => {
     setExpandedNodes((old) => old.slice(0, -1));
   };
 
   return (
-    <header className="fixed z-50 flex w-[calc(100%-8px)] items-center justify-between gap-3 rounded-br-2xl pt-4 pb-6 backdrop-blur-lg sm:absolute">
+    <header
+      className={cn(
+        "fixed z-50 flex w-[calc(100%-8px)] items-center justify-between gap-3 rounded-br-2xl pt-4 pb-6 backdrop-blur-lg sm:absolute",
+        challengeMode && "relative",
+        challengeMode && isTablet && "backdrop-blur-none",
+      )}
+    >
       <Image alt="Logo" src={logoUrl} className="h-12" />
 
       <div className="flex w-full flex-col">
