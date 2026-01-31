@@ -4,7 +4,7 @@ import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
 
 import { capitalizar } from "@/common/utils/string";
-import { CheckCircle2, Route, XCircle } from "lucide-react";
+import { Dna, Route, DnaOff } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 import { authStore } from "@/store/auth";
 import type { Shortcuts } from "@/common/types/user";
@@ -47,6 +47,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
 
   const saveShortcut = async () => {
     if (!userDb) return;
+    if (challengeInProgress) return;
 
     void updateUserShortcut(userDb, (prev) => {
       const currentShortcuts = prev[taxonRank] ?? [];
@@ -119,9 +120,9 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
           </div>
 
           {feedback === "success" && (
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+            <Dna className="h-4 w-4 text-emerald-500" />
           )}
-          {feedback === "error" && <XCircle className="h-4 w-4 text-red-500" />}
+          {feedback === "error" && <DnaOff className="h-4 w-4 text-red-500" />}
 
           <Badge
             className={cn(
@@ -132,7 +133,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
             {capitalizar(node.rank)}
           </Badge>
 
-          {userDb && isExpanded && (
+          {userDb && isExpanded && !challengeInProgress && (
             <div className="opacity-0 transition-all duration-300 group-hover:opacity-100">
               <Route
                 onClick={saveShortcut}
