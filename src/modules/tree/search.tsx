@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/common/components/ui/select";
+import { Loader, SearchIcon } from "lucide-react";
 
 // TODO: refatorar para usar jotai
 export const Search = () => {
@@ -52,7 +53,7 @@ export const Search = () => {
     if (!kingdom) return "Selecione um reino";
     const k = String(kingdom).toLowerCase() as KingdomKey;
     const suggestion = SUGGESTION_BY_KINGDOM[k] ?? "sapiens";
-    return `Pesquisar (ex: ${suggestion})`;
+    return `Exemplo: ${suggestion}`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kingdom]);
 
@@ -302,11 +303,27 @@ export const Search = () => {
 
   return (
     <div>
-      <form onSubmit={onSearch} className="flex flex-wrap items-center gap-2">
+      <form
+        onSubmit={onSearch}
+        className="flex h-9.5 flex-nowrap items-center gap-2"
+      >
         <Select value={kingdom} onValueChange={(e) => setKingdom(e)}>
-          <SelectTrigger className="rounded-lg border text-sm font-medium">
-            <SelectValue placeholder="Reino" />
+          <SelectTrigger className="rounded-lg border px-2 text-sm font-medium">
+            <SelectValue placeholder="Reino" asChild>
+              {kingdom ? (
+                <Image
+                  src={getRankIcon(
+                    kingdomOptions.find((k) => k.name === kingdom)?.key ?? 0,
+                  )}
+                  alt="Reino"
+                  className="size-5"
+                />
+              ) : (
+                <span>Reino</span>
+              )}
+            </SelectValue>
           </SelectTrigger>
+
           <SelectContent className="rounded-lg text-sm font-medium">
             {kingdomOptions.map((opt) => (
               <SelectItem value={opt.name}>
@@ -325,16 +342,20 @@ export const Search = () => {
           value={q}
           onChange={(ev) => setQ(ev.target.value)}
           placeholder={placeholderText}
-          className="flex-1 rounded-md border px-3 py-2 text-sm"
+          className="h-full min-w-0 flex-1 rounded-md border px-3 py-2 text-sm"
           aria-label="Pesquisar taxa"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="cursor-pointer rounded-md border px-3 py-2 text-sm disabled:opacity-60"
+          className="h-full cursor-pointer rounded-md border px-3 py-2 text-sm disabled:opacity-60"
         >
-          {loading ? "Buscando..." : "Buscar"}
+          {loading ? (
+            <Loader className="size-4 animate-spin" />
+          ) : (
+            <SearchIcon className="size-4" />
+          )}
         </button>
       </form>
 
