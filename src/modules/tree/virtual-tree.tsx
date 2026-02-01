@@ -45,7 +45,7 @@ export const VirtualTree = () => {
       <div
         ref={parentRef}
         className={cn(
-          "h-[calc(100dvh-230px)] w-full overflow-auto px-4 pb-28",
+          "h-[calc(100dvh-144px)] w-full overflow-auto px-4 pb-28",
           challenge.mode && !isTablet && "h-[calc(100dvh-130px)]",
           challenge.mode === "UNSET" && "pointer-events-none opacity-40",
         )}

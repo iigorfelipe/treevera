@@ -74,7 +74,7 @@ export const DailyChallenge = () => {
   }, [expandedNodes, correctPath]);
 
   return (
-    <div className="md:px-4 md:py-6">
+    <div className={cn("md:px-4 md:py-6", inProgress && "mt-22 md:mt-0")}>
       <Card className="mx-auto rounded-3xl border bg-transparent shadow-sm">
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
