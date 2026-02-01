@@ -27,7 +27,7 @@ export const Timer = () => {
   return (
     <div className="mb-auto text-right">
       <div className="mb-1 hidden text-sm xl:flex">Tempo restante</div>
-      <div className="text-xs font-bold xl:text-lg">{time}</div>
+      <div className="text-xs font-bold tabular-nums xl:text-lg">{time}</div>
     </div>
   );
 };
