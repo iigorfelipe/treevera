@@ -14,8 +14,11 @@ import {
   speciesPaths,
 } from "@/common/utils/game/daily-species";
 import { Timer } from "@/modules/challenge/timer";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useResponsive } from "@/hooks/use-responsive";
+import { ProgressSteps, TOTAL_STEPS } from "@/modules/challenge/progress-steps";
+import { ChallengeMobile } from "@/modules/challenge/mobile";
+import { Check } from "lucide-react";
 
 export const DailyChallenge = () => {
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);
@@ -28,14 +31,11 @@ export const DailyChallenge = () => {
   const speciesName = getDailySpecies();
 
   const correctPath = useMemo(
-    () => speciesPaths[speciesName] || [],
+    () => speciesPaths[speciesName] ?? [],
     [speciesName],
   );
 
-  const inProgress = useMemo(
-    () => challenge.status === "IN_PROGRESS",
-    [challenge.status],
-  );
+  const inProgress = challenge.status === "IN_PROGRESS";
 
   const correctSteps = useMemo(() => {
     return expandedNodes.filter((node, index) => {
@@ -44,8 +44,7 @@ export const DailyChallenge = () => {
     }).length;
   }, [expandedNodes, correctPath]);
 
-  const progress = (correctSteps / 7) * 100;
-  const isCompleted = correctSteps === 7;
+  const isCompleted = correctSteps === TOTAL_STEPS;
 
   const handleClick = useCallback(() => {
     if (inProgress) {
@@ -65,116 +64,82 @@ export const DailyChallenge = () => {
 
   const lastStepWasError = useMemo(() => {
     const index = expandedNodes.length - 1;
-    if (index < 0) return false;
-
     const node = expandedNodes[index];
     const expected = correctPath[index];
-
-    return !!node && !!expected && node.name !== expected.name;
+    return index >= 0 && expected && node?.name !== expected.name;
   }, [expandedNodes, correctPath]);
+
+  const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
+
+  if (isCompleted) {
+    return (
+      <div className="flex items-center gap-2.5">
+        <div className="flex size-7 items-center justify-center rounded-full bg-emerald-500">
+          <Check className="size-4 text-white" />
+        </div>
+        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+          Desafio concluído!
+        </p>
+      </div>
+    );
+  }
+
+  if (isTablet && inProgress) {
+    return (
+      <ChallengeMobile
+        speciesName={speciesName}
+        correctSteps={correctSteps}
+        isCompleted={isCompleted}
+        onCancel={handleClick}
+        errorIndex={errorIndex}
+      />
+    );
+  }
 
   return (
     <div className={cn("md:px-4 md:py-6", inProgress && "mt-22 md:mt-0")}>
-      <Card className="mx-auto rounded-3xl border bg-transparent shadow-sm">
+      <Card className="mx-auto rounded-3xl">
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image src={Alvo} className="size-12" alt="Alvo gif" />
               <div>
-                <h2 className="text-xl font-bold 2xl:text-2xl">
-                  Desafio Diário
-                </h2>
+                <h2 className="text-xl font-bold">Desafio Diário</h2>
                 <p className="text-sm">
                   Encontre:{" "}
-                  <span className="font-semibold text-emerald-600 dark:text-green-500">
+                  <span className="font-semibold text-emerald-600">
                     {speciesName}
                   </span>
                 </p>
               </div>
             </div>
-
             <Timer />
           </div>
 
           {inProgress && (
-            <div className="space-y-1">
-              <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
-                <motion.div
-                  key={`${expandedNodes.length}-${lastStepWasError ? "error" : "ok"}`}
-                  className={cn(
-                    "h-full rounded-full",
-                    lastStepWasError ? "bg-red-500" : "bg-emerald-500",
-                  )}
-                  initial={{ width: `${progress}%` }}
-                  animate={{
-                    width: `${progress}%`,
-                    x: lastStepWasError ? [-4, 4, -2, 2, 0] : 0,
-                    opacity: lastStepWasError ? [1, 0.6, 1] : 1,
-                  }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-              <motion.p
-                key={`steps-${expandedNodes.length}-${lastStepWasError}`}
-                className={cn(
-                  "text-xs",
-                  lastStepWasError ? "text-red-500" : "text-muted-foreground",
-                )}
-                animate={{
-                  scale: lastStepWasError ? [1, 1.1, 1] : 1,
-                }}
-                transition={{ duration: 0.25 }}
-              >
-                {correctSteps}/7 etapas concluídas
-              </motion.p>
-            </div>
+            <ProgressSteps
+              correctSteps={correctSteps}
+              errorIndex={errorIndex}
+            />
           )}
 
-          {!isTablet && (
-            <AnimatePresence mode="wait">
-              {isCompleted ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl bg-green-600 px-4 py-3 text-center text-white"
-                >
-                  🎉 Desafio diário concluído!
-                </motion.div>
-              ) : inProgress ? (
-                <motion.div
-                  key="game"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <TaxonomicPath activeIndex={expandedNodes.length} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="intro"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="bg-accent/40 rounded-xl p-6 text-center"
-                >
-                  <p className="mb-2 text-lg font-semibold">Missão do dia</p>
-                  <p className="text-muted-foreground text-sm">
-                    Complete o caminho taxonômico antes do tempo acabar para
-                    ganhar recompensas e manter seu streak diário.
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
+          <AnimatePresence mode="wait">
+            {inProgress ? (
+              <TaxonomicPath activeIndex={expandedNodes.length} />
+            ) : (
+              <div className="bg-accent/40 rounded-xl p-6 text-center">
+                <p className="mb-2 text-lg font-semibold">Missão do dia</p>
+                <p className="text-muted-foreground text-sm">
+                  Complete o caminho taxonômico antes do tempo acabar.
+                </p>
+              </div>
+            )}
+          </AnimatePresence>
 
           {!isCompleted && (
             <Button
               size="lg"
-              className={cn(
-                "text-lg transition-all md:mt-2 md:p-6",
-                inProgress
-                  ? "bg-red-500 hover:bg-red-500/90"
-                  : "bg-emerald-600 hover:bg-emerald-600/90",
-              )}
+              className={cn(inProgress ? "bg-red-500" : "bg-emerald-600")}
               onClick={handleClick}
             >
               {inProgress ? "Cancelar Desafio" : "Iniciar Desafio"}
