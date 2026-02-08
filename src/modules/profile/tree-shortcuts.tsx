@@ -224,7 +224,7 @@ export const TreeShortcuts = () => {
         </div>
       )}
 
-      <div className="rounded-lg bg-slate-50 p-2 text-xs text-slate-500 italic">
+      <div className="rounded-lg bg-slate-50 p-2 text-center text-xs text-slate-500 italic">
         Navegue pela árvore taxonômica e salve os nós selecionados como atalhos
         para acesso rápido.
       </div>
