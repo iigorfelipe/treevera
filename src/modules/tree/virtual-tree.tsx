@@ -31,12 +31,7 @@ export const VirtualTree = () => {
 
   return (
     <>
-      <div
-        className={cn(
-          "mt-22 mb-4 px-4",
-          challenge.status === "IN_PROGRESS" && isTablet && "m-0 mb-2",
-        )}
-      >
+      <div className="mt-22 mb-4 px-4">
         {challenge.mode && isTablet && <DailyChallenge />}
 
         {!challenge.mode && <Search />}
