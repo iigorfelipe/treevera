@@ -31,7 +31,7 @@ export const VirtualTree = () => {
 
   return (
     <>
-      <div className="mt-22 mb-4 px-4">
+      <div className="mb-4 px-4">
         {challenge.mode && isTablet && <DailyChallenge />}
 
         {!challenge.mode && <Search />}

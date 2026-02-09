@@ -14,7 +14,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed z-50 flex w-[calc(100%-8px)] items-center justify-between gap-3 rounded-br-2xl pt-4 pb-6 backdrop-blur-lg sm:absolute">
+    <header className="flex w-[calc(100%-8px)] items-center justify-between gap-3 rounded-br-2xl pt-4 pb-6">
       <Image alt="Logo" src={logoUrl} className="h-12" />
 
       <div className="flex w-full flex-col">
