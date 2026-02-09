@@ -3,6 +3,8 @@ import Alvo from "@/assets/alvo.gif";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { ProgressSteps, TOTAL_STEPS } from "@/modules/challenge/progress-steps";
+import { ChallengeTips } from "./tips";
+import { tipsData } from "@/common/constants/challenge";
 
 export const ChallengeMobile = ({
   speciesName,
@@ -35,15 +37,26 @@ export const ChallengeMobile = ({
 
           <button
             onClick={onCancel}
-            className="text-muted-foreground/60 rounded-full p-1 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950"
+            className="text-muted-foreground/60 ml-auto rounded-full p-1 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950"
             aria-label="Cancelar desafio"
           >
             <X className="size-3.5" />
           </button>
         </div>
-
         {!isCompleted && (
-          <ProgressSteps correctSteps={correctSteps} errorIndex={errorIndex} />
+          <>
+            <ProgressSteps
+              correctSteps={correctSteps}
+              errorIndex={errorIndex}
+            />
+
+            <ChallengeTips
+              speciesName={speciesName}
+              currentStep={correctSteps}
+              errorIndex={errorIndex}
+              tips={tipsData}
+            />
+          </>
         )}
       </motion.div>
     </div>

@@ -18,7 +18,7 @@ import { AnimatePresence } from "framer-motion";
 import { useResponsive } from "@/hooks/use-responsive";
 import { ProgressSteps, TOTAL_STEPS } from "@/modules/challenge/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
-import { Check } from "lucide-react";
+import { ChallengeCompleted } from "@/modules/challenge/completed";
 
 export const DailyChallenge = () => {
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);
@@ -72,16 +72,7 @@ export const DailyChallenge = () => {
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
   if (isCompleted) {
-    return (
-      <div className="flex items-center gap-2.5">
-        <div className="flex size-7 items-center justify-center rounded-full bg-emerald-500">
-          <Check className="size-4 text-white" />
-        </div>
-        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-          Desafio concluído!
-        </p>
-      </div>
-    );
+    return <ChallengeCompleted speciesName={speciesName} />;
   }
 
   if (isTablet && inProgress) {
