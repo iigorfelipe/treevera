@@ -11,6 +11,8 @@ import {
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/common/utils/cn";
+import * as Collapsible from "@radix-ui/react-collapsible";
+import { ChevronDown, Info } from "lucide-react";
 
 export const ChallengeTips = ({
   speciesName,
@@ -109,12 +111,6 @@ export const ChallengeTips = ({
               </Dialog.Close>
             </header>
 
-            <div className="text-muted-foreground space-y-2 text-sm">
-              {tips.general.map((tip, i) => (
-                <p key={i}>• {tip}</p>
-              ))}
-            </div>
-
             {stepTip && (
               <div className="bg-muted/40 mt-3 rounded-lg border p-3 text-sm">
                 {stepTip.hints.map((hint, i) => (
@@ -143,16 +139,42 @@ export const ChallengeTips = ({
                       </button>
                     ) : (
                       <p className="text-foreground font-medium">
-                        {speciesName} pertence ao{" "}
-                        <strong>{stepTip!.classification}</strong>{" "}
-                        {stepTip!.answer}.
+                        {speciesName} pertence ao {stepTip!.classification}{" "}
+                        <span className="font-bold text-green-600">
+                          {stepTip!.answer}
+                        </span>
+                        .
                       </p>
                     )}
                   </motion.div>
                 </AnimatePresence>
               </div>
             )}
-          </motion.div>{" "}
+            <Collapsible.Root className="mt-4">
+              <Collapsible.Trigger asChild>
+                <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <Info className="size-3.5" />
+                    Como funciona o desafio?
+                  </div>
+
+                  <ChevronDown className="size-3.5 opacity-60" />
+                </button>
+              </Collapsible.Trigger>
+
+              <Collapsible.Content asChild>
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="text-muted-foreground bg-muted/40 mt-2 rounded-md p-3 text-sm"
+                >
+                  {tips.howToPlay}
+                </motion.div>
+              </Collapsible.Content>
+            </Collapsible.Root>
+          </motion.div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

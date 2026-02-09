@@ -6,15 +6,13 @@ export type StepTip = {
 };
 
 export type TipsData = {
-  general: string[];
+  howToPlay: string;
   steps: StepTip[];
 };
 
 export const tipsData = {
-  general: [
-    "Observe características biológicas amplas antes de detalhes.",
-    "Cada etapa reduz o grupo até chegar à espécie.",
-  ],
+  howToPlay:
+    "Expanda os grupos da árvore taxonômica seguindo o caminho correto até chegar à espécie Homo sapiens.",
   steps: [
     {
       step: 0,
