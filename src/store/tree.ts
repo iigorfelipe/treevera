@@ -164,6 +164,8 @@ export const scrollToRankAtom = atom(null, (_get, set, rank: Rank | null) => {
   set(scrollToRank, rank);
 });
 
+const playedStepAudioAtom = atom<Record<string, true>>({});
+
 export const treeAtom = {
   challenge,
   exploreInfos,
@@ -171,6 +173,7 @@ export const treeAtom = {
   expandedNodes,
   highlightedRank,
   scrollToRank,
+  feedbackAudio: playedStepAudioAtom,
   nodes: nodesAtom,
   rootKeys,
   mergeNodes,
