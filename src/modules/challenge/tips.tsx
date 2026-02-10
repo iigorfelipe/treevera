@@ -13,6 +13,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/common/utils/cn";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronDown, Info } from "lucide-react";
+import type { Rank } from "@/common/types/api";
+import { useSetAtom } from "jotai";
+import { scrollToRankAtom, treeAtom } from "@/store/tree";
 
 export const ChallengeTips = ({
   speciesName,
@@ -28,7 +31,11 @@ export const ChallengeTips = ({
   const [revealedSteps, setRevealedSteps] = useState<Record<number, boolean>>(
     {},
   );
+  const [open, setOpen] = useState(false);
+  const setHighlightedRank = useSetAtom(treeAtom.highlightedRank);
   const [visibleStep, setVisibleStep] = useState(currentStep);
+
+  const setScrollToRank = useSetAtom(scrollToRankAtom);
 
   const stepTip = tips.steps.find((s) => s.step === visibleStep);
 
@@ -43,8 +50,20 @@ export const ChallengeTips = ({
 
   return (
     <Dialog.Root
-      onOpenChange={(open) => {
-        if (open) setVisibleStep(currentStep);
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+
+        if (nextOpen) {
+          setVisibleStep(currentStep);
+
+          const rank = RANK_BY_STEP[currentStep];
+          setHighlightedRank(rank);
+          setScrollToRank(rank);
+        } else {
+          setHighlightedRank(null);
+          setScrollToRank(null);
+        }
       }}
     >
       <Dialog.Trigger asChild>
@@ -68,20 +87,26 @@ export const ChallengeTips = ({
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-
-        <Dialog.Content>
+        <Dialog.Content asChild>
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="bg-background fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border p-4 shadow-lg"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="bg-background fixed top-2 left-1/2 z-50 w-[calc(100%-1rem)] max-w-md -translate-x-1/2 rounded-xl border p-4 shadow-lg"
           >
-            <header className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <header className="mb-2 flex items-center justify-between">
+              <div className="flex max-h-[45dvh] items-center gap-2 overflow-y-auto">
                 <button
-                  onClick={() => setVisibleStep((s) => Math.max(0, s - 1))}
+                  onClick={() => {
+                    setVisibleStep((prev) => {
+                      const next = prev - 1;
+                      const rank = RANK_BY_STEP[next];
+                      setHighlightedRank(rank);
+                      setScrollToRank(rank);
+                      return next;
+                    });
+                  }}
                   disabled={visibleStep === 0}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
                   aria-label="Etapa anterior"
@@ -90,14 +115,20 @@ export const ChallengeTips = ({
                 </button>
 
                 <Dialog.Title className="flex items-center gap-2 text-sm font-semibold">
-                  <Trophy className="size-4 text-emerald-500" />
+                  <Trophy className="size-3.5 text-emerald-500" />
                   Etapa {visibleStep + 1} de {tips.steps.length}
                 </Dialog.Title>
 
                 <button
-                  onClick={() =>
-                    setVisibleStep((s) => Math.min(currentStep, s + 1))
-                  }
+                  onClick={() => {
+                    setVisibleStep((prev) => {
+                      const next = prev + 1;
+                      const rank = RANK_BY_STEP[next];
+                      setHighlightedRank(rank);
+                      setScrollToRank(rank);
+                      return next;
+                    });
+                  }}
                   disabled={visibleStep === currentStep}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
                   aria-label="Próxima etapa"
@@ -107,7 +138,7 @@ export const ChallengeTips = ({
               </div>
 
               <Dialog.Close className="hover:bg-muted rounded p-1">
-                <X className="size-4" />
+                <X className="size-3.5" />
               </Dialog.Close>
             </header>
 
@@ -180,3 +211,13 @@ export const ChallengeTips = ({
     </Dialog.Root>
   );
 };
+
+const RANK_BY_STEP: Rank[] = [
+  "KINGDOM",
+  "PHYLUM",
+  "CLASS",
+  "ORDER",
+  "FAMILY",
+  "GENUS",
+  "SPECIES",
+];

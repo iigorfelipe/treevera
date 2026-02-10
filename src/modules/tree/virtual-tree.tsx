@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAtomValue } from "jotai";
 
 import { treeAtom } from "@/store/tree";
@@ -12,6 +12,7 @@ import "./tree.css";
 import { useResponsive } from "@/hooks/use-responsive";
 import { DailyChallenge } from "@/app/auth/challenge";
 import { cn } from "@/common/utils/cn";
+import type { Rank } from "@/common/types/api";
 
 export const VirtualTree = () => {
   useExpandedSync();
@@ -20,6 +21,8 @@ export const VirtualTree = () => {
   const nodes = useAtomValue(treeAtom.nodes);
   const roots = useAtomValue(treeAtom.rootKeys);
   const challenge = useAtomValue(treeAtom.challenge);
+  const scrollToRank = useAtomValue(treeAtom.scrollToRank);
+  const lastScrolledRank = useRef<Rank | null>(null);
 
   const { isTablet } = useResponsive();
 
@@ -28,6 +31,23 @@ export const VirtualTree = () => {
     roots,
     parentRef,
   );
+
+  useEffect(() => {
+    if (!scrollToRank || scrollToRank === lastScrolledRank.current) return;
+
+    lastScrolledRank.current = scrollToRank;
+
+    const targetIndex = flattened.findIndex(
+      (item) => nodes[item.key]?.rank === scrollToRank,
+    );
+
+    if (targetIndex === -1) return;
+
+    rowVirtualizer.scrollToIndex(targetIndex, {
+      align: "center",
+      behavior: "smooth",
+    });
+  }, [scrollToRank, flattened, nodes, rowVirtualizer]);
 
   return (
     <>

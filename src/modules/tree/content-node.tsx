@@ -27,6 +27,10 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const challengeInProgress =
     useAtomValue(treeAtom.challenge).status === "IN_PROGRESS";
 
+  const highlightedRank = useAtomValue(treeAtom.highlightedRank);
+
+  const isHighlighted = highlightedRank === node.rank && challengeInProgress;
+
   const feedback = useMemo<"success" | "error" | null>(() => {
     if (!challengeInProgress) return null;
 
@@ -96,23 +100,32 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
       key={`${node.key}-${feedback}`}
       className="item group flex h-full w-full flex-row items-center gap-2"
       animate={
-        feedback === "success"
-          ? { scale: [1, 1.05, 1] }
-          : feedback === "error"
-            ? { x: [-4, 4, -2, 2, 0] }
-            : {}
+        isHighlighted
+          ? { scale: [1, 1.03, 1] }
+          : feedback === "success"
+            ? { scale: [1, 1.05, 1] }
+            : feedback === "error"
+              ? { x: [-4, 4, -2, 2, 0] }
+              : {}
       }
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.5 }}
     >
       <div className="flex w-full items-center justify-between gap-2">
         <div className="mr-auto flex items-center gap-2">
           <div className="flex flex-col items-start justify-center">
             <span
               className={cn(
-                "transition-all duration-200 ease-in-out",
+                "relative transition-all duration-200 ease-in-out",
                 isExpanded && "font-bold",
                 feedback === "success" && "text-emerald-600",
                 feedback === "error" && "text-red-500",
+                isHighlighted && [
+                  "z-10",
+                  "text-emerald-600",
+                  "after:absolute after:-inset-y-0.5",
+                  "after:-right-1.5 after:-left-1.5",
+                  "after:-z-10 after:rounded-md after:bg-emerald-400/15",
+                ],
               )}
             >
               {node.canonicalName || node.scientificName}
