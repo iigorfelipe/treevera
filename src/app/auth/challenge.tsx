@@ -8,7 +8,7 @@ import { authStore } from "@/store/auth";
 import { treeAtom } from "@/store/tree";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   getDailySpecies,
   speciesPaths,
@@ -46,6 +46,19 @@ export const DailyChallenge = () => {
 
   const isCompleted = correctSteps === TOTAL_STEPS;
 
+  useEffect(() => {
+    if (!isCompleted) return;
+
+    setChallenge((prev) => {
+      if (prev.status === "COMPLETED") return prev;
+
+      return {
+        ...prev,
+        status: "COMPLETED",
+      };
+    });
+  }, [isCompleted, setChallenge]);
+
   const handleClick = useCallback(() => {
     if (inProgress) {
       setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
@@ -72,7 +85,7 @@ export const DailyChallenge = () => {
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
   if (isCompleted) {
-    return <ChallengeCompleted speciesName={speciesName} />;
+    return <ChallengeCompleted />;
   }
 
   if (isTablet && inProgress) {
