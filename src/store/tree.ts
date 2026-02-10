@@ -12,6 +12,7 @@ import type {
   NodeEntity,
   PathNode,
 } from "@/common/types/tree-atoms";
+import type { Rank } from "@/common/types/api";
 
 const challenge = atom<Challenge>({ mode: null, status: "NOT_STARTED" });
 
@@ -148,11 +149,21 @@ export const syncExpandedWithNodesAtom = atom(null, (get, set) => {
   });
 });
 
+const highlightedRank = atom<Rank | null>(null);
+
+export const setHighlightedRankAtom = atom(
+  null,
+  (_get, set, rank: Rank | null) => {
+    set(highlightedRank, rank);
+  },
+);
+
 export const treeAtom = {
   challenge,
   exploreInfos,
   animate,
   expandedNodes,
+  highlightedRank,
   nodes: nodesAtom,
   rootKeys,
   mergeNodes,
