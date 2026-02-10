@@ -165,7 +165,11 @@ export const Menu = () => {
             </DropdownMenuSubTrigger>
 
             <DropdownMenuPortal>
-              <DropdownMenuSubContent className="m-1 w-64 space-y-4 p-4">
+              <DropdownMenuSubContent
+                className="m-1 w-64 space-y-4 p-4"
+                sideOffset={-90}
+                alignOffset={90}
+              >
                 <button
                   onClick={() =>
                     setAudio((prev) => ({ ...prev, muted: !prev.muted }))
@@ -205,7 +209,11 @@ export const Menu = () => {
                 <span>{t("logout")}</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="w-72 max-w-[90vw] p-4">
+                <DropdownMenuSubContent
+                  className="w-72 max-w-[90vw] p-4"
+                  sideOffset={-90}
+                  alignOffset={90}
+                >
                   <p className="mb-3 text-center text-sm leading-relaxed">
                     Ao sair, seus recursos e progresso só ficarão disponíveis
                     quando entrar novamente.
