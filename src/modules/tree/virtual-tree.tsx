@@ -13,9 +13,11 @@ import { useResponsive } from "@/hooks/use-responsive";
 import { DailyChallenge } from "@/app/auth/challenge";
 import { cn } from "@/common/utils/cn";
 import type { Rank } from "@/common/types/api";
+import { useChallengeAudio } from "./hooks/use-challenge-audio";
 
 export const VirtualTree = () => {
   useExpandedSync();
+  useChallengeAudio();
 
   const parentRef = useRef<HTMLDivElement>(null);
   const nodes = useAtomValue(treeAtom.nodes);
