@@ -1,11 +1,8 @@
+import { getDailySpecies } from "@/common/utils/game/daily-species";
 import { motion } from "framer-motion";
 import { Trophy, CheckCircle } from "lucide-react";
 
-export const ChallengeCompleted = ({
-  speciesName,
-}: {
-  speciesName: string;
-}) => {
+export const ChallengeCompleted = () => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -27,7 +24,7 @@ export const ChallengeCompleted = ({
       </p>
 
       <p className="mt-1 text-sm">
-        <strong>{speciesName}</strong>
+        <strong>{getDailySpecies()}</strong>
       </p>
 
       <motion.div
