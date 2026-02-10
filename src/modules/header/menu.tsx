@@ -27,12 +27,21 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { Button } from "@/common/components/ui/button";
 import { authStore } from "@/store/auth";
 import { useAuth } from "@/hooks/auth/use-auth-profile";
 import { treeAtom } from "@/store/tree";
+import { audioSettingsAtom } from "@/store/audio";
+
+import { Volume2, VolumeX } from "lucide-react";
+import {
+  Slider as RadixSlider,
+  SliderThumb,
+  SliderTrack,
+  SliderRange,
+} from "@radix-ui/react-slider";
 
 export const Menu = () => {
   const { changeTheme, theme } = useTheme();
@@ -43,6 +52,7 @@ export const Menu = () => {
   const isLoggingOut = useAtomValue(authStore.logoutStatus) === "loading";
   const setChallenge = useSetAtom(treeAtom.challenge);
   const { logout } = useAuth();
+  const [audio, setAudio] = useAtom(audioSettingsAtom);
 
   return (
     <DropdownMenu>
@@ -140,6 +150,49 @@ export const Menu = () => {
                 <DropdownMenuItem onClick={() => i18n.changeLanguage("es")}>
                   {t("es")}
                 </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              {audio.muted ? (
+                <VolumeX className="mr-2 size-4" />
+              ) : (
+                <Volume2 className="mr-2 size-4" />
+              )}
+              Áudio
+            </DropdownMenuSubTrigger>
+
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent className="m-1 w-64 space-y-4 p-4">
+                <button
+                  onClick={() =>
+                    setAudio((prev) => ({ ...prev, muted: !prev.muted }))
+                  }
+                  className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
+                >
+                  <span>{audio.muted ? "Som desligado" : "Som ligado"}</span>
+                  {audio.muted ? <VolumeX /> : <Volume2 />}
+                </button>
+                {/* TODO: componentizar slider */}
+                {!audio.muted && (
+                  <RadixSlider
+                    value={[audio.volume * 100]}
+                    onValueChange={([v]) =>
+                      setAudio((prev) => ({ ...prev, volume: v / 100 }))
+                    }
+                    min={0}
+                    max={100}
+                    step={1}
+                    className="relative flex h-5 w-full touch-none items-center select-none"
+                  >
+                    <SliderTrack className="relative h-1 w-full grow rounded-full bg-gray-200">
+                      <SliderRange className="absolute h-full rounded-full bg-blue-500" />
+                    </SliderTrack>
+                    <SliderThumb className="block h-5 w-5 rounded-full bg-white shadow" />
+                  </RadixSlider>
+                )}
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
