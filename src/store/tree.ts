@@ -158,12 +158,19 @@ export const setHighlightedRankAtom = atom(
   },
 );
 
+const scrollToRank = atom<Rank | null>(null);
+
+export const scrollToRankAtom = atom(null, (_get, set, rank: Rank | null) => {
+  set(scrollToRank, rank);
+});
+
 export const treeAtom = {
   challenge,
   exploreInfos,
   animate,
   expandedNodes,
   highlightedRank,
+  scrollToRank,
   nodes: nodesAtom,
   rootKeys,
   mergeNodes,
