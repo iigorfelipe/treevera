@@ -14,3 +14,34 @@
     var(--color-accent)
   );
 }
+
+.node-loading {
+  position: relative;
+}
+
+.node-loading::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 8px;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--tree-color) 30%, transparent),
+    transparent 70%
+  );
+  opacity: 0.6;
+  animation: nodePulse 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes nodePulse {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}

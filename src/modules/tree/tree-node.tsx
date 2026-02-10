@@ -16,6 +16,7 @@ import {
   toggleNodeAtom,
 } from "@/store/tree";
 import { Loader } from "lucide-react";
+import { cn } from "@/common/utils/cn";
 
 export const TreeNodeLiContent = ({
   nodeKey,
@@ -57,14 +58,12 @@ export const TreeNodeLiContent = ({
 
   return (
     <div
-      className="flex"
+      className={cn("flex", isLoading && "node-loading")}
       style={
         {
           marginLeft,
-
           height: isKingdom ? "4.25rem" : "2.125rem",
           zIndex: 1,
-
           "--tree-color": kingdomColor,
         } as React.CSSProperties
       }
