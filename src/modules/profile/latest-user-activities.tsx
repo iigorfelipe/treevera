@@ -1,5 +1,6 @@
 import { formatActivityDate } from "@/common/utils/date-formats";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
+
 import { useAtomValue } from "jotai";
 
 export const LatestUserActivities = () => {
@@ -23,7 +24,7 @@ export const LatestUserActivities = () => {
                 {activity.description}
               </div>
             </div>
-            <div className="flex-shrink-0 text-xs text-slate-400">
+            <div className="shrink-0 text-xs text-slate-400">
               {formatActivityDate(activity.date)}
             </div>
           </div>

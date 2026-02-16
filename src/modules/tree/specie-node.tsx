@@ -4,7 +4,7 @@ import { memo, useMemo } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { updateUserSpeciesBook } from "@/common/utils/supabase/add_species_book";
 import type { NodeEntity } from "@/common/types/tree-atoms";
 import { treeAtom } from "@/store/tree";

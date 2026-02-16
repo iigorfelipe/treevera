@@ -1,7 +1,7 @@
 import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import { useAtomValue } from "jotai";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { BookOpen, ChevronRight } from "lucide-react";
 
 export const SpeciesBookPreview = () => {

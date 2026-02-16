@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../keys";
 import { fetchUser } from "@/common/utils/supabase/fetch-user";
 import { useAtomValue } from "jotai";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 
 export const useGetUserDb = () => {
   const session = useAtomValue(authStore.session);

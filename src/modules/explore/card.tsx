@@ -9,7 +9,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useMemo } from "react";
 import { Route } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { COLOR_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { setExpandedPathAtom } from "@/store/tree";
 

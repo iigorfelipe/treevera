@@ -7,10 +7,10 @@ import {
   createRouter,
   redirect,
 } from "@tanstack/react-router";
-import { PopupCallback } from "@/app/auth/popup-callback";
 import { Profile } from "@/app/profile";
 import { getDefaultStore } from "jotai";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
+import { AuthCallback } from "@/app/auth/auth-callback";
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -22,10 +22,10 @@ const homeRoute = createRoute({
   component: Home,
 });
 
-const popupCallbackRoute = createRoute({
+const authCallbackRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/popup-callback",
-  component: PopupCallback,
+  path: "/auth-callback",
+  component: AuthCallback,
 });
 
 const authRoute = createRoute({
@@ -49,14 +49,13 @@ const profileRoute = createRoute({
   component: Profile,
   beforeLoad: () => {
     const store = getDefaultStore();
-    const userDb = store.get(authStore.userDb);
     const initialized = store.get(authStore.initialized);
     const isAuthenticated = store.get(authStore.isAuthenticated);
 
-    if (!initialized) {
-      return;
-    }
-    if (!isAuthenticated && !userDb) {
+    console.log("🔍 beforeLoad check:", { initialized, isAuthenticated });
+
+    if (initialized && !isAuthenticated) {
+      console.log("❌ Redirecting to login");
       throw redirect({ to: "/login" });
     }
   },
@@ -65,7 +64,7 @@ const profileRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   authRoute,
   homeRoute,
-  popupCallbackRoute,
+  authCallbackRoute,
   profileRoute,
 ]);
 

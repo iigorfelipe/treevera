@@ -1,7 +1,7 @@
 import { Image } from "@/common/components/image";
 import { cn } from "@/common/utils/cn";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
 import { Loader, Plus } from "lucide-react";
 import { useMemo } from "react";

@@ -6,14 +6,14 @@ import {
   CardTitle,
 } from "@/common/components/ui/card";
 import { Button } from "@/common/components/ui/button";
-import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "@tanstack/react-router";
-import { authStore } from "@/store/auth";
 import { benefits } from "@/common/utils/game/benefits";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/auth/use-auth-profile";
+import { authStore } from "@/store/auth/atoms";
 
 const GoogleLogo = (
   <svg className="mr-3 size-5" viewBox="0 0 24 24">
@@ -37,12 +37,13 @@ const GoogleLogo = (
 );
 
 export const Login = () => {
-  const isLoggingIn = useAtomValue(authStore.loginStatus) === "loading";
-  const { login } = useAuth();
-  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
-
   const { t } = useTranslation();
   const router = useRouter();
+  const { login } = useAuth();
+
+  const isLoggingIn = useAtomValue(authStore.loginStatus) === "loading";
+  const authError = useAtomValue(authStore.error);
+  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -50,11 +51,20 @@ export const Login = () => {
     }
   }, [isAuthenticated, router]);
 
+  const handleLogin = async () => {
+    const result = await login("google");
+
+    if (result.success) {
+      router.navigate({ to: "/profile" });
+    }
+  };
+
   const handleBack = () => {
     if (window.history.length > 1) {
       window.history.back();
+    } else {
+      router.navigate({ to: "/" });
     }
-    router.navigate({ to: ".." });
   };
 
   return (
@@ -69,8 +79,14 @@ export const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {authError && (
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+                <p className="font-medium">Erro ao fazer login</p>
+                <p className="mt-1 text-xs">{authError?.message}</p>
+              </div>
+            )}
             <Button
-              onClick={login}
+              onClick={handleLogin}
               disabled={isLoggingIn}
               className="h-12 w-full border border-gray-300 text-base font-medium shadow-sm hover:bg-gray-50"
               variant="outline"
@@ -102,7 +118,7 @@ export const Login = () => {
                       className={`flex items-start space-x-3 rounded-lg px-2 py-3`}
                     >
                       <div
-                        className={`flex size-8 flex-shrink-0 items-center justify-center rounded-full ${benefit.bgColor} ${benefit.color}`}
+                        className={`flex size-8 shrink-0 items-center justify-center rounded-full ${benefit.bgColor} ${benefit.color}`}
                       >
                         <IconComponent className="size-4" />
                       </div>

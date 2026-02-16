@@ -6,7 +6,7 @@ import {
 import { Progress } from "@/common/components/ui/progress";
 import { userProgress } from "@/common/utils/data-profile-fake";
 import { formatUserSinceDate } from "@/common/utils/date-formats";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
 
 export const HeaderProfile = () => {
@@ -17,7 +17,7 @@ export const HeaderProfile = () => {
       <div className="flex items-center gap-4">
         <Avatar className="size-18">
           <AvatarImage src={userDb?.avatar_url || ""} alt={userDb?.name} />
-          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+          <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
             {userDb?.name[0]}
           </AvatarFallback>
         </Avatar>

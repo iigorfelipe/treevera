@@ -3,7 +3,7 @@ import { Button } from "@/common/components/ui/button";
 import type { Shortcuts } from "@/common/types/user";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { Zap, Pencil, X, Check } from "lucide-react";
@@ -118,7 +118,7 @@ export const TreeShortcuts = () => {
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-2"
                     onClick={() => !isEditing && handleClick(shortcut.nodes)}
                   >
-                    <figure className="flex size-6 flex-shrink-0 items-center">
+                    <figure className="flex size-6 shrink-0 items-center">
                       <Image
                         src={getRankIcon(KEY_KINGDOM_BY_NAME[kingdom])}
                         alt={`${kingdom} icon`}
