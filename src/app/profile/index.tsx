@@ -5,7 +5,7 @@ import { UserProgress } from "@/modules/profile/progress";
 import { SpeciesBookPreview } from "@/modules/profile/species-book-preview";
 import { TreeShortcuts } from "@/modules/profile/tree-shortcuts";
 import { UserAchievements } from "@/modules/profile/user-achievements";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";

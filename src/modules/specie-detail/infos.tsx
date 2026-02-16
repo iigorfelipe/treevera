@@ -10,7 +10,7 @@ import {
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useAtom, useAtomValue } from "jotai";
 import { Heart } from "lucide-react";
-import { authStore } from "@/store/auth";
+import { authStore } from "@/store/auth/atoms";
 import { updateUserSpeciesBook } from "@/common/utils/supabase/add_species_book";
 import { useEffect, useState } from "react";
 import { treeAtom } from "@/store/tree";

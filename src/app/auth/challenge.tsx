@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/common/components/ui/card";
 import { cn } from "@/common/utils/cn";
 import Alvo from "@/assets/alvo.gif";
 import { TaxonomicPath } from "@/modules/challenge/taxonomic-path";
-import { authStore } from "@/store/auth";
+
 import { treeAtom } from "@/store/tree";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -19,6 +19,7 @@ import { useResponsive } from "@/hooks/use-responsive";
 import { ProgressSteps, TOTAL_STEPS } from "@/modules/challenge/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
+import { authStore } from "@/store/auth/atoms";
 
 export const DailyChallenge = () => {
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);

@@ -1,195 +1,284 @@
-import { useEffect } from "react";
-import { useAtom, useSetAtom } from "jotai";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/common/utils/supabase/client";
-
+import { useEffect, useCallback } from "react";
+import { useSetAtom, useAtomValue } from "jotai";
+import { authStore } from "@/store/auth/atoms";
 import {
-  sessionAtom,
-  userDbAtom,
-  loginStatusAtom,
-  logoutStatusAtom,
-  authInitializedAtom,
-  authErrorAtom,
-} from "@/store/auth/atoms";
+  loginWithOAuth,
+  logout as logoutService,
+  getCurrentSession,
+} from "@/services/auth/profile";
+import { supabase } from "@/common/utils/supabase/client";
+import type { Provider } from "@supabase/supabase-js";
+import type { DbUser } from "@/common/types/user";
 
-import { useGetUserDb } from "../queries/user-db/useGetUser";
-import { openOAuthWindow, waitOAuthResult } from "@/services/auth/popup";
-import { fetchUser } from "@/common/utils/supabase/fetch-user";
-import { createUser } from "@/common/utils/supabase/create-user";
-import type { User } from "@supabase/supabase-js";
+const INIT_TIMEOUT = 10000;
 
-const redirectTo = `${window.location.origin}/treevera/popup-callback`;
+export function useAuth() {
+  const setSession = useSetAtom(authStore.session);
+  const setUserDb = useSetAtom(authStore.userDb);
+  const setLoginStatus = useSetAtom(authStore.loginStatus);
+  const setLogoutStatus = useSetAtom(authStore.logoutStatus);
+  const setAuthError = useSetAtom(authStore.error);
+  const setAuthInitialized = useSetAtom(authStore.initialized);
+  const setLastAuthCheck = useSetAtom(authStore.lastAuthCheck);
 
-const ensureUserInDb = async (user: User | undefined | null) => {
-  if (!user?.id) return null;
-  try {
-    const existing = await fetchUser(user.id);
+  const session = useAtomValue(authStore.session);
+  const userDb = useAtomValue(authStore.userDb);
+  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
+  const loginStatus = useAtomValue(authStore.loginStatus);
+  const logoutStatus = useAtomValue(authStore.logoutStatus);
+  const initialized = useAtomValue(authStore.initialized);
 
-    if (!existing) {
-      const created = await createUser(user);
-      if (!created) throw new Error("createUser retornou null");
-
-      return created;
-    }
-    return existing;
-  } catch (err) {
-    console.error("[auth] erro ao garantir user no DB:", err);
-    throw err;
-  }
-};
-
-export const useAuth = () => {
-  const setSession = useSetAtom(sessionAtom);
-  const setUserDb = useSetAtom(userDbAtom);
-  const setLoginStatus = useSetAtom(loginStatusAtom);
-  const setLogoutStatus = useSetAtom(logoutStatusAtom);
-  const setAuthError = useSetAtom(authErrorAtom);
-  const [authInitialized, setAuthInitialized] = useAtom(authInitializedAtom);
-
-  const queryClient = useQueryClient();
-
-  const { data: userData, refetch: refetchUser } = useGetUserDb();
-
-  useEffect(() => {
-    setUserDb(userData ?? null);
-  }, [userData, setUserDb]);
-
-  // #region Listeners
-  useEffect(() => {
-    let unsub: (() => void) | null = null;
-
-    const init = async () => {
-      setAuthInitialized(false);
+  const fetchUserDb = useCallback(
+    async (userId: string): Promise<DbUser | null> => {
       try {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session ?? null);
+        console.log("🔍 Buscando userDb para:", userId);
 
-        if (data.session?.user?.id) {
-          await refetchUser();
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", userId)
+          .single();
+
+        if (error) {
+          if (error.code === "PGRST116") {
+            console.log("ℹ️ Usuário não existe no banco, criando...");
+            const { data: authUser } = await supabase.auth.getUser();
+
+            if (authUser.user) {
+              const newUser: Partial<DbUser> = {
+                id: authUser.user.id,
+                email: authUser.user.email!,
+                name:
+                  authUser.user.user_metadata?.full_name ||
+                  authUser.user.user_metadata?.name ||
+                  authUser.user.email!.split("@")[0],
+                avatar_url:
+                  authUser.user.user_metadata?.avatar_url ||
+                  authUser.user.user_metadata?.picture ||
+                  null,
+                created_at: new Date().toISOString(),
+              };
+
+              const { data: createdUser, error: createError } = await supabase
+                .from("users")
+                .insert(newUser)
+                .select()
+                .single();
+
+              if (createError) {
+                console.error(
+                  "❌ Erro ao criar usuário no banco:",
+                  createError,
+                );
+                return null;
+              }
+
+              console.log("✅ Usuário criado no banco");
+              return createdUser as DbUser;
+            }
+          }
+
+          console.error("❌ Erro ao buscar userDb:", error);
+          return null;
         }
 
-        const { data: listener } = supabase.auth.onAuthStateChange(
-          async (event, newSession) => {
-            if (event === "SIGNED_OUT") {
-              setSession(null);
-              setUserDb(null);
-              queryClient.clear();
-              return;
-            }
-
-            if (newSession?.user?.id) {
-              setSession(newSession);
-              try {
-                await ensureUserInDb(newSession.user);
-              } catch (err) {
-                console.error(
-                  "[auth] erro criando user no onAuthStateChange:",
-                  err,
-                );
-                setAuthError({
-                  message: err instanceof Error ? err.message : String(err),
-                });
-              }
-              await refetchUser();
-            } else {
-              setSession(null);
-            }
-          },
-        );
-
-        unsub = () => listener.subscription.unsubscribe();
-      } catch (err: unknown) {
-        console.error("27: Erro inicializando auth:", err);
-        console.error("Erro inicializando auth:", err);
-        setAuthError({
-          message: err instanceof Error ? err.message : String(err),
-        });
-      } finally {
-        setAuthInitialized(true);
+        console.log("✅ UserDb encontrado");
+        return data as DbUser;
+      } catch (error) {
+        console.error("❌ Erro ao buscar userDb:", error);
+        return null;
       }
-    };
+    },
+    [],
+  );
 
-    init();
+  const initializeSession = useCallback(async () => {
+    const timeoutPromise = new Promise<null>((resolve) => {
+      setTimeout(() => {
+        console.warn("⏰ Timeout na inicialização");
+        resolve(null);
+      }, INIT_TIMEOUT);
+    });
 
-    return () => {
-      unsub?.();
-    };
+    const initPromise = (async () => {
+      try {
+        console.log("🔄 Inicializando sessão...");
+
+        const currentSession = await getCurrentSession();
+
+        if (currentSession?.user) {
+          console.log("✅ Sessão encontrada:", currentSession.user.email);
+          setSession(currentSession);
+
+          const userData = await fetchUserDb(currentSession.user.id);
+
+          if (userData) {
+            setUserDb(userData);
+            console.log("✅ UserDb carregado");
+          } else {
+            console.warn("⚠️ UserDb não encontrado");
+            setUserDb(null);
+          }
+        } else {
+          console.log("ℹ️ Nenhuma sessão encontrada");
+          setSession(null);
+          setUserDb(null);
+        }
+
+        return currentSession;
+      } catch (error) {
+        console.error("❌ Erro ao inicializar:", error);
+        setSession(null);
+        setUserDb(null);
+        return null;
+      }
+    })();
+
+    await Promise.race([initPromise, timeoutPromise]);
+
+    setLastAuthCheck(Date.now());
+    setAuthInitialized(true);
+    console.log("✅ Inicialização concluída");
   }, [
     setSession,
     setUserDb,
-    refetchUser,
-    queryClient,
-    setAuthError,
+    setLastAuthCheck,
     setAuthInitialized,
+    fetchUserDb,
   ]);
 
-  // #region Login
-  const loginWithGoogle = async (): Promise<boolean> => {
-    try {
-      setLoginStatus("loading");
-      setAuthError(null);
+  const login = useCallback(
+    async (provider: Provider = "google") => {
+      try {
+        setLoginStatus("loading");
+        setAuthError(null);
 
-      const { data } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { skipBrowserRedirect: true, redirectTo },
-      });
+        console.log("🔐 Iniciando login...");
 
-      if (!data.url) throw new Error("OAuth sem URL");
+        const { user: authUser, session: authSession } =
+          await loginWithOAuth(provider);
 
-      const popup = openOAuthWindow(data.url);
-      if (!popup) throw new Error("Popup bloqueado");
+        console.log("✅ Login OAuth completo, setando sessão...");
+        setSession(authSession);
 
-      const result = await waitOAuthResult(popup, {
-        expectedOrigin: window.location.origin,
-      });
-      if (!result.ok) throw new Error(result.reason);
+        console.log("🔍 Buscando userDb...");
 
-      const sessionData = await supabase.auth.getSession();
-      setSession(sessionData.data.session ?? null);
+        const userData = await fetchUserDb(authUser.id);
 
-      if (sessionData.data.session?.user?.id) await refetchUser();
+        if (userData) {
+          setUserDb(userData);
+          setLoginStatus("success");
 
-      setLoginStatus("success");
+          console.log("✅ Login completo!");
+          return { success: true, user: userData };
+        } else {
+          throw new Error("Não foi possível carregar os dados do usuário");
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Erro desconhecido ao fazer login";
 
-      return true;
-    } catch (err: unknown) {
-      setLoginStatus("error");
-      setAuthError({
-        message: err instanceof Error ? err.message : String(err),
-      });
+        setAuthError({ message: errorMessage });
+        setLoginStatus("error");
+        console.error("❌ Erro no login:", error);
 
-      return false;
-    }
-  };
+        return { success: false, error: errorMessage };
+      } finally {
+        setTimeout(() => setLoginStatus("idle"), 2000);
+      }
+    },
+    [setLoginStatus, setAuthError, setSession, setUserDb, fetchUserDb],
+  );
 
-  // #region Logout
-  const logout = async (): Promise<boolean> => {
+  const logout = useCallback(async () => {
     try {
       setLogoutStatus("loading");
       setAuthError(null);
+
+      await logoutService();
+
+      setSession(null);
       setUserDb(null);
-
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      queryClient.clear();
       setLogoutStatus("success");
 
-      return true;
-    } catch (err: unknown) {
-      setLogoutStatus("error");
-      setAuthError({
-        message: err instanceof Error ? err.message : String(err),
-      });
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Erro desconhecido ao fazer logout";
 
-      return false;
+      setAuthError({ message: errorMessage });
+      setLogoutStatus("error");
+      console.error("❌ Erro no logout:", error);
+
+      return { success: false, error: errorMessage };
+    } finally {
+      setTimeout(() => setLogoutStatus("idle"), 2000);
     }
-  };
+  }, [setLogoutStatus, setAuthError, setSession, setUserDb]);
+
+  const refreshUserDb = useCallback(async () => {
+    if (!session?.user?.id) return null;
+
+    const userData = await fetchUserDb(session.user.id);
+    if (userData) {
+      setUserDb(userData);
+    }
+    return userData;
+  }, [session, fetchUserDb, setUserDb]);
+
+  useEffect(() => {
+    if (!initialized) {
+      initializeSession();
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      console.log("🔔 Auth state changed:", event);
+
+      switch (event) {
+        case "SIGNED_IN":
+        case "TOKEN_REFRESHED":
+          if (currentSession?.user) {
+            console.log("✅ Sessão atualizada via listener");
+            setSession(currentSession);
+          }
+          break;
+
+        case "SIGNED_OUT":
+          console.log("🚪 Usuário deslogado");
+          setSession(null);
+          setUserDb(null);
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [initialized, initializeSession, setSession, setUserDb]);
 
   return {
-    login: loginWithGoogle,
+    session,
+    userDb,
+    isAuthenticated,
+    initialized,
+    loginStatus,
+    logoutStatus,
+    authError: useAtomValue(authStore.error),
+    isLoggingIn: loginStatus === "loading",
+    isLoggingOut: logoutStatus === "loading",
+    isInitializing: !initialized,
+    login,
     logout,
-    initialized: authInitialized,
-    refetchUser,
+    refreshUserDb,
+    refreshSession: initializeSession,
   };
-};
+}

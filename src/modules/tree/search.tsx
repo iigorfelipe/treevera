@@ -326,7 +326,7 @@ export const Search = () => {
 
           <SelectContent className="rounded-lg text-sm font-medium">
             {kingdomOptions.map((opt) => (
-              <SelectItem value={opt.name}>
+              <SelectItem key={opt.key} value={opt.name}>
                 <Image
                   src={getRankIcon(opt.key)}
                   alt={`${kingdom} icon`}

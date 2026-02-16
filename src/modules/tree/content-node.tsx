@@ -6,7 +6,6 @@ import { Badge } from "@/common/components/ui/badge";
 import { capitalizar } from "@/common/utils/string";
 import { Dna, Route, DnaOff } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
-import { authStore } from "@/store/auth";
 import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom } from "@/store/tree";
@@ -16,6 +15,7 @@ import {
   speciesPaths,
 } from "@/common/utils/game/daily-species";
 import { motion } from "framer-motion";
+import { authStore } from "@/store/auth/atoms";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);

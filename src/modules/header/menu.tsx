@@ -30,8 +30,7 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { Button } from "@/common/components/ui/button";
-import { authStore } from "@/store/auth";
-import { useAuth } from "@/hooks/auth/use-auth-profile";
+
 import { treeAtom } from "@/store/tree";
 import { audioSettingsAtom } from "@/store/audio";
 
@@ -42,6 +41,8 @@ import {
   SliderTrack,
   SliderRange,
 } from "@radix-ui/react-slider";
+import { authStore } from "@/store/auth/atoms";
+import { useAuth } from "@/hooks/auth/use-auth-profile";
 
 export const Menu = () => {
   const { changeTheme, theme } = useTheme();
@@ -49,10 +50,15 @@ export const Menu = () => {
 
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
-  const isLoggingOut = useAtomValue(authStore.logoutStatus) === "loading";
+
+  const { logout, isLoggingOut } = useAuth();
+
   const setChallenge = useSetAtom(treeAtom.challenge);
-  const { logout } = useAuth();
   const [audio, setAudio] = useAtom(audioSettingsAtom);
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <DropdownMenu>
@@ -220,7 +226,7 @@ export const Menu = () => {
                   </p>
 
                   <Button
-                    onClick={logout}
+                    onClick={handleLogout}
                     variant="destructive"
                     className="w-full"
                   >
