@@ -1,6 +1,6 @@
 import { capitalizar } from "@/common/utils/string";
 import { useAtom, useAtomValue } from "jotai";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
@@ -43,7 +43,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
       : "error";
   }, [expandedNodes, node, challengeInProgress]);
 
-  const saveSpeciesIfMissing = async () => {
+  const saveSpeciesIfMissing = useCallback(async () => {
     if (!userDb) return;
 
     void updateUserSpeciesBook(userDb, (prev) => {
@@ -55,14 +55,14 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
         date: new Date().toISOString(),
         fav: false,
         specie_name: (node.canonicalName || node.scientificName) ?? "",
-        family_name: "—", // node?.family
+        family_name: "—",
       };
 
       return [...prev, newItem];
     }).then((updatedUser) => {
       if (updatedUser) setUserDb(updatedUser);
     });
-  };
+  }, [userDb, node, setUserDb]);
 
   return (
     <motion.div

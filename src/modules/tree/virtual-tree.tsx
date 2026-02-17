@@ -22,7 +22,7 @@ export const VirtualTree = () => {
   const parentRef = useRef<HTMLDivElement>(null);
   const nodes = useAtomValue(treeAtom.nodes);
   const roots = useAtomValue(treeAtom.rootKeys);
-  const challenge = useAtomValue(treeAtom.challenge);
+  const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const scrollToRank = useAtomValue(treeAtom.scrollToRank);
   const lastScrolledRank = useRef<Rank | null>(null);
 
@@ -54,17 +54,17 @@ export const VirtualTree = () => {
   return (
     <>
       <div className="mb-4 px-4">
-        {challenge.mode && isTablet && <DailyChallenge />}
+        {challengeMode && isTablet && <DailyChallenge />}
 
-        {!challenge.mode && <Search />}
+        {!challengeMode && <Search />}
       </div>
 
       <div
         ref={parentRef}
         className={cn(
           "h-[calc(100dvh-144px)] w-full overflow-auto px-4 pb-28",
-          challenge.mode && !isTablet && "h-[calc(100dvh-130px)]",
-          challenge.mode === "UNSET" && "pointer-events-none opacity-40",
+          challengeMode && !isTablet && "h-[calc(100dvh-130px)]",
+          challengeMode === "UNSET" && "pointer-events-none opacity-40",
         )}
         style={{ WebkitOverflowScrolling: "touch" }}
       >

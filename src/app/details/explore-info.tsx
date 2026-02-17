@@ -15,7 +15,7 @@ export const ExploreInfo = () => {
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const { navigateToNodes } = useTreeNavigation();
+  const { toggleNode } = useTreeNavigation();
 
   if (!challengeMode && expandedNodes.length) return <CardInfo />;
 
@@ -36,15 +36,7 @@ export const ExploreInfo = () => {
             <Card
               key={item.kingdomKey}
               className="cursor-pointer overflow-hidden border-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
-              onClick={() =>
-                navigateToNodes([
-                  {
-                    key: item.kingdomKey,
-                    rank: "KINGDOM",
-                    name: item.kingdomName,
-                  },
-                ])
-              }
+              onClick={() => toggleNode(item.kingdomKey)}
             >
               <CardHeader className="">
                 <div className="mb-4 flex items-center gap-4">

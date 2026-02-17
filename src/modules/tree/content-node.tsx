@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
@@ -19,17 +19,17 @@ import { authStore } from "@/store/auth/atoms";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
-  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
   const isExpanded = node.expanded;
   const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
 
-  const challengeInProgress =
-    useAtomValue(treeAtom.challenge).status === "IN_PROGRESS";
+  const challengeStatus = useAtomValue(treeAtom.challenge).status;
+  const challengeInProgress = challengeStatus === "IN_PROGRESS";
 
   const highlightedRank = useAtomValue(treeAtom.highlightedRank);
-
   const isHighlighted = highlightedRank === node.rank && challengeInProgress;
+
+  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
   const feedback = useMemo<"success" | "error" | null>(() => {
     if (!challengeInProgress) return null;
@@ -47,15 +47,25 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
       node.scientificName === expected.name
       ? "success"
       : "error";
-  }, [expandedNodes, node, challengeInProgress]);
+  }, [
+    challengeInProgress,
+    expandedNodes,
+    node.key,
+    node.canonicalName,
+    node.scientificName,
+  ]);
 
-  const saveShortcut = async () => {
-    if (!userDb) return;
-    if (challengeInProgress) return;
+  const hasReachedLimit = useMemo(() => {
+    const shortcuts = userDb?.game_info?.shortcuts;
+    if (!shortcuts) return false;
+    return (shortcuts[taxonRank]?.length ?? 0) >= 3;
+  }, [taxonRank, userDb?.game_info?.shortcuts]);
+
+  const saveShortcut = useCallback(async () => {
+    if (!userDb || challengeInProgress) return;
 
     void updateUserShortcut(userDb, (prev) => {
       const currentShortcuts = prev[taxonRank] ?? [];
-
       if (currentShortcuts.length >= 3) return prev;
 
       const alreadyExists = currentShortcuts.some(
@@ -74,26 +84,20 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
         expandedNodes.findIndex((n) => n.key === node.key) + 1,
       );
 
-      const newShortcutItem: Shortcuts["animalia"][0] = {
-        name: (node.canonicalName || node.scientificName) ?? " - ",
-        nodes: nodePath,
-      };
-
       return {
         ...prev,
-        [taxonRank]: [...currentShortcuts, newShortcutItem],
+        [taxonRank]: [
+          ...currentShortcuts,
+          {
+            name: (node.canonicalName || node.scientificName) ?? " - ",
+            nodes: nodePath,
+          },
+        ],
       };
     }).then((updatedUser) => {
       if (updatedUser) setUserDb(updatedUser);
     });
-  };
-
-  const hasReachedLimit = useMemo(() => {
-    const shortcuts = userDb?.game_info?.shortcuts;
-    if (!shortcuts) return false;
-    if (shortcuts[taxonRank]?.length >= 3) return true;
-    return false;
-  }, [taxonRank, userDb?.game_info?.shortcuts]);
+  }, [userDb, challengeInProgress, taxonRank, expandedNodes, node, setUserDb]);
 
   return (
     <motion.div

@@ -35,7 +35,7 @@ export const useVirtualTree = (
       keys: number[],
       level = 0,
     ): FlattenedNode[] => {
-      let result: FlattenedNode[] = [];
+      const result: FlattenedNode[] = [];
 
       for (const key of keys) {
         const node = nodes[key];
@@ -44,9 +44,8 @@ export const useVirtualTree = (
         result.push({ key, level });
 
         if (node.expanded && node.childrenKeys?.length) {
-          result = result.concat(
-            flattenTree(nodes, node.childrenKeys, level + 1),
-          );
+          const children = flattenTree(nodes, node.childrenKeys, level + 1);
+          for (let i = 0; i < children.length; i++) result.push(children[i]);
         }
       }
 
@@ -76,13 +75,13 @@ export const useVirtualTree = (
     }
 
     return offsets;
-  }, [flattened.length, getRowSize]);
+  }, [flattened, getRowSize]);
 
   const rowVirtualizer = useVirtualizer({
     count: flattened.length,
     getScrollElement: () => parentRef.current!,
     estimateSize: (index) => getRowSize(index),
-    overscan: 5,
+    overscan: 10,
   });
 
   const connectors: Connector[] = useMemo(() => {

@@ -124,24 +124,46 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
   set(expandedNodes, newPathNodes);
 });
 
+let prevExpandedKeys = new Set<number>();
+
 export const syncExpandedWithNodesAtom = atom(null, (get, set) => {
   const pathNodes = get(expandedNodes);
 
+  const nextExpandedKeys = new Set(
+    pathNodes.filter((p) => p.rank !== "SPECIES").map((p) => p.key),
+  );
+
+  if (
+    nextExpandedKeys.size === prevExpandedKeys.size &&
+    [...nextExpandedKeys].every((k) => prevExpandedKeys.has(k))
+  ) {
+    return;
+  }
+
+  const toCollapse = [...prevExpandedKeys].filter(
+    (k) => !nextExpandedKeys.has(k),
+  );
+  const toExpand = [...nextExpandedKeys].filter(
+    (k) => !prevExpandedKeys.has(k),
+  );
+
+  prevExpandedKeys = nextExpandedKeys;
+
   set(nodesAtom, (prev) => {
+    if (toCollapse.length === 0 && toExpand.length === 0) return prev;
+
     const next = { ...prev };
 
-    for (const key in next) {
-      if (next[key].expanded) {
-        next[key] = { ...next[key], expanded: false };
-      }
+    for (const key of toCollapse) {
+      if (next[key]) next[key] = { ...next[key], expanded: false };
     }
 
-    for (const path of pathNodes) {
-      const shouldExpand = path.rank !== "SPECIES";
-      if (next[path.key]) {
-        next[path.key] = { ...next[path.key], expanded: shouldExpand };
-      } else {
-        next[path.key] = { ...path, numDescendants: 0, expanded: shouldExpand };
+    for (const key of toExpand) {
+      const path = pathNodes.find((p) => p.key === key);
+      if (next[key]) {
+        next[key] = { ...next[key], expanded: true };
+      } else if (path) {
+        next[key] = { ...path, numDescendants: 0, expanded: true };
       }
     }
 
