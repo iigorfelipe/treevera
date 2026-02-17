@@ -6,16 +6,16 @@ import {
   CardTitle,
 } from "@/common/components/ui/card";
 import { CardInfo } from "@/modules/explore/card";
-import { setExpandedPathAtom } from "@/store/tree";
 import { treeAtom } from "@/store/tree";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 
 export const ExploreInfo = () => {
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const setExpandedNodes = useSetAtom(setExpandedPathAtom);
+  const { toggleNode } = useTreeNavigation();
 
   if (!challengeMode && expandedNodes.length) return <CardInfo />;
 
@@ -36,15 +36,7 @@ export const ExploreInfo = () => {
             <Card
               key={item.kingdomKey}
               className="cursor-pointer overflow-hidden border-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
-              onClick={() =>
-                setExpandedNodes([
-                  {
-                    key: item.kingdomKey,
-                    rank: "KINGDOM",
-                    name: item.kingdomName,
-                  },
-                ])
-              }
+              onClick={() => toggleNode(item.kingdomKey)}
             >
               <CardHeader className="">
                 <div className="mb-4 flex items-center gap-4">

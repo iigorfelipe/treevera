@@ -5,20 +5,20 @@ import { Image } from "@/common/components/image";
 import { Badge } from "@/common/components/ui/badge";
 import { Card, CardContent } from "@/common/components/ui/card";
 import { treeAtom } from "@/store/tree";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { Route } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import { authStore } from "@/store/auth/atoms";
 import { COLOR_KINGDOM_BY_KEY } from "@/common/constants/tree";
-import { setExpandedPathAtom } from "@/store/tree";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 
 export const CardInfo = () => {
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
   const userDb = useAtomValue(authStore.userDb);
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const setExpandedNodes = useSetAtom(setExpandedPathAtom);
+  const { navigateToNodes } = useTreeNavigation();
 
   const selectedData = exploreInfos.find(
     (item) => item.kingdomKey === expandedNodes[0].key,
@@ -74,7 +74,7 @@ export const CardInfo = () => {
                 <Button
                   variant="outline"
                   key={index}
-                  onClick={() => setExpandedNodes(example.pathNode)}
+                  onClick={() => navigateToNodes(example.pathNode)}
                 >
                   <Route className="size-4 scale-x-[-1]" />
 
@@ -91,7 +91,7 @@ export const CardInfo = () => {
                       <Button
                         key={name + index}
                         variant="outline"
-                        onClick={() => setExpandedNodes(nodes)}
+                        onClick={() => navigateToNodes(nodes)}
                       >
                         <Route className="size-4 scale-x-[-1]" />
 

@@ -4,18 +4,17 @@ import type { Shortcuts } from "@/common/types/user";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { authStore } from "@/store/auth/atoms";
-import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { Zap, Pencil, X, Check } from "lucide-react";
 import { useState, useRef, useEffect, Fragment } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import type { Kingdom } from "@/common/types/api";
-import { setExpandedPathAtom } from "@/store/tree";
 import type { PathNode } from "@/common/types/tree-atoms";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 
 export const TreeShortcuts = () => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
-  const [, setExpandedPath] = useAtom(setExpandedPathAtom);
+  const { navigateToNodes } = useTreeNavigation();
 
   const [editName, setEditName] = useState<{
     isEdit: boolean;
@@ -24,7 +23,6 @@ export const TreeShortcuts = () => {
     newName: string;
   }>({ isEdit: false, newName: "" });
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (editName.isEdit && inputRef.current) inputRef.current.focus();
@@ -36,8 +34,7 @@ export const TreeShortcuts = () => {
   if (!treeShortcuts) return null;
 
   const handleClick = (pathNode: PathNode[]) => {
-    setExpandedPath(pathNode);
-    navigate({ to: "/" });
+    navigateToNodes(pathNode);
   };
 
   const removeShortcut = async (kingdom: keyof Shortcuts, index: number) => {
