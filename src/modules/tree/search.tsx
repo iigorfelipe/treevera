@@ -308,7 +308,7 @@ export const Search = () => {
       >
         <Select value={kingdom} onValueChange={(e) => setKingdom(e)}>
           <SelectTrigger className="rounded-lg border px-2 text-sm font-medium">
-            <SelectValue placeholder="Reino" asChild>
+            <SelectValue placeholder="Reino">
               {kingdom ? (
                 <Image
                   src={getRankIcon(
