@@ -1,8 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { useSetAtom } from "jotai";
 
 import { searchTaxa, getParents, getSpecieDetail } from "@/services/apis/gbif";
-import { setExpandedPathAtom } from "@/store/tree";
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { capitalizar } from "@/common/utils/string";
 import type { Rank, Taxon } from "@/common/types/api";
@@ -17,6 +15,7 @@ import {
   SelectValue,
 } from "@/common/components/ui/select";
 import { Loader, SearchIcon } from "lucide-react";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 
 // TODO: refatorar para usar jotai
 export const Search = () => {
@@ -28,7 +27,7 @@ export const Search = () => {
   const [selected, setSelected] = useState<Taxon | null>(null);
   const [minimized, setMinimized] = useState(false);
 
-  const setExpandedPath = useSetAtom(setExpandedPathAtom);
+  const { navigateToNodes } = useTreeNavigation();
 
   const kingdomOptions = useMemo(() => {
     return Object.entries(NAME_KINGDOM_BY_KEY).map(([k, name]) => ({
@@ -291,7 +290,7 @@ export const Search = () => {
         }
       }
 
-      setExpandedPath(pathNodes);
+      navigateToNodes(pathNodes);
       setSelected(taxon);
     } catch (e) {
       console.error(e);

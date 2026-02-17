@@ -22,6 +22,54 @@ const homeRoute = createRoute({
   component: Home,
 });
 
+const treeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree",
+  component: Home,
+});
+
+const tree1Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree/$level1",
+  component: Home,
+});
+
+const tree2Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree/$level1/$level2",
+  component: Home,
+});
+
+const tree3Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree/$level1/$level2/$level3",
+  component: Home,
+});
+
+const tree4Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree/$level1/$level2/$level3/$level4",
+  component: Home,
+});
+
+const tree5Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree/$level1/$level2/$level3/$level4/$level5",
+  component: Home,
+});
+
+const tree6Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree/$level1/$level2/$level3/$level4/$level5/$level6",
+  component: Home,
+});
+
+const tree7Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tree/$level1/$level2/$level3/$level4/$level5/$level6/$level7",
+  component: Home,
+});
+
 const authCallbackRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/auth-callback",
@@ -52,10 +100,7 @@ const profileRoute = createRoute({
     const initialized = store.get(authStore.initialized);
     const isAuthenticated = store.get(authStore.isAuthenticated);
 
-    console.log("🔍 beforeLoad check:", { initialized, isAuthenticated });
-
     if (initialized && !isAuthenticated) {
-      console.log("❌ Redirecting to login");
       throw redirect({ to: "/login" });
     }
   },
@@ -64,6 +109,14 @@ const profileRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   authRoute,
   homeRoute,
+  treeRoute,
+  tree1Route,
+  tree2Route,
+  tree3Route,
+  tree4Route,
+  tree5Route,
+  tree6Route,
+  tree7Route,
   authCallbackRoute,
   profileRoute,
 ]);

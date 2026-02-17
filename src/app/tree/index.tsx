@@ -4,11 +4,14 @@ import { useGetKingdoms } from "@/hooks/queries/useGetKingdoms";
 import { treeAtom } from "@/store/tree";
 import { TreeState } from "@/modules/tree/tree-state";
 import { VirtualTree } from "@/modules/tree/virtual-tree";
+import { useTreeUrl } from "@/hooks/use-tree-url";
 
 export const Tree = () => {
   const { data: kingdoms, isLoading, isError } = useGetKingdoms();
   const mergeNodes = useSetAtom(treeAtom.mergeNodes);
   const setRootKeys = useSetAtom(treeAtom.rootKeys);
+
+  useTreeUrl();
 
   useEffect(() => {
     if (kingdoms && kingdoms.length > 0) {

@@ -10,11 +10,8 @@ import {
 import { useEffect } from "react";
 import { useGetChildren } from "@/hooks/queries/useGetChildren";
 import { useAtom, useSetAtom } from "jotai";
-import {
-  nodeAtomFamily,
-  setNodeChildrenAtom,
-  toggleNodeAtom,
-} from "@/store/tree";
+import { nodeAtomFamily, setNodeChildrenAtom } from "@/store/tree";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { Loader } from "lucide-react";
 import { cn } from "@/common/utils/cn";
 
@@ -27,7 +24,7 @@ export const TreeNodeLiContent = ({
 }) => {
   const [node] = useAtom(nodeAtomFamily(nodeKey));
   const setNodeChildren = useSetAtom(setNodeChildrenAtom);
-  const [, toggleNode] = useAtom(toggleNodeAtom);
+  const { toggleNode } = useTreeNavigation();
 
   const isExpanded = node?.expanded;
 

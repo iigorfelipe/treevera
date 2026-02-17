@@ -4,7 +4,7 @@ import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 
 import { capitalizar } from "@/common/utils/string";
 
-import { atomFamily, atomWithStorage } from "jotai/utils";
+import { atomFamily } from "jotai/utils";
 import type {
   AnimateState,
   Challenge,
@@ -27,7 +27,7 @@ const nodesAtom = atom<Record<number, NodeEntity>>({});
 
 const rootKeys = atom<number[]>([]);
 
-const expandedNodes = atomWithStorage<PathNode[]>("tree.expandedPath", []);
+const expandedNodes = atom<PathNode[]>([]);
 
 const mergeNodes = atom(null, (_, set, nodes: NodeEntity[]) => {
   set(nodesAtom, (prev) => {

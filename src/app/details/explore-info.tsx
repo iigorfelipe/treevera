@@ -6,16 +6,16 @@ import {
   CardTitle,
 } from "@/common/components/ui/card";
 import { CardInfo } from "@/modules/explore/card";
-import { setExpandedPathAtom } from "@/store/tree";
 import { treeAtom } from "@/store/tree";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 
 export const ExploreInfo = () => {
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const setExpandedNodes = useSetAtom(setExpandedPathAtom);
+  const { navigateToNodes } = useTreeNavigation();
 
   if (!challengeMode && expandedNodes.length) return <CardInfo />;
 
@@ -37,7 +37,7 @@ export const ExploreInfo = () => {
               key={item.kingdomKey}
               className="cursor-pointer overflow-hidden border-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               onClick={() =>
-                setExpandedNodes([
+                navigateToNodes([
                   {
                     key: item.kingdomKey,
                     rank: "KINGDOM",
