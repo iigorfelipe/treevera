@@ -11,6 +11,7 @@ import { Profile } from "@/app/profile";
 import { getDefaultStore } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { AuthCallback } from "@/app/auth/auth-callback";
+import { SpeciesGalleryPage } from "@/app/profile/species-gallery";
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -106,6 +107,21 @@ const profileRoute = createRoute({
   },
 });
 
+const speciesGalleryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/profile/species-gallery",
+  component: SpeciesGalleryPage,
+  beforeLoad: () => {
+    const store = getDefaultStore();
+    const initialized = store.get(authStore.initialized);
+    const isAuthenticated = store.get(authStore.isAuthenticated);
+
+    if (initialized && !isAuthenticated) {
+      throw redirect({ to: "/login" });
+    }
+  },
+});
+
 const routeTree = rootRoute.addChildren([
   authRoute,
   homeRoute,
@@ -119,6 +135,7 @@ const routeTree = rootRoute.addChildren([
   tree7Route,
   authCallbackRoute,
   profileRoute,
+  speciesGalleryRoute,
 ]);
 
 export const router = createRouter({
