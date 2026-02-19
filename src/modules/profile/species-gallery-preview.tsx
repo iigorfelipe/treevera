@@ -2,7 +2,7 @@ import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
-import { Grid3x3, ChevronRight } from "lucide-react";
+import { Images, ChevronRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
 
@@ -68,7 +68,7 @@ export const SpeciesGalleryPreview = () => {
 
       {!seenSpecies.length ? (
         <div className="py-8 text-center text-slate-500">
-          <Grid3x3 className="mx-auto mb-3 h-12 w-12 text-slate-300" />
+          <Images className="mx-auto mb-3 h-12 w-12 text-slate-300" />
           <div className="mb-1 text-sm font-medium">Sua galeria está vazia</div>
           <div className="text-xs">Explore espécies para preenchê-la!</div>
         </div>
