@@ -10,7 +10,7 @@ export const UserProgress = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm">Espécies exploradas</span>
 
-          <Badge className="text-primary text-md flex items-start border-1 bg-transparent outline-1">
+          <Badge className="text-primary text-md flex items-start border bg-transparent outline-1">
             {userProgress.totalSpecies}
           </Badge>
         </div>
@@ -18,7 +18,7 @@ export const UserProgress = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm">Desafios completados</span>
 
-          <Badge className="text-primary text-md flex items-start border-1 bg-transparent outline-1">
+          <Badge className="text-primary text-md flex items-start border bg-transparent outline-1">
             {userProgress.challenges}
           </Badge>
         </div>
@@ -26,7 +26,7 @@ export const UserProgress = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm">Precisão de acerto</span>
 
-          <Badge className="text-primary text-md flex items-start border-1 bg-transparent outline-1">
+          <Badge className="text-primary text-md flex items-start border bg-transparent outline-1">
             {userProgress.accuracy}%
           </Badge>
         </div>
@@ -34,7 +34,7 @@ export const UserProgress = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm">Medalhas conquistadas</span>
 
-          <Badge className="text-primary text-md flex items-start border-1 bg-transparent outline-1">
+          <Badge className="text-primary text-md flex items-start border bg-transparent outline-1">
             {userProgress.medals}
           </Badge>
         </div>
@@ -42,7 +42,7 @@ export const UserProgress = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm">Sequência de dias</span>
 
-          <Badge className="text-primary text-md flex items-start border-1 bg-transparent outline-1">
+          <Badge className="text-primary text-md flex items-start border bg-transparent outline-1">
             {userProgress.streak}
           </Badge>
         </div>
@@ -50,7 +50,7 @@ export const UserProgress = () => {
         <div className="flex items-center justify-between">
           <span className="text-sm">Ranking global</span>
 
-          <Badge className="text-primary text-md flex items-start border-1 bg-transparent outline-1">
+          <Badge className="text-primary text-md flex items-start border bg-transparent outline-1">
             #{userProgress.rank}
           </Badge>
         </div>
