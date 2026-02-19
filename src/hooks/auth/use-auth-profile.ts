@@ -7,6 +7,7 @@ import {
   getCurrentSession,
 } from "@/services/auth/profile";
 import { supabase } from "@/common/utils/supabase/client";
+import { createUser } from "@/common/utils/supabase/create-user";
 import type { Provider } from "@supabase/supabase-js";
 import type { DbUser } from "@/common/types/user";
 
@@ -45,36 +46,17 @@ export function useAuth() {
             const { data: authUser } = await supabase.auth.getUser();
 
             if (authUser.user) {
-              const newUser: Partial<DbUser> = {
-                id: authUser.user.id,
-                email: authUser.user.email!,
-                name:
-                  authUser.user.user_metadata?.full_name ||
-                  authUser.user.user_metadata?.name ||
-                  authUser.user.email!.split("@")[0],
-                avatar_url:
-                  authUser.user.user_metadata?.avatar_url ||
-                  authUser.user.user_metadata?.picture ||
-                  null,
-                created_at: new Date().toISOString(),
-              };
-
-              const { data: createdUser, error: createError } = await supabase
-                .from("users")
-                .insert(newUser)
-                .select()
-                .single();
-
-              if (createError) {
+              try {
+                const createdUser = await createUser(authUser.user);
+                console.log("✅ Usuário criado no banco");
+                return createdUser;
+              } catch (createError) {
                 console.error(
                   "❌ Erro ao criar usuário no banco:",
                   createError,
                 );
                 return null;
               }
-
-              console.log("✅ Usuário criado no banco");
-              return createdUser as DbUser;
             }
           }
 
