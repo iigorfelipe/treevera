@@ -3,13 +3,18 @@ import { supabase } from "./client";
 import type { DbUser } from "@/common/types/user";
 
 export const createUser = async (u: SupabaseUser) => {
+  const provider =
+    u.app_metadata?.provider ||
+    u.identities?.[0]?.provider ||
+    (u.email?.includes("@") ? "email" : "unknown");
+
   const user = {
     id: u.id,
     email: u.email,
-    name: u.user_metadata.full_name,
-    avatar_url: u.user_metadata.avatar_url,
+    name: u.user_metadata.full_name || u.email?.split("@")[0] || "Usuário",
+    avatar_url: u.user_metadata.avatar_url || null,
     created_at: u.created_at,
-    provider: u.app_metadata.provider,
+    provider,
     game_info: {
       activities: [
         {
@@ -18,6 +23,7 @@ export const createUser = async (u: SupabaseUser) => {
           date: new Date().toISOString(),
         },
       ],
+      seen_species: [],
     } as DbUser["game_info"],
   };
 

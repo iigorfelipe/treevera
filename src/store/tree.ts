@@ -188,6 +188,8 @@ export const scrollToRankAtom = atom(null, (_get, set, rank: Rank | null) => {
 
 const playedStepAudioAtom = atom<Record<string, true>>({});
 
+export const selectedSpecieKeyAtom = atom<number | null>(null);
+
 export const treeAtom = {
   challenge,
   exploreInfos,

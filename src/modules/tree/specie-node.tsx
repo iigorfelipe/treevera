@@ -1,11 +1,11 @@
 import { capitalizar } from "@/common/utils/string";
 import { useAtom, useAtomValue } from "jotai";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useMemo, useCallback } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
 import { authStore } from "@/store/auth/atoms";
-import { updateUserSpeciesBook } from "@/common/utils/supabase/add_species_book";
+import { updateSeenSpecies } from "@/common/utils/supabase/add_species_gallery";
 import type { NodeEntity } from "@/common/types/tree-atoms";
 import { treeAtom } from "@/store/tree";
 import {
@@ -46,7 +46,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const saveSpeciesIfMissing = useCallback(async () => {
     if (!userDb) return;
 
-    void updateUserSpeciesBook(userDb, (prev) => {
+    void updateSeenSpecies(userDb, (prev) => {
       const alreadyExists = prev.some((item) => item.key === node.key);
       if (alreadyExists) return prev;
 
@@ -54,15 +54,13 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
         key: node.key,
         date: new Date().toISOString(),
         fav: false,
-        specie_name: (node.canonicalName || node.scientificName) ?? "",
-        family_name: "—",
       };
 
       return [...prev, newItem];
     }).then((updatedUser) => {
       if (updatedUser) setUserDb(updatedUser);
     });
-  }, [userDb, node, setUserDb]);
+  }, [userDb, node.key, setUserDb]);
 
   return (
     <motion.div

@@ -2,7 +2,7 @@ import { FavoriteSpecies } from "@/modules/profile/fav-species";
 import { HeaderProfile } from "@/modules/profile/header";
 import { LatestUserActivities } from "@/modules/profile/latest-user-activities";
 import { UserProgress } from "@/modules/profile/progress";
-import { SpeciesBookPreview } from "@/modules/profile/species-book-preview";
+import { SpeciesGalleryPreview } from "@/modules/profile/species-gallery-preview";
 import { TreeShortcuts } from "@/modules/profile/tree-shortcuts";
 import { UserAchievements } from "@/modules/profile/user-achievements";
 import { authStore } from "@/store/auth/atoms";
@@ -40,7 +40,7 @@ export const Profile = () => {
 
           <div className="space-y-18 md:mt-8">
             <LatestUserActivities />
-            <SpeciesBookPreview />
+            <SpeciesGalleryPreview />
             <TreeShortcuts />
           </div>
         </div>

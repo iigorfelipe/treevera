@@ -1,6 +1,6 @@
 import {
   Award,
-  BookOpen,
+  Images,
   Crown,
   GitBranchPlus,
   TrendingUp,
@@ -9,9 +9,9 @@ import {
 
 export const benefits = [
   {
-    icon: BookOpen,
-    title: "Livro de Espécies",
-    description: "Organize e favorite suas especies já descobertas",
+    icon: Images,
+    title: "Galeria de Espécies",
+    description: "Organize e favorite suas espécies já descobertas",
     color: "text-green-600",
     bgColor: "bg-green-50",
   },
@@ -33,7 +33,7 @@ export const benefits = [
   {
     icon: Crown,
     title: "Ranking Global",
-    description: "Compete com outros exploradores da taxonomia",
+    description: "Compita com outros exploradores da taxonomia",
     color: "text-yellow-600",
     bgColor: "bg-yellow-50",
   },
@@ -41,7 +41,7 @@ export const benefits = [
   {
     icon: GitBranchPlus,
     title: "Salvar atalhos",
-    description: "Define nós mais visitados para agilizar sua navegação",
+    description: "Defina nós mais visitados para agilizar sua navegação",
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },

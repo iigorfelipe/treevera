@@ -6,13 +6,15 @@ import { SkeletonImage } from "@/modules/specie-detail/skeletons";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
-import { treeAtom } from "@/store/tree";
+import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { ImageWithZoom } from "@/common/components/image-with-zoom";
 
 export const SpecieImageDetail = () => {
-  const specieKey = useAtomValue(treeAtom.expandedNodes).find(
+  const selectedKey = useAtomValue(selectedSpecieKeyAtom);
+  const treeSpecieKey = useAtomValue(treeAtom.expandedNodes).find(
     (node) => node.rank === "SPECIES",
   )?.key;
+  const specieKey = selectedKey ?? treeSpecieKey;
 
   const { data: specieDetail } = useGetSpecieDetail({
     specieKey: specieKey!,

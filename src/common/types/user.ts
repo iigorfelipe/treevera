@@ -35,12 +35,10 @@ type Activities = {
   date: string;
 };
 
-export type Species_book = {
+export type SeenSpecies = {
   key: number;
   date: string;
   fav: boolean;
-  specie_name: string;
-  family_name: string;
 };
 
 type Progress = {
@@ -51,6 +49,7 @@ type Progress = {
   consecutive_days: number;
   global_ranking: number;
 };
+
 type Achievements = {
   unlocked: string[];
   locked: { nome: string; progress: number }[];
@@ -58,7 +57,7 @@ type Achievements = {
 
 type GameInfo = {
   activities: Activities[];
-  species_book?: Species_book[];
+  seen_species?: SeenSpecies[];
   shortcuts?: Shortcuts;
   progress?: Progress;
   top_fav_species?: FavSpecies[];
@@ -70,7 +69,7 @@ export type DbUser = {
   email: SupabaseUser["email"];
   name: SupabaseUser["user_metadata"]["full_name"];
   avatar_url: SupabaseUser["user_metadata"]["avatar_url"];
-  provider: SupabaseUser["app_metadata"]["provider"];
+  provider: string;
   created_at: SupabaseUser["created_at"];
   game_info: GameInfo;
 };

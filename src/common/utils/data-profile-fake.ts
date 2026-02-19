@@ -2,7 +2,7 @@ import {
   Award,
   Trophy,
   Target,
-  BookOpen,
+  Images,
   Zap,
   Leaf,
   Crown,
@@ -74,7 +74,7 @@ export const userAchievements = {
     {
       id: 8,
       name: "Colecionador",
-      icon: BookOpen,
+      icon: Images,
       description: "Descobrir 500 espécies",
       progress: 25,
     },
@@ -116,7 +116,7 @@ export const userAchievements = {
     {
       id: 18,
       name: "Colecionador",
-      icon: BookOpen,
+      icon: Images,
       description: "Descobrir 500 espécies",
       progress: 25,
     },
@@ -158,7 +158,7 @@ export const userAchievements = {
     {
       id: 28,
       name: "Colecionador",
-      icon: BookOpen,
+      icon: Images,
       description: "Descobrir 500 espécies",
       progress: 25,
     },
@@ -200,7 +200,7 @@ export const userAchievements = {
     {
       id: 218,
       name: "Colecionador",
-      icon: BookOpen,
+      icon: Images,
       description: "Descobrir 500 espécies",
       progress: 25,
     },
