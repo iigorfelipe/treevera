@@ -9,7 +9,7 @@ export const useGetSpecieImage = (
   canonicalName?: string,
 ) => {
   return useQuery({
-    queryKey: ["specie-image", specieKey],
+    queryKey: ["specie-image", specieKey, canonicalName],
     queryFn: async () => {
       if (!specieKey || !canonicalName) return null;
 

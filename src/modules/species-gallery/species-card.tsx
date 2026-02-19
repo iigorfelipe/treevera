@@ -16,9 +16,12 @@ export const SpeciesCard = ({ species, onClick, searchQuery }: SpeciesCardProps)
     isLoading: isLoadingInfo,
   } = useSpecieInfo(species.key);
 
+  const resolvedName =
+    !isLoadingInfo && specieName !== "—" ? specieName : undefined;
+
   const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
     species.key,
-    specieName,
+    resolvedName,
   );
 
   const isLoading = isLoadingInfo || isLoadingImage;
