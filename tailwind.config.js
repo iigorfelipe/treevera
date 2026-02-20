@@ -1,4 +1,4 @@
-import { BREAKPOINTS } from "./src/design-system/tokens";
+import { BREAKPOINTS } from "./src/common/constants/breakpoints";
 
 export default {
   darkMode: "class",

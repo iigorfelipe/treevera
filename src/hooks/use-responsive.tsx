@@ -1,4 +1,4 @@
-import { BREAKPOINTS } from "@/design-system/tokens/breakpoints";
+import { BREAKPOINTS } from "@/common/constants/breakpoints";
 import { useState, useEffect } from "react";
 
 const MOBILE_BREAKPOINT = Number(BREAKPOINTS.sm.replace("px", ""));
