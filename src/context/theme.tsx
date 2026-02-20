@@ -1,6 +1,13 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark" | "system";
+
+type ThemeContextType = {
+  theme: Theme;
+  changeTheme: (theme: Theme) => void;
+};
+
+const ThemeContext = createContext<ThemeContextType | null>(null);
 
 const THEME_KEY = "theme-preference";
 
@@ -18,7 +25,7 @@ const applyTheme = (theme: Theme) => {
   root.classList.add(resolved);
 };
 
-export const useTheme = () => {
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem(THEME_KEY) as Theme | null;
     return stored || "system";
@@ -40,5 +47,17 @@ export const useTheme = () => {
     localStorage.setItem(THEME_KEY, newTheme);
   };
 
-  return { theme, changeTheme };
+  return (
+    <ThemeContext.Provider value={{ theme, changeTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within ThemeProvider");
+  }
+  return context;
 };

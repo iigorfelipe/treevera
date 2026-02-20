@@ -3,6 +3,7 @@ import { Button } from "@/common/components/ui/button";
 import { Card, CardContent } from "@/common/components/ui/card";
 import { cn } from "@/common/utils/cn";
 import Alvo from "@/assets/alvo.gif";
+import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/taxonomic-path";
 
@@ -21,6 +22,7 @@ import { ProgressSteps, TOTAL_STEPS } from "@/modules/challenge/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { authStore } from "@/store/auth/atoms";
+import { useTheme } from "@/context/theme";
 
 export const DailyChallenge = () => {
   const { t } = useTranslation();
@@ -30,6 +32,7 @@ export const DailyChallenge = () => {
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const navigate = useNavigate();
   const { isTablet } = useResponsive();
+  const { theme } = useTheme();
 
   const speciesName = getDailySpecies();
 
@@ -109,7 +112,11 @@ export const DailyChallenge = () => {
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Image src={Alvo} className="size-12" alt="Alvo gif" />
+              <Image
+                src={theme === "dark" ? AlvoWhite : Alvo}
+                className="size-12"
+                alt="Alvo gif"
+              />
               <div>
                 <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
                 <p className="text-sm">
@@ -135,7 +142,9 @@ export const DailyChallenge = () => {
               <TaxonomicPath activeIndex={expandedNodes.length} />
             ) : (
               <div className="bg-accent/40 rounded-xl p-6 text-center">
-                <p className="mb-2 text-lg font-semibold">{t("challenge.missionTitle")}</p>
+                <p className="mb-2 text-lg font-semibold">
+                  {t("challenge.missionTitle")}
+                </p>
                 <p className="text-muted-foreground text-sm">
                   {t("challenge.missionDescription")}
                 </p>

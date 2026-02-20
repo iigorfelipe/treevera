@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from "@/common/components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "@/hooks/theme";
+import { useTheme } from "@/context/theme";
 import {
   ArrowLeft,
   Loader,
