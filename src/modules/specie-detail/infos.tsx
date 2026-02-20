@@ -9,7 +9,7 @@ import {
 } from "@/modules/specie-detail/skeletons";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useAtom, useAtomValue } from "jotai";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 import { authStore } from "@/store/auth/atoms";
 import { useEffect, useState } from "react";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
@@ -77,7 +77,9 @@ export const SpecieInfos = () => {
   };
 
   if (!specieDetail)
-    return <p className="text-center text-slate-600">Dados indisponíveis.</p>;
+    return (
+      <p className="text-muted-foreground text-center">Dados indisponíveis.</p>
+    );
 
   if (isLoading) return <SkeletonText />;
 
@@ -90,7 +92,6 @@ export const SpecieInfos = () => {
     ["Ordem", isOrderClass ? undefined : specieDetail.order],
     ["Família", specieDetail.family],
     ["Gênero", specieDetail.genus],
-    ["Espécie", specieDetail.species],
   ].filter(([, value]) => !!value);
 
   return (
@@ -98,15 +99,15 @@ export const SpecieInfos = () => {
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border-b border-slate-200 pb-4"
+        className="border-b pb-4"
       >
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h1 className="mb-1 text-3xl font-bold text-slate-900">
+            <h1 className="mb-1 text-3xl font-bold">
               {specieDetail.canonicalName}
             </h1>
             {specieDetail.scientificName && (
-              <p className="text-lg text-slate-600 italic">
+              <p className="text-muted-foreground text-lg italic">
                 {specieDetail.scientificName}
               </p>
             )}
@@ -123,7 +124,7 @@ export const SpecieInfos = () => {
                 className={`size-7 transition-all ${
                   fav
                     ? "fill-red-500 text-red-500"
-                    : "text-slate-400 hover:text-red-500"
+                    : "text-muted-foreground hover:text-red-500"
                 }`}
               />
             </motion.button>
@@ -136,21 +137,14 @@ export const SpecieInfos = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="rounded-lg border border-blue-100 bg-linear-to-br from-blue-50 to-indigo-50 p-4"
+          className="bg-muted rounded-lg border p-4"
         >
-          <div className="mb-3 flex items-center gap-2">
-            <Sparkles className="size-4 text-blue-600" />
-            <h3 className="text-sm font-semibold tracking-wide text-blue-900 uppercase">
-              Classificação Taxonômica
-            </h3>
-          </div>
-          <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+          <div className="mb-3 flex items-center gap-2"></div>
+          <dl className="grid grid-cols-2 gap-3 text-sm [@container(min-width:1280px)]:grid-cols-3">
             {taxonomyFields.map(([label, value]) => (
-              <div key={label} className="flex gap-2">
-                <dt className="min-w-17.5 font-semibold text-slate-700">
-                  {label}:
-                </dt>
-                <dd className="text-slate-900">{value}</dd>
+              <div key={label}>
+                <dt className="font-semibold">{label}:</dt>
+                <dd className="text-primary/87">{value}</dd>
               </div>
             ))}
           </dl>
@@ -178,10 +172,10 @@ export const SpecieInfos = () => {
           transition={{ delay: 0.3 }}
           className="space-y-3"
         >
-          <h3 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
+          <h3 className="flex items-center gap-2 text-xl font-semibold">
             Descrição
           </h3>
-          <p className="text-sm leading-relaxed text-slate-700">
+          <p className="text-muted-foreground text-sm leading-relaxed">
             {wikiDetails.extract || wikiDetails.description}
           </p>
         </motion.div>
@@ -192,26 +186,25 @@ export const SpecieInfos = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="space-y-3 border-t border-slate-200 pt-4"
+          className="space-y-3 border-t pt-4"
         >
-          <h3 className="text-lg font-semibold text-slate-900">
-            Detalhes da Nomenclatura
-          </h3>
+          <h3 className="text-lg font-semibold">Detalhes da Nomenclatura</h3>
           <div className="space-y-2 text-sm">
             {specieDetail.authorship && (
-              <p className="text-slate-700">
-                <strong className="text-slate-900">Autor:</strong>
+              <p className="text-muted-foreground">
+                <strong className="text-foreground">Autor: </strong>
                 {specieDetail.authorship}
               </p>
             )}
             {specieDetail.publishedIn && (
-              <p className="text-slate-700">
-                <strong className="text-slate-900">Publicado em:</strong>
+              <p className="text-muted-foreground">
+                <strong className="text-foreground">Publicado em: </strong>
                 {specieDetail.publishedIn}
               </p>
             )}
-            <p className="text-xs text-slate-600">
-              <strong>Fontes:</strong> GBIF, Wikipedia
+            <p className="text-muted-foreground">
+              <strong className="text-foreground">Fontes: </strong>GBIF,
+              Wikipedia
             </p>
           </div>
         </motion.div>

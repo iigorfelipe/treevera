@@ -73,14 +73,14 @@ export const Login = () => {
         <Card className="border-0 shadow-xl">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">{t("welcome")}</CardTitle>
-            <CardDescription className="text-sm leading-relaxed text-slate-600">
+            <CardDescription className="text-sm leading-relaxed">
               Entre com sua conta Google para desbloquear todos os recursos e
               salvar seu progresso
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {authError && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+              <div className="bg-accent rounded-lg p-3 text-sm text-red-600">
                 <p className="font-medium">Erro ao fazer login</p>
                 <p className="mt-1 text-xs">{authError?.message}</p>
               </div>
@@ -105,7 +105,7 @@ export const Login = () => {
 
             <div className="space-y-4 border-t pt-4">
               <div className="text-center">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-500">
                   Recursos exclusivos ao entrar
                 </p>
               </div>
@@ -126,7 +126,7 @@ export const Login = () => {
                         <h4 className={`text-sm font-medium ${benefit.color}`}>
                           {benefit.title}
                         </h4>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-gray-500">
                           {benefit.description}
                         </p>
                       </div>
@@ -137,8 +137,8 @@ export const Login = () => {
             </div>
           </CardContent>
 
-          <div className="space-y-4 border-t border-slate-200 p-6 pb-1">
-            <p className="text-center text-sm leading-relaxed text-slate-600">
+          <div className="space-y-4 border-t border-slate-200 p-6 pb-1 text-gray-400">
+            <p className="text-center text-sm leading-relaxed">
               Você pode continuar sem fazer login, mas não terá acesso aos
               recursos listados acima.
             </p>

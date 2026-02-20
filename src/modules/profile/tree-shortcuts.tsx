@@ -109,7 +109,7 @@ export const TreeShortcuts = () => {
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-between rounded-md border py-1 pl-2.5 hover:bg-slate-50"
+                  className="flex items-center justify-between rounded-md border py-1 pl-2.5 hover:bg-muted/50"
                 >
                   <div
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-2"
@@ -143,7 +143,7 @@ export const TreeShortcuts = () => {
                           {shortcut.name}
                         </p>
                       )}
-                      <span className="block truncate text-xs leading-tight text-slate-500">
+                      <span className="block truncate text-xs leading-tight text-muted-foreground">
                         {shortcut.nodes.map((node, i) => (
                           <Fragment key={node.key}>
                             {node.name ?? node.rank}
@@ -181,7 +181,7 @@ export const TreeShortcuts = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="size-6 text-slate-500 hover:text-blue-700"
+                          className="size-6 text-muted-foreground hover:text-blue-700"
                           title="Editar nome do atalho"
                           onClick={() =>
                             setEditName({
@@ -197,7 +197,7 @@ export const TreeShortcuts = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="size-6 text-slate-500 hover:text-red-700"
+                          className="size-6 text-muted-foreground hover:text-red-700"
                           onClick={() => removeShortcut(kingdom, index)}
                           title="Remover atalho"
                         >
@@ -214,14 +214,14 @@ export const TreeShortcuts = () => {
       })}
 
       {kingdoms.every((k) => !treeShortcuts[k]?.length) && (
-        <div className="py-6 text-center text-slate-500">
-          <Zap className="mx-auto mb-3 h-10 w-10 text-slate-300" />
+        <div className="py-6 text-center text-muted-foreground">
+          <Zap className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
           <div className="mb-1 text-sm font-medium">Nenhum atalho criado</div>
           <div className="text-xs">Crie atalhos navegando pela árvore</div>
         </div>
       )}
 
-      <div className="rounded-lg bg-slate-50 p-2 text-center text-xs text-slate-500 italic">
+      <div className="rounded-lg bg-muted p-2 text-center text-xs text-muted-foreground italic">
         Navegue pela árvore taxonômica e salve os nós selecionados como atalhos
         para acesso rápido.
       </div>

@@ -69,11 +69,11 @@ export const SpeciesGallery = () => {
   if (!userDb) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="bg-background fixed inset-0 z-50 flex flex-col">
       <motion.div
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="relative z-10 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-sm"
+        className="bg-background/95 relative z-10 border-b px-4 py-3 shadow-sm backdrop-blur-sm"
       >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
           <div className="flex items-center gap-3">
@@ -81,10 +81,10 @@ export const SpeciesGallery = () => {
               <Images className="size-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="text-foreground text-lg font-bold">
                 Galeria de Espécies
               </h1>
-              <p className="text-xs text-slate-600">
+              <p className="text-muted-foreground text-xs">
                 {filteredSpecies.length === allSpecies.length
                   ? `${allSpecies.length} espécies`
                   : `${filteredSpecies.length} de ${allSpecies.length}`}
@@ -99,7 +99,7 @@ export const SpeciesGallery = () => {
           </div>
 
           <div className="relative max-w-md min-w-50 flex-1">
-            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Buscar por nome ou família..."
@@ -107,7 +107,7 @@ export const SpeciesGallery = () => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSearchQuery(e.target.value)
               }
-              className="h-10 border-slate-300 bg-white pl-9 focus:border-blue-500"
+              className="bg-background focus:border-primary h-10 pl-9"
             />
           </div>
 
@@ -158,7 +158,7 @@ export const SpeciesGallery = () => {
       <div className="flex-1 overflow-y-auto">
         {filteredSpecies.length === 0 ? (
           <div className="flex h-full items-center justify-center">
-            <div className="text-center text-slate-600">
+            <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />
               <p className="mb-1 text-lg font-medium">
                 Nenhuma espécie encontrada

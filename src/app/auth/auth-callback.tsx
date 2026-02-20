@@ -48,7 +48,7 @@ export const AuthCallback = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
           <svg
@@ -65,10 +65,12 @@ export const AuthCallback = () => {
             />
           </svg>
         </div>
-        <h1 className="mb-2 text-xl font-semibold text-slate-800">
+        <h1 className="mb-2 text-xl font-semibold">
           Finalizando autenticação...
         </h1>
-        <p className="text-sm text-slate-600">Aguarde alguns segundos.</p>
+        <p className="text-muted-foreground text-sm">
+          Aguarde alguns segundos.
+        </p>
       </div>
     </div>
   );

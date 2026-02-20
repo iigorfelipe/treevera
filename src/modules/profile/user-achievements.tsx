@@ -27,27 +27,27 @@ export const UserAchievements = () => {
         </div>
 
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-slate-500">
+          <h3 className="text-muted-foreground mb-3 text-sm font-semibold">
             Bloqueadas
           </h3>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
             {userAchievements.locked.map((achievement) => (
               <div
                 key={achievement.id}
-                className="group size-28 cursor-pointer rounded-lg border border-slate-200 bg-slate-50 p-3 transition-all duration-300 hover:bg-slate-100 dark:border-slate-500 dark:bg-slate-700 dark:hover:bg-slate-500"
+                className="group bg-muted hover:bg-muted/80 size-28 cursor-pointer rounded-lg border p-3 transition-all duration-300"
               >
                 <div className="flex size-full flex-col items-center justify-between text-center">
-                  <div className="relative flex size-7 items-center justify-center rounded-full bg-slate-200 transition-colors group-hover:bg-slate-300 dark:bg-slate-400">
-                    <achievement.icon className="size-4 text-slate-400 dark:text-slate-600" />
-                    <Lock className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-slate-50 p-0.5 text-slate-500 dark:bg-slate-700 dark:text-slate-400" />
+                  <div className="bg-muted-foreground/20 group-hover:bg-muted-foreground/30 relative flex size-7 items-center justify-center rounded-full transition-colors">
+                    <achievement.icon className="text-muted-foreground size-4" />
+                    <Lock className="bg-muted text-muted-foreground absolute -top-0.5 -right-0.5 size-3 rounded-full p-0.5" />
                   </div>
-                  <div className="text-xs leading-tight font-semibold text-slate-600 dark:text-slate-400">
+                  <div className="text-muted-foreground text-xs leading-tight font-semibold">
                     {achievement.name}
                   </div>
                   {achievement.progress >= 0 && (
                     <div className="w-full">
                       <Progress value={achievement.progress} className="h-1" />
-                      <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                      <div className="text-muted-foreground mt-0.5 text-xs">
                         {achievement.progress}%
                       </div>
                     </div>

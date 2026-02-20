@@ -200,7 +200,7 @@ export const Menu = () => {
                     <SliderTrack className="relative h-1 w-full grow rounded-full bg-gray-200">
                       <SliderRange className="absolute h-full rounded-full bg-blue-500" />
                     </SliderTrack>
-                    <SliderThumb className="block h-5 w-5 rounded-full bg-white shadow" />
+                    <SliderThumb className="block h-5 w-5 rounded-full bg-blue-500 shadow" />
                   </RadixSlider>
                 )}
               </DropdownMenuSubContent>

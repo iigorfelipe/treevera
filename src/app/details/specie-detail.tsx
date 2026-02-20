@@ -43,7 +43,7 @@ export const SpecieDetail = () => {
   if (!specieDetail) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-slate-600">Nenhum dado foi encontrado</p>
+        <p className="text-slate-500">Nenhum dado foi encontrado</p>
       </div>
     );
   }
@@ -57,7 +57,7 @@ export const SpecieDetail = () => {
       style={{ containerType: "inline-size" }}
     >
       {isFromGallery && (
-        <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-sm">
+        <div className="bg-card/95 sticky top-0 z-10 border-b px-4 py-3 shadow-sm backdrop-blur-sm">
           <Button
             onClick={handleBack}
             variant="ghost"
@@ -76,7 +76,7 @@ export const SpecieDetail = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-xl border border-slate-200 bg-white p-6 shadow-lg"
+            className="bg-card rounded-xl border p-6 shadow-lg"
           >
             <SpecieInfos />
           </motion.div>
@@ -86,7 +86,7 @@ export const SpecieDetail = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg"
+              className="bg-card overflow-hidden rounded-xl border shadow-lg"
             >
               <SpecieImageDetail />
             </motion.div>
@@ -96,7 +96,6 @@ export const SpecieDetail = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg"
               >
                 <OccurrenceMap specieKey={specieKey} />
               </motion.div>

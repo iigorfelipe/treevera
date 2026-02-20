@@ -7,12 +7,10 @@ import { Loader, Plus } from "lucide-react";
 import { useMemo } from "react";
 
 const EmptyFavCard = () => (
-  <div className="dark:bg-accent flex aspect-3/4 w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition-all duration-300 hover:border-slate-400 dark:border-slate-600">
+  <div className="border-border bg-muted hover:border-muted-foreground/50 flex aspect-3/4 w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300">
     <div className="text-center">
-      <Plus className="mx-auto mb-2 h-8 w-8 text-slate-300 dark:text-slate-500" />
-      <div className="text-xs text-slate-400 dark:text-slate-500">
-        Adicionar favorita
-      </div>
+      <Plus className="text-muted-foreground/40 mx-auto mb-2 h-8 w-8" />
+      <div className="text-muted-foreground/70 text-xs">Adicionar favorita</div>
     </div>
   </div>
 );
@@ -59,14 +57,14 @@ const FilledFavCard = ({ specieKey }: { specieKey: number }) => {
           </figure>
 
           <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-50 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-            <div className="overflow-hidden rounded-xl bg-neutral-900 shadow-2xl ring-1 ring-white/10">
+            <div className="bg-popover ring-border overflow-hidden rounded-xl shadow-2xl ring-1">
               <img
                 src={imageData.imgUrl}
                 alt={specieName}
                 className="block max-h-56 max-w-56 object-contain"
               />
             </div>
-            <div className="mx-auto h-0 w-0 border-x-[7px] border-t-[7px] border-x-transparent border-t-neutral-900" />
+            <div className="border-t-popover mx-auto h-0 w-0 border-x-[7px] border-t-[7px] border-x-transparent" />
           </div>
         </>
       ) : (

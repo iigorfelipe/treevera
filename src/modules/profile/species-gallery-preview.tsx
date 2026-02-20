@@ -17,22 +17,22 @@ const SpecieItem = ({
 
   if (isLoading) {
     return (
-      <div className="-mx-2 border-b border-slate-100 px-2 py-2 last:border-0">
-        <div className="mb-1 h-4 w-32 animate-pulse rounded bg-slate-200" />
-        <div className="h-3 w-24 animate-pulse rounded bg-slate-200" />
+      <div className="-mx-2 border-b px-2 py-2 last:border-0">
+        <div className="bg-muted mb-1 h-4 w-32 animate-pulse rounded" />
+        <div className="bg-muted h-3 w-24 animate-pulse rounded" />
       </div>
     );
   }
 
   return (
-    <div className="-mx-2 flex items-center justify-between border-b border-slate-100 px-2 py-2 last:border-0">
+    <div className="-mx-2 flex items-center justify-between border-b px-2 py-2 last:border-0">
       <div className="flex items-center gap-2">
         <div>
           <div className="text-xs font-medium italic">{specieName}</div>
-          <div className="text-xs text-slate-500">{familyName}</div>
+          <div className="text-muted-foreground text-xs">{familyName}</div>
         </div>
       </div>
-      <div className="shrink-0 text-xs text-slate-400">
+      <div className="text-muted-foreground shrink-0 text-xs">
         {formatActivityDate(date)}
       </div>
     </div>
@@ -58,7 +58,7 @@ export const SpeciesGalleryPreview = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 px-2 text-xs text-slate-500"
+          className="text-muted-foreground h-7 px-2 text-xs"
           disabled={!seenSpecies.length}
           onClick={handleOpenGallery}
         >
@@ -67,8 +67,8 @@ export const SpeciesGalleryPreview = () => {
       </div>
 
       {!seenSpecies.length ? (
-        <div className="py-8 text-center text-slate-500">
-          <Images className="mx-auto mb-3 h-12 w-12 text-slate-300" />
+        <div className="text-muted-foreground py-8 text-center">
+          <Images className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
           <div className="mb-1 text-sm font-medium">Sua galeria está vazia</div>
           <div className="text-xs">Explore espécies para preenchê-la!</div>
         </div>
