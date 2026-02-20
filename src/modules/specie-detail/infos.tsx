@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { motion } from "framer-motion";
 import { updateSeenSpecies } from "@/common/utils/supabase/add_species_gallery";
+import { updateFavActivity } from "@/common/utils/supabase/update-fav-activity";
 import { useTranslation } from "react-i18next";
 
 export const SpecieInfos = () => {
@@ -58,7 +59,7 @@ export const SpecieInfos = () => {
     const newFav = !fav;
     setFav(newFav);
 
-    void updateSeenSpecies(userDb, (prev) => {
+    const updatedUser = await updateSeenSpecies(userDb, (prev) => {
       const updated = [...prev];
       const index = updated.findIndex((item) => item.key === specieKey);
 
@@ -73,9 +74,13 @@ export const SpecieInfos = () => {
       }
 
       return updated;
-    }).then((updatedUser) => {
-      if (updatedUser) setUserDb(updatedUser);
     });
+
+    if (!updatedUser) return;
+
+    const speciesName = specieDetail?.canonicalName ?? "";
+    const finalUser = await updateFavActivity({ user: updatedUser, speciesName, isFav: newFav });
+    setUserDb(finalUser ?? updatedUser);
   };
 
   if (!specieDetail)

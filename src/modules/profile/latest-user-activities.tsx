@@ -1,19 +1,58 @@
+import { useState } from "react";
+import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 
 import { useAtomValue } from "jotai";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const LatestUserActivities = () => {
   const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
 
+  const activities = userDb?.game_info?.activities ?? [];
+
+  const [expanded, setExpanded] = useState(false);
+
+  const DEFAULT_LIMIT = 4;
+  const EXPANDED_LIMIT = 8;
+
+  const visibleLimit = expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT;
+  const visibleActivities = activities.slice(0, visibleLimit);
+
+  const shouldShowButton = activities.length > DEFAULT_LIMIT;
+
   return (
     <div className="space-y-3">
-      <h2 className="border-b">{t("activity.title")}</h2>
+      <div className="flex justify-between border-b">
+        <h2>{t("activity.title")}</h2>
 
-      <div className="space-y-2">
-        {userDb?.game_info?.activities?.map((activity, index) => (
+        {shouldShowButton && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground h-7 px-2 text-xs"
+            onClick={() => setExpanded((prev) => !prev)}
+          >
+            {expanded ? "Recolher" : "Expandir"}
+            {expanded ? (
+              <ChevronUp className="ml-1 size-3" />
+            ) : (
+              <ChevronDown className="ml-1 size-3" />
+            )}
+          </Button>
+        )}
+      </div>
+
+      <div
+        className={`space-y-2 ${
+          expanded && activities.length > EXPANDED_LIMIT
+            ? "max-h-65 overflow-y-auto pr-1"
+            : ""
+        }`}
+      >
+        {visibleActivities.map((activity, index) => (
           <div
             key={index}
             className="flex items-center gap-2 border-b py-2 last:border-0"
