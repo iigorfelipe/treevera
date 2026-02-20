@@ -180,7 +180,6 @@
   "challenge": {
     "title": "Desafío Diario",
     "find": "Encuentra",
-    "missionTitle": "Misión del día",
     "missionDescription": "Completa el camino taxonómico antes de que se acabe el tiempo.",
     "cancel": "Cancelar Desafío",
     "start": "Iniciar Desafío",
@@ -197,7 +196,9 @@
     "nextStep": "Siguiente paso",
     "revealAnswer": "Revelar respuesta de este paso",
     "belongsTo": "pertenece al",
-    "howItWorks": "¿Cómo funciona el desafío?"
+    "howItWorks": "¿Cómo funciona el desafío?",
+    "randomTitle": "Desafío Aleatorio",
+    "randomMissionDescription": "Completa el camino taxonómico de una especie elegida al azar."
   },
 
   "vulnerability": {

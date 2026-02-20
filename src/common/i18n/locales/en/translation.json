@@ -180,7 +180,6 @@
   "challenge": {
     "title": "Daily Challenge",
     "find": "Find",
-    "missionTitle": "Mission of the day",
     "missionDescription": "Complete the taxonomic path before time runs out.",
     "cancel": "Cancel Challenge",
     "start": "Start Challenge",
@@ -197,7 +196,9 @@
     "nextStep": "Next step",
     "revealAnswer": "Reveal answer for this step",
     "belongsTo": "belongs to",
-    "howItWorks": "How does the challenge work?"
+    "howItWorks": "How does the challenge work?",
+    "randomTitle": "Random Challenge",
+    "randomMissionDescription": "Complete the taxonomic path of a randomly chosen species."
   },
 
   "vulnerability": {
