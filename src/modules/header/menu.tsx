@@ -22,7 +22,7 @@ import {
   Telescope,
 } from "lucide-react";
 import i18n from "@/common/i18n";
-import { Link, redirect } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Avatar,
   AvatarFallback,
@@ -58,12 +58,22 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   const [audio, setAudio] = useAtom(audioSettingsAtom);
 
   const handleLogout = async () => {
-    await logout();
-    setChallenge({ mode: null, status: "NOT_STARTED" });
+    if (challenge.status === "IN_PROGRESS") {
+      const confirmed = window.confirm(
+        "Você tem um desafio em andamento. Ao Sair, o desafio será cancelado.\n\nDeseja continuar?",
+      );
+
+      if (!confirmed) return;
+
+      await logout();
+      setChallenge({ mode: null, status: "NOT_STARTED" });
+    }
   };
 
+  const navigate = useNavigate();
+
   if (isProfilePage && !isAuthenticated) {
-    redirect({ to: "/login" });
+    navigate({ to: "/login" });
   }
 
   return (
@@ -96,15 +106,26 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
             </>
           )}
           {!isProfilePage && isAuthenticated && userDb && (
-            <DropdownMenuItem>
-              <Link to="/profile">
-                <div className="px-2 py-1.5 text-sm">
-                  <div className="font-medium">{userDb.name}</div>
-                  <div className="text-muted-foreground text-xs">
-                    {userDb.email}
-                  </div>
+            <DropdownMenuItem
+              onClick={() => {
+                if (challenge.status === "IN_PROGRESS") {
+                  const confirmed = window.confirm(
+                    "Você tem um desafio em andamento. Acessar seu perfil, o desafio será cancelado.\n\nDeseja continuar?",
+                  );
+
+                  if (!confirmed) return;
+
+                  setChallenge({ mode: null, status: "NOT_STARTED" });
+                  navigate({ to: "/profile" });
+                }
+              }}
+            >
+              <div className="px-2 py-1.5 text-sm">
+                <div className="font-medium">{userDb.name}</div>
+                <div className="text-muted-foreground text-xs">
+                  {userDb.email}
                 </div>
-              </Link>
+              </div>
 
               <DropdownMenuSeparator />
             </DropdownMenuItem>
@@ -126,6 +147,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
             onClick={() =>
               setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
             }
+            disabled={challenge.status === "IN_PROGRESS"}
           >
             <Link to="/" className="flex w-full items-center">
               <Target className="mr-2 size-4" /> {t("nav.challenges")}
@@ -135,11 +157,22 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={() => setChallenge({ mode: null, status: "NOT_STARTED" })}
+            onClick={() => {
+              if (challenge.status === "IN_PROGRESS") {
+                const confirmed = window.confirm(
+                  "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado.\n\nDeseja continuar?",
+                );
+
+                if (!confirmed) return;
+
+                setChallenge({ mode: null, status: "NOT_STARTED" });
+                navigate({ to: "/" });
+              }
+            }}
           >
-            <Link to="/" className="flex w-full items-center">
+            <div className="flex w-full items-center">
               <Telescope className="mr-2 size-4" /> {t("nav.explore")}
-            </Link>
+            </div>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -208,7 +241,9 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                     }
                     className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
                   >
-                    <span>{audio.muted ? t("nav.soundOff") : t("nav.soundOn")}</span>
+                    <span>
+                      {audio.muted ? t("nav.soundOff") : t("nav.soundOn")}
+                    </span>
                     {audio.muted ? <VolumeX /> : <Volume2 />}
                   </button>
                   {/* TODO: componentizar slider */}
