@@ -4,13 +4,13 @@ import { Card, CardContent } from "@/common/components/ui/card";
 import Alvo from "@/assets/alvo.gif";
 import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
-import { getDailySpecies } from "@/common/utils/game/daily-species";
 import { Timer } from "@/modules/challenge/components/timer";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useTheme } from "@/context/theme";
 import { treeAtom } from "@/store/tree";
+import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 
 export const DailyChallengeCard = () => {
   const { t } = useTranslation();
@@ -18,15 +18,24 @@ export const DailyChallengeCard = () => {
   const { theme } = useTheme();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const setChallenge = useSetAtom(treeAtom.challenge);
-  const speciesName = getDailySpecies();
+
+  const { data, isLoading, isError } = useGetDailyChallenge();
 
   const handleStart = () => {
     if (!isAuthenticated) {
       navigate({ to: "/login" });
       return;
     }
-    setChallenge({ mode: "DAILY", status: "IN_PROGRESS" });
+    if (!data) return;
+    setChallenge({
+      mode: "DAILY",
+      status: "IN_PROGRESS",
+      targetSpecies: data.scientificName,
+      speciesKey: data.gbifKey,
+    });
   };
+
+  const speciesName = data?.scientificName;
 
   return (
     <div className="md:px-4 md:py-6">
@@ -43,9 +52,19 @@ export const DailyChallengeCard = () => {
                 <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
                 <p className="text-sm">
                   {t("challenge.find")}:{" "}
-                  <span className="font-semibold text-emerald-600">
-                    {speciesName}
-                  </span>
+                  {isLoading ? (
+                    <span className="text-muted-foreground animate-pulse font-semibold">
+                      ...
+                    </span>
+                  ) : isError || !speciesName ? (
+                    <span className="text-muted-foreground font-semibold">
+                      —
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-emerald-600">
+                      {speciesName}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
@@ -56,7 +75,12 @@ export const DailyChallengeCard = () => {
             {t("challenge.missionDescription")}
           </p>
 
-          <Button size="lg" className="bg-emerald-600" onClick={handleStart}>
+          <Button
+            size="lg"
+            className="bg-emerald-600"
+            onClick={handleStart}
+            disabled={isLoading || isError || !data}
+          >
             {t("challenge.start")}
           </Button>
         </CardContent>

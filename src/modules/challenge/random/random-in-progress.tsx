@@ -7,13 +7,8 @@ import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 
 import { treeAtom } from "@/store/tree";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo } from "react";
-import {
-  getDailySpecies,
-  speciesPaths,
-} from "@/common/utils/game/daily-species";
-import { Timer } from "@/modules/challenge/components/timer";
 import { AnimatePresence } from "framer-motion";
 import { useResponsive } from "@/hooks/use-responsive";
 import {
@@ -23,6 +18,11 @@ import {
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { useTheme } from "@/context/theme";
+import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
+import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
+import { saveChallengeResult } from "@/common/utils/supabase/challenge/save-challenge-result";
+import { addChallengeActivity } from "@/common/utils/supabase/add-challenge-activity";
+import { authStore } from "@/store/auth/atoms";
 
 export const RandomChallengeInProgress = () => {
   const { t } = useTranslation();
@@ -32,12 +32,18 @@ export const RandomChallengeInProgress = () => {
 
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
+  const challenge = useAtomValue(treeAtom.challenge);
+  const session = useAtomValue(authStore.session);
+  const [userDb, setUserDb] = useAtom(authStore.userDb);
 
-  const speciesName = getDailySpecies();
+  const speciesName = challenge.targetSpecies ?? "";
+  const speciesKey = challenge.speciesKey ?? 0;
+
+  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
 
   const correctPath = useMemo(
-    () => speciesPaths[speciesName] ?? [],
-    [speciesName],
+    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
+    [specieDetail],
   );
 
   const correctSteps = useMemo(() => {
@@ -54,13 +60,20 @@ export const RandomChallengeInProgress = () => {
 
     setChallenge((prev) => {
       if (prev.status === "COMPLETED") return prev;
-
-      return {
-        ...prev,
-        status: "COMPLETED",
-      };
+      return { ...prev, status: "COMPLETED" };
     });
-  }, [isCompleted, setChallenge]);
+
+    const userId = session?.user?.id;
+    if (!userId || !speciesKey || !userDb) return;
+
+    void (async () => {
+      const { wasNew } = await saveChallengeResult({ userId, gbifKey: speciesKey, mode: "RANDOM" });
+      if (wasNew) {
+        const updatedUser = await addChallengeActivity({ user: userDb, speciesName, mode: "RANDOM" });
+        if (updatedUser) setUserDb(updatedUser);
+      }
+    })();
+  }, [isCompleted, setChallenge, session, speciesKey, userDb, speciesName, setUserDb]);
 
   const handleClick = () => {
     setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
@@ -77,7 +90,7 @@ export const RandomChallengeInProgress = () => {
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
   if (isCompleted) {
-    return <ChallengeCompleted />;
+    return <ChallengeCompleted speciesName={speciesName} />;
   }
 
   if (isTablet) {
@@ -96,30 +109,27 @@ export const RandomChallengeInProgress = () => {
     <div className="mt-22 md:mt-0 md:px-4 md:py-6">
       <Card className="mx-auto rounded-3xl">
         <CardContent className="flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Image
-                src={theme === "dark" ? AlvoWhite : Alvo}
-                className="size-12"
-                alt="Alvo gif"
-              />
-              <div>
-                <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
-                <p className="text-sm">
-                  {t("challenge.find")}:{" "}
-                  <span className="font-semibold text-emerald-600">
-                    {speciesName}
-                  </span>
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <Image
+              src={theme === "dark" ? AlvoWhite : Alvo}
+              className="size-12"
+              alt="Alvo gif"
+            />
+            <div>
+              <h2 className="text-xl font-bold">{t("challenge.randomTitle")}</h2>
+              <p className="text-sm">
+                {t("challenge.find")}:{" "}
+                <span className="font-semibold text-violet-600">
+                  {speciesName}
+                </span>
+              </p>
             </div>
-            <Timer />
           </div>
 
           <ProgressSteps correctSteps={correctSteps} errorIndex={errorIndex} />
 
           <AnimatePresence mode="wait">
-            <TaxonomicPath activeIndex={expandedNodes.length} />
+            <TaxonomicPath correctPath={correctPath} activeIndex={expandedNodes.length} />
           </AnimatePresence>
 
           {!isCompleted && (

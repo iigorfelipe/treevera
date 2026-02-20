@@ -8,10 +8,8 @@ import { authStore } from "@/store/auth/atoms";
 import { updateSeenSpecies } from "@/common/utils/supabase/add_species_gallery";
 import type { NodeEntity } from "@/common/types/tree-atoms";
 import { treeAtom } from "@/store/tree";
-import {
-  getDailySpecies,
-  speciesPaths,
-} from "@/common/utils/game/daily-species";
+import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
+import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
 
 import { motion } from "framer-motion";
 import { Dna, DnaOff } from "lucide-react";
@@ -20,8 +18,16 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const challengeInProgress =
-    useAtomValue(treeAtom.challenge).status === "IN_PROGRESS";
+  const challenge = useAtomValue(treeAtom.challenge);
+  const challengeInProgress = challenge.status === "IN_PROGRESS";
+  const speciesKey = challenge.speciesKey ?? 0;
+
+  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+
+  const correctPath = useMemo(
+    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
+    [specieDetail],
+  );
 
   const feedback = useMemo<"success" | "error" | null>(() => {
     if (!challengeInProgress) return null;
@@ -31,8 +37,6 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
     );
     if (index === -1) return null;
 
-    const speciesName = getDailySpecies();
-    const correctPath = speciesPaths[speciesName] || [];
     const expected = correctPath[index];
 
     if (!expected) return null;
@@ -41,7 +45,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
       node.scientificName === expected.name
       ? "success"
       : "error";
-  }, [expandedNodes, node, challengeInProgress]);
+  }, [expandedNodes, node, challengeInProgress, correctPath]);
 
   const saveSpeciesIfMissing = useCallback(async () => {
     if (!userDb) return;

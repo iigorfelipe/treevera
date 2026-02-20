@@ -10,10 +10,8 @@ import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom } from "@/store/tree";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
-import {
-  getDailySpecies,
-  speciesPaths,
-} from "@/common/utils/game/daily-species";
+import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
+import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
 import { motion } from "framer-motion";
 import { authStore } from "@/store/auth/atoms";
 
@@ -23,13 +21,22 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const isExpanded = node.expanded;
   const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
 
-  const challengeStatus = useAtomValue(treeAtom.challenge).status;
+  const challenge = useAtomValue(treeAtom.challenge);
+  const challengeStatus = challenge.status;
   const challengeInProgress = challengeStatus === "IN_PROGRESS";
+  const speciesKey = challenge.speciesKey ?? 0;
 
   const highlightedRank = useAtomValue(treeAtom.highlightedRank);
   const isHighlighted = highlightedRank === node.rank && challengeInProgress;
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
+
+  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+
+  const correctPath = useMemo(
+    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
+    [specieDetail],
+  );
 
   const feedback = useMemo<"success" | "error" | null>(() => {
     if (!challengeInProgress) return null;
@@ -37,8 +44,6 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     const index = expandedNodes.findIndex((n) => n.key === node.key);
     if (index === -1) return null;
 
-    const speciesName = getDailySpecies();
-    const correctPath = speciesPaths[speciesName] || [];
     const expected = correctPath[index];
 
     if (!expected) return null;
@@ -53,6 +58,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     node.key,
     node.canonicalName,
     node.scientificName,
+    correctPath,
   ]);
 
   const hasReachedLimit = useMemo(() => {

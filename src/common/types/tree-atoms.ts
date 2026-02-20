@@ -6,6 +6,8 @@ type ChallengeStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 export type Challenge = {
   mode: ChallengeMode;
   status: ChallengeStatus;
+  targetSpecies?: string;
+  speciesKey?: number;
 };
 
 export type PathNode = {

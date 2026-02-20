@@ -9,20 +9,46 @@ import AlvoWhite from "@/assets/alvo-white.gif";
 import { treeAtom } from "@/store/tree";
 import { Image } from "@/common/components/image";
 import { useTheme } from "@/context/theme";
+import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
+import { useState } from "react";
 
 export const RandomChallengeCard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
+  const session = useAtomValue(authStore.session);
   const setChallenge = useSetAtom(treeAtom.challenge);
+  const [isLoading, setIsLoading] = useState(false);
+  const [allCompleted, setAllCompleted] = useState(false);
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (!isAuthenticated) {
       navigate({ to: "/login" });
       return;
     }
-    setChallenge({ mode: "RANDOM", status: "IN_PROGRESS" });
+
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    setIsLoading(true);
+    setAllCompleted(false);
+
+    const result = await getRandomChallengeForUser(userId);
+
+    setIsLoading(false);
+
+    if (!result) {
+      setAllCompleted(true);
+      return;
+    }
+
+    setChallenge({
+      mode: "RANDOM",
+      status: "IN_PROGRESS",
+      targetSpecies: result.scientificName,
+      speciesKey: result.gbifKey,
+    });
   };
 
   return (
@@ -50,7 +76,18 @@ export const RandomChallengeCard = () => {
             {t("challenge.randomMissionDescription")}
           </p>
 
-          <Button size="lg" className="bg-violet-600" onClick={handleStart}>
+          {allCompleted && (
+            <p className="text-sm font-semibold text-violet-600">
+              {t("challenge.allSpeciesCompleted")}
+            </p>
+          )}
+
+          <Button
+            size="lg"
+            className="bg-violet-600"
+            onClick={handleStart}
+            disabled={isLoading}
+          >
             {t("challenge.start")}
           </Button>
         </CardContent>

@@ -1,10 +1,6 @@
 import { Badge } from "@/common/components/ui/badge";
 import type { Rank } from "@/common/types/api";
 import { cn } from "@/common/utils/cn";
-import {
-  getDailySpecies,
-  speciesPaths,
-} from "@/common/utils/game/daily-species";
 
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
@@ -23,14 +19,13 @@ const ranks: Rank[] = [
 ];
 
 type TaxonomicPathProps = {
+  correctPath: Array<{ rank: Rank; name: string }>;
   activeIndex?: number;
 };
 
-export const TaxonomicPath = ({ activeIndex }: TaxonomicPathProps) => {
+export const TaxonomicPath = ({ correctPath, activeIndex }: TaxonomicPathProps) => {
   const { t } = useTranslation();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const speciesName = getDailySpecies();
-  const correctPath = speciesPaths[speciesName] || [];
 
   const getStatus = (index: number, rank: Rank) => {
     const node = expandedNodes[index];

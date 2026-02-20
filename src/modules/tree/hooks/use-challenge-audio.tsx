@@ -1,19 +1,26 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { treeAtom } from "@/store/tree";
 
-import {
-  getDailySpecies,
-  speciesPaths,
-} from "@/common/utils/game/daily-species";
 import { AudioManager } from "@/lib/audio-manager";
+import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
+import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
 
 export const useChallengeAudio = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const challengeStatus = useAtomValue(treeAtom.challenge).status;
+  const challenge = useAtomValue(treeAtom.challenge);
+  const challengeStatus = challenge.status;
+  const speciesKey = challenge.speciesKey ?? 0;
   const [playedSteps, setPlayedSteps] = useAtom(treeAtom.feedbackAudio);
 
   const hasPlayedWinSound = useRef(false);
+
+  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+
+  const correctPath = useMemo(
+    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
+    [specieDetail],
+  );
 
   useEffect(() => {
     if (challengeStatus !== "COMPLETED") return;
@@ -36,9 +43,6 @@ export const useChallengeAudio = () => {
 
     if (playedSteps[audioKey]) return;
 
-    const speciesName = getDailySpecies();
-    const correctPath = speciesPaths[speciesName] || [];
-
     const expected = correctPath[stepIndex];
     if (!expected) return;
 
@@ -55,7 +59,7 @@ export const useChallengeAudio = () => {
       ...prev,
       [audioKey]: true,
     }));
-  }, [expandedNodes, challengeStatus, playedSteps, setPlayedSteps]);
+  }, [expandedNodes, challengeStatus, playedSteps, setPlayedSteps, correctPath]);
 
   useEffect(() => {
     if (challengeStatus === "NOT_STARTED") {
