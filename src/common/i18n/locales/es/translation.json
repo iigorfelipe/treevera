@@ -198,7 +198,8 @@
     "belongsTo": "pertenece al",
     "howItWorks": "¿Cómo funciona el desafío?",
     "randomTitle": "Desafío Aleatorio",
-    "randomMissionDescription": "Completa el camino taxonómico de una especie elegida al azar."
+    "randomMissionDescription": "Completa el camino taxonómico de una especie elegida al azar.",
+    "allSpeciesCompleted": "¡Has completado todas las especies disponibles!"
   },
 
   "vulnerability": {

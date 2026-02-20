@@ -198,7 +198,8 @@
     "belongsTo": "belongs to",
     "howItWorks": "How does the challenge work?",
     "randomTitle": "Random Challenge",
-    "randomMissionDescription": "Complete the taxonomic path of a randomly chosen species."
+    "randomMissionDescription": "Complete the taxonomic path of a randomly chosen species.",
+    "allSpeciesCompleted": "You've completed all available species!"
   },
 
   "vulnerability": {
