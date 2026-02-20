@@ -1,11 +1,11 @@
-import { useResponsive } from "@/hooks/use-responsive";
+// import { useResponsive } from "@/hooks/use-responsive";
 import { FavoriteSpecies } from "@/modules/profile/fav-species";
 import { HeaderProfile } from "@/modules/profile/header";
 import { LatestUserActivities } from "@/modules/profile/latest-user-activities";
-import { UserProgress } from "@/modules/profile/progress";
+// import { UserProgress } from "@/modules/profile/progress";
 import { SpeciesGalleryPreview } from "@/modules/profile/species-gallery-preview";
 import { TreeShortcuts } from "@/modules/profile/tree-shortcuts";
-import { UserAchievements } from "@/modules/profile/user-achievements";
+// import { UserAchievements } from "@/modules/profile/user-achievements";
 import { authStore } from "@/store/auth/atoms";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
@@ -14,7 +14,7 @@ import { useEffect } from "react";
 export const Profile = () => {
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const navigate = useNavigate();
-  const { isMobile } = useResponsive();
+  // const { isMobile } = useResponsive();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -30,15 +30,15 @@ export const Profile = () => {
           <div className="space-y-10 md:space-y-16 lg:col-span-2">
             <HeaderProfile />
             <FavoriteSpecies />
-            {!isMobile && <UserAchievements />}
+            {/* {!isMobile && <UserAchievements />} */}
           </div>
 
           <div className="space-y-10 md:space-y-16">
             <LatestUserActivities />
             <SpeciesGalleryPreview />
             <TreeShortcuts />
-            <UserProgress />
-            {isMobile && <UserAchievements />}
+            {/* <UserProgress />
+            {isMobile && <UserAchievements />} */}
           </div>
         </div>
       </div>

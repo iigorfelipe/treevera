@@ -1,5 +1,5 @@
-import { Progress } from "@/common/components/ui/progress";
-import { userProgress } from "@/common/utils/data-profile-fake";
+// import { Progress } from "@/common/components/ui/progress";
+// import { userProgress } from "@/common/utils/data-profile-fake";
 import { formatUserSinceDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
@@ -23,7 +23,7 @@ export const HeaderProfile = () => {
           </span>
         </div>
 
-        <div className="flex flex-col items-end">
+        {/* <div className="flex flex-col items-end">
           <div className="text-xs font-medium">{t("profilePage.globalRanking")}</div>
           <div className="flex items-baseline gap-1">
             <span className="text-xl text-amber-300">#</span>
@@ -31,10 +31,10 @@ export const HeaderProfile = () => {
               {userProgress.rank}
             </span>
           </div>
-        </div>
+        </div> */}
       </div>
 
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <Progress
           value={(1000 - userProgress.pointsToNextRank) / 10}
           className="h-2"
@@ -42,7 +42,7 @@ export const HeaderProfile = () => {
         />
 
         <div className="text-xs">{t("profilePage.rankingHint")}</div>
-      </div>
+      </div> */}
     </header>
   );
 };
