@@ -13,6 +13,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/theme";
 import {
+  ArrowLeft,
   Loader,
   LogIn,
   LogOut,
@@ -21,13 +22,13 @@ import {
   Telescope,
 } from "lucide-react";
 import i18n from "@/common/i18n";
-import { Link } from "@tanstack/react-router";
+import { Link, redirect } from "@tanstack/react-router";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
 import { Button } from "@/common/components/ui/button";
 
@@ -44,7 +45,7 @@ import {
 import { authStore } from "@/store/auth/atoms";
 import { useAuth } from "@/hooks/auth/use-auth-profile";
 
-export const Menu = () => {
+export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   const { changeTheme, theme } = useTheme();
   const { t } = useTranslation();
 
@@ -53,20 +54,25 @@ export const Menu = () => {
 
   const { logout, isLoggingOut } = useAuth();
 
-  const setChallenge = useSetAtom(treeAtom.challenge);
+  const [challenge, setChallenge] = useAtom(treeAtom.challenge);
   const [audio, setAudio] = useAtom(audioSettingsAtom);
 
   const handleLogout = async () => {
     await logout();
+    setChallenge({ mode: null, status: "NOT_STARTED" });
   };
+
+  if (isProfilePage && !isAuthenticated) {
+    redirect({ to: "/login" });
+  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="group cursor-pointer">
         <div className="rounded-full">
           {isAuthenticated && userDb ? (
-            <Avatar>
-              <AvatarImage src={userDb.avatar_url} alt={"User"} />
+            <Avatar className={isProfilePage ? "size-12" : "size-8"}>
+              <AvatarImage src={userDb.avatar_url} alt="User" />
               <AvatarFallback className="bg-green-600 text-xs text-white">
                 {userDb.name[0]}
               </AvatarFallback>
@@ -89,7 +95,7 @@ export const Menu = () => {
               <DropdownMenuSeparator />
             </>
           )}
-          {isAuthenticated && userDb && (
+          {!isProfilePage && isAuthenticated && userDb && (
             <DropdownMenuItem>
               <Link to="/profile">
                 <div className="px-2 py-1.5 text-sm">
@@ -104,12 +110,26 @@ export const Menu = () => {
             </DropdownMenuItem>
           )}
 
+          {isProfilePage && (
+            <>
+              <DropdownMenuItem>
+                <Link to="/" className="flex w-full items-center">
+                  <ArrowLeft className="mr-2 size-4" />
+                  <span>Voltar</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
+
           <DropdownMenuItem
             onClick={() =>
               setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
             }
           >
-            <Target /> Desafios
+            <Link to="/" className="flex w-full items-center">
+              <Target className="mr-2 size-4" /> Desafios
+            </Link>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -117,7 +137,9 @@ export const Menu = () => {
           <DropdownMenuItem
             onClick={() => setChallenge({ mode: null, status: "NOT_STARTED" })}
           >
-            <Telescope /> Explorar
+            <Link to="/" className="flex w-full items-center">
+              <Telescope className="mr-2 size-4" /> Explorar
+            </Link>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -141,6 +163,8 @@ export const Menu = () => {
             </DropdownMenuPortal>
           </DropdownMenuSub>
 
+          <DropdownMenuSeparator />
+
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               {t("language")}: {t(i18n.language)}
@@ -160,54 +184,57 @@ export const Menu = () => {
             </DropdownMenuPortal>
           </DropdownMenuSub>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              {audio.muted ? (
-                <VolumeX className="mr-2 size-4" />
-              ) : (
-                <Volume2 className="mr-2 size-4" />
-              )}
-              Áudio
-            </DropdownMenuSubTrigger>
-
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                className="m-1 w-64 space-y-4 p-4"
-                sideOffset={-90}
-                alignOffset={90}
-              >
-                <button
-                  onClick={() =>
-                    setAudio((prev) => ({ ...prev, muted: !prev.muted }))
-                  }
-                  className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
-                >
-                  <span>{audio.muted ? "Som desligado" : "Som ligado"}</span>
-                  {audio.muted ? <VolumeX /> : <Volume2 />}
-                </button>
-                {/* TODO: componentizar slider */}
-                {!audio.muted && (
-                  <RadixSlider
-                    value={[audio.volume * 100]}
-                    onValueChange={([v]) =>
-                      setAudio((prev) => ({ ...prev, volume: v / 100 }))
-                    }
-                    min={0}
-                    max={100}
-                    step={1}
-                    className="relative flex h-5 w-full touch-none items-center select-none"
-                  >
-                    <SliderTrack className="relative h-1 w-full grow rounded-full bg-gray-200">
-                      <SliderRange className="absolute h-full rounded-full bg-blue-500" />
-                    </SliderTrack>
-                    <SliderThumb className="block h-5 w-5 rounded-full bg-blue-500 shadow" />
-                  </RadixSlider>
+          {challenge.status === "IN_PROGRESS" && (
+            <DropdownMenuSub>
+              <DropdownMenuSeparator />
+              <DropdownMenuSubTrigger>
+                {audio.muted ? (
+                  <VolumeX className="mr-2 size-4" />
+                ) : (
+                  <Volume2 className="mr-2 size-4" />
                 )}
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+                Áudio
+              </DropdownMenuSubTrigger>
 
-          {isAuthenticated && (
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent
+                  className="m-1 w-64 space-y-4 p-4"
+                  sideOffset={-90}
+                  alignOffset={90}
+                >
+                  <button
+                    onClick={() =>
+                      setAudio((prev) => ({ ...prev, muted: !prev.muted }))
+                    }
+                    className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
+                  >
+                    <span>{audio.muted ? "Som desligado" : "Som ligado"}</span>
+                    {audio.muted ? <VolumeX /> : <Volume2 />}
+                  </button>
+                  {/* TODO: componentizar slider */}
+                  {!audio.muted && (
+                    <RadixSlider
+                      value={[audio.volume * 100]}
+                      onValueChange={([v]) =>
+                        setAudio((prev) => ({ ...prev, volume: v / 100 }))
+                      }
+                      min={0}
+                      max={100}
+                      step={1}
+                      className="relative flex h-5 w-full touch-none items-center select-none"
+                    >
+                      <SliderTrack className="relative h-1 w-full grow rounded-full bg-gray-200">
+                        <SliderRange className="absolute h-full rounded-full bg-blue-500" />
+                      </SliderTrack>
+                      <SliderThumb className="block h-5 w-5 rounded-full bg-blue-500 shadow" />
+                    </RadixSlider>
+                  )}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          )}
+
+          {!isProfilePage && isAuthenticated && (
             <DropdownMenuSub>
               <DropdownMenuSeparator />
               <DropdownMenuSubTrigger disabled={isLoggingOut}>

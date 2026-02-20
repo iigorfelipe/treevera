@@ -1,26 +1,17 @@
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/common/components/ui/avatar";
 import { Progress } from "@/common/components/ui/progress";
 import { userProgress } from "@/common/utils/data-profile-fake";
 import { formatUserSinceDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
+import { Menu } from "../header/menu";
 
 export const HeaderProfile = () => {
   const userDb = useAtomValue(authStore.userDb);
 
   return (
     <header className="flex flex-col gap-4 rounded-2xl">
-      <div className="flex items-center gap-4">
-        <Avatar className="size-18">
-          <AvatarImage src={userDb?.avatar_url || ""} alt={userDb?.name} />
-          <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white">
-            {userDb?.name[0]}
-          </AvatarFallback>
-        </Avatar>
+      <div className="flex items-center gap-3">
+        <Menu isProfilePage />
 
         <div className="flex-1">
           <h1 className="text-xl font-bold">{userDb?.name}</h1>

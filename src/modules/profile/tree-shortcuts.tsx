@@ -89,7 +89,7 @@ export const TreeShortcuts = () => {
   const kingdoms = Object.keys(treeShortcuts) as (keyof Shortcuts)[];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <h2 className="border-b">ATALHOS</h2>
 
       {kingdoms.map((kingdom) => {
@@ -97,7 +97,7 @@ export const TreeShortcuts = () => {
         if (!shortcuts?.length) return null;
 
         return (
-          <div key={kingdom} className="space-y-4">
+          <div key={kingdom} className="space-y-3">
             {shortcuts.map((shortcut, index) => {
               if (!shortcut?.nodes) return null;
 
@@ -109,7 +109,7 @@ export const TreeShortcuts = () => {
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-between rounded-md border py-1 pl-2.5 hover:bg-muted/50"
+                  className="hover:bg-muted/50 flex items-center justify-between rounded-md border py-1 pl-2.5"
                 >
                   <div
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-2"
@@ -143,7 +143,7 @@ export const TreeShortcuts = () => {
                           {shortcut.name}
                         </p>
                       )}
-                      <span className="block truncate text-xs leading-tight text-muted-foreground">
+                      <span className="text-muted-foreground block truncate text-xs leading-tight">
                         {shortcut.nodes.map((node, i) => (
                           <Fragment key={node.key}>
                             {node.name ?? node.rank}
@@ -181,7 +181,7 @@ export const TreeShortcuts = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="size-6 text-muted-foreground hover:text-blue-700"
+                          className="text-muted-foreground size-6 hover:text-blue-700"
                           title="Editar nome do atalho"
                           onClick={() =>
                             setEditName({
@@ -197,7 +197,7 @@ export const TreeShortcuts = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="size-6 text-muted-foreground hover:text-red-700"
+                          className="text-muted-foreground size-6 hover:text-red-700"
                           onClick={() => removeShortcut(kingdom, index)}
                           title="Remover atalho"
                         >
@@ -214,14 +214,14 @@ export const TreeShortcuts = () => {
       })}
 
       {kingdoms.every((k) => !treeShortcuts[k]?.length) && (
-        <div className="py-6 text-center text-muted-foreground">
-          <Zap className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+        <div className="text-muted-foreground py-6 text-center">
+          <Zap className="text-muted-foreground/50 mx-auto mb-3 h-10 w-10" />
           <div className="mb-1 text-sm font-medium">Nenhum atalho criado</div>
           <div className="text-xs">Crie atalhos navegando pela árvore</div>
         </div>
       )}
 
-      <div className="rounded-lg bg-muted p-2 text-center text-xs text-muted-foreground italic">
+      <div className="bg-muted text-muted-foreground rounded-lg p-2 text-center text-xs italic">
         Navegue pela árvore taxonômica e salve os nós selecionados como atalhos
         para acesso rápido.
       </div>
