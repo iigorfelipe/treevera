@@ -74,14 +74,13 @@ export const Login = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">{t("welcome")}</CardTitle>
             <CardDescription className="text-sm leading-relaxed">
-              Entre com sua conta Google para desbloquear todos os recursos e
-              salvar seu progresso
+              {t("auth.descriptionGoogle")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {authError && (
               <div className="bg-accent rounded-lg p-3 text-sm text-red-600">
-                <p className="font-medium">Erro ao fazer login</p>
+                <p className="font-medium">{t("auth.loginError")}</p>
                 <p className="mt-1 text-xs">{authError?.message}</p>
               </div>
             )}
@@ -93,12 +92,12 @@ export const Login = () => {
             >
               {isLoggingIn ? (
                 <>
-                  <Loader2 className="mr-2 size-5 animate-spin" /> Entrando...
+                  <Loader2 className="mr-2 size-5 animate-spin" /> {t("auth.signingIn")}
                 </>
               ) : (
                 <>
                   {GoogleLogo}
-                  Continuar com Google
+                  {t("auth.continueWithGoogle")}
                 </>
               )}
             </Button>
@@ -106,7 +105,7 @@ export const Login = () => {
             <div className="space-y-4 border-t pt-4">
               <div className="text-center">
                 <p className="text-sm text-gray-500">
-                  Recursos exclusivos ao entrar
+                  {t("auth.exclusiveFeatures")}
                 </p>
               </div>
               <ul className="grid h-48 grid-cols-1 overflow-auto 2xl:h-full">
@@ -137,20 +136,19 @@ export const Login = () => {
             </div>
           </CardContent>
 
-          <div className="space-y-4 border-t border-slate-200 p-6 pb-1 text-gray-400">
+          <div className="space-y-4 border-t border-border p-6 pb-1 text-muted-foreground">
             <p className="text-center text-sm leading-relaxed">
-              Você pode continuar sem fazer login, mas não terá acesso aos
-              recursos listados acima.
+              {t("auth.continueWithoutLogin")}
             </p>
 
             <Button
-              className="h-11 w-full border border-slate-200 font-medium transition-all duration-200"
+              className="h-11 w-full border border-border font-medium transition-all duration-200"
               variant="outline"
-              aria-label="Voltar para página anterior"
+              aria-label={t("auth.backAriaLabel")}
               onClick={handleBack}
             >
               <ArrowLeft className="mr-2 size-4" aria-hidden="true" />
-              Voltar
+              {t("auth.back")}
             </Button>
           </div>
         </Card>

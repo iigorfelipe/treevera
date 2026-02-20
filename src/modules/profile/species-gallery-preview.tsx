@@ -5,6 +5,7 @@ import { authStore } from "@/store/auth/atoms";
 import { Images, ChevronRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
+import { useTranslation } from "react-i18next";
 
 const SpecieItem = ({
   specieKey,
@@ -40,6 +41,7 @@ const SpecieItem = ({
 };
 
 export const SpeciesGalleryPreview = () => {
+  const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
   const navigate = useNavigate();
 
@@ -54,7 +56,7 @@ export const SpeciesGalleryPreview = () => {
   return (
     <div className="space-y-3">
       <div className="flex justify-between border-b">
-        <h2>ESPÉCIES VISTAS</h2>
+        <h2>{t("seenSpecies.title")}</h2>
         <Button
           variant="ghost"
           size="sm"
@@ -62,15 +64,15 @@ export const SpeciesGalleryPreview = () => {
           disabled={!seenSpecies.length}
           onClick={handleOpenGallery}
         >
-          Abrir galeria <ChevronRight className="ml-1 size-3" />
+          {t("seenSpecies.openGallery")} <ChevronRight className="ml-1 size-3" />
         </Button>
       </div>
 
       {!seenSpecies.length ? (
         <div className="text-muted-foreground py-8 text-center">
           <Images className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
-          <div className="mb-1 text-sm font-medium">Sua galeria está vazia</div>
-          <div className="text-xs">Explore espécies para preenchê-la!</div>
+          <div className="mb-1 text-sm font-medium">{t("seenSpecies.emptyTitle")}</div>
+          <div className="text-xs">{t("seenSpecies.emptyHint")}</div>
         </div>
       ) : (
         seenSpecies

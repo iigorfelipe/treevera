@@ -3,6 +3,7 @@ import { Button } from "@/common/components/ui/button";
 import { Card, CardContent } from "@/common/components/ui/card";
 import { cn } from "@/common/utils/cn";
 import Alvo from "@/assets/alvo.gif";
+import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/taxonomic-path";
 
 import { treeAtom } from "@/store/tree";
@@ -22,6 +23,7 @@ import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { authStore } from "@/store/auth/atoms";
 
 export const DailyChallenge = () => {
+  const { t } = useTranslation();
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
@@ -109,9 +111,9 @@ export const DailyChallenge = () => {
             <div className="flex items-center gap-3">
               <Image src={Alvo} className="size-12" alt="Alvo gif" />
               <div>
-                <h2 className="text-xl font-bold">Desafio Diário</h2>
+                <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
                 <p className="text-sm">
-                  Encontre:{" "}
+                  {t("challenge.find")}:{" "}
                   <span className="font-semibold text-emerald-600">
                     {speciesName}
                   </span>
@@ -133,9 +135,9 @@ export const DailyChallenge = () => {
               <TaxonomicPath activeIndex={expandedNodes.length} />
             ) : (
               <div className="bg-accent/40 rounded-xl p-6 text-center">
-                <p className="mb-2 text-lg font-semibold">Missão do dia</p>
+                <p className="mb-2 text-lg font-semibold">{t("challenge.missionTitle")}</p>
                 <p className="text-muted-foreground text-sm">
-                  Complete o caminho taxonômico antes do tempo acabar.
+                  {t("challenge.missionDescription")}
                 </p>
               </div>
             )}
@@ -147,7 +149,7 @@ export const DailyChallenge = () => {
               className={cn(inProgress ? "bg-red-500" : "bg-emerald-600")}
               onClick={handleClick}
             >
-              {inProgress ? "Cancelar Desafio" : "Iniciar Desafio"}
+              {inProgress ? t("challenge.cancel") : t("challenge.start")}
             </Button>
           )}
         </CardContent>

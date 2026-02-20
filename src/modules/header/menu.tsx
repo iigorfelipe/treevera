@@ -115,7 +115,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
               <DropdownMenuItem>
                 <Link to="/" className="flex w-full items-center">
                   <ArrowLeft className="mr-2 size-4" />
-                  <span>Voltar</span>
+                  <span>{t("nav.back")}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -128,7 +128,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
             }
           >
             <Link to="/" className="flex w-full items-center">
-              <Target className="mr-2 size-4" /> Desafios
+              <Target className="mr-2 size-4" /> {t("nav.challenges")}
             </Link>
           </DropdownMenuItem>
 
@@ -138,7 +138,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
             onClick={() => setChallenge({ mode: null, status: "NOT_STARTED" })}
           >
             <Link to="/" className="flex w-full items-center">
-              <Telescope className="mr-2 size-4" /> Explorar
+              <Telescope className="mr-2 size-4" /> {t("nav.explore")}
             </Link>
           </DropdownMenuItem>
 
@@ -193,7 +193,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 ) : (
                   <Volume2 className="mr-2 size-4" />
                 )}
-                Áudio
+                {t("nav.audio")}
               </DropdownMenuSubTrigger>
 
               <DropdownMenuPortal>
@@ -208,7 +208,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                     }
                     className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
                   >
-                    <span>{audio.muted ? "Som desligado" : "Som ligado"}</span>
+                    <span>{audio.muted ? t("nav.soundOff") : t("nav.soundOn")}</span>
                     {audio.muted ? <VolumeX /> : <Volume2 />}
                   </button>
                   {/* TODO: componentizar slider */}
@@ -248,8 +248,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                   alignOffset={90}
                 >
                   <p className="mb-3 text-center text-sm leading-relaxed">
-                    Ao sair, seus recursos e progresso só ficarão disponíveis
-                    quando entrar novamente.
+                    {t("nav.logoutWarning")}
                   </p>
 
                   <Button
@@ -262,7 +261,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                     ) : (
                       <LogOut className="mr-2 h-4 w-4" />
                     )}
-                    Sair mesmo assim
+                    {t("nav.logoutAnyway")}
                   </Button>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>

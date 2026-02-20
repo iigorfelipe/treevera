@@ -9,8 +9,10 @@ import { CardInfo } from "@/modules/explore/card";
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
+import { useTranslation } from "react-i18next";
 
 export const ExploreInfo = () => {
+  const { t } = useTranslation();
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
 
@@ -27,7 +29,7 @@ export const ExploreInfo = () => {
       >
         <div className="text-center">
           <h1 className="mb-4 text-3xl font-semibold">
-            Escolha um Reino para iniciar sua exploração!
+            {t("explore.selectKingdom")}
           </h1>
         </div>
 
@@ -60,7 +62,7 @@ export const ExploreInfo = () => {
               </CardHeader>
 
               <CardContent>
-                <p className="mb-2 text-xs font-medium">Principais Grupos:</p>
+                <p className="mb-2 text-xs font-medium">{t("explore.mainGroups")}:</p>
                 <div className="flex flex-wrap gap-1">
                   {item.mainGroups.slice(0, 3).map((group, index) => (
                     <span

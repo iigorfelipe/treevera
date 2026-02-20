@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Timer = () => {
+  const { t } = useTranslation();
   const [time, setTime] = useState("24:00:00");
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export const Timer = () => {
 
   return (
     <div className="mb-auto text-right">
-      <div className="mb-1 hidden text-sm xl:flex">Tempo restante</div>
+      <div className="mb-1 hidden text-sm xl:flex">{t("challenge.timeRemaining")}</div>
       <div className="text-xs font-bold tabular-nums xl:text-lg">{time}</div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-
+import { useTranslation } from "react-i18next";
 import { searchTaxa, getParents, getSpecieDetail } from "@/services/apis/gbif";
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { capitalizar } from "@/common/utils/string";
@@ -19,6 +19,7 @@ import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 
 // TODO: refatorar para usar jotai
 export const Search = () => {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [kingdom, setKingdom] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,10 +50,10 @@ export const Search = () => {
   type KingdomKey = keyof typeof SUGGESTION_BY_KINGDOM;
 
   const placeholderText = useMemo(() => {
-    if (!kingdom) return "Selecione um reino";
+    if (!kingdom) return t("search.selectKingdom");
     const k = String(kingdom).toLowerCase() as KingdomKey;
     const suggestion = SUGGESTION_BY_KINGDOM[k] ?? "sapiens";
-    return `Exemplo: ${suggestion}`;
+    return `${t("search.example")}: ${suggestion}`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kingdom]);
 
@@ -60,7 +61,7 @@ export const Search = () => {
     ev?.preventDefault();
     setError(null);
     if (!kingdom) {
-      setError("Selecione um reino para buscar");
+      setError(t("search.selectKingdomFirst"));
       return;
     }
     if (!q || !q.trim()) return;
@@ -200,7 +201,7 @@ export const Search = () => {
       }
     } catch (e) {
       console.error(e);
-      setError("Erro ao consultar GBIF");
+      setError(t("search.gbifError"));
       setResults(null);
     } finally {
       setLoading(false);
@@ -227,7 +228,7 @@ export const Search = () => {
       const parents = await getParents(parentsSourceKey);
 
       if (!parents || parents.length === 0) {
-        setError("Não foi possível obter linhagem para o item selecionado");
+        setError(t("search.lineageError"));
         setLoading(false);
         return;
       }
@@ -294,7 +295,7 @@ export const Search = () => {
       setSelected(taxon);
     } catch (e) {
       console.error(e);
-      setError("Erro ao montar o caminho selecionado");
+      setError(t("search.pathError"));
     } finally {
       setLoading(false);
     }
@@ -318,7 +319,7 @@ export const Search = () => {
                   className="size-5"
                 />
               ) : (
-                <span>Reino</span>
+                <span>{t("search.kingdom")}</span>
               )}
             </SelectValue>
           </SelectTrigger>
@@ -342,7 +343,7 @@ export const Search = () => {
           onChange={(ev) => setQ(ev.target.value)}
           placeholder={placeholderText}
           className="h-full min-w-0 flex-1 rounded-md border px-3 py-2 text-sm"
-          aria-label="Pesquisar taxa"
+          aria-label={t("search.searchTaxa")}
         />
 
         <button
@@ -366,10 +367,10 @@ export const Search = () => {
             onClick={() => setMinimized((s) => !s)}
             className="flex w-full cursor-pointer items-center justify-between px-2"
             aria-label={
-              minimized ? "Expandir resultados" : "Minimizar resultados"
+              minimized ? t("search.expandResults") : t("search.minimizeResults")
             }
           >
-            <strong className="text-sm">{results.length} resultados</strong>
+            <strong className="text-sm">{results.length} {t("search.results")}</strong>
             <span className="text-muted-foreground">
               {minimized ? "▾" : "▴"}
             </span>

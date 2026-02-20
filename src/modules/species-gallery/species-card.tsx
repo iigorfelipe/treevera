@@ -2,6 +2,7 @@ import { Heart, Loader2, ImageOff } from "lucide-react";
 import type { SeenSpecies } from "@/common/types/user";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
+import { useTranslation } from "react-i18next";
 
 type SpeciesCardProps = {
   species: SeenSpecies;
@@ -14,6 +15,7 @@ export const SpeciesCard = ({
   onClick,
   searchQuery,
 }: SpeciesCardProps) => {
+  const { t } = useTranslation();
   const {
     specieName,
     familyName,
@@ -63,7 +65,7 @@ export const SpeciesCard = ({
         ) : (
           <div className="text-muted-foreground flex aspect-4/3 flex-col items-center justify-center">
             <ImageOff className="mb-2 size-12" />
-            <p className="text-xs">Sem imagem</p>
+            <p className="text-xs">{t("gallery.noImage")}</p>
           </div>
         )}
 

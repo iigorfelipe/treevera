@@ -10,6 +10,7 @@ import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
 import { motion } from "framer-motion";
 import { CheckCircle2, XCircle, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ranks: Rank[] = [
   "KINGDOM",
@@ -26,6 +27,7 @@ type TaxonomicPathProps = {
 };
 
 export const TaxonomicPath = ({ activeIndex }: TaxonomicPathProps) => {
+  const { t } = useTranslation();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const speciesName = getDailySpecies();
   const correctPath = speciesPaths[speciesName] || [];
@@ -43,9 +45,9 @@ export const TaxonomicPath = ({ activeIndex }: TaxonomicPathProps) => {
   return (
     <div className="bg-accent/40 rounded-2xl p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold">Caminho Taxonômico</h3>
+        <h3 className="font-semibold">{t("challenge.taxonomicPath")}</h3>
         <span className="text-muted-foreground text-sm">
-          {expandedNodes.length}/7 interações
+          {expandedNodes.length}/7 {t("challenge.interactions")}
         </span>
       </div>
 

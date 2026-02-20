@@ -10,5 +10,206 @@
   "profile": "Perfil",
   "logout": "Salir",
   "theme": "Tema",
-  "loginWithGoogle": "Iniciar sesión con Google"
+  "loginWithGoogle": "Iniciar sesión con Google",
+
+  "time": {
+    "now": "Justo ahora",
+    "minutesAgo": "hace {{count}}m",
+    "hoursAgo": "hace {{count}}h",
+    "yesterday": "Ayer",
+    "daysAgo": "hace {{count}} días"
+  },
+
+  "loading": {
+    "restoringCache": "Restaurando caché...",
+    "initializing": "Inicializando..."
+  },
+
+  "auth": {
+    "finalizingAuth": "Finalizando autenticación...",
+    "waitSeconds": "Por favor espere unos segundos.",
+    "descriptionGoogle": "Inicia sesión con tu cuenta de Google para desbloquear todas las funciones y guardar tu progreso",
+    "loginError": "Error al iniciar sesión",
+    "signingIn": "Iniciando sesión...",
+    "continueWithGoogle": "Continuar con Google",
+    "exclusiveFeatures": "Funciones exclusivas al iniciar sesión",
+    "continueWithoutLogin": "Puedes continuar sin iniciar sesión, pero no tendrás acceso a las funciones enumeradas arriba.",
+    "back": "Volver",
+    "backAriaLabel": "Volver a la página anterior"
+  },
+
+  "nav": {
+    "back": "Volver",
+    "challenges": "Desafíos",
+    "explore": "Explorar",
+    "audio": "Audio",
+    "soundOff": "Sonido desactivado",
+    "soundOn": "Sonido activado",
+    "logoutWarning": "Al salir, tus funciones y progreso solo estarán disponibles cuando vuelvas a iniciar sesión.",
+    "logoutAnyway": "Salir de todas formas"
+  },
+
+  "profilePage": {
+    "memberSince": "Usuario desde",
+    "globalRanking": "Clasificación Global",
+    "rankingHint": "Puntúa en especies exploradas, precisión y velocidad para seguir subiendo."
+  },
+
+  "progress": {
+    "title": "PROGRESO",
+    "speciesExplored": "Especies exploradas",
+    "challengesCompleted": "Desafíos completados",
+    "hitAccuracy": "Precisión de acierto",
+    "medalsEarned": "Medallas ganadas",
+    "dayStreak": "Racha de días",
+    "globalRanking": "Clasificación global"
+  },
+
+  "activity": {
+    "title": "ACTIVIDAD"
+  },
+
+  "achievements": {
+    "title": "LOGROS",
+    "locked": "Bloqueados"
+  },
+
+  "shortcuts": {
+    "title": "ATAJOS",
+    "saveEdit": "Guardar edición",
+    "cancelEdit": "Cancelar edición",
+    "editName": "Editar nombre del atajo",
+    "remove": "Eliminar atajo",
+    "empty": "Ningún atajo creado",
+    "emptyHint": "Crea atajos navegando por el árbol",
+    "tip": "Navega por el árbol taxonómico y guarda los nodos seleccionados como atajos para acceso rápido."
+  },
+
+  "seenSpecies": {
+    "title": "ESPECIES VISTAS",
+    "openGallery": "Abrir galería",
+    "emptyTitle": "Tu galería está vacía",
+    "emptyHint": "¡Explora especies para llenarla!"
+  },
+
+  "favSpecies": {
+    "title": "ESPECIES FAVORITAS",
+    "addFavorite": "Añadir favorita"
+  },
+
+  "gallery": {
+    "title": "Galería de Especies",
+    "species": "especies",
+    "of": "de",
+    "searchPlaceholder": "Buscar por nombre o familia...",
+    "newest": "Más recientes",
+    "oldest": "Más antiguas",
+    "newestFirst": "Más recientes primero",
+    "oldestFirst": "Más antiguas primero",
+    "favorites": "Favoritas",
+    "noSpeciesFound": "Ninguna especie encontrada",
+    "noFavorites": "Aún no tienes favoritas",
+    "adjustFilters": "Intenta ajustar los filtros",
+    "noImage": "Sin imagen"
+  },
+
+  "specieDetail": {
+    "notFound": "No se encontraron datos",
+    "backToGallery": "Volver a la galería",
+    "dataUnavailable": "Datos no disponibles.",
+    "taxonomyTitle": "Clasificación Taxonómica",
+    "kingdomLabel": "Reino",
+    "phylumLabel": "Filo",
+    "orderLabel": "Orden",
+    "classLabel": "Clase",
+    "familyLabel": "Familia",
+    "genusLabel": "Género",
+    "descriptionTitle": "Descripción",
+    "nomenclatureTitle": "Detalles de Nomenclatura",
+    "author": "Autor",
+    "publishedIn": "Publicado en",
+    "sources": "Fuentes",
+    "imageNotFound": "Imagen no encontrada.",
+    "imageNote": "Las imágenes se obtienen de Wikipedia, iNaturalist y GBIF, y pueden faltar para especies con poca documentación visual.",
+    "viewOnGoogle": "Ver en Google Imágenes",
+    "imageSource": "Fuente",
+    "imageBy": "por @",
+    "imageLicense": ", con licencia "
+  },
+
+  "occurrenceMap": {
+    "locality": "Localidad",
+    "country": "País",
+    "date": "Fecha",
+    "recordedBy": "Registrado por",
+    "unknown": "Desconocido",
+    "noDate": "Sin fecha",
+    "notInformed": "No informado",
+    "viewReference": "Ver referencia",
+    "dataProvidedBy": "Datos de ocurrencia proporcionados por",
+    "dataNote": ". Los puntos representan registros globales de diversas bases de datos, que pueden ser diferentes a la fuente de la imagen de arriba."
+  },
+
+  "tree": {
+    "loadError": "Error al cargar",
+    "loadErrorMessage": "No se pudo cargar el árbol. Inténtalo de nuevo.",
+    "noData": "Sin datos disponibles",
+    "noDataMessage": "Todavía no hay datos taxonómicos para mostrar."
+  },
+
+  "search": {
+    "selectKingdom": "Selecciona un reino",
+    "example": "Ejemplo",
+    "selectKingdomFirst": "Selecciona un reino para buscar",
+    "gbifError": "Error al consultar GBIF",
+    "lineageError": "No se pudo obtener el linaje del elemento seleccionado",
+    "pathError": "Error al construir el camino seleccionado",
+    "kingdom": "Reino",
+    "searchTaxa": "Buscar taxa",
+    "expandResults": "Expandir resultados",
+    "minimizeResults": "Minimizar resultados",
+    "results": "resultados"
+  },
+
+  "explore": {
+    "selectKingdom": "¡Elige un Reino para comenzar tu exploración!",
+    "mainGroups": "Grupos Principales",
+    "kingdom": "Reino"
+  },
+
+  "challenge": {
+    "title": "Desafío Diario",
+    "find": "Encuentra",
+    "missionTitle": "Misión del día",
+    "missionDescription": "Completa el camino taxonómico antes de que se acabe el tiempo.",
+    "cancel": "Cancelar Desafío",
+    "start": "Iniciar Desafío",
+    "completed": "¡Clasificación completa!",
+    "path": "Reino → Especie",
+    "timeRemaining": "Tiempo restante",
+    "taxonomicPath": "Camino Taxonómico",
+    "interactions": "interacciones",
+    "tips": "Consejos para avanzar",
+    "needHelp": "¿Necesitas ayuda?",
+    "prevStep": "Paso anterior",
+    "step": "Paso",
+    "of": "de",
+    "nextStep": "Siguiente paso",
+    "revealAnswer": "Revelar respuesta de este paso",
+    "belongsTo": "pertenece al",
+    "howItWorks": "¿Cómo funciona el desafío?"
+  },
+
+  "vulnerability": {
+    "unknown": "Estado desconocido",
+    "EX": "Extinto",
+    "EW": "Extinto en estado silvestre",
+    "CR": "En peligro crítico",
+    "EN": "En peligro",
+    "VU": "Vulnerable",
+    "NT": "Casi amenazado",
+    "LC": "Preocupación menor",
+    "DD": "Datos insuficientes",
+    "NE": "No evaluado"
+  }
 }

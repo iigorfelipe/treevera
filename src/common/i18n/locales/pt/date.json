@@ -2,6 +2,7 @@
   "time": {
     "now": "Agora mesmo",
     "minutesAgo": "{{count}}m atrás",
+    "hoursAgo": "{{count}}h atrás",
     "yesterday": "Ontem",
     "daysAgo": "{{count}} dias atrás"
   }

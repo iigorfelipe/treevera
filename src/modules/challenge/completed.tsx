@@ -1,8 +1,10 @@
 import { getDailySpecies } from "@/common/utils/game/daily-species";
 import { motion } from "framer-motion";
 import { Trophy, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const ChallengeCompleted = () => {
+  const { t } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -20,7 +22,7 @@ export const ChallengeCompleted = () => {
       </motion.div>
 
       <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-        Classificação completa!
+        {t("challenge.completed")}
       </p>
 
       <p className="mt-1 text-sm">
@@ -34,7 +36,7 @@ export const ChallengeCompleted = () => {
         className="text-muted-foreground mt-2 flex items-center justify-center gap-1 text-xs"
       >
         <CheckCircle className="size-3.5 text-emerald-500" />
-        Reino → Espécie
+        {t("challenge.path")}
       </motion.div>
     </motion.div>
   );

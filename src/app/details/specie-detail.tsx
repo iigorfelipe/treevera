@@ -11,8 +11,10 @@ import { OccurrenceMap } from "@/modules/specie-detail/occurrences-map";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export const SpecieDetail = () => {
+  const { t } = useTranslation();
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
 
@@ -43,7 +45,7 @@ export const SpecieDetail = () => {
   if (!specieDetail) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-slate-500">Nenhum dado foi encontrado</p>
+        <p className="text-muted-foreground">{t("specieDetail.notFound")}</p>
       </div>
     );
   }
@@ -65,7 +67,7 @@ export const SpecieDetail = () => {
             className="gap-2"
           >
             <ArrowLeft className="size-4" />
-            Voltar para galeria
+            {t("specieDetail.backToGallery")}
           </Button>
         </div>
       )}

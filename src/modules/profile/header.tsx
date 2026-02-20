@@ -4,8 +4,10 @@ import { formatUserSinceDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
 import { Menu } from "../header/menu";
+import { useTranslation } from "react-i18next";
 
 export const HeaderProfile = () => {
+  const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
 
   return (
@@ -16,13 +18,13 @@ export const HeaderProfile = () => {
         <div className="flex-1">
           <h1 className="text-xl font-bold">{userDb?.name}</h1>
           <span className="mt-0.5 flex items-center gap-1 text-xs">
-            Usuário desde
+            {t("profilePage.memberSince")}
             <strong>{formatUserSinceDate(userDb?.created_at as string)}</strong>
           </span>
         </div>
 
         <div className="flex flex-col items-end">
-          <div className="text-xs font-medium">Ranking Global</div>
+          <div className="text-xs font-medium">{t("profilePage.globalRanking")}</div>
           <div className="flex items-baseline gap-1">
             <span className="text-xl text-amber-300">#</span>
             <span className="text-3xl font-bold text-amber-300">
@@ -39,11 +41,7 @@ export const HeaderProfile = () => {
           indicatorClassName="bg-amber-300"
         />
 
-        <div className="text-xs">
-          Pontue em <strong>espécies exploradas</strong>,{" "}
-          <strong>precisão de acerto</strong> e <strong>velocidade</strong> para
-          continuar subindo.
-        </div>
+        <div className="text-xs">{t("profilePage.rankingHint")}</div>
       </div>
     </header>
   );

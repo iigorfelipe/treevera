@@ -6,12 +6,14 @@ import {
 import { memo } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { Loader } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   specieKey: number;
 };
 
 export const OccurrenceMap = memo(({ specieKey }: Props) => {
+  const { t } = useTranslation();
   const { data, isFetching } = useGetOccurrences(specieKey);
 
   const occurrences = data?.occurrences ?? [];
@@ -53,20 +55,20 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
             <Popup>
               <div className="text-sm">
                 <p>
-                  <strong>Local:</strong> {o.locality ?? "Não informado"}
+                  <strong>{t("occurrenceMap.locality")}:</strong> {o.locality ?? t("occurrenceMap.notInformed")}
                 </p>
                 <p>
-                  <strong>País:</strong> {o.country ?? "Não informado"}
+                  <strong>{t("occurrenceMap.country")}:</strong> {o.country ?? t("occurrenceMap.notInformed")}
                 </p>
                 <p>
-                  <strong>Data: </strong>
+                  <strong>{t("occurrenceMap.date")}: </strong>
                   {o.eventDate
                     ? new Date(o.eventDate).toLocaleDateString()
-                    : "Sem data"}
+                    : t("occurrenceMap.noDate")}
                 </p>
                 <p className="wrap-break-word">
-                  <strong>Registrado por:</strong>{" "}
-                  {o.recordedBy ?? "Desconhecido"}
+                  <strong>{t("occurrenceMap.recordedBy")}:</strong>{" "}
+                  {o.recordedBy ?? t("occurrenceMap.unknown")}
                 </p>
 
                 {o.references && (
@@ -77,7 +79,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
                       rel="noopener noreferrer"
                       className="text-blue-600 underline"
                     >
-                      Ver referência
+                      {t("occurrenceMap.viewReference")}
                     </a>
                   </p>
                 )}
@@ -88,7 +90,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
       </MapContainer>
 
       <div className="bg-card text-muted-foreground rounded-xl p-2 text-xs">
-        Dados de ocorrência fornecidos por
+        {t("occurrenceMap.dataProvidedBy")}
         <a
           href="https://www.gbif.org"
           target="_blank"
@@ -97,8 +99,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
         >
           GBIF.org
         </a>
-        . Os pontos representam registros globais de diversas bases de dados,
-        que podem ser diferentes da fonte da imagem acima.
+        {t("occurrenceMap.dataNote")}
       </div>
     </div>
   );

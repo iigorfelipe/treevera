@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useAtomValue, useSetAtom } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useNavigate } from "@tanstack/react-router";
@@ -18,6 +19,7 @@ import { selectedSpecieKeyAtom } from "@/store/tree";
 type SortOrder = "newest" | "oldest";
 
 export const SpeciesGallery = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
@@ -82,12 +84,12 @@ export const SpeciesGallery = () => {
             </div>
             <div>
               <h1 className="text-foreground text-lg font-bold">
-                Galeria de Espécies
+                {t("gallery.title")}
               </h1>
               <p className="text-muted-foreground text-xs">
                 {filteredSpecies.length === allSpecies.length
-                  ? `${allSpecies.length} espécies`
-                  : `${filteredSpecies.length} de ${allSpecies.length}`}
+                  ? `${allSpecies.length} ${t("gallery.species")}`
+                  : `${filteredSpecies.length} ${t("gallery.of")} ${allSpecies.length}`}
                 {favoritesCount > 0 && (
                   <span className="ml-2">
                     • {favoritesCount}{" "}
@@ -102,7 +104,7 @@ export const SpeciesGallery = () => {
             <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Buscar por nome ou família..."
+              placeholder={t("gallery.searchPlaceholder")}
               value={searchQuery}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSearchQuery(e.target.value)
@@ -117,16 +119,16 @@ export const SpeciesGallery = () => {
                 <Button variant="outline" size="sm" className="h-10 gap-2">
                   <ArrowUpDown className="size-4" />
                   <span className="hidden sm:inline">
-                    {sortOrder === "newest" ? "Mais recentes" : "Mais antigas"}
+                    {sortOrder === "newest" ? t("gallery.newest") : t("gallery.oldest")}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setSortOrder("newest")}>
-                  Mais recentes primeiro
+                  {t("gallery.newestFirst")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortOrder("oldest")}>
-                  Mais antigas primeiro
+                  {t("gallery.oldestFirst")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -140,7 +142,7 @@ export const SpeciesGallery = () => {
               <Heart
                 className={`size-4 ${showOnlyFavorites ? "fill-current" : ""}`}
               />
-              <span className="ml-2 hidden sm:inline">Favoritas</span>
+              <span className="ml-2 hidden sm:inline">{t("gallery.favorites")}</span>
             </Button>
 
             <Button
@@ -161,12 +163,12 @@ export const SpeciesGallery = () => {
             <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />
               <p className="mb-1 text-lg font-medium">
-                Nenhuma espécie encontrada
+                {t("gallery.noSpeciesFound")}
               </p>
               <p className="text-sm">
                 {showOnlyFavorites
-                  ? "Você ainda não tem favoritas"
-                  : "Tente ajustar os filtros"}
+                  ? t("gallery.noFavorites")
+                  : t("gallery.adjustFilters")}
               </p>
             </div>
           </div>

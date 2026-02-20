@@ -8,8 +8,10 @@ import { useState } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { ImageWithZoom } from "@/common/components/image-with-zoom";
+import { useTranslation } from "react-i18next";
 
 export const SpecieImageDetail = () => {
+  const { t } = useTranslation();
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const treeSpecieKey = useAtomValue(treeAtom.expandedNodes).find(
     (node) => node.rank === "SPECIES",
@@ -45,13 +47,9 @@ export const SpecieImageDetail = () => {
           alt={specieDetail.scientificName}
           className="max-h-48 opacity-30"
         />
-        <span>Imagem não encontrada.</span>
+        <span>{t("specieDetail.imageNotFound")}</span>
         <div className="rounded-md border p-3 text-xs">
-          <p>
-            As imagens são obtidas através da <strong>Wikipedia</strong>,{" "}
-            <strong>iNaturalist</strong> e <strong>GBIF</strong>, e podem estar
-            ausentes para espécies com pouca documentação visual.
-          </p>
+          <p>{t("specieDetail.imageNote")}</p>
         </div>
 
         <a
@@ -62,7 +60,7 @@ export const SpecieImageDetail = () => {
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline"
         >
-          Ver no Google Imagens
+          {t("specieDetail.viewOnGoogle")}
         </a>
       </div>
     );
@@ -83,9 +81,9 @@ export const SpecieImageDetail = () => {
 
       {imageData.source && (
         <p className="absolute right-0 -bottom-4 px-1 text-[11px]">
-          Fonte: {imageData.source}
-          {imageData.author && ` por @${imageData.author}`}
-          {imageData.licenseCode && `, licenciada sob ${imageData.licenseCode}`}
+          {t("specieDetail.imageSource")}: {imageData.source}
+          {imageData.author && `${t("specieDetail.imageBy")}${imageData.author}`}
+          {imageData.licenseCode && `${t("specieDetail.imageLicense")}${imageData.licenseCode}`}
         </p>
       )}
     </div>

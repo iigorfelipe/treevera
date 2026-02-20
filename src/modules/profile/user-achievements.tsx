@@ -1,11 +1,13 @@
 import { Progress } from "@/common/components/ui/progress";
 import { userAchievements } from "@/common/utils/data-profile-fake";
 import { Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const UserAchievements = () => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-3">
-      <h2 className="border-b">CONQUISTAS</h2>
+      <h2 className="border-b">{t("achievements.title")}</h2>
 
       <div className="space-y-4">
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
@@ -28,7 +30,7 @@ export const UserAchievements = () => {
 
         <div>
           <h3 className="text-muted-foreground mb-3 text-sm font-semibold">
-            Bloqueadas
+            {t("achievements.locked")}
           </h3>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
             {userAchievements.locked.map((achievement) => (

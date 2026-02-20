@@ -10,5 +10,206 @@
   "profile": "Profile",
   "logout": "Logout",
   "theme": "Theme",
-  "loginWithGoogle": "Login with Google"
+  "loginWithGoogle": "Login with Google",
+
+  "time": {
+    "now": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago"
+  },
+
+  "loading": {
+    "restoringCache": "Restoring cache...",
+    "initializing": "Initializing..."
+  },
+
+  "auth": {
+    "finalizingAuth": "Finalizing authentication...",
+    "waitSeconds": "Please wait a few seconds.",
+    "descriptionGoogle": "Sign in with your Google account to unlock all features and save your progress",
+    "loginError": "Login error",
+    "signingIn": "Signing in...",
+    "continueWithGoogle": "Continue with Google",
+    "exclusiveFeatures": "Exclusive features when signed in",
+    "continueWithoutLogin": "You can continue without signing in, but you won't have access to the features listed above.",
+    "back": "Back",
+    "backAriaLabel": "Go back to previous page"
+  },
+
+  "nav": {
+    "back": "Back",
+    "challenges": "Challenges",
+    "explore": "Explore",
+    "audio": "Audio",
+    "soundOff": "Sound off",
+    "soundOn": "Sound on",
+    "logoutWarning": "When you sign out, your features and progress will only be available when you sign in again.",
+    "logoutAnyway": "Sign out anyway"
+  },
+
+  "profilePage": {
+    "memberSince": "Member since",
+    "globalRanking": "Global Ranking",
+    "rankingHint": "Score on explored species, hit accuracy and speed to keep climbing."
+  },
+
+  "progress": {
+    "title": "PROGRESS",
+    "speciesExplored": "Species explored",
+    "challengesCompleted": "Challenges completed",
+    "hitAccuracy": "Hit accuracy",
+    "medalsEarned": "Medals earned",
+    "dayStreak": "Day streak",
+    "globalRanking": "Global ranking"
+  },
+
+  "activity": {
+    "title": "ACTIVITY"
+  },
+
+  "achievements": {
+    "title": "ACHIEVEMENTS",
+    "locked": "Locked"
+  },
+
+  "shortcuts": {
+    "title": "SHORTCUTS",
+    "saveEdit": "Save edit",
+    "cancelEdit": "Cancel edit",
+    "editName": "Edit shortcut name",
+    "remove": "Remove shortcut",
+    "empty": "No shortcuts created",
+    "emptyHint": "Create shortcuts by browsing the tree",
+    "tip": "Browse the taxonomic tree and save selected nodes as shortcuts for quick access."
+  },
+
+  "seenSpecies": {
+    "title": "SEEN SPECIES",
+    "openGallery": "Open gallery",
+    "emptyTitle": "Your gallery is empty",
+    "emptyHint": "Explore species to fill it!"
+  },
+
+  "favSpecies": {
+    "title": "FAVORITE SPECIES",
+    "addFavorite": "Add favorite"
+  },
+
+  "gallery": {
+    "title": "Species Gallery",
+    "species": "species",
+    "of": "of",
+    "searchPlaceholder": "Search by name or family...",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "newestFirst": "Newest first",
+    "oldestFirst": "Oldest first",
+    "favorites": "Favorites",
+    "noSpeciesFound": "No species found",
+    "noFavorites": "You have no favorites yet",
+    "adjustFilters": "Try adjusting the filters",
+    "noImage": "No image"
+  },
+
+  "specieDetail": {
+    "notFound": "No data found",
+    "backToGallery": "Back to gallery",
+    "dataUnavailable": "Data unavailable.",
+    "taxonomyTitle": "Taxonomic Classification",
+    "kingdomLabel": "Kingdom",
+    "phylumLabel": "Phylum",
+    "orderLabel": "Order",
+    "classLabel": "Class",
+    "familyLabel": "Family",
+    "genusLabel": "Genus",
+    "descriptionTitle": "Description",
+    "nomenclatureTitle": "Nomenclature Details",
+    "author": "Author",
+    "publishedIn": "Published in",
+    "sources": "Sources",
+    "imageNotFound": "Image not found.",
+    "imageNote": "Images are sourced from Wikipedia, iNaturalist and GBIF, and may be missing for species with limited visual documentation.",
+    "viewOnGoogle": "View on Google Images",
+    "imageSource": "Source",
+    "imageBy": "by @",
+    "imageLicense": ", licensed under "
+  },
+
+  "occurrenceMap": {
+    "locality": "Locality",
+    "country": "Country",
+    "date": "Date",
+    "recordedBy": "Recorded by",
+    "unknown": "Unknown",
+    "noDate": "No date",
+    "notInformed": "Not provided",
+    "viewReference": "View reference",
+    "dataProvidedBy": "Occurrence data provided by",
+    "dataNote": ". The points represent global records from various databases, which may differ from the image source above."
+  },
+
+  "tree": {
+    "loadError": "Failed to load",
+    "loadErrorMessage": "Could not load the tree. Please try again.",
+    "noData": "No data available",
+    "noDataMessage": "No taxonomic data to display yet."
+  },
+
+  "search": {
+    "selectKingdom": "Select a kingdom",
+    "example": "Example",
+    "selectKingdomFirst": "Select a kingdom to search",
+    "gbifError": "Error querying GBIF",
+    "lineageError": "Could not retrieve lineage for the selected item",
+    "pathError": "Error building the selected path",
+    "kingdom": "Kingdom",
+    "searchTaxa": "Search taxa",
+    "expandResults": "Expand results",
+    "minimizeResults": "Minimize results",
+    "results": "results"
+  },
+
+  "explore": {
+    "selectKingdom": "Choose a Kingdom to start exploring!",
+    "mainGroups": "Main Groups",
+    "kingdom": "Kingdom"
+  },
+
+  "challenge": {
+    "title": "Daily Challenge",
+    "find": "Find",
+    "missionTitle": "Mission of the day",
+    "missionDescription": "Complete the taxonomic path before time runs out.",
+    "cancel": "Cancel Challenge",
+    "start": "Start Challenge",
+    "completed": "Classification complete!",
+    "path": "Kingdom → Species",
+    "timeRemaining": "Time remaining",
+    "taxonomicPath": "Taxonomic Path",
+    "interactions": "interactions",
+    "tips": "Tips to advance",
+    "needHelp": "Need help?",
+    "prevStep": "Previous step",
+    "step": "Step",
+    "of": "of",
+    "nextStep": "Next step",
+    "revealAnswer": "Reveal answer for this step",
+    "belongsTo": "belongs to",
+    "howItWorks": "How does the challenge work?"
+  },
+
+  "vulnerability": {
+    "unknown": "Unknown status",
+    "EX": "Extinct",
+    "EW": "Extinct in the Wild",
+    "CR": "Critically Endangered",
+    "EN": "Endangered",
+    "VU": "Vulnerable",
+    "NT": "Near Threatened",
+    "LC": "Least Concern",
+    "DD": "Data Deficient",
+    "NE": "Not Evaluated"
+  }
 }

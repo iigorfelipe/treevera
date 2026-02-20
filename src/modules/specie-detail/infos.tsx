@@ -15,8 +15,10 @@ import { useEffect, useState } from "react";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { motion } from "framer-motion";
 import { updateSeenSpecies } from "@/common/utils/supabase/add_species_gallery";
+import { useTranslation } from "react-i18next";
 
 export const SpecieInfos = () => {
+  const { t } = useTranslation();
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const treeSpecieKey = useAtomValue(treeAtom.expandedNodes).find(
     (node) => node.rank === "SPECIES",
@@ -78,7 +80,7 @@ export const SpecieInfos = () => {
 
   if (!specieDetail)
     return (
-      <p className="text-muted-foreground text-center">Dados indisponíveis.</p>
+      <p className="text-muted-foreground text-center">{t("specieDetail.dataUnavailable")}</p>
     );
 
   if (isLoading) return <SkeletonText />;
@@ -86,12 +88,12 @@ export const SpecieInfos = () => {
   const isOrderClass = RANK_FIXES[specieDetail.class];
 
   const taxonomyFields = [
-    ["Reino", specieDetail.kingdom],
-    ["Filo", specieDetail.phylum],
-    [isOrderClass ? "Ordem" : "Classe", specieDetail.class],
-    ["Ordem", isOrderClass ? undefined : specieDetail.order],
-    ["Família", specieDetail.family],
-    ["Gênero", specieDetail.genus],
+    [t("specieDetail.kingdomLabel"), specieDetail.kingdom],
+    [t("specieDetail.phylumLabel"), specieDetail.phylum],
+    [isOrderClass ? t("specieDetail.orderLabel") : t("specieDetail.classLabel"), specieDetail.class],
+    [t("specieDetail.orderLabel"), isOrderClass ? undefined : specieDetail.order],
+    [t("specieDetail.familyLabel"), specieDetail.family],
+    [t("specieDetail.genusLabel"), specieDetail.genus],
   ].filter(([, value]) => !!value);
 
   return (
@@ -173,7 +175,7 @@ export const SpecieInfos = () => {
           className="space-y-3"
         >
           <h3 className="flex items-center gap-2 text-xl font-semibold">
-            Descrição
+            {t("specieDetail.descriptionTitle")}
           </h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
             {wikiDetails.extract || wikiDetails.description}
@@ -188,22 +190,22 @@ export const SpecieInfos = () => {
           transition={{ delay: 0.4 }}
           className="space-y-3 border-t pt-4"
         >
-          <h3 className="text-lg font-semibold">Detalhes da Nomenclatura</h3>
+          <h3 className="text-lg font-semibold">{t("specieDetail.nomenclatureTitle")}</h3>
           <div className="space-y-2 text-sm">
             {specieDetail.authorship && (
               <p className="text-muted-foreground">
-                <strong className="text-foreground">Autor: </strong>
+                <strong className="text-foreground">{t("specieDetail.author")}: </strong>
                 {specieDetail.authorship}
               </p>
             )}
             {specieDetail.publishedIn && (
               <p className="text-muted-foreground">
-                <strong className="text-foreground">Publicado em: </strong>
+                <strong className="text-foreground">{t("specieDetail.publishedIn")}: </strong>
                 {specieDetail.publishedIn}
               </p>
             )}
             <p className="text-muted-foreground">
-              <strong className="text-foreground">Fontes: </strong>GBIF,
+              <strong className="text-foreground">{t("specieDetail.sources")}: </strong>GBIF,
               Wikipedia
             </p>
           </div>

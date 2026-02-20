@@ -2,13 +2,15 @@ import { formatActivityDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 
 import { useAtomValue } from "jotai";
+import { useTranslation } from "react-i18next";
 
 export const LatestUserActivities = () => {
+  const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
 
   return (
     <div className="space-y-3">
-      <h2 className="border-b">ATIVIDADE</h2>
+      <h2 className="border-b">{t("activity.title")}</h2>
 
       <div className="space-y-2">
         {userDb?.game_info?.activities?.map((activity, index) => (

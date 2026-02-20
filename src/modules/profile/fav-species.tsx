@@ -5,15 +5,19 @@ import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
 import { Loader, Plus } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
-const EmptyFavCard = () => (
-  <div className="border-border bg-muted hover:border-muted-foreground/50 flex aspect-3/4 w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300">
-    <div className="text-center">
-      <Plus className="text-muted-foreground/40 mx-auto mb-2 h-8 w-8" />
-      <div className="text-muted-foreground/70 text-xs">Adicionar favorita</div>
+const EmptyFavCard = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="border-border bg-muted hover:border-muted-foreground/50 flex aspect-3/4 w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300">
+      <div className="text-center">
+        <Plus className="text-muted-foreground/40 mx-auto mb-2 h-8 w-8" />
+        <div className="text-muted-foreground/70 text-xs">{t("favSpecies.addFavorite")}</div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const FilledFavCard = ({ specieKey }: { specieKey: number }) => {
   const {
@@ -75,6 +79,7 @@ const FilledFavCard = ({ specieKey }: { specieKey: number }) => {
 };
 
 export const FavoriteSpecies = () => {
+  const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
 
   const topFavKeys = useMemo(() => {
@@ -100,7 +105,7 @@ export const FavoriteSpecies = () => {
 
   return (
     <div className="space-y-3">
-      <h2 className="border-b">ESPÉCIES FAVORITAS</h2>
+      <h2 className="border-b">{t("favSpecies.title")}</h2>
 
       <div className="grid grid-cols-2 gap-3 overflow-visible sm:gap-4 lg:grid-cols-4">
         {slots.map((key, idx) =>

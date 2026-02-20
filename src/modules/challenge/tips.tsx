@@ -16,6 +16,7 @@ import { ChevronDown, Info } from "lucide-react";
 import type { Rank } from "@/common/types/api";
 import { useSetAtom } from "jotai";
 import { scrollToRankAtom, treeAtom } from "@/store/tree";
+import { useTranslation } from "react-i18next";
 
 export const ChallengeTips = ({
   speciesName,
@@ -28,6 +29,7 @@ export const ChallengeTips = ({
   errorIndex: number | null;
   tips: TipsData;
 }) => {
+  const { t } = useTranslation();
   const [revealedSteps, setRevealedSteps] = useState<Record<number, boolean>>(
     {},
   );
@@ -75,12 +77,12 @@ export const ChallengeTips = ({
                 errorIndex && "fill-amber-300",
               )}
             />
-            <span>Dicas para avançar</span>
+            <span>{t("challenge.tips")}</span>
           </div>
 
           {errorIndex && (
             <span className="text-muted-foreground text-xs">
-              Precisa de ajuda?
+              {t("challenge.needHelp")}
             </span>
           )}
         </button>
@@ -109,14 +111,14 @@ export const ChallengeTips = ({
                   }}
                   disabled={visibleStep === 0}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
-                  aria-label="Etapa anterior"
+                  aria-label={t("challenge.prevStep")}
                 >
                   <ChevronLeft className="size-4" />
                 </button>
 
                 <Dialog.Title className="flex items-center gap-2 text-sm font-semibold">
                   <Trophy className="size-3.5 text-emerald-500" />
-                  Etapa {visibleStep + 1} de {tips.steps.length}
+                  {t("challenge.step")} {visibleStep + 1} {t("challenge.of")} {tips.steps.length}
                 </Dialog.Title>
 
                 <button
@@ -131,7 +133,7 @@ export const ChallengeTips = ({
                   }}
                   disabled={visibleStep === currentStep}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
-                  aria-label="Próxima etapa"
+                  aria-label={t("challenge.nextStep")}
                 >
                   <ChevronRight className="size-4" />
                 </button>
@@ -166,11 +168,11 @@ export const ChallengeTips = ({
                         className="flex items-center gap-2 text-amber-600 hover:underline"
                       >
                         <Eye className="size-4" />
-                        Revelar resposta desta etapa
+                        {t("challenge.revealAnswer")}
                       </button>
                     ) : (
                       <p className="text-foreground font-medium">
-                        {speciesName} pertence ao {stepTip!.classification}{" "}
+                        {speciesName} {t("challenge.belongsTo")} {stepTip!.classification}{" "}
                         <span className="font-bold text-green-600">
                           {stepTip!.answer}
                         </span>
@@ -186,7 +188,7 @@ export const ChallengeTips = ({
                 <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                   <div className="flex items-center gap-1.5">
                     <Info className="size-3.5" />
-                    Como funciona o desafio?
+                    {t("challenge.howItWorks")}
                   </div>
 
                   <ChevronDown className="size-3.5 opacity-60" />

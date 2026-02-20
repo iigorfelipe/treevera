@@ -12,8 +12,10 @@ import { Button } from "@/common/components/ui/button";
 import { authStore } from "@/store/auth/atoms";
 import { COLOR_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
+import { useTranslation } from "react-i18next";
 
 export const CardInfo = () => {
+  const { t } = useTranslation();
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
   const userDb = useAtomValue(authStore.userDb);
 
@@ -54,7 +56,7 @@ export const CardInfo = () => {
     >
       <header className="bg-card flex rounded-xl border p-6 pr-10 shadow-sm">
         <div className="space-y-2">
-          <Badge variant="secondary">Reino</Badge>
+          <Badge variant="secondary">{t("explore.kingdom")}</Badge>
 
           <h1
             className="[@container(min-width:350px)]text-4xl text-3xl font-bold tracking-tight [@container(min-width:450px)]:text-5xl"

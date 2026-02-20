@@ -1,23 +1,26 @@
 import { AlertTriangle, Database } from "lucide-react";
 import { TreeSkeleton } from "./components/tree-skeleton";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   type: "loading" | "error" | "empty";
 };
 
 export const TreeState = ({ type }: Props) => {
+  const { t } = useTranslation();
+
   if (type === "loading") return <TreeSkeleton />;
 
   const config = {
     error: {
       icon: <AlertTriangle className="h-6 w-6 text-red-500" />,
-      title: "Erro ao carregar",
-      text: "Não foi possível carregar a árvore. Tente novamente.",
+      title: t("tree.loadError"),
+      text: t("tree.loadErrorMessage"),
     },
     empty: {
       icon: <Database className="h-6 w-6" />,
-      title: "Nenhum dado disponível",
-      text: "Ainda não há dados taxonômicos para exibir.",
+      title: t("tree.noData"),
+      text: t("tree.noDataMessage"),
     },
   }[type];
 
