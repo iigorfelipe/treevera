@@ -2,10 +2,11 @@ import { Image } from "@/common/components/image";
 import Alvo from "@/assets/alvo.gif";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import { ProgressSteps, TOTAL_STEPS } from "@/modules/challenge/progress-steps";
-import { ChallengeTips } from "./tips";
+
 import { tipsData } from "@/common/constants/challenge";
 import { useTranslation } from "react-i18next";
+import { ProgressSteps, TOTAL_STEPS } from "./components/progress-steps";
+import { ChallengeTips } from "./components/tips";
 
 export const ChallengeMobile = ({
   speciesName,
@@ -27,7 +28,9 @@ export const ChallengeMobile = ({
         <div className="flex items-center gap-2.5">
           <Image src={Alvo} className="size-7 shrink-0" alt="Alvo gif" />
           <p className="truncate text-sm">
-            <span className="text-muted-foreground">{t("challenge.find")} </span>
+            <span className="text-muted-foreground">
+              {t("challenge.find")}{" "}
+            </span>
             <span className="font-bold text-emerald-600 dark:text-green-400">
               {speciesName}
             </span>

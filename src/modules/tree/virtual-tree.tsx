@@ -10,10 +10,10 @@ import { Search } from "./search";
 
 import "./tree.css";
 import { useResponsive } from "@/hooks/use-responsive";
-import { DailyChallenge } from "@/app/auth/challenge";
 import { cn } from "@/common/utils/cn";
 import type { Rank } from "@/common/types/api";
 import { useChallengeAudio } from "./hooks/use-challenge-audio";
+import { Challenges } from "@/app/challenges";
 
 export const VirtualTree = () => {
   useExpandedSync();
@@ -54,7 +54,7 @@ export const VirtualTree = () => {
   return (
     <>
       <div className="mb-4 px-4">
-        {challengeMode && isTablet && <DailyChallenge />}
+        {challengeMode && isTablet && <Challenges />}
 
         {!challengeMode && <Search />}
       </div>

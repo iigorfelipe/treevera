@@ -64,10 +64,9 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
       );
 
       if (!confirmed) return;
-
-      await logout();
-      setChallenge({ mode: null, status: "NOT_STARTED" });
     }
+    await logout();
+    setChallenge({ mode: null, status: "NOT_STARTED" });
   };
 
   const navigate = useNavigate();
@@ -114,10 +113,9 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                   );
 
                   if (!confirmed) return;
-
-                  setChallenge({ mode: null, status: "NOT_STARTED" });
-                  navigate({ to: "/profile" });
                 }
+                setChallenge({ mode: null, status: "NOT_STARTED" });
+                navigate({ to: "/profile" });
               }}
             >
               <div className="px-2 py-1.5 text-sm">
@@ -144,12 +142,12 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
           )}
 
           <DropdownMenuItem
+            disabled={challenge.status === "IN_PROGRESS"}
             onClick={() =>
               setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
             }
-            disabled={challenge.status === "IN_PROGRESS"}
           >
-            <Link to="/" className="flex w-full items-center">
+            <Link to="/challenges" className="flex w-full items-center">
               <Target className="mr-2 size-4" /> {t("nav.challenges")}
             </Link>
           </DropdownMenuItem>
@@ -164,10 +162,9 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 );
 
                 if (!confirmed) return;
-
-                setChallenge({ mode: null, status: "NOT_STARTED" });
-                navigate({ to: "/" });
               }
+              setChallenge({ mode: null, status: "NOT_STARTED" });
+              navigate({ to: "/" });
             }}
           >
             <div className="flex w-full items-center">

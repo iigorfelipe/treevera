@@ -122,6 +122,24 @@ const speciesGalleryRoute = createRoute({
   },
 });
 
+const challengesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges",
+  component: Home,
+});
+
+const dailyInProgressRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/daily/in-progress",
+  component: Home,
+});
+
+const randomInProgressRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/in-progress",
+  component: Home,
+});
+
 const routeTree = rootRoute.addChildren([
   authRoute,
   homeRoute,
@@ -136,6 +154,9 @@ const routeTree = rootRoute.addChildren([
   authCallbackRoute,
   profileRoute,
   speciesGalleryRoute,
+  challengesRoute,
+  dailyInProgressRoute,
+  randomInProgressRoute,
 ]);
 
 export const router = createRouter({

@@ -1,36 +1,35 @@
 import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
 import { Card, CardContent } from "@/common/components/ui/card";
-import { cn } from "@/common/utils/cn";
 import Alvo from "@/assets/alvo.gif";
 import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
-import { TaxonomicPath } from "@/modules/challenge/taxonomic-path";
+import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 
 import { treeAtom } from "@/store/tree";
-import { useNavigate } from "@tanstack/react-router";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect, useMemo } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useMemo } from "react";
 import {
   getDailySpecies,
   speciesPaths,
 } from "@/common/utils/game/daily-species";
-import { Timer } from "@/modules/challenge/timer";
+import { Timer } from "@/modules/challenge/components/timer";
 import { AnimatePresence } from "framer-motion";
 import { useResponsive } from "@/hooks/use-responsive";
-import { ProgressSteps, TOTAL_STEPS } from "@/modules/challenge/progress-steps";
+import {
+  ProgressSteps,
+  TOTAL_STEPS,
+} from "@/modules/challenge/components/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
-import { authStore } from "@/store/auth/atoms";
 import { useTheme } from "@/context/theme";
 
-export const DailyChallenge = () => {
+export const DailyChallengeInProgress = () => {
   const { t } = useTranslation();
-  const [challenge, setChallenge] = useAtom(treeAtom.challenge);
+  const setChallenge = useSetAtom(treeAtom.challenge);
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
-  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
-  const navigate = useNavigate();
+
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
 
@@ -40,8 +39,6 @@ export const DailyChallenge = () => {
     () => speciesPaths[speciesName] ?? [],
     [speciesName],
   );
-
-  const inProgress = challenge.status === "IN_PROGRESS";
 
   const correctSteps = useMemo(() => {
     return expandedNodes.filter((node, index) => {
@@ -65,21 +62,10 @@ export const DailyChallenge = () => {
     });
   }, [isCompleted, setChallenge]);
 
-  const handleClick = useCallback(() => {
-    if (inProgress) {
-      setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
-      setExpandedNodes([]);
-      return;
-    }
-
-    if (!isAuthenticated) {
-      navigate({ to: "/login" });
-      return;
-    }
-
-    setChallenge({ status: "IN_PROGRESS", mode: "DAILY" });
+  const handleClick = () => {
+    setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
     setExpandedNodes([]);
-  }, [inProgress, isAuthenticated, navigate, setChallenge, setExpandedNodes]);
+  };
 
   const lastStepWasError = useMemo(() => {
     const index = expandedNodes.length - 1;
@@ -94,7 +80,7 @@ export const DailyChallenge = () => {
     return <ChallengeCompleted />;
   }
 
-  if (isTablet && inProgress) {
+  if (isTablet) {
     return (
       <ChallengeMobile
         speciesName={speciesName}
@@ -107,7 +93,7 @@ export const DailyChallenge = () => {
   }
 
   return (
-    <div className={cn("md:px-4 md:py-6", inProgress && "mt-22 md:mt-0")}>
+    <div className="mt-22 md:mt-0 md:px-4 md:py-6">
       <Card className="mx-auto rounded-3xl">
         <CardContent className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
@@ -130,35 +116,15 @@ export const DailyChallenge = () => {
             <Timer />
           </div>
 
-          {inProgress && (
-            <ProgressSteps
-              correctSteps={correctSteps}
-              errorIndex={errorIndex}
-            />
-          )}
+          <ProgressSteps correctSteps={correctSteps} errorIndex={errorIndex} />
 
           <AnimatePresence mode="wait">
-            {inProgress ? (
-              <TaxonomicPath activeIndex={expandedNodes.length} />
-            ) : (
-              <div className="bg-accent/40 rounded-xl p-6 text-center">
-                <p className="mb-2 text-lg font-semibold">
-                  {t("challenge.missionTitle")}
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  {t("challenge.missionDescription")}
-                </p>
-              </div>
-            )}
+            <TaxonomicPath activeIndex={expandedNodes.length} />
           </AnimatePresence>
 
           {!isCompleted && (
-            <Button
-              size="lg"
-              className={cn(inProgress ? "bg-red-500" : "bg-emerald-600")}
-              onClick={handleClick}
-            >
-              {inProgress ? t("challenge.cancel") : t("challenge.start")}
+            <Button size="lg" className="bg-red-500" onClick={handleClick}>
+              {t("challenge.cancel")}
             </Button>
           )}
         </CardContent>
