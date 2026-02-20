@@ -49,13 +49,12 @@ export const Search = () => {
 
   type KingdomKey = keyof typeof SUGGESTION_BY_KINGDOM;
 
-  const placeholderText = useMemo(() => {
-    if (!kingdom) return t("search.selectKingdom");
-    const k = String(kingdom).toLowerCase() as KingdomKey;
-    const suggestion = SUGGESTION_BY_KINGDOM[k] ?? "sapiens";
-    return `${t("search.example")}: ${suggestion}`;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kingdom]);
+  const placeholderText = !kingdom
+    ? t("search.selectKingdom")
+    : `${t("search.example")}: ${
+        SUGGESTION_BY_KINGDOM[String(kingdom).toLowerCase() as KingdomKey] ??
+        "sapiens"
+      }`;
 
   const onSearch = async (ev?: React.FormEvent) => {
     ev?.preventDefault();
@@ -309,7 +308,7 @@ export const Search = () => {
       >
         <Select value={kingdom} onValueChange={(e) => setKingdom(e)}>
           <SelectTrigger className="rounded-lg border px-2 text-sm font-medium">
-            <SelectValue placeholder="Reino">
+            <SelectValue placeholder={t("search.kingdom")}>
               {kingdom ? (
                 <Image
                   src={getRankIcon(
@@ -367,10 +366,14 @@ export const Search = () => {
             onClick={() => setMinimized((s) => !s)}
             className="flex w-full cursor-pointer items-center justify-between px-2"
             aria-label={
-              minimized ? t("search.expandResults") : t("search.minimizeResults")
+              minimized
+                ? t("search.expandResults")
+                : t("search.minimizeResults")
             }
           >
-            <strong className="text-sm">{results.length} {t("search.results")}</strong>
+            <strong className="text-sm">
+              {results.length} {t("search.results")}
+            </strong>
             <span className="text-muted-foreground">
               {minimized ? "▾" : "▴"}
             </span>

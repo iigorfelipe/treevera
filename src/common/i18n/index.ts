@@ -11,7 +11,6 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: "pt",
-    lng: "pt",
     debug: import.meta.env.DEV,
     interpolation: {
       escapeValue: false,
