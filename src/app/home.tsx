@@ -1,63 +1,27 @@
-import { useAtomValue } from "jotai";
-import { Tree } from "./tree";
-import { SpecieDetail } from "./details/specie-detail";
-import { ExploreInfo } from "./details/explore-info";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/common/components/ui/resizable";
-import { Header } from "@/modules/header";
 import { useResponsive } from "@/hooks/use-responsive";
+import { HomeMobile } from "@/modules/home/mobile";
+import { HomeDesktop } from "@/modules/home/desktop";
+import { useSetAtom } from "jotai";
 import { treeAtom } from "@/store/tree";
-import { DailyChallenge } from "./auth/challenge";
+import { useEffect } from "react";
+import { useMatch } from "@tanstack/react-router";
 
 export const Home = () => {
-  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const challenge = useAtomValue(treeAtom.challenge);
-  const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
-
   const { isTablet } = useResponsive();
+  const setChallenge = useSetAtom(treeAtom.challenge);
 
-  return isTablet ? (
-    <div className="flex flex-col">
-      <Header />
-      {!challenge.mode && isSpecie ? (
-        <SpecieDetail />
-      ) : (
-        <>
-          <Tree />
-          {!challenge.mode && <ExploreInfo />}
-        </>
-      )}
-    </div>
-  ) : (
-    <ResizablePanelGroup orientation="horizontal">
-      <ResizablePanel
-        className="relative"
-        defaultSize={480}
-        minSize={452}
-        maxSize={855}
-      >
-        <Header />
-        <Tree />
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel className="flex w-full flex-col gap-4">
-        <div className="h-screen w-full overflow-auto">
-          {!challenge.mode ? (
-            isSpecie ? (
-              <SpecieDetail />
-            ) : (
-              <ExploreInfo />
-            )
-          ) : (
-            <>
-              <DailyChallenge />
-            </>
-          )}
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
-  );
+  const challengesMatch = useMatch({
+    from: "/challenges",
+    shouldThrow: false,
+  });
+
+  useEffect(() => {
+    if (challengesMatch) {
+      setChallenge({ mode: "UNSET", status: "NOT_STARTED" });
+    }
+  }, [challengesMatch, setChallenge]);
+
+  if (isTablet) return <HomeMobile />;
+
+  return <HomeDesktop />;
 };
