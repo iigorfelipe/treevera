@@ -116,6 +116,7 @@
   "specieDetail": {
     "notFound": "Nenhum dado foi encontrado",
     "backToGallery": "Voltar para galeria",
+    "backToProfile": "Voltar para o perfil",
     "dataUnavailable": "Dados indisponíveis.",
     "taxonomyTitle": "Classificação Taxonômica",
     "kingdomLabel": "Reino",
