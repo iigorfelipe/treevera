@@ -20,7 +20,7 @@ export const createUser = async (u: SupabaseUser) => {
         {
           title: "Conta criada com sucesso!",
           description: "Bem-vindo ao mundo da taxonomia",
-          date: new Date().toISOString(),
+          date: u.created_at,
         },
       ],
       seen_species: [],
