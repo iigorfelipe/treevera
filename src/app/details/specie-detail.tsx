@@ -13,7 +13,13 @@ import { Button } from "@/common/components/ui/button";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-export const SpecieDetail = ({ embedded = false }: { embedded?: boolean }) => {
+export const SpecieDetail = ({
+  embedded = false,
+  backLabel,
+}: {
+  embedded?: boolean;
+  backLabel?: string;
+}) => {
   const { t } = useTranslation();
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
@@ -67,7 +73,7 @@ export const SpecieDetail = ({ embedded = false }: { embedded?: boolean }) => {
             className="gap-2"
           >
             <ArrowLeft className="size-4" />
-            {t("specieDetail.backToGallery")}
+            {backLabel ?? t("specieDetail.backToGallery")}
           </Button>
         </div>
       )}

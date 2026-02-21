@@ -2,7 +2,8 @@ import { Image } from "@/common/components/image";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
 import { authStore } from "@/store/auth/atoms";
-import { useAtomValue } from "jotai";
+import { selectedSpecieKeyAtom } from "@/store/tree";
+import { useAtomValue, useSetAtom } from "jotai";
 import { Loader, Plus } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,7 +20,13 @@ const EmptyFavCard = () => {
   );
 };
 
-const FilledFavCard = ({ specieKey }: { specieKey: number }) => {
+const FilledFavCard = ({
+  specieKey,
+  onClick,
+}: {
+  specieKey: number;
+  onClick: () => void;
+}) => {
   const {
     specieName,
     familyName,
@@ -36,7 +43,7 @@ const FilledFavCard = ({ specieKey }: { specieKey: number }) => {
   const isLoading = isLoadingInfo || isLoadingImage;
 
   return (
-    <div className="group relative cursor-pointer">
+    <div className="group relative cursor-pointer" onClick={onClick}>
       {isLoading ? (
         <div className="bg-accent flex aspect-3/4 w-full animate-pulse items-center justify-center overflow-hidden rounded-xl">
           <Loader className="size-5 animate-spin" />
@@ -81,6 +88,7 @@ const FilledFavCard = ({ specieKey }: { specieKey: number }) => {
 export const FavoriteSpecies = () => {
   const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
+  const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
 
   const topFavKeys = useMemo(() => {
     const topFav = userDb?.game_info.top_fav_species ?? [];
@@ -110,7 +118,11 @@ export const FavoriteSpecies = () => {
       <div className="grid grid-cols-2 gap-3 overflow-visible sm:gap-4 lg:grid-cols-4">
         {slots.map((key, idx) =>
           key !== undefined ? (
-            <FilledFavCard key={key} specieKey={key} />
+            <FilledFavCard
+              key={key}
+              specieKey={key}
+              onClick={() => setSelectedSpecieKey(key)}
+            />
           ) : (
             <EmptyFavCard key={`empty-${idx}`} />
           ),
