@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useAtomValue } from "jotai";
-import { treeAtom } from "@/store/tree";
+import { useAtomValue, useSetAtom } from "jotai";
+import { treeAtom, shortcutScrollTargetAtom } from "@/store/tree";
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { capitalizar } from "@/common/utils/string";
 import type { PathNode } from "@/common/types/tree-atoms";
@@ -10,6 +10,7 @@ export function useTreeNavigation() {
   const navigate = useNavigate();
   const allNodes = useAtomValue(treeAtom.nodes);
   const expandedPath = useAtomValue(treeAtom.expandedNodes);
+  const setShortcutTarget = useSetAtom(shortcutScrollTargetAtom);
 
   const nodesToPath = useCallback((nodes: PathNode[]) => {
     if (nodes.length === 0) return "/";
@@ -17,12 +18,12 @@ export function useTreeNavigation() {
   }, []);
 
   const navigateToNodes = useCallback(
-    (nodes: PathNode[]) => {
+    (nodes: PathNode[], fromShortcut = false) => {
+      setShortcutTarget(fromShortcut ? [...nodes] : null);
       const path = nodesToPath(nodes);
-      console.log("🧭 Navegando para:", path);
       navigate({ to: path });
     },
-    [navigate, nodesToPath],
+    [navigate, nodesToPath, setShortcutTarget],
   );
 
   const toggleNode = useCallback(

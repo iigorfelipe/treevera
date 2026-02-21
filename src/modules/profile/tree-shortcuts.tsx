@@ -36,7 +36,7 @@ export const TreeShortcuts = () => {
   if (!treeShortcuts) return null;
 
   const handleClick = (pathNode: PathNode[]) => {
-    navigateToNodes(pathNode);
+    navigateToNodes(pathNode, true);
   };
 
   const removeShortcut = async (kingdom: keyof Shortcuts, index: number) => {

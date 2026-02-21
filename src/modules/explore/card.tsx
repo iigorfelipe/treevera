@@ -93,7 +93,7 @@ export const CardInfo = () => {
                       <Button
                         key={name + index}
                         variant="outline"
-                        onClick={() => navigateToNodes(nodes)}
+                        onClick={() => navigateToNodes(nodes, true)}
                       >
                         <Route className="size-4 scale-x-[-1]" />
 

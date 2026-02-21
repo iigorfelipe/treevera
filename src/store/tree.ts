@@ -29,6 +29,15 @@ const rootKeys = atom<number[]>([]);
 
 const expandedNodes = atom<PathNode[]>([]);
 
+const shortcutScrollTarget = atom<PathNode[] | null>(null);
+
+export const shortcutScrollTargetAtom = atom(
+  null,
+  (_get, set, nodes: PathNode[] | null) => {
+    set(shortcutScrollTarget, nodes);
+  },
+);
+
 const mergeNodes = atom(null, (_, set, nodes: NodeEntity[]) => {
   set(nodesAtom, (prev) => {
     const next = { ...prev };
@@ -197,6 +206,7 @@ export const treeAtom = {
   expandedNodes,
   highlightedRank,
   scrollToRank,
+  shortcutScrollTarget,
   feedbackAudio: playedStepAudioAtom,
   nodes: nodesAtom,
   rootKeys,
