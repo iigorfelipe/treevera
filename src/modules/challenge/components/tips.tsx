@@ -6,6 +6,7 @@ import {
   Trophy,
   ChevronLeft,
   ChevronRight,
+  ImageIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +18,10 @@ import { useSetAtom } from "jotai";
 import { scrollToRankAtom, treeAtom } from "@/store/tree";
 import { useTranslation } from "react-i18next";
 import { useGetChallengeTips } from "@/hooks/queries/useGetChallengeTips";
+import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
+import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
+import { Image } from "@/common/components/image";
+import { Skeleton } from "@/common/components/ui/skeleton";
 
 type PathNode = { rank: Rank; name: string };
 
@@ -32,11 +37,13 @@ const RANK_LABELS: Record<Rank, string> = {
 
 export const ChallengeTips = ({
   speciesName,
+  speciesKey,
   currentStep,
   errorIndex,
   correctPath,
 }: {
   speciesName: string;
+  speciesKey: number;
   currentStep: number;
   errorIndex: number | null;
   correctPath: PathNode[];
@@ -51,6 +58,11 @@ export const ChallengeTips = ({
   const setScrollToRank = useSetAtom(scrollToRankAtom);
 
   const { data: tipsMap = {} } = useGetChallengeTips(correctPath);
+  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+  const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
+    speciesKey,
+    specieDetail?.canonicalName,
+  );
 
   const currentNode = correctPath[visibleStep];
   const hints: string[] = currentNode ? (tipsMap[currentNode.name] ?? []) : [];
@@ -193,6 +205,34 @@ export const ChallengeTips = ({
               <Collapsible.Trigger asChild>
                 <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                   <div className="flex items-center gap-1.5">
+                    <ImageIcon className="size-3.5" />
+                    Imagem da espécie
+                  </div>
+                  <ChevronDown className="size-3.5 opacity-60" />
+                </button>
+              </Collapsible.Trigger>
+
+              <Collapsible.Content className="mt-2 overflow-hidden rounded-md border">
+                {isLoadingImage ? (
+                  <Skeleton className="h-32 w-full" />
+                ) : imageData?.imgUrl ? (
+                  <Image
+                    src={imageData.imgUrl}
+                    alt={speciesName}
+                    className="h-32 w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-muted-foreground flex h-32 items-center justify-center text-xs">
+                    Imagem não disponível
+                  </div>
+                )}
+              </Collapsible.Content>
+            </Collapsible.Root>
+
+            <Collapsible.Root className="mt-2">
+              <Collapsible.Trigger asChild>
+                <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
+                  <div className="flex items-center gap-1.5">
                     <Info className="size-3.5" />
                     {t("challenge.howItWorks")}
                   </div>
@@ -200,17 +240,9 @@ export const ChallengeTips = ({
                 </button>
               </Collapsible.Trigger>
 
-              <Collapsible.Content asChild>
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="text-muted-foreground bg-muted/40 mt-2 rounded-md p-3 text-sm"
-                >
-                  Expanda os grupos da árvore taxonômica seguindo o caminho
-                  correto até chegar à espécie alvo.
-                </motion.div>
+              <Collapsible.Content className="text-muted-foreground bg-muted/40 mt-2 rounded-md p-3 text-sm">
+                Expanda os grupos da árvore taxonômica seguindo o caminho
+                correto até chegar à espécie alvo.
               </Collapsible.Content>
             </Collapsible.Root>
           </motion.div>

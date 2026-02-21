@@ -12,6 +12,7 @@ type PathNode = { rank: Rank; name: string };
 
 export const ChallengeMobile = ({
   speciesName,
+  speciesKey,
   correctSteps,
   isCompleted,
   onCancel,
@@ -19,6 +20,7 @@ export const ChallengeMobile = ({
   correctPath,
 }: {
   speciesName: string;
+  speciesKey: number;
   correctSteps: number;
   isCompleted: boolean;
   onCancel: () => void;
@@ -61,6 +63,7 @@ export const ChallengeMobile = ({
 
             <ChallengeTips
               speciesName={speciesName}
+              speciesKey={speciesKey}
               currentStep={correctSteps}
               errorIndex={errorIndex}
               correctPath={correctPath}

@@ -1,10 +1,15 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/common/components/ui/tooltip";
 
 import { capitalizar } from "@/common/utils/string";
-import { Dna, Route, DnaOff } from "lucide-react";
+import { Dna, Route, DnaOff, Info } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
@@ -17,6 +22,7 @@ import { authStore } from "@/store/auth/atoms";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
+  const [scientificNameOpen, setScientificNameOpen] = useState(false);
 
   const isExpanded = node.expanded;
   const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
@@ -24,6 +30,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const challenge = useAtomValue(treeAtom.challenge);
   const challengeStatus = challenge.status;
   const challengeInProgress = challengeStatus === "IN_PROGRESS";
+  const challengeActive = challengeInProgress || challengeStatus === "COMPLETED";
   const speciesKey = challenge.speciesKey ?? 0;
 
   const highlightedRank = useAtomValue(treeAtom.highlightedRank);
@@ -39,7 +46,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   );
 
   const feedback = useMemo<"success" | "error" | null>(() => {
-    if (!challengeInProgress) return null;
+    if (!challengeActive) return null;
 
     const index = expandedNodes.findIndex((n) => n.key === node.key);
     if (index === -1) return null;
@@ -53,7 +60,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
       ? "success"
       : "error";
   }, [
-    challengeInProgress,
+    challengeActive,
     expandedNodes,
     node.key,
     node.canonicalName,
@@ -105,6 +112,12 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     });
   }, [userDb, challengeInProgress, taxonRank, expandedNodes, node, setUserDb]);
 
+  const displayName = node.canonicalName || node.scientificName;
+  const showInfoIcon =
+    node.scientificName &&
+    node.canonicalName &&
+    node.scientificName !== node.canonicalName;
+
   return (
     <motion.div
       key={`${node.key}-${feedback}`}
@@ -138,9 +151,29 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
                 ],
               )}
             >
-              {node.canonicalName || node.scientificName}
+              {displayName}
             </span>
           </div>
+
+          {showInfoIcon && (
+            <Tooltip
+              open={scientificNameOpen}
+              onOpenChange={setScientificNameOpen}
+            >
+              <TooltipTrigger asChild>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setScientificNameOpen((prev) => !prev);
+                  }}
+                  className="text-muted-foreground inline-flex items-center"
+                >
+                  <Info className="size-3" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>{node.scientificName}</TooltipContent>
+            </Tooltip>
+          )}
 
           {feedback === "success" && (
             <Dna className="h-4 w-4 text-emerald-500" />
@@ -159,7 +192,10 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
           {userDb && isExpanded && !challengeInProgress && (
             <div className="opacity-0 transition-all duration-300 group-hover:opacity-100">
               <Route
-                onClick={saveShortcut}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void saveShortcut();
+                }}
                 className={cn(
                   "size-4 scale-x-[-1]",
                   hasReachedLimit && "opacity-50",

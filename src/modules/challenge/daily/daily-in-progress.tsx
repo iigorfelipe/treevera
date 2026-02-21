@@ -18,6 +18,7 @@ import {
 } from "@/modules/challenge/components/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
+import { SpecieDetail } from "@/app/details/specie-detail";
 import { useTheme } from "@/context/theme";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
@@ -82,6 +83,16 @@ export const DailyChallengeInProgress = () => {
     setExpandedNodes([]);
   };
 
+  const handleReplay = () => {
+    setExpandedNodes([]);
+    setChallenge((prev) => ({ ...prev, status: "IN_PROGRESS" }));
+  };
+
+  const handleNext = () => {
+    setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
+    setExpandedNodes([]);
+  };
+
   const lastStepWasError = useMemo(() => {
     const index = expandedNodes.length - 1;
     const node = expandedNodes[index];
@@ -92,13 +103,24 @@ export const DailyChallengeInProgress = () => {
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
   if (isCompleted) {
-    return <ChallengeCompleted speciesName={speciesName} />;
+    return (
+      <div className="flex flex-col gap-4 pb-10">
+        <ChallengeCompleted
+          speciesName={speciesName}
+          onReplay={handleReplay}
+          onNext={handleNext}
+          nextLabel={t("challenge.nextRandom")}
+        />
+        <SpecieDetail embedded />
+      </div>
+    );
   }
 
   if (isTablet) {
     return (
       <ChallengeMobile
         speciesName={speciesName}
+        speciesKey={speciesKey}
         correctSteps={correctSteps}
         isCompleted={isCompleted}
         onCancel={handleClick}
@@ -141,6 +163,7 @@ export const DailyChallengeInProgress = () => {
           {!isCompleted && correctPath.length > 0 && (
             <ChallengeTips
               speciesName={speciesName}
+              speciesKey={speciesKey}
               currentStep={correctSteps}
               errorIndex={errorIndex}
               correctPath={correctPath}

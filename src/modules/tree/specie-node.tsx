@@ -1,51 +1,41 @@
 import { capitalizar } from "@/common/utils/string";
 import { useAtom, useAtomValue } from "jotai";
-import { memo, useMemo, useCallback } from "react";
+import { memo, useMemo, useCallback, useState } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/common/components/ui/tooltip";
 import { authStore } from "@/store/auth/atoms";
 import { updateSeenSpecies } from "@/common/utils/supabase/add_species_gallery";
 import type { NodeEntity } from "@/common/types/tree-atoms";
 import { treeAtom } from "@/store/tree";
-import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
 
 import { motion } from "framer-motion";
-import { Dna, DnaOff } from "lucide-react";
+import { Dna, DnaOff, Info } from "lucide-react";
 
 export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
+  const [scientificNameOpen, setScientificNameOpen] = useState(false);
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
   const challengeInProgress = challenge.status === "IN_PROGRESS";
-  const speciesKey = challenge.speciesKey ?? 0;
+  const challengeActive = challengeInProgress || challenge.status === "COMPLETED";
+  const speciesKey = challenge.speciesKey;
 
-  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
-
-  const correctPath = useMemo(
-    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
-    [specieDetail],
+  const isSelected = useMemo(
+    () => expandedNodes.some((n) => n.key === node.key),
+    [expandedNodes, node.key],
   );
 
   const feedback = useMemo<"success" | "error" | null>(() => {
-    if (!challengeInProgress) return null;
-
-    const index = expandedNodes.findIndex(
-      (n) => n.key === node.key && n.rank === "SPECIES",
-    );
-    if (index === -1) return null;
-
-    const expected = correctPath[index];
-
-    if (!expected) return null;
-
-    return node.canonicalName === expected.name ||
-      node.scientificName === expected.name
-      ? "success"
-      : "error";
-  }, [expandedNodes, node, challengeInProgress, correctPath]);
+    if (!challengeActive || !isSelected) return null;
+    return node.key === speciesKey ? "success" : "error";
+  }, [challengeActive, isSelected, node.key, speciesKey]);
 
   const saveSpeciesIfMissing = useCallback(async () => {
     if (!userDb) return;
@@ -66,6 +56,12 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
     });
   }, [userDb, node.key, setUserDb]);
 
+  const displayName = node.canonicalName || node.scientificName;
+  const showInfoIcon =
+    node.scientificName &&
+    node.canonicalName &&
+    node.scientificName !== node.canonicalName;
+
   return (
     <motion.div
       key={`${node.key}-${feedback}`}
@@ -84,12 +80,33 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
         <i
           className={cn(
             "w-max transition-all duration-200 ease-in-out",
-            feedback === "success" && "font-bold text-emerald-600",
+            isSelected && "font-bold",
+            feedback === "success" && "text-emerald-600",
             feedback === "error" && "text-red-500",
           )}
         >
-          {node.canonicalName || node.scientificName}
+          {displayName}
         </i>
+
+        {showInfoIcon && (
+          <Tooltip
+            open={scientificNameOpen}
+            onOpenChange={setScientificNameOpen}
+          >
+            <TooltipTrigger asChild>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setScientificNameOpen((prev) => !prev);
+                }}
+                className="text-muted-foreground inline-flex items-center"
+              >
+                <Info className="size-3" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{node.scientificName}</TooltipContent>
+          </Tooltip>
+        )}
 
         {feedback === "success" && <Dna className="h-4 w-4 text-emerald-500" />}
         {feedback === "error" && <DnaOff className="h-4 w-4 text-red-500" />}

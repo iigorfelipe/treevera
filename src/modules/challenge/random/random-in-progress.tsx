@@ -8,7 +8,8 @@ import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 
 import { treeAtom } from "@/store/tree";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { AnimatePresence } from "framer-motion";
 import { useResponsive } from "@/hooks/use-responsive";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/modules/challenge/components/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
+import { SpecieDetail } from "@/app/details/specie-detail";
 import { useTheme } from "@/context/theme";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
@@ -76,9 +78,35 @@ export const RandomChallengeInProgress = () => {
     })();
   }, [isCompleted, setChallenge, session, speciesKey, userDb, speciesName, setUserDb]);
 
+  const [nextLoading, setNextLoading] = useState(false);
+
   const handleClick = () => {
     setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
     setExpandedNodes([]);
+  };
+
+  const handleReplay = () => {
+    setExpandedNodes([]);
+    setChallenge((prev) => ({ ...prev, status: "IN_PROGRESS" }));
+  };
+
+  const handleNext = async () => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    setNextLoading(true);
+    const result = await getRandomChallengeForUser(userId);
+    setNextLoading(false);
+
+    if (!result) return;
+
+    setExpandedNodes([]);
+    setChallenge({
+      mode: "RANDOM",
+      status: "IN_PROGRESS",
+      targetSpecies: result.scientificName,
+      speciesKey: result.gbifKey,
+    });
   };
 
   const lastStepWasError = useMemo(() => {
@@ -91,13 +119,25 @@ export const RandomChallengeInProgress = () => {
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
   if (isCompleted) {
-    return <ChallengeCompleted speciesName={speciesName} />;
+    return (
+      <div className="flex flex-col gap-4 pb-10">
+        <ChallengeCompleted
+          speciesName={speciesName}
+          onReplay={handleReplay}
+          onNext={handleNext}
+          nextLabel={t("challenge.nextChallenge")}
+          nextLoading={nextLoading}
+        />
+        <SpecieDetail embedded />
+      </div>
+    );
   }
 
   if (isTablet) {
     return (
       <ChallengeMobile
         speciesName={speciesName}
+        speciesKey={speciesKey}
         correctSteps={correctSteps}
         isCompleted={isCompleted}
         onCancel={handleClick}
@@ -137,6 +177,7 @@ export const RandomChallengeInProgress = () => {
           {!isCompleted && correctPath.length > 0 && (
             <ChallengeTips
               speciesName={speciesName}
+              speciesKey={speciesKey}
               currentStep={correctSteps}
               errorIndex={errorIndex}
               correctPath={correctPath}

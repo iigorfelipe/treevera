@@ -1,8 +1,23 @@
 import { motion } from "framer-motion";
-import { Trophy, CheckCircle } from "lucide-react";
+import { Trophy, CheckCircle, RotateCcw, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/common/components/ui/button";
 
-export const ChallengeCompleted = ({ speciesName }: { speciesName: string }) => {
+interface ChallengeCompletedProps {
+  speciesName: string;
+  onReplay: () => void;
+  onNext: () => void;
+  nextLabel: string;
+  nextLoading?: boolean;
+}
+
+export const ChallengeCompleted = ({
+  speciesName,
+  onReplay,
+  onNext,
+  nextLabel,
+  nextLoading = false,
+}: ChallengeCompletedProps) => {
   const { t } = useTranslation();
   return (
     <motion.div
@@ -36,6 +51,27 @@ export const ChallengeCompleted = ({ speciesName }: { speciesName: string }) => 
       >
         <CheckCircle className="size-3.5 text-emerald-500" />
         {t("challenge.path")}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center"
+      >
+        <Button variant="outline" onClick={onReplay} className="gap-2">
+          <RotateCcw className="size-4" />
+          {t("challenge.replay")}
+        </Button>
+
+        <Button
+          onClick={onNext}
+          disabled={nextLoading}
+          className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+        >
+          {nextLabel}
+          <ChevronRight className="size-4" />
+        </Button>
       </motion.div>
     </motion.div>
   );

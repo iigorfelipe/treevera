@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { treeAtom } from "@/store/tree";
 
 import { AudioManager } from "@/lib/audio-manager";
@@ -11,9 +11,9 @@ export const useChallengeAudio = () => {
   const challenge = useAtomValue(treeAtom.challenge);
   const challengeStatus = challenge.status;
   const speciesKey = challenge.speciesKey ?? 0;
-  const [playedSteps, setPlayedSteps] = useAtom(treeAtom.feedbackAudio);
 
   const hasPlayedWinSound = useRef(false);
+  const prevNodeKeysRef = useRef<Set<number>>(new Set());
 
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
 
@@ -32,38 +32,41 @@ export const useChallengeAudio = () => {
 
   useEffect(() => {
     if (challengeStatus !== "IN_PROGRESS") return;
-    if (expandedNodes.length === 0) return;
+
+    if (expandedNodes.length === 0) {
+      prevNodeKeysRef.current = new Set();
+      return;
+    }
+
+    const lastNode = expandedNodes[expandedNodes.length - 1];
+    if (!lastNode) return;
+
+    // Only play when the last node is one that wasn't in the previous path.
+    // If it was already there, the user just collapsed back to an ancestor.
+    const isNewNode = !prevNodeKeysRef.current.has(lastNode.key);
+
+    prevNodeKeysRef.current = new Set(expandedNodes.map((n) => n.key));
+
+    if (!isNewNode) return;
 
     const stepIndex = expandedNodes.length - 1;
-    const currentNode = expandedNodes[stepIndex];
-
-    if (!currentNode) return;
-
-    const audioKey = `${stepIndex}:${currentNode.key}`;
-
-    if (playedSteps[audioKey]) return;
-
     const expected = correctPath[stepIndex];
     if (!expected) return;
 
     const isCorrect =
-      currentNode.name.toLowerCase() === expected.name.toLowerCase();
+      lastNode.name.toLowerCase() === expected.name.toLowerCase();
 
     if (isCorrect) {
       AudioManager.play("success");
     } else {
       AudioManager.play("error");
     }
-
-    setPlayedSteps((prev) => ({
-      ...prev,
-      [audioKey]: true,
-    }));
-  }, [expandedNodes, challengeStatus, playedSteps, setPlayedSteps, correctPath]);
+  }, [expandedNodes, challengeStatus, correctPath]);
 
   useEffect(() => {
     if (challengeStatus === "NOT_STARTED") {
       hasPlayedWinSound.current = false;
+      prevNodeKeysRef.current = new Set();
     }
   }, [challengeStatus]);
 };

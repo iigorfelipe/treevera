@@ -13,7 +13,7 @@ import { Button } from "@/common/components/ui/button";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-export const SpecieDetail = () => {
+export const SpecieDetail = ({ embedded = false }: { embedded?: boolean }) => {
   const { t } = useTranslation();
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
@@ -55,10 +55,10 @@ export const SpecieDetail = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="h-full overflow-auto"
+      className={embedded ? undefined : "h-full overflow-auto"}
       style={{ containerType: "inline-size" }}
     >
-      {isFromGallery && (
+      {isFromGallery && !embedded && (
         <div className="bg-card/95 sticky top-0 z-10 border-b px-4 py-3 shadow-sm backdrop-blur-sm">
           <Button
             onClick={handleBack}
@@ -72,7 +72,7 @@ export const SpecieDetail = () => {
         </div>
       )}
 
-      <div className={`p-4 ${isFromGallery ? "pt-6" : "mt-28 md:mt-4"}`}>
+      <div className={`p-4 ${isFromGallery ? "pt-6" : embedded ? "pt-2" : "mt-28 md:mt-4"}`}>
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-2">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
