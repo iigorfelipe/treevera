@@ -199,7 +199,10 @@
     "howItWorks": "Como funciona o desafio?",
     "randomTitle": "Desafio Aleatório",
     "randomMissionDescription": "Complete o caminho taxonômico de uma espécie escolhida aleatoriamente.",
-    "allSpeciesCompleted": "Você completou todas as espécies disponíveis!"
+    "allSpeciesCompleted": "Você completou todas as espécies disponíveis!",
+    "replay": "Tentar novamente",
+    "nextChallenge": "Próximo desafio",
+    "nextRandom": "Desafio Aleatório"
   },
 
   "vulnerability": {
