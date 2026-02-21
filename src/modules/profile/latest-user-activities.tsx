@@ -16,11 +16,8 @@ export const LatestUserActivities = () => {
   const [expanded, setExpanded] = useState(false);
 
   const DEFAULT_LIMIT = 4;
-  const EXPANDED_LIMIT = 8;
 
-  const visibleLimit = expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT;
-  const visibleActivities = activities.slice(0, visibleLimit);
-
+  const visibleActivities = expanded ? activities : activities.slice(0, 4);
   const shouldShowButton = activities.length > DEFAULT_LIMIT;
 
   return (
@@ -47,8 +44,8 @@ export const LatestUserActivities = () => {
 
       <div
         className={`space-y-2 ${
-          expanded && activities.length > EXPANDED_LIMIT
-            ? "max-h-65 overflow-y-auto pr-1"
+          expanded && activities.length > 4
+            ? "max-h-100 overflow-y-auto pr-1"
             : ""
         }`}
       >
