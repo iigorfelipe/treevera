@@ -3,10 +3,12 @@ import Alvo from "@/assets/alvo.gif";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 
-import { tipsData } from "@/common/constants/challenge";
 import { useTranslation } from "react-i18next";
 import { ProgressSteps, TOTAL_STEPS } from "./components/progress-steps";
 import { ChallengeTips } from "./components/tips";
+import type { Rank } from "@/common/types/api";
+
+type PathNode = { rank: Rank; name: string };
 
 export const ChallengeMobile = ({
   speciesName,
@@ -14,12 +16,14 @@ export const ChallengeMobile = ({
   isCompleted,
   onCancel,
   errorIndex,
+  correctPath,
 }: {
   speciesName: string;
   correctSteps: number;
   isCompleted: boolean;
   onCancel: () => void;
   errorIndex: number | null;
+  correctPath: PathNode[];
 }) => {
   const { t } = useTranslation();
   return (
@@ -48,7 +52,7 @@ export const ChallengeMobile = ({
             <X className="size-3.5" />
           </button>
         </div>
-        {!isCompleted && (
+        {!isCompleted && correctPath.length > 0 && (
           <>
             <ProgressSteps
               correctSteps={correctSteps}
@@ -59,7 +63,7 @@ export const ChallengeMobile = ({
               speciesName={speciesName}
               currentStep={correctSteps}
               errorIndex={errorIndex}
-              tips={tipsData}
+              correctPath={correctPath}
             />
           </>
         )}

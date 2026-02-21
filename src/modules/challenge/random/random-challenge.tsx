@@ -78,7 +78,9 @@ export const RandomChallengeCard = () => {
 
           {allCompleted && (
             <p className="text-sm font-semibold text-violet-600">
-              {t("challenge.allSpeciesCompleted")}
+              {/* TODO: traduzir */}
+              Não foi possivel obter um desafio aleatório. Tente novamente mais
+              tarde.
             </p>
           )}
 

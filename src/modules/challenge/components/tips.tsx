@@ -1,4 +1,3 @@
-import type { TipsData } from "@/common/constants/challenge";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   Lightbulb,
@@ -17,17 +16,30 @@ import type { Rank } from "@/common/types/api";
 import { useSetAtom } from "jotai";
 import { scrollToRankAtom, treeAtom } from "@/store/tree";
 import { useTranslation } from "react-i18next";
+import { useGetChallengeTips } from "@/hooks/queries/useGetChallengeTips";
+
+type PathNode = { rank: Rank; name: string };
+
+const RANK_LABELS: Record<Rank, string> = {
+  KINGDOM: "reino",
+  PHYLUM: "filo",
+  CLASS: "classe",
+  ORDER: "ordem",
+  FAMILY: "família",
+  GENUS: "gênero",
+  SPECIES: "espécie",
+};
 
 export const ChallengeTips = ({
   speciesName,
   currentStep,
   errorIndex,
-  tips,
+  correctPath,
 }: {
   speciesName: string;
   currentStep: number;
   errorIndex: number | null;
-  tips: TipsData;
+  correctPath: PathNode[];
 }) => {
   const { t } = useTranslation();
   const [revealedSteps, setRevealedSteps] = useState<Record<number, boolean>>(
@@ -36,18 +48,25 @@ export const ChallengeTips = ({
   const [open, setOpen] = useState(false);
   const setHighlightedRank = useSetAtom(treeAtom.highlightedRank);
   const [visibleStep, setVisibleStep] = useState(currentStep);
-
   const setScrollToRank = useSetAtom(scrollToRankAtom);
 
-  const stepTip = tips.steps.find((s) => s.step === visibleStep);
+  const { data: tipsMap = {} } = useGetChallengeTips(correctPath);
 
+  const currentNode = correctPath[visibleStep];
+  const hints: string[] = currentNode ? (tipsMap[currentNode.name] ?? []) : [];
   const isRevealed = revealedSteps[visibleStep] === true;
 
   const revealStep = () => {
-    setRevealedSteps((prev) => ({
-      ...prev,
-      [visibleStep]: true,
-    }));
+    setRevealedSteps((prev) => ({ ...prev, [visibleStep]: true }));
+  };
+
+  const goToStep = (next: number) => {
+    setVisibleStep(next);
+    const rank = correctPath[next]?.rank;
+    if (rank) {
+      setHighlightedRank(rank);
+      setScrollToRank(rank);
+    }
   };
 
   return (
@@ -55,13 +74,9 @@ export const ChallengeTips = ({
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
-
         if (nextOpen) {
           setVisibleStep(currentStep);
-
-          const rank = RANK_BY_STEP[currentStep];
-          setHighlightedRank(rank);
-          setScrollToRank(rank);
+          goToStep(currentStep);
         } else {
           setHighlightedRank(null);
           setScrollToRank(null);
@@ -100,15 +115,7 @@ export const ChallengeTips = ({
             <header className="mb-2 flex items-center justify-between">
               <div className="flex max-h-[45dvh] items-center gap-2 overflow-y-auto">
                 <button
-                  onClick={() => {
-                    setVisibleStep((prev) => {
-                      const next = prev - 1;
-                      const rank = RANK_BY_STEP[next];
-                      setHighlightedRank(rank);
-                      setScrollToRank(rank);
-                      return next;
-                    });
-                  }}
+                  onClick={() => goToStep(visibleStep - 1)}
                   disabled={visibleStep === 0}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
                   aria-label={t("challenge.prevStep")}
@@ -118,19 +125,12 @@ export const ChallengeTips = ({
 
                 <Dialog.Title className="flex items-center gap-2 text-sm font-semibold">
                   <Trophy className="size-3.5 text-emerald-500" />
-                  {t("challenge.step")} {visibleStep + 1} {t("challenge.of")} {tips.steps.length}
+                  {t("challenge.step")} {visibleStep + 1} {t("challenge.of")}{" "}
+                  {correctPath.length}
                 </Dialog.Title>
 
                 <button
-                  onClick={() => {
-                    setVisibleStep((prev) => {
-                      const next = prev + 1;
-                      const rank = RANK_BY_STEP[next];
-                      setHighlightedRank(rank);
-                      setScrollToRank(rank);
-                      return next;
-                    });
-                  }}
+                  onClick={() => goToStep(visibleStep + 1)}
                   disabled={visibleStep === currentStep}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
                   aria-label={t("challenge.nextStep")}
@@ -144,15 +144,19 @@ export const ChallengeTips = ({
               </Dialog.Close>
             </header>
 
-            {stepTip && (
+            {hints.length > 0 ? (
               <div className="bg-muted/40 mt-3 rounded-lg border p-3 text-sm">
-                {stepTip.hints.map((hint, i) => (
+                {hints.map((hint, i) => (
                   <p key={i}>💡 {hint}</p>
                 ))}
               </div>
+            ) : (
+              <div className="bg-muted/40 text-muted-foreground mt-3 rounded-lg border p-3 text-sm">
+                Sem dicas disponíveis para esta etapa.
+              </div>
             )}
 
-            {stepTip && (
+            {currentNode && (
               <div className="mt-4 rounded-lg border border-dashed p-3 text-sm">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -172,9 +176,10 @@ export const ChallengeTips = ({
                       </button>
                     ) : (
                       <p className="text-foreground font-medium">
-                        {speciesName} {t("challenge.belongsTo")} {stepTip!.classification}{" "}
+                        {speciesName} {t("challenge.belongsTo")}{" "}
+                        {RANK_LABELS[currentNode.rank]}{" "}
                         <span className="font-bold text-green-600">
-                          {stepTip!.answer}
+                          {currentNode.name}
                         </span>
                         .
                       </p>
@@ -183,6 +188,7 @@ export const ChallengeTips = ({
                 </AnimatePresence>
               </div>
             )}
+
             <Collapsible.Root className="mt-4">
               <Collapsible.Trigger asChild>
                 <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
@@ -190,7 +196,6 @@ export const ChallengeTips = ({
                     <Info className="size-3.5" />
                     {t("challenge.howItWorks")}
                   </div>
-
                   <ChevronDown className="size-3.5 opacity-60" />
                 </button>
               </Collapsible.Trigger>
@@ -203,7 +208,8 @@ export const ChallengeTips = ({
                   transition={{ duration: 0.2, ease: "easeOut" }}
                   className="text-muted-foreground bg-muted/40 mt-2 rounded-md p-3 text-sm"
                 >
-                  {tips.howToPlay}
+                  Expanda os grupos da árvore taxonômica seguindo o caminho
+                  correto até chegar à espécie alvo.
                 </motion.div>
               </Collapsible.Content>
             </Collapsible.Root>
@@ -213,13 +219,3 @@ export const ChallengeTips = ({
     </Dialog.Root>
   );
 };
-
-const RANK_BY_STEP: Rank[] = [
-  "KINGDOM",
-  "PHYLUM",
-  "CLASS",
-  "ORDER",
-  "FAMILY",
-  "GENUS",
-  "SPECIES",
-];

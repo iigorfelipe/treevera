@@ -24,6 +24,7 @@ import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path
 import { saveChallengeResult } from "@/common/utils/supabase/challenge/save-challenge-result";
 import { addChallengeActivity } from "@/common/utils/supabase/add-challenge-activity";
 import { authStore } from "@/store/auth/atoms";
+import { ChallengeTips } from "@/modules/challenge/components/tips";
 
 export const DailyChallengeInProgress = () => {
   const { t } = useTranslation();
@@ -102,6 +103,7 @@ export const DailyChallengeInProgress = () => {
         isCompleted={isCompleted}
         onCancel={handleClick}
         errorIndex={errorIndex}
+        correctPath={correctPath}
       />
     );
   }
@@ -135,6 +137,15 @@ export const DailyChallengeInProgress = () => {
           <AnimatePresence mode="wait">
             <TaxonomicPath correctPath={correctPath} activeIndex={expandedNodes.length} />
           </AnimatePresence>
+
+          {!isCompleted && correctPath.length > 0 && (
+            <ChallengeTips
+              speciesName={speciesName}
+              currentStep={correctSteps}
+              errorIndex={errorIndex}
+              correctPath={correctPath}
+            />
+          )}
 
           {!isCompleted && (
             <Button size="lg" className="bg-red-500" onClick={handleClick}>
