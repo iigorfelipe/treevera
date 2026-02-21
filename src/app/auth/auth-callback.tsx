@@ -4,16 +4,12 @@ export const AuthCallback = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        console.log("📡 [Popup] Iniciando callback...");
         await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        console.log("✅ [Popup] Tempo de processamento concluído");
 
         try {
           const bc = new BroadcastChannel("supabase-auth");
           bc.postMessage("oauth_complete");
           bc.close();
-          console.log("✅ [Popup] BroadcastChannel enviado");
         } catch (e) {
           console.warn("⚠️ [Popup] BroadcastChannel falhou:", e);
         }
@@ -24,7 +20,6 @@ export const AuthCallback = () => {
               { type: "OAUTH_COMPLETE" },
               window.location.origin,
             );
-            console.log("✅ [Popup] postMessage enviado");
           } catch (e) {
             console.warn("⚠️ [Popup] postMessage falhou:", e);
           }
@@ -32,12 +27,10 @@ export const AuthCallback = () => {
 
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        console.log("🔒 [Popup] Fechando janela...");
         window.close();
       } catch (error) {
         console.error("❌ [Popup] Erro:", error);
 
-        console.log("🔒 [Popup] Fechando mesmo com erro...");
         setTimeout(() => {
           window.close();
         }, 1000);

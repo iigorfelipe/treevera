@@ -45,20 +45,8 @@ export function useTreeUrl() {
     resolvedPath.current = newResolved;
     pendingKeys.current = remaining;
 
-    const total = newResolved.length + remaining.length;
-    console.log(
-      "✅ Resolvido: " +
-        pathNode.name +
-        " (" +
-        newResolved.length +
-        "/" +
-        total +
-        ")",
-    );
-
     if (remaining.length === 0) {
       done.current = true;
-      console.log("🏁 Resolução completa!");
     }
 
     setExpandedPath(newResolved);
@@ -77,8 +65,6 @@ export function useTreeUrl() {
     const fullUrl = location.pathname;
     if (fullUrl === lastUrl.current) return;
     lastUrl.current = fullUrl;
-
-    console.log("🔄 URL mudou:", fullUrl);
 
     const pathname = fullUrl.replace("/treevera", "");
     const parts = pathname.split("/").filter(Boolean);
@@ -107,8 +93,6 @@ export function useTreeUrl() {
       navigate({ to: "/", replace: true });
       return;
     }
-
-    console.log("📍 Keys da URL:", keys);
 
     pendingKeys.current = keys;
     resolvedPath.current = [];

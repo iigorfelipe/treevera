@@ -35,7 +35,6 @@ function waitForOAuthComplete(): Promise<PopupResult> {
 
       bc.onmessage = (event) => {
         if (event.data === "oauth_complete") {
-          console.log("✅ Recebida confirmação do popup");
           clearTimeout(timeout);
           if (bc) bc.close();
           resolve({ success: true });
@@ -67,8 +66,6 @@ function openOAuthPopup(url: string): Window | null {
 
 export async function loginWithOAuth(provider: Provider = "google") {
   try {
-    console.log("🔐 Iniciando login OAuth...");
-
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -84,8 +81,6 @@ export async function loginWithOAuth(provider: Provider = "google") {
     if (error) throw error;
     if (!data?.url) throw new Error("URL de autenticação não foi gerada");
 
-    console.log("🌐 Abrindo popup OAuth...");
-
     const popup = openOAuthPopup(data.url);
     if (!popup) {
       throw new Error(
@@ -93,26 +88,18 @@ export async function loginWithOAuth(provider: Provider = "google") {
       );
     }
 
-    console.log("⏳ Aguardando conclusão do OAuth...");
-
     const result = await waitForOAuthComplete();
 
     if (!result.success) {
       throw new Error(result.error || "Falha na autenticação");
     }
 
-    console.log("✅ OAuth concluído, aguardando sessão ser salva...");
-
     await new Promise((resolve) => setTimeout(resolve, SESSION_WAIT_TIME));
-
-    console.log("🔍 Buscando sessão...");
 
     let sessionData = null;
     const maxAttempts = 10;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      console.log(`🔄 Tentativa ${attempt}/${maxAttempts}...`);
-
       const { data: session, error: sessionError } =
         await supabase.auth.getSession();
 
@@ -123,7 +110,7 @@ export async function loginWithOAuth(provider: Provider = "google") {
 
       if (session.session) {
         sessionData = session;
-        console.log("✅ Sessão obtida!");
+
         break;
       }
 

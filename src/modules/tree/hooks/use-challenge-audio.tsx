@@ -41,8 +41,6 @@ export const useChallengeAudio = () => {
     const lastNode = expandedNodes[expandedNodes.length - 1];
     if (!lastNode) return;
 
-    // Only play when the last node is one that wasn't in the previous path.
-    // If it was already there, the user just collapsed back to an ancestor.
     const isNewNode = !prevNodeKeysRef.current.has(lastNode.key);
 
     prevNodeKeysRef.current = new Set(expandedNodes.map((n) => n.key));

@@ -56,7 +56,6 @@ export const SpeciesGallery = () => {
 
   const handleSelectSpecies = useCallback(
     (species: SeenSpecies) => {
-      console.log("Selecionando espécie:", species.key);
       setSelectedSpecieKey(species.key);
     },
     [setSelectedSpecieKey],
@@ -119,7 +118,9 @@ export const SpeciesGallery = () => {
                 <Button variant="outline" size="sm" className="h-10 gap-2">
                   <ArrowUpDown className="size-4" />
                   <span className="hidden sm:inline">
-                    {sortOrder === "newest" ? t("gallery.newest") : t("gallery.oldest")}
+                    {sortOrder === "newest"
+                      ? t("gallery.newest")
+                      : t("gallery.oldest")}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
@@ -142,7 +143,9 @@ export const SpeciesGallery = () => {
               <Heart
                 className={`size-4 ${showOnlyFavorites ? "fill-current" : ""}`}
               />
-              <span className="ml-2 hidden sm:inline">{t("gallery.favorites")}</span>
+              <span className="ml-2 hidden sm:inline">
+                {t("gallery.favorites")}
+              </span>
             </Button>
 
             <Button

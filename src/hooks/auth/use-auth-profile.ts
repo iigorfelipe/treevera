@@ -32,8 +32,6 @@ export function useAuth() {
   const fetchUserDb = useCallback(
     async (userId: string): Promise<DbUser | null> => {
       try {
-        console.log("🔍 Buscando userDb para:", userId);
-
         const { data, error } = await supabase
           .from("users")
           .select("*")
@@ -42,13 +40,12 @@ export function useAuth() {
 
         if (error) {
           if (error.code === "PGRST116") {
-            console.log("ℹ️ Usuário não existe no banco, criando...");
             const { data: authUser } = await supabase.auth.getUser();
 
             if (authUser.user) {
               try {
                 const createdUser = await createUser(authUser.user);
-                console.log("✅ Usuário criado no banco");
+
                 return createdUser;
               } catch (createError) {
                 console.error(
@@ -64,7 +61,6 @@ export function useAuth() {
           return null;
         }
 
-        console.log("✅ UserDb encontrado");
         return data as DbUser;
       } catch (error) {
         console.error("❌ Erro ao buscar userDb:", error);
@@ -84,25 +80,20 @@ export function useAuth() {
 
     const initPromise = (async () => {
       try {
-        console.log("🔄 Inicializando sessão...");
-
         const currentSession = await getCurrentSession();
 
         if (currentSession?.user) {
-          console.log("✅ Sessão encontrada:", currentSession.user.email);
           setSession(currentSession);
 
           const userData = await fetchUserDb(currentSession.user.id);
 
           if (userData) {
             setUserDb(userData);
-            console.log("✅ UserDb carregado");
           } else {
             console.warn("⚠️ UserDb não encontrado");
             setUserDb(null);
           }
         } else {
-          console.log("ℹ️ Nenhuma sessão encontrada");
           setSession(null);
           setUserDb(null);
         }
@@ -120,7 +111,6 @@ export function useAuth() {
 
     setLastAuthCheck(Date.now());
     setAuthInitialized(true);
-    console.log("✅ Inicialização concluída");
   }, [
     setSession,
     setUserDb,
@@ -135,15 +125,10 @@ export function useAuth() {
         setLoginStatus("loading");
         setAuthError(null);
 
-        console.log("🔐 Iniciando login...");
-
         const { user: authUser, session: authSession } =
           await loginWithOAuth(provider);
 
-        console.log("✅ Login OAuth completo, setando sessão...");
         setSession(authSession);
-
-        console.log("🔍 Buscando userDb...");
 
         const userData = await fetchUserDb(authUser.id);
 
@@ -151,7 +136,6 @@ export function useAuth() {
           setUserDb(userData);
           setLoginStatus("success");
 
-          console.log("✅ Login completo!");
           return { success: true, user: userData };
         } else {
           throw new Error("Não foi possível carregar os dados do usuário");
@@ -220,19 +204,15 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
-      console.log("🔔 Auth state changed:", event);
-
       switch (event) {
         case "SIGNED_IN":
         case "TOKEN_REFRESHED":
           if (currentSession?.user) {
-            console.log("✅ Sessão atualizada via listener");
             setSession(currentSession);
           }
           break;
 
         case "SIGNED_OUT":
-          console.log("🚪 Usuário deslogado");
           setSession(null);
           setUserDb(null);
           break;

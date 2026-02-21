@@ -22,14 +22,6 @@ export const getLocalStorageSession = (): Session | null => {
         const parsed: StoredSupabaseSession = JSON.parse(raw);
 
         if (parsed?.user?.id) {
-          console.log(
-            "[getLocalStorageSession] sessão encontrada no localStorage",
-            {
-              key,
-              userId: parsed.user.id,
-            },
-          );
-
           return {
             ...parsed,
             user: parsed.user,
@@ -37,9 +29,7 @@ export const getLocalStorageSession = (): Session | null => {
         }
       }
     }
-    console.log(
-      "[getLocalStorageSession] nenhuma sessão encontrada no localStorage",
-    );
+
     return null;
   } catch (err) {
     console.error("[getLocalStorageSession] erro lendo localStorage", err);
