@@ -290,7 +290,7 @@ export const Search = () => {
         }
       }
 
-      navigateToNodes(pathNodes);
+      navigateToNodes(pathNodes, true);
       setSelected(taxon);
     } catch (e) {
       console.error(e);
