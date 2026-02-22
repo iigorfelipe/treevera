@@ -62,9 +62,7 @@ export const useChallengeAudio = () => {
   }, [expandedNodes, challengeStatus, correctPath]);
 
   useEffect(() => {
-    if (challengeStatus === "NOT_STARTED") {
-      hasPlayedWinSound.current = false;
-      prevNodeKeysRef.current = new Set();
-    }
-  }, [challengeStatus]);
+    hasPlayedWinSound.current = false;
+    prevNodeKeysRef.current = new Set();
+  }, [speciesKey]);
 };
