@@ -94,7 +94,13 @@
 
   "favSpecies": {
     "title": "ESPÉCIES FAVORITAS",
-    "addFavorite": "Adicionar favorita"
+    "addFavorite": "Adicionar favorita",
+    "edit": "Editar",
+    "done": "Concluído",
+    "replace": "Substituir",
+    "pickerTitle": "Escolher espécie favorita",
+    "pickerEmpty": "Nenhuma espécie disponível",
+    "pickerEmptyHint": "Favorite espécies na galeria para adicioná-las aqui"
   },
 
   "gallery": {
