@@ -1,7 +1,7 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { Rank } from "./api";
 
-type FavSpecies = {
+export type FavSpecies = {
   key: number;
   name: string;
   img: string;

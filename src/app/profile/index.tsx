@@ -1,6 +1,6 @@
 // import { useResponsive } from "@/hooks/use-responsive";
 import { SpecieDetail } from "@/app/details/specie-detail";
-import { FavoriteSpecies } from "@/modules/profile/fav-species";
+import { FavoriteSpecies } from "@/modules/profile/fav-species/fav-species";
 import { HeaderProfile } from "@/modules/profile/header";
 import { LatestUserActivities } from "@/modules/profile/latest-user-activities";
 // import { UserProgress } from "@/modules/profile/progress";
