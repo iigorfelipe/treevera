@@ -24,7 +24,7 @@ export const ChallengeCompleted = ({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="min-mx-1 mx-auto rounded-2xl border bg-emerald-50/50 px-4 py-5 text-center shadow-sm md:mx-4 md:mt-20 dark:bg-emerald-950/30"
+      className="mx-4 rounded-2xl border bg-emerald-50/50 p-5 text-center shadow-sm md:mt-5 dark:bg-emerald-950/30"
     >
       <motion.div
         initial={{ scale: 0 }}

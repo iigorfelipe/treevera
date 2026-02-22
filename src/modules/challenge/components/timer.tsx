@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Clock } from "lucide-react";
 
 export const Timer = () => {
-  const { t } = useTranslation();
   const [time, setTime] = useState("24:00:00");
 
   useEffect(() => {
@@ -27,9 +26,11 @@ export const Timer = () => {
   }, []);
 
   return (
-    <div className="mb-auto text-right">
-      <div className="mb-1 hidden text-sm xl:flex">{t("challenge.timeRemaining")}</div>
-      <div className="text-xs font-bold tabular-nums xl:text-lg">{time}</div>
+    <div className="flex items-center gap-1 text-right">
+      <Clock className="text-muted-foreground size-3 shrink-0" />
+      <span className="text-muted-foreground font-mono text-xs tabular-nums">
+        {time}
+      </span>
     </div>
   );
 };

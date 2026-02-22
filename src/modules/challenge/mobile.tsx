@@ -1,7 +1,7 @@
 import { Image } from "@/common/components/image";
 import Alvo from "@/assets/alvo.gif";
 import { motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Shuffle, X } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
 import { ProgressSteps, TOTAL_STEPS } from "./components/progress-steps";
@@ -16,6 +16,8 @@ export const ChallengeMobile = ({
   correctSteps,
   isCompleted,
   onCancel,
+  onNext,
+  nextLoading,
   errorIndex,
   correctPath,
 }: {
@@ -24,6 +26,8 @@ export const ChallengeMobile = ({
   correctSteps: number;
   isCompleted: boolean;
   onCancel: () => void;
+  onNext?: () => void;
+  nextLoading?: boolean;
   errorIndex: number | null;
   correctPath: PathNode[];
 }) => {
@@ -34,9 +38,6 @@ export const ChallengeMobile = ({
         <div className="flex items-center gap-2.5">
           <Image src={Alvo} className="size-7 shrink-0" alt="Alvo gif" />
           <p className="truncate text-sm">
-            <span className="text-muted-foreground">
-              {t("challenge.find")}{" "}
-            </span>
             <span className="font-bold text-emerald-600 dark:text-green-400">
               {speciesName}
             </span>
@@ -46,9 +47,20 @@ export const ChallengeMobile = ({
             {correctSteps}/{TOTAL_STEPS}
           </span>
 
+          {onNext && (
+            <button
+              onClick={onNext}
+              disabled={nextLoading}
+              className="text-muted-foreground/60 ml-auto rounded-full p-1 hover:bg-violet-100 hover:text-violet-600 disabled:opacity-50 dark:hover:bg-violet-950"
+              aria-label={t("challenge.nextChallenge")}
+            >
+              <Shuffle className="size-3.5" />
+            </button>
+          )}
+
           <button
             onClick={onCancel}
-            className="text-muted-foreground/60 ml-auto rounded-full p-1 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950"
+            className={`rounded-full p-1 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950 ${onNext ? "" : "ml-auto"} text-muted-foreground/60`}
             aria-label={t("challenge.cancel")}
           >
             <X className="size-3.5" />

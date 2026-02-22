@@ -96,22 +96,31 @@ export const ChallengeTips = ({
       }}
     >
       <Dialog.Trigger asChild>
-        <button className="text-muted-foreground hover:bg-muted/50 mt-1 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
+        <button
+          className={cn(
+            "bg-muted/50 flex w-full items-center justify-between rounded-xl border border-dashed px-3 py-2 text-xs transition-colors",
+          )}
+        >
           <div className="flex items-center gap-1.5">
             <Lightbulb
               className={cn(
                 "size-3.5 text-amber-500",
-                errorIndex && "fill-amber-300",
+                errorIndex !== null && "fill-amber-300",
               )}
             />
-            <span>{t("challenge.tips")}</span>
-          </div>
-
-          {errorIndex && (
-            <span className="text-muted-foreground text-xs">
-              {t("challenge.needHelp")}
+            <span
+              className={cn(
+                errorIndex !== null
+                  ? "font-medium text-amber-700 dark:text-amber-400"
+                  : "text-muted-foreground",
+              )}
+            >
+              {errorIndex !== null
+                ? t("challenge.needHelp")
+                : t("challenge.tips")}
             </span>
-          )}
+          </div>
+          <span className="text-muted-foreground/50 text-[10px]">→</span>
         </button>
       </Dialog.Trigger>
 
@@ -159,7 +168,10 @@ export const ChallengeTips = ({
             {hints.length > 0 ? (
               <div className="bg-muted/40 mt-3 rounded-lg border p-3 text-sm">
                 {hints.map((hint, i) => (
-                  <p key={i}>💡 {hint}</p>
+                  <div key={i} className="flex items-start gap-2">
+                    <span>💡</span>
+                    <span className="flex-1">{hint}</span>
+                  </div>
                 ))}
               </div>
             ) : (

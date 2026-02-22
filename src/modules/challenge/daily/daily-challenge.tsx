@@ -65,10 +65,10 @@ export const DailyChallengeCard = () => {
                       {speciesName}
                     </span>
                   )}
+                  <Timer />
                 </p>
               </div>
             </div>
-            <Timer />
           </div>
 
           <p className="text-muted-foreground text-sm">

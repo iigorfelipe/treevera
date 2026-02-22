@@ -10,12 +10,9 @@ import { treeAtom } from "@/store/tree";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo } from "react";
 import { Timer } from "@/modules/challenge/components/timer";
-import { AnimatePresence } from "framer-motion";
 import { useResponsive } from "@/hooks/use-responsive";
-import {
-  ProgressSteps,
-  TOTAL_STEPS,
-} from "@/modules/challenge/components/progress-steps";
+import { useNavigate } from "@tanstack/react-router";
+import { TOTAL_STEPS } from "@/modules/challenge/components/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { SpecieDetail } from "@/app/details/specie-detail";
@@ -30,6 +27,7 @@ import { ChallengeTips } from "@/modules/challenge/components/tips";
 export const DailyChallengeInProgress = () => {
   const { t } = useTranslation();
   const setChallenge = useSetAtom(treeAtom.challenge);
+  const navigate = useNavigate();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
 
@@ -70,27 +68,48 @@ export const DailyChallengeInProgress = () => {
     if (!userId || !speciesKey || !userDb) return;
 
     void (async () => {
-      const { wasNew } = await saveChallengeResult({ userId, gbifKey: speciesKey, mode: "DAILY" });
+      const { wasNew } = await saveChallengeResult({
+        userId,
+        gbifKey: speciesKey,
+        mode: "DAILY",
+      });
       if (wasNew) {
-        const updatedUser = await addChallengeActivity({ user: userDb, speciesName, mode: "DAILY" });
+        const updatedUser = await addChallengeActivity({
+          user: userDb,
+          speciesName,
+          mode: "DAILY",
+        });
         if (updatedUser) setUserDb(updatedUser);
       }
     })();
-  }, [isCompleted, setChallenge, session, speciesKey, userDb, speciesName, setUserDb]);
+  }, [
+    isCompleted,
+    setChallenge,
+    session,
+    speciesKey,
+    userDb,
+    speciesName,
+    setUserDb,
+  ]);
+
+  const resetTree = () => {
+    setExpandedNodes([]);
+    void navigate({ to: "/", replace: true });
+  };
 
   const handleClick = () => {
     setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
-    setExpandedNodes([]);
+    resetTree();
   };
 
   const handleReplay = () => {
-    setExpandedNodes([]);
+    resetTree();
     setChallenge((prev) => ({ ...prev, status: "IN_PROGRESS" }));
   };
 
   const handleNext = () => {
     setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
-    setExpandedNodes([]);
+    resetTree();
   };
 
   const lastStepWasError = useMemo(() => {
@@ -133,32 +152,27 @@ export const DailyChallengeInProgress = () => {
   return (
     <div className="mt-22 md:mt-0 md:px-4 md:py-6">
       <Card className="mx-auto rounded-3xl">
-        <CardContent className="flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <CardContent className="flex flex-col gap-4 pt-5">
+          <div className="flex items-center gap-3">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/40">
               <Image
                 src={theme === "dark" ? AlvoWhite : Alvo}
-                className="size-12"
+                className="size-8"
                 alt="Alvo gif"
               />
-              <div>
-                <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
-                <p className="text-sm">
-                  {t("challenge.find")}:{" "}
-                  <span className="font-semibold text-emerald-600">
-                    {speciesName}
-                  </span>
-                </p>
-              </div>
             </div>
-            <Timer />
+            <div className="min-w-0 flex-1">
+              <p className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
+                {t("challenge.title")}
+              </p>
+              <h2 className="truncate text-base leading-tight font-bold">
+                {speciesName}
+              </h2>
+            </div>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <Timer />
+            </div>
           </div>
-
-          <ProgressSteps correctSteps={correctSteps} errorIndex={errorIndex} />
-
-          <AnimatePresence mode="wait">
-            <TaxonomicPath correctPath={correctPath} activeIndex={expandedNodes.length} />
-          </AnimatePresence>
 
           {!isCompleted && correctPath.length > 0 && (
             <ChallengeTips
@@ -169,11 +183,23 @@ export const DailyChallengeInProgress = () => {
               correctPath={correctPath}
             />
           )}
+          <TaxonomicPath
+            currentStep={correctSteps}
+            correctPath={correctPath}
+            activeIndex={expandedNodes.length}
+          />
 
           {!isCompleted && (
-            <Button size="lg" className="bg-red-500" onClick={handleClick}>
-              {t("challenge.cancel")}
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-destructive text-xs"
+                onClick={handleClick}
+              >
+                {t("challenge.cancel")}
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

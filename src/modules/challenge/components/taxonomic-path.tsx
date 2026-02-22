@@ -1,12 +1,12 @@
-import { Badge } from "@/common/components/ui/badge";
 import type { Rank } from "@/common/types/api";
 import { cn } from "@/common/utils/cn";
 
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, Lock } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { TOTAL_STEPS } from "./progress-steps";
 
 const ranks: Rank[] = [
   "KINGDOM",
@@ -21,9 +21,14 @@ const ranks: Rank[] = [
 type TaxonomicPathProps = {
   correctPath: Array<{ rank: Rank; name: string }>;
   activeIndex?: number;
+  currentStep: number;
 };
 
-export const TaxonomicPath = ({ correctPath, activeIndex }: TaxonomicPathProps) => {
+export const TaxonomicPath = ({
+  correctPath,
+  activeIndex,
+  currentStep,
+}: TaxonomicPathProps) => {
   const { t } = useTranslation();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
@@ -38,15 +43,22 @@ export const TaxonomicPath = ({ correctPath, activeIndex }: TaxonomicPathProps) 
   };
 
   return (
-    <div className="bg-accent/40 rounded-2xl p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold">{t("challenge.taxonomicPath")}</h3>
-        <span className="text-muted-foreground text-sm">
-          {expandedNodes.length}/7 {t("challenge.interactions")}
-        </span>
+    <div className="bg-accent/40 rounded-2xl p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold">
+          {t("challenge.taxonomicPath")}
+        </h3>
+        <div>
+          <span className="text-xl font-bold text-emerald-600 tabular-nums dark:text-emerald-400">
+            {currentStep}
+          </span>
+          <span className="text-muted-foreground text-sm font-medium">
+            /{TOTAL_STEPS}
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4">
         {ranks.map((rank, index) => {
           const status = getStatus(index, rank);
           const isActive = activeIndex === index;
@@ -55,39 +67,54 @@ export const TaxonomicPath = ({ correctPath, activeIndex }: TaxonomicPathProps) 
             <motion.div
               key={rank}
               layout
-              animate={isActive ? { scale: 1.03 } : { scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              animate={
+                isActive
+                  ? { scale: 1.03 }
+                  : status === "error"
+                    ? { x: [-4, 4, -3, 3, 0] }
+                    : { scale: 1 }
+              }
+              transition={
+                status === "error"
+                  ? { duration: 0.3 }
+                  : { type: "spring", stiffness: 300, damping: 20 }
+              }
               className={cn(
-                "flex items-center justify-between rounded-xl border p-4 transition-all",
-                status === "success" && "border-green-500 bg-green-500/10",
-                status === "error" && "border-red-500 bg-red-500/10",
-                status === "locked" && "opacity-60",
+                "flex items-center justify-between rounded-xl border p-3 transition-all",
+                status === "success" && "border-green-500/60 bg-green-500/10",
+                status === "error" && "border-red-400/60 bg-red-500/10",
+                status === "locked" && "border-dashed opacity-50",
                 isActive && "ring-2 ring-emerald-400",
               )}
             >
-              <div className="flex flex-col">
-                <span className="text-muted-foreground text-xs">{rank}</span>
-                <Badge
-                  variant="outline"
+              <div className="flex min-w-0 flex-col">
+                <span className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
+                  {rank}
+                </span>
+                <span
                   className={cn(
-                    "mt-1 w-fit",
-                    status === "success" && "bg-green-500 text-white",
-                    status === "error" && "bg-red-500 text-white",
+                    "mt-0.5 truncate text-xs font-medium",
+                    status === "success" &&
+                      "text-green-600 dark:text-green-400",
+                    status === "error" && "text-red-500",
+                    status === "locked" && "text-muted-foreground",
                   )}
                 >
-                  {status === "locked" ? "?" : expandedNodes[index]?.name}
-                </Badge>
+                  {status === "locked" ? "—" : expandedNodes[index]?.name}
+                </span>
               </div>
 
-              {status === "success" && (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-              )}
-              {status === "error" && (
-                <XCircle className="h-5 w-5 text-red-500" />
-              )}
-              {status === "locked" && (
-                <Lock className="text-muted-foreground h-4 w-4" />
-              )}
+              <div className="ml-2 shrink-0">
+                {status === "success" && (
+                  <CheckCircle2 className="size-4 text-green-500" />
+                )}
+                {status === "error" && (
+                  <AlertTriangle className="size-4 text-red-500" />
+                )}
+                {status === "locked" && (
+                  <Lock className="text-muted-foreground/40 size-3" />
+                )}
+              </div>
             </motion.div>
           );
         })}
