@@ -16,14 +16,18 @@ const getMsUntilMidnightUTC = () => {
   return midnight.getTime() - now.getTime();
 };
 
-export const useGetDailyChallenge = () => {
+export const useGetDailyChallenge = (date?: string) => {
   const { daily_challenge_key } = QUERY_KEYS;
   const today = getTodayUTC();
+  const targetDate = date ?? today;
+  const isToday = targetDate === today;
 
   return useQuery<ChallengeData | null>({
-    queryKey: [daily_challenge_key, today],
-    queryFn: () => getDailyChallenge(today),
-    staleTime: getMsUntilMidnightUTC(),
-    gcTime: getMsUntilMidnightUTC() + 1000 * 60 * 5,
+    queryKey: [daily_challenge_key, targetDate],
+    queryFn: () => getDailyChallenge(targetDate),
+    staleTime: isToday ? getMsUntilMidnightUTC() : Infinity,
+    gcTime: isToday
+      ? getMsUntilMidnightUTC() + 1000 * 60 * 5
+      : 1000 * 60 * 60 * 24,
   });
 };

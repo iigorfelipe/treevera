@@ -8,6 +8,7 @@ export type Challenge = {
   status: ChallengeStatus;
   targetSpecies?: string;
   speciesKey?: number;
+  challengeDate?: string;
 };
 
 export type PathNode = {

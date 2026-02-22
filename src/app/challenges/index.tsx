@@ -8,8 +8,11 @@ import { RandomChallengeInProgress } from "../../modules/challenge/random/random
 export const Challenges = () => {
   const challenge = useAtomValue(treeAtom.challenge);
 
-  if (challenge.mode === "DAILY") {
+  if (challenge.mode === "DAILY" && challenge.status !== "NOT_STARTED") {
     return <DailyChallengeInProgress />;
+  }
+  if (challenge.mode === "DAILY") {
+    return <DailyChallengeCard />;
   }
   if (challenge.mode === "RANDOM") {
     return <RandomChallengeInProgress />;
