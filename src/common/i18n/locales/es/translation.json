@@ -116,7 +116,8 @@
     "noSpeciesFound": "Ninguna especie encontrada",
     "noFavorites": "Aún no tienes favoritas",
     "adjustFilters": "Intenta ajustar los filtros",
-    "noImage": "Sin imagen"
+    "noImage": "Sin imagen",
+    "photosFirst": "Fotos primero"
   },
 
   "specieDetail": {
