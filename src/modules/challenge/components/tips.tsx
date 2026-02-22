@@ -3,7 +3,6 @@ import {
   Lightbulb,
   X,
   Eye,
-  Trophy,
   ChevronLeft,
   ChevronRight,
   ImageIcon,
@@ -145,7 +144,6 @@ export const ChallengeTips = ({
                 </button>
 
                 <Dialog.Title className="flex items-center gap-2 text-sm font-semibold">
-                  <Trophy className="size-3.5 text-emerald-500" />
                   {t("challenge.step")} {visibleStep + 1} {t("challenge.of")}{" "}
                   {correctPath.length}
                 </Dialog.Title>

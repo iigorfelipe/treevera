@@ -67,7 +67,7 @@ export const ChallengeMobile = ({
           </button>
         </div>
         {!isCompleted && correctPath.length > 0 && (
-          <>
+          <div className="space-y-2">
             <ProgressSteps
               correctSteps={correctSteps}
               errorIndex={errorIndex}
@@ -80,7 +80,7 @@ export const ChallengeMobile = ({
               errorIndex={errorIndex}
               correctPath={correctPath}
             />
-          </>
+          </div>
         )}
       </motion.div>
     </div>

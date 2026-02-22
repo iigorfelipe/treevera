@@ -3,17 +3,20 @@ import type { SeenSpecies } from "@/common/types/user";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 type SpeciesCardProps = {
   species: SeenSpecies;
   onClick: () => void;
   searchQuery?: string;
+  onImageResolved?: (key: number, hasImage: boolean) => void;
 };
 
 export const SpeciesCard = ({
   species,
   onClick,
   searchQuery,
+  onImageResolved,
 }: SpeciesCardProps) => {
   const { t } = useTranslation();
   const {
@@ -31,6 +34,12 @@ export const SpeciesCard = ({
   );
 
   const isLoading = isLoadingInfo || isLoadingImage;
+
+  useEffect(() => {
+    if (isLoading) return;
+    onImageResolved?.(species.key, !!imageData?.imgUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   if (!isLoading && searchQuery?.trim()) {
     const query = searchQuery.toLowerCase();
