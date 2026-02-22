@@ -211,7 +211,16 @@
     "allSpeciesCompleted": "Você completou todas as espécies disponíveis!",
     "replay": "Tentar novamente",
     "nextChallenge": "Próximo desafio",
-    "nextRandom": "Desafio Aleatório"
+    "nextRandom": "Desafio Aleatório",
+    "pastChallenges": "Desafios Anteriores",
+    "today": "Hoje",
+    "completedLabel": "Concluído",
+    "alreadyCompleted": "Já concluído",
+    "prevDay": "Dia anterior",
+    "nextDay": "Próximo dia",
+    "play": "Jogar",
+    "otherDailyChallenges": "Outros desafios diários",
+    "dailyChallenges": "Desafios Diários"
   },
 
   "vulnerability": {
