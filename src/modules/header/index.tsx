@@ -1,18 +1,8 @@
 import { Image } from "@/common/components/image";
 import logoUrl from "@/assets/images/avif-new-logo.avif?url";
 import { Menu } from "./menu";
-import { useAtom } from "jotai";
-import { treeAtom } from "@/store/tree";
-import { ArrowLeft } from "lucide-react";
 
 export const Header = () => {
-  const [expandedNodes, setExpandedNodes] = useAtom(treeAtom.expandedNodes);
-  const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
-
-  const handleBack = () => {
-    setExpandedNodes((old) => old.slice(0, -1));
-  };
-
   return (
     <header className="flex w-[calc(100%-8px)] items-center justify-between gap-3 rounded-br-2xl pt-4 pb-6">
       <Image alt="Logo" src={logoUrl} className="h-12" />
@@ -22,9 +12,6 @@ export const Header = () => {
         <p className="line-clamp-1 text-base/4">Taxonomia interativa</p>
       </div>
 
-      {isSpecie && (
-        <ArrowLeft onClick={handleBack} className="size-8 cursor-pointer" />
-      )}
       <Menu />
     </header>
   );

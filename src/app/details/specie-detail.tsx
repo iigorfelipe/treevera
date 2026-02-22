@@ -7,6 +7,9 @@ import {
 } from "@/modules/specie-detail/skeletons";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { useAtomValue, useSetAtom } from "jotai";
+import { useCallback } from "react";
+import { useResponsive } from "@/hooks/use-responsive";
+import { useNavigate } from "@tanstack/react-router";
 import { OccurrenceMap } from "@/modules/specie-detail/occurrences-map";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
@@ -21,23 +24,48 @@ export const SpecieDetail = ({
   backLabel?: string;
 }) => {
   const { t } = useTranslation();
+  const { isTablet } = useResponsive();
+  const navigate = useNavigate();
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
+  const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
 
-  const treeSpecieKey = useAtomValue(treeAtom.expandedNodes).find(
+  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
+  const treeSpecieKey = expandedNodes.find(
     (node) => node.rank === "SPECIES",
   )?.key;
 
   const specieKey = selectedKey ?? treeSpecieKey;
   const isFromGallery = selectedKey !== null;
+  const isFromTree =
+    !isFromGallery &&
+    treeSpecieKey !== null &&
+    treeSpecieKey !== undefined &&
+    isTablet;
 
   const { data: specieDetail, isLoading } = useGetSpecieDetail({
     specieKey: specieKey!,
   });
 
-  const handleBack = () => {
-    setSelectedKey(null);
-  };
+  const handleBack = useCallback(() => {
+    if (isFromGallery) {
+      setSelectedKey(null);
+    } else {
+      const pathNodes = expandedNodes.filter((n) => n.rank !== "SPECIES");
+      const path =
+        pathNodes.length > 0
+          ? `/tree/${pathNodes.map((n) => n.key).join("/")}`
+          : "/";
+      setExpandedNodes(pathNodes);
+      void navigate({ to: path });
+    }
+  }, [
+    isFromGallery,
+    setSelectedKey,
+    expandedNodes,
+    navigate,
+    setExpandedNodes,
+  ]);
 
   if (isLoading) {
     return (
@@ -64,7 +92,7 @@ export const SpecieDetail = ({
       className={embedded ? undefined : "h-full overflow-auto"}
       style={{ containerType: "inline-size" }}
     >
-      {isFromGallery && !embedded && (
+      {(isFromGallery || isFromTree) && !embedded && (
         <div className="bg-card/95 sticky top-0 z-10 border-b px-4 py-3 shadow-sm backdrop-blur-sm">
           <Button
             onClick={handleBack}
@@ -73,12 +101,17 @@ export const SpecieDetail = ({
             className="gap-2"
           >
             <ArrowLeft className="size-4" />
-            {backLabel ?? t("specieDetail.backToGallery")}
+            {backLabel ??
+              (isFromTree
+                ? t("specieDetail.backToTree")
+                : t("specieDetail.backToGallery"))}
           </Button>
         </div>
       )}
 
-      <div className={`p-4 ${isFromGallery ? "pt-6" : embedded ? "pt-2" : "mt-28 md:mt-4"}`}>
+      <div
+        className={`p-4 ${isFromGallery || isFromTree ? "pt-6" : embedded ? "pt-2" : "md:mt-4"}`}
+      >
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-2">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
