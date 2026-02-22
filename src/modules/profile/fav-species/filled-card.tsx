@@ -99,7 +99,7 @@ export const FilledFavCard = ({
                   e as React.PointerEvent<HTMLDivElement>,
                 );
               }}
-              className="absolute right-1 bottom-2 z-10 flex -translate-x-1/2 cursor-grab items-center justify-center rounded-full bg-black/40 px-2 py-0.5 text-white transition-colors hover:bg-black/60 active:cursor-grabbing"
+              className="absolute right-1 bottom-2 z-10 flex -translate-x-1/2 cursor-grab touch-none items-center justify-center rounded-full bg-black/40 px-2 py-0.5 text-white transition-colors hover:bg-black/60 active:cursor-grabbing"
             >
               <GripVertical className="size-3.5" />
             </div>
