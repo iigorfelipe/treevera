@@ -100,14 +100,14 @@ export const DailyChallengeCard = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-2 sm:flex-row">
             <DailyDateNav
               selectedDate={selectedDate}
               onSelectDate={handleSelectDate}
             />
             {isCompleted && (
               <span className="text-muted-foreground text-xs">
-                · {t("challenge.alreadyCompleted")}
+                {t("challenge.alreadyCompleted")}
               </span>
             )}
           </div>
