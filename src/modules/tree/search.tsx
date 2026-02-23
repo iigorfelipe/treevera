@@ -75,15 +75,12 @@ export const Search = () => {
         const det = r as unknown as Record<string, unknown>;
         const nub = det["nubKey"] as number | undefined;
         const hasNub = typeof nub === "number" && nub > 0;
-        const isSub = String(r.rank ?? "")
-          .toLowerCase()
-          .includes("sub");
         const k = String(r.kingdom ?? "").toLowerCase();
         const kingdomOk =
           k === String(kingdom ?? "").toLowerCase() ||
           (k === "metazoa" &&
             String(kingdom ?? "").toLowerCase() === "animalia");
-        return Boolean(hasNub && !isSub && kingdomOk);
+        return Boolean(hasNub && kingdomOk);
       }) as Taxon[];
 
       const qLower = q.trim().toLowerCase();
@@ -263,7 +260,7 @@ export const Search = () => {
           "";
         return {
           key: nubKey,
-          rank: (pp["rank"] as Rank) ?? ("KINGDOM" as Rank),
+          rank: ((pp["rank"] as string)?.toUpperCase() as Rank) ?? "KINGDOM",
           name,
         };
       });

@@ -1,17 +1,17 @@
 import { cn } from "@/common/utils/cn";
 import { motion } from "framer-motion";
 
-export const TOTAL_STEPS = 7;
-
 export const ProgressSteps = ({
   correctSteps,
   errorIndex,
+  totalSteps,
 }: {
   correctSteps: number;
   errorIndex: number | null;
+  totalSteps: number;
 }) => (
   <div className="mt-2 flex items-center gap-1">
-    {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
+    {Array.from({ length: totalSteps }).map((_, i) => {
       const isCorrect = i < correctSteps;
       const isError = i === errorIndex;
 

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Shuffle, X } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
-import { ProgressSteps, TOTAL_STEPS } from "./components/progress-steps";
+import { ProgressSteps } from "./components/progress-steps";
 import { ChallengeTips } from "./components/tips";
 import type { Rank } from "@/common/types/api";
 
@@ -44,7 +44,7 @@ export const ChallengeMobile = ({
           </p>
 
           <span className="text-muted-foreground text-xs font-semibold tabular-nums">
-            {correctSteps}/{TOTAL_STEPS}
+            {correctSteps}/{correctPath.length}
           </span>
 
           {onNext && (
@@ -71,6 +71,7 @@ export const ChallengeMobile = ({
             <ProgressSteps
               correctSteps={correctSteps}
               errorIndex={errorIndex}
+              totalSteps={correctPath.length}
             />
 
             <ChallengeTips

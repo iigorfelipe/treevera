@@ -117,7 +117,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
             feedback && "opacity-100",
           )}
         >
-          {capitalizar(node.rank.slice(0, -1))}
+          {capitalizar(node.rank)}
         </Badge>
       </div>
 

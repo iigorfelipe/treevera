@@ -6,17 +6,6 @@ import { useAtomValue } from "jotai";
 import { motion } from "framer-motion";
 import { CheckCircle2, AlertTriangle, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { TOTAL_STEPS } from "./progress-steps";
-
-const ranks: Rank[] = [
-  "KINGDOM",
-  "PHYLUM",
-  "CLASS",
-  "ORDER",
-  "FAMILY",
-  "GENUS",
-  "SPECIES",
-];
 
 type TaxonomicPathProps = {
   correctPath: Array<{ rank: Rank; name: string }>;
@@ -32,15 +21,16 @@ export const TaxonomicPath = ({
   const { t } = useTranslation();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
-  const getStatus = (index: number, rank: Rank) => {
+  const getStatus = (index: number) => {
     const node = expandedNodes[index];
     const expected = correctPath[index];
 
     if (!node) return "locked";
-    if (node.rank !== rank) return "locked";
     if (expected && node.name === expected.name) return "success";
     return "error";
   };
+
+  if (correctPath.length === 0) return null;
 
   return (
     <div className="bg-accent/40 rounded-2xl p-4">
@@ -53,19 +43,19 @@ export const TaxonomicPath = ({
             {currentStep}
           </span>
           <span className="text-muted-foreground text-sm font-medium">
-            /{TOTAL_STEPS}
+            /{correctPath.length}
           </span>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4">
-        {ranks.map((rank, index) => {
-          const status = getStatus(index, rank);
+        {correctPath.map((entry, index) => {
+          const status = getStatus(index);
           const isActive = activeIndex === index;
 
           return (
             <motion.div
-              key={rank}
+              key={`${entry.rank}-${index}`}
               layout
               animate={
                 isActive
@@ -89,7 +79,7 @@ export const TaxonomicPath = ({
             >
               <div className="flex min-w-0 flex-col">
                 <span className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
-                  {rank}
+                  {entry.rank}
                 </span>
                 <span
                   className={cn(

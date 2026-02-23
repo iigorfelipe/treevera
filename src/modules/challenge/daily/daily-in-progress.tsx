@@ -11,12 +11,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Timer } from "@/modules/challenge/components/timer";
 import { useResponsive } from "@/hooks/use-responsive";
 import { useNavigate } from "@tanstack/react-router";
-import { TOTAL_STEPS } from "@/modules/challenge/components/progress-steps";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
 import { SpecieDetail } from "@/app/details/specie-detail";
 import { useTheme } from "@/context/theme";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
+import { useGetParents } from "@/hooks/queries/useGetParents";
+import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
 import { saveChallengeResult } from "@/common/utils/supabase/challenge/save-challenge-result";
 import { addChallengeActivity } from "@/common/utils/supabase/add-challenge-activity";
 import { authStore } from "@/store/auth/atoms";
@@ -60,11 +60,15 @@ export const DailyChallengeInProgress = () => {
   const [randomLoading, setRandomLoading] = useState(false);
 
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+  const { data: parentsData } = useGetParents(speciesKey, !!speciesKey);
 
-  const correctPath = useMemo(
-    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
-    [specieDetail],
-  );
+  const correctPath = useMemo(() => {
+    if (!parentsData || !specieDetail) return [];
+    return buildChallengePathFromParents(
+      parentsData,
+      specieDetail.canonicalName ?? specieDetail.species ?? "",
+    );
+  }, [parentsData, specieDetail]);
 
   const correctSteps = useMemo(() => {
     return expandedNodes.filter((node, index) => {
@@ -73,7 +77,7 @@ export const DailyChallengeInProgress = () => {
     }).length;
   }, [expandedNodes, correctPath]);
 
-  const isCompleted = correctSteps === TOTAL_STEPS;
+  const isCompleted = correctPath.length > 0 && correctSteps === correctPath.length;
 
   useEffect(() => {
     if (!isCompleted) return;

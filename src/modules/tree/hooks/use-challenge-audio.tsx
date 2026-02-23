@@ -4,23 +4,30 @@ import { treeAtom } from "@/store/tree";
 
 import { AudioManager } from "@/lib/audio-manager";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
+import { useGetParents } from "@/hooks/queries/useGetParents";
+import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
 
 export const useChallengeAudio = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
   const challengeStatus = challenge.status;
   const speciesKey = challenge.speciesKey ?? 0;
+  const challengeActive =
+    challengeStatus === "IN_PROGRESS" || challengeStatus === "COMPLETED";
 
   const hasPlayedWinSound = useRef(false);
   const prevNodeKeysRef = useRef<Set<number>>(new Set());
 
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+  const { data: parentsData } = useGetParents(speciesKey, challengeActive);
 
-  const correctPath = useMemo(
-    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
-    [specieDetail],
-  );
+  const correctPath = useMemo(() => {
+    if (!parentsData || !specieDetail) return [];
+    return buildChallengePathFromParents(
+      parentsData,
+      specieDetail.canonicalName ?? specieDetail.species ?? "",
+    );
+  }, [parentsData, specieDetail]);
 
   useEffect(() => {
     if (challengeStatus !== "COMPLETED") return;

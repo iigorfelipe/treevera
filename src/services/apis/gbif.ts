@@ -41,6 +41,32 @@ export const getSpecieImageFromGBIF = async ({ specieKey }: Params) => {
 
 // *****************************************************************************************************
 
+export const getSpeciesMatch = async (
+  name: string,
+  kingdom?: string,
+): Promise<Taxon | null> => {
+  let url = `${SPECIES_URL}/match?name=${encodeURIComponent(name)}&strict=false`;
+  if (kingdom) url += `&kingdom=${encodeURIComponent(kingdom)}`;
+
+  const data = await fetch(url).then((res) => res.json());
+
+  if (!data || data.matchType === "NONE" || !data.usageKey) return null;
+
+  return {
+    key: data.usageKey as number,
+    scientificName: (data.scientificName as string) ?? "",
+    canonicalName: (data.canonicalName as string) ?? "",
+    rank: (data.rank as Taxon["rank"]) ?? "SPECIES",
+    kingdom: (data.kingdom as Taxon["kingdom"]) ?? "animalia",
+    numDescendants: 0,
+    phylum: (data.phylum as string) ?? "",
+    class: data.class as string | undefined,
+    order: data.order as string | undefined,
+    family: data.family as string | undefined,
+    genus: data.genus as string | undefined,
+  } as Taxon;
+};
+
 export const searchTaxa = async (q: string, kingdom?: string) => {
   let url = `${SPECIES_URL}/search?q=${encodeURIComponent(q)}&status=ACCEPTED&limit=50`;
   if (kingdom) {

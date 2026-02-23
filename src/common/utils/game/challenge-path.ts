@@ -1,17 +1,29 @@
-import type { Rank } from "@/common/types/api";
-import type { SpecieDetail } from "@/common/types/api";
-import { capitalizar } from "@/common/utils/string";
+import type { Rank, Taxon } from "@/common/types/api";
 
-export const buildChallengePathFromDetail = (
-  detail: SpecieDetail,
+const SKIP_IN_CHALLENGE = new Set([
+  "SUBSPECIES",
+  "VARIETY",
+  "SUBVARIETY",
+  "FORM",
+  "SUBFORM",
+  "UNRANKED",
+  "CULTIVAR_GROUP",
+  "CULTIVAR",
+  "STRAIN",
+]);
+
+export const buildChallengePathFromParents = (
+  parents: Taxon[],
+  speciesCanonicalName: string,
 ): Array<{ rank: Rank; name: string }> => {
-  return [
-    { rank: "KINGDOM", name: capitalizar(detail.kingdom) },
-    { rank: "PHYLUM", name: detail.phylum },
-    { rank: "CLASS", name: detail.class },
-    { rank: "ORDER", name: detail.order },
-    { rank: "FAMILY", name: detail.family },
-    { rank: "GENUS", name: detail.genus },
-    { rank: "SPECIES", name: detail.species },
-  ];
+  const path = parents
+    .filter((p) => !SKIP_IN_CHALLENGE.has(p.rank))
+    .map((p) => ({
+      rank: p.rank,
+      name: p.canonicalName ?? p.scientificName ?? "",
+    }));
+
+  path.push({ rank: "SPECIES" as Rank, name: speciesCanonicalName });
+
+  return path;
 };

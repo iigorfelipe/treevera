@@ -27,7 +27,6 @@ export const TreeNodeLiContent = memo(
       parentKey: node?.key,
       expanded: !!isExpanded,
       numDescendants: node?.numDescendants,
-      rank: node?.rank,
     });
 
     useEffect(() => {

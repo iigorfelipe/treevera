@@ -16,7 +16,8 @@ import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom } from "@/store/tree";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { buildChallengePathFromDetail } from "@/common/utils/game/challenge-path";
+import { useGetParents } from "@/hooks/queries/useGetParents";
+import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
 import { motion } from "framer-motion";
 import { authStore } from "@/store/auth/atoms";
 
@@ -39,11 +40,15 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+  const { data: parentsData } = useGetParents(speciesKey, challengeActive);
 
-  const correctPath = useMemo(
-    () => (specieDetail ? buildChallengePathFromDetail(specieDetail) : []),
-    [specieDetail],
-  );
+  const correctPath = useMemo(() => {
+    if (!parentsData || !specieDetail) return [];
+    return buildChallengePathFromParents(
+      parentsData,
+      specieDetail.canonicalName ?? specieDetail.species ?? "",
+    );
+  }, [parentsData, specieDetail]);
 
   const feedback = useMemo<"success" | "error" | null>(() => {
     if (!challengeActive) return null;

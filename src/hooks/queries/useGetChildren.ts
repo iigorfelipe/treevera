@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { getChildren } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
-import type { Rank, Taxon } from "@/common/types/api";
-import { filterChildrenByRank } from "@/common/utils/tree/children";
+import type { Taxon } from "@/common/types/api";
+import { filterChildren } from "@/common/utils/tree/children";
 
 type UseGetChildrenParams = {
   parentKey: number;
   expanded: boolean;
   numDescendants: number;
-  rank: Rank;
 };
 
 export const mapToTaxon = (item: Taxon): Taxon => {
@@ -34,7 +33,6 @@ export const useGetChildren = ({
   parentKey,
   expanded,
   numDescendants,
-  rank,
 }: UseGetChildrenParams) => {
   const { children_key } = QUERY_KEYS;
 
@@ -42,8 +40,7 @@ export const useGetChildren = ({
     queryKey: [children_key, parentKey],
     queryFn: async () => {
       const data = await getChildren(parentKey);
-      const filteredChildren = filterChildrenByRank(rank, data);
-      return filteredChildren.map(mapToTaxon);
+      return filterChildren(data).map(mapToTaxon);
     },
     enabled: !!parentKey && expanded && numDescendants !== 0,
     staleTime: 1000 * 60 * 60 * 24, // 1 dia

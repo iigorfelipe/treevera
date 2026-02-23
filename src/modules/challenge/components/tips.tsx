@@ -24,15 +24,28 @@ import { Skeleton } from "@/common/components/ui/skeleton";
 
 type PathNode = { rank: Rank; name: string };
 
-const RANK_LABELS: Record<Rank, string> = {
+const RANK_LABELS: Partial<Record<Rank, string>> = {
   KINGDOM: "reino",
+  SUBKINGDOM: "subreino",
   PHYLUM: "filo",
+  SUBPHYLUM: "subfilo",
+  SUPERCLASS: "superclasse",
   CLASS: "classe",
+  SUBCLASS: "subclasse",
+  SUPERORDER: "superordem",
   ORDER: "ordem",
+  SUBORDER: "subordem",
+  SUPERFAMILY: "superfamília",
   FAMILY: "família",
+  SUBFAMILY: "subfamília",
   GENUS: "gênero",
+  SUBGENUS: "subgênero",
   SPECIES: "espécie",
+  SUBSPECIES: "subespécie",
 };
+
+const getRankLabel = (rank: Rank): string =>
+  RANK_LABELS[rank] ?? rank.toLowerCase().replace(/_/g, " ");
 
 export const ChallengeTips = ({
   speciesName,
@@ -199,7 +212,7 @@ export const ChallengeTips = ({
                     ) : (
                       <p className="text-foreground font-medium">
                         {speciesName} {t("challenge.belongsTo")}{" "}
-                        {RANK_LABELS[currentNode.rank]}{" "}
+                        {getRankLabel(currentNode.rank)}{" "}
                         <span className="font-bold text-green-600">
                           {currentNode.name}
                         </span>

@@ -19,15 +19,6 @@ export const RANK_ORDER: Rank[] = [
   "SPECIES",
 ];
 
-export const getNextRank = (currentRank: string): Rank | null => {
-  const index = RANK_ORDER.indexOf(currentRank.toUpperCase() as Rank);
-
-  if (index >= 0 && index < RANK_ORDER.length - 1) {
-    return RANK_ORDER[index + 1];
-  }
-  return null;
-};
-
 export const RANK_FIXES: Record<string, string> = {
   Crocodylia: "Order",
   Squamata: "Order",

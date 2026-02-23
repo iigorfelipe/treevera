@@ -1,24 +1,17 @@
-import type { Rank, Taxon } from "@/common/types/api";
-import { getNextRank } from "./ranks";
+import type { Taxon } from "@/common/types/api";
 
-export const filterChildrenByRank = (rank: Rank, children?: Taxon[]) => {
+const BELOW_SPECIES_RANKS = new Set([
+  "SUBSPECIES",
+  "VARIETY",
+  "SUBVARIETY",
+  "FORM",
+  "SUBFORM",
+  "CULTIVAR_GROUP",
+  "CULTIVAR",
+  "STRAIN",
+]);
+
+export const filterChildren = (children?: Taxon[]): Taxon[] => {
   if (!children) return [];
-
-  const nextRank = getNextRank(rank);
-
-  const result = children.filter(
-    (child) => child.rank.toLowerCase() === nextRank?.toLowerCase(),
-  );
-
-  if (result.length === 0 && children.length > 0) {
-    console.warn(
-      `Rank inconsistente detectado para '${rank}' (esperado: ${nextRank}, encontrados: ${[
-        ...new Set(children.map((c) => c.rank)),
-      ].join(", ")})`,
-    );
-
-    return children;
-  }
-
-  return result;
+  return children.filter((child) => !BELOW_SPECIES_RANKS.has(child.rank));
 };
