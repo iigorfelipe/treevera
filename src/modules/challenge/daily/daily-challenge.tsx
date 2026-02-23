@@ -15,7 +15,13 @@ import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { useGetChallengeDates } from "@/hooks/queries/useGetChallengeDates";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 
-const getTodayUTC = () => new Date().toISOString().slice(0, 10);
+const getToday = () => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 
 export const DailyChallengeCard = () => {
   const { t } = useTranslation();
@@ -25,7 +31,7 @@ export const DailyChallengeCard = () => {
   const challenge = useAtomValue(treeAtom.challenge);
   const setChallenge = useSetAtom(treeAtom.challenge);
 
-  const today = getTodayUTC();
+  const today = getToday();
   const [selectedDate, setSelectedDate] = useState(
     () => challenge.challengeDate ?? today,
   );

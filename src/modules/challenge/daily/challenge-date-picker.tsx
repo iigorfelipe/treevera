@@ -26,7 +26,13 @@ const getFirstDayOfWeek = (year: number, month: number) => {
   return day === 0 ? 6 : day - 1;
 };
 
-const getTodayUTC = () => new Date().toISOString().slice(0, 10);
+const getToday = () => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 
 export const ChallengeDatePicker = ({
   selectedDate,
@@ -35,7 +41,7 @@ export const ChallengeDatePicker = ({
   formattedLabel,
 }: Props) => {
   const { i18n, t } = useTranslation();
-  const today = getTodayUTC();
+  const today = getToday();
 
   const [open, setOpen] = useState(false);
   const [viewYear, setViewYear] = useState(() =>

@@ -3,31 +3,32 @@ import { getDailyChallenge } from "@/common/utils/supabase/challenge/get-daily-c
 import type { ChallengeData } from "@/common/utils/supabase/challenge/get-daily-challenge";
 import { QUERY_KEYS } from "./keys";
 
-const getTodayUTC = () => {
+const getToday = () => {
   const now = new Date();
-  return now.toISOString().slice(0, 10);
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 };
 
-const getMsUntilMidnightUTC = () => {
-  const now = new Date();
-  const midnight = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
-  );
-  return midnight.getTime() - now.getTime();
+const getMsUntilMidnight = () => {
+  const midnight = new Date();
+  midnight.setHours(24, 0, 0, 0);
+  return midnight.getTime() - Date.now();
 };
 
 export const useGetDailyChallenge = (date?: string) => {
   const { daily_challenge_key } = QUERY_KEYS;
-  const today = getTodayUTC();
+  const today = getToday();
   const targetDate = date ?? today;
   const isToday = targetDate === today;
 
   return useQuery<ChallengeData | null>({
     queryKey: [daily_challenge_key, targetDate],
     queryFn: () => getDailyChallenge(targetDate),
-    staleTime: isToday ? getMsUntilMidnightUTC() : Infinity,
+    staleTime: isToday ? getMsUntilMidnight() : Infinity,
     gcTime: isToday
-      ? getMsUntilMidnightUTC() + 1000 * 60 * 5
+      ? getMsUntilMidnight() + 1000 * 60 * 5
       : 1000 * 60 * 60 * 24,
   });
 };
