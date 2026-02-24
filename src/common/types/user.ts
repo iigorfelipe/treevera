@@ -55,6 +55,10 @@ type Achievements = {
   locked: { nome: string; progress: number }[];
 };
 
+export type UserSettings = {
+  showEmptyNodes: boolean;
+};
+
 type GameInfo = {
   activities: Activities[];
   seen_species?: SeenSpecies[];
@@ -62,6 +66,7 @@ type GameInfo = {
   progress?: Progress;
   top_fav_species?: FavSpecies[];
   achievements?: Achievements;
+  settings?: UserSettings;
 };
 
 export type DbUser = {

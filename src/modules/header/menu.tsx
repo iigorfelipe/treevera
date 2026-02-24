@@ -18,6 +18,7 @@ import {
   LogIn,
   LogOut,
   MenuIcon,
+  Settings,
   Target,
   Telescope,
 } from "lucide-react";
@@ -29,21 +30,12 @@ import {
   AvatarImage,
 } from "@/common/components/ui/avatar";
 import { useAtom, useAtomValue } from "jotai";
-
 import { Button } from "@/common/components/ui/button";
-
 import { treeAtom } from "@/store/tree";
-import { audioSettingsAtom } from "@/store/audio";
-
-import { Volume2, VolumeX } from "lucide-react";
-import {
-  Slider as RadixSlider,
-  SliderThumb,
-  SliderTrack,
-  SliderRange,
-} from "@radix-ui/react-slider";
 import { authStore } from "@/store/auth/atoms";
 import { useAuth } from "@/hooks/auth/use-auth-profile";
+import { useState } from "react";
+import { SettingsModal } from "@/modules/settings/settings-modal";
 
 export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   const { changeTheme, theme } = useTheme();
@@ -55,7 +47,6 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   const { logout, isLoggingOut } = useAuth();
 
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);
-  const [audio, setAudio] = useAtom(audioSettingsAtom);
 
   const handleLogout = async () => {
     if (challenge.status === "IN_PROGRESS") {
@@ -70,237 +61,196 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   };
 
   const navigate = useNavigate();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   if (isProfilePage && !isAuthenticated) {
     navigate({ to: "/login" });
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild className="group cursor-pointer">
-        <div className="rounded-full">
-          {isAuthenticated && userDb ? (
-            <Avatar className={isProfilePage ? "size-12" : "size-8"}>
-              <AvatarImage src={userDb.avatar_url} alt="User" />
-              <AvatarFallback className="bg-green-600 text-xs text-white">
-                {userDb.name[0]}
-              </AvatarFallback>
-            </Avatar>
-          ) : (
-            <MenuIcon className="size-6" />
-          )}
-        </div>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="m-1 w-full" align="start">
-        <DropdownMenuGroup>
-          {!isAuthenticated && (
-            <>
-              <DropdownMenuItem>
-                <Link to="/login" className="flex w-full items-center">
-                  <LogIn className="mr-2 size-4" />
-                  <span>{t("loginWithGoogle")}</span>
-                </Link>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild className="group cursor-pointer">
+          <div className="rounded-full">
+            {isAuthenticated && userDb ? (
+              <Avatar className={isProfilePage ? "size-12" : "size-8"}>
+                <AvatarImage src={userDb.avatar_url} alt="User" />
+                <AvatarFallback className="bg-green-600 text-xs text-white">
+                  {userDb.name[0]}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <MenuIcon className="size-6" />
+            )}
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="m-1 w-full" align="start">
+          <DropdownMenuGroup>
+            {!isAuthenticated && (
+              <>
+                <DropdownMenuItem>
+                  <Link to="/login" className="flex w-full items-center">
+                    <LogIn className="mr-2 size-4" />
+                    <span>{t("loginWithGoogle")}</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+            {!isProfilePage && isAuthenticated && userDb && (
+              <DropdownMenuItem
+                onClick={() => {
+                  if (challenge.status === "IN_PROGRESS") {
+                    const confirmed = window.confirm(
+                      "Você tem um desafio em andamento. Acessar seu perfil, o desafio será cancelado.\n\nDeseja continuar?",
+                    );
+
+                    if (!confirmed) return;
+                  }
+                  setChallenge({ mode: null, status: "NOT_STARTED" });
+                  navigate({ to: "/profile" });
+                }}
+              >
+                <div className="px-2 py-1.5 text-sm">
+                  <div className="font-medium">{userDb.name}</div>
+                  <div className="text-muted-foreground text-xs">
+                    {userDb.email}
+                  </div>
+                </div>
+
+                <DropdownMenuSeparator />
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </>
-          )}
-          {!isProfilePage && isAuthenticated && userDb && (
+            )}
+
+            {isProfilePage && (
+              <>
+                <DropdownMenuItem>
+                  <Link to="/" className="flex w-full items-center">
+                    <ArrowLeft className="mr-2 size-4" />
+                    <span>{t("nav.back")}</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+
+            <DropdownMenuItem
+              disabled={challenge.status === "IN_PROGRESS"}
+              onClick={() =>
+                setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
+              }
+            >
+              <Link to="/challenges" className="flex w-full items-center">
+                <Target className="mr-2 size-4" /> {t("nav.challenges")}
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
             <DropdownMenuItem
               onClick={() => {
                 if (challenge.status === "IN_PROGRESS") {
                   const confirmed = window.confirm(
-                    "Você tem um desafio em andamento. Acessar seu perfil, o desafio será cancelado.\n\nDeseja continuar?",
+                    "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado.\n\nDeseja continuar?",
                   );
 
                   if (!confirmed) return;
                 }
                 setChallenge({ mode: null, status: "NOT_STARTED" });
-                navigate({ to: "/profile" });
+                navigate({ to: "/" });
               }}
             >
-              <div className="px-2 py-1.5 text-sm">
-                <div className="font-medium">{userDb.name}</div>
-                <div className="text-muted-foreground text-xs">
-                  {userDb.email}
-                </div>
+              <div className="flex w-full items-center">
+                <Telescope className="mr-2 size-4" /> {t("nav.explore")}
               </div>
-
-              <DropdownMenuSeparator />
             </DropdownMenuItem>
-          )}
 
-          {isProfilePage && (
-            <>
-              <DropdownMenuItem>
-                <Link to="/" className="flex w-full items-center">
-                  <ArrowLeft className="mr-2 size-4" />
-                  <span>{t("nav.back")}</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </>
-          )}
+            <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            disabled={challenge.status === "IN_PROGRESS"}
-            onClick={() =>
-              setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
-            }
-          >
-            <Link to="/challenges" className="flex w-full items-center">
-              <Target className="mr-2 size-4" /> {t("nav.challenges")}
-            </Link>
-          </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
+              <Settings className="mr-2 size-4" />
+              <span>Configurações</span>
+            </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+            <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            onClick={() => {
-              if (challenge.status === "IN_PROGRESS") {
-                const confirmed = window.confirm(
-                  "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado.\n\nDeseja continuar?",
-                );
-
-                if (!confirmed) return;
-              }
-              setChallenge({ mode: null, status: "NOT_STARTED" });
-              navigate({ to: "/" });
-            }}
-          >
-            <div className="flex w-full items-center">
-              <Telescope className="mr-2 size-4" /> {t("nav.explore")}
-            </div>
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              {t("theme")}: {t(theme)}
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent className="m-1">
-                <DropdownMenuItem onClick={() => changeTheme("light")}>
-                  {t("light")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => changeTheme("dark")}>
-                  {t("dark")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => changeTheme("system")}>
-                  {t("system")}
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              {t("language")}: {t(i18n.language)}
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent className="m-1">
-                <DropdownMenuItem onClick={() => i18n.changeLanguage("pt")}>
-                  {t("pt")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => i18n.changeLanguage("en")}>
-                  {t("en")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => i18n.changeLanguage("es")}>
-                  {t("es")}
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-
-          {challenge.status === "IN_PROGRESS" && (
             <DropdownMenuSub>
-              <DropdownMenuSeparator />
               <DropdownMenuSubTrigger>
-                {audio.muted ? (
-                  <VolumeX className="mr-2 size-4" />
-                ) : (
-                  <Volume2 className="mr-2 size-4" />
-                )}
-                {t("nav.audio")}
+                {t("theme")}: {t(theme)}
               </DropdownMenuSubTrigger>
-
               <DropdownMenuPortal>
-                <DropdownMenuSubContent
-                  className="m-1 w-64 space-y-4 p-4"
-                  sideOffset={-90}
-                  alignOffset={90}
-                >
-                  <button
-                    onClick={() =>
-                      setAudio((prev) => ({ ...prev, muted: !prev.muted }))
-                    }
-                    className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm"
-                  >
-                    <span>
-                      {audio.muted ? t("nav.soundOff") : t("nav.soundOn")}
-                    </span>
-                    {audio.muted ? <VolumeX /> : <Volume2 />}
-                  </button>
-                  {/* TODO: componentizar slider */}
-                  {!audio.muted && (
-                    <RadixSlider
-                      value={[audio.volume * 100]}
-                      onValueChange={([v]) =>
-                        setAudio((prev) => ({ ...prev, volume: v / 100 }))
-                      }
-                      min={0}
-                      max={100}
-                      step={1}
-                      className="relative flex h-5 w-full touch-none items-center select-none"
-                    >
-                      <SliderTrack className="relative h-1 w-full grow rounded-full bg-gray-200">
-                        <SliderRange className="absolute h-full rounded-full bg-blue-500" />
-                      </SliderTrack>
-                      <SliderThumb className="block h-5 w-5 rounded-full bg-blue-500 shadow" />
-                    </RadixSlider>
-                  )}
+                <DropdownMenuSubContent className="m-1">
+                  <DropdownMenuItem onClick={() => changeTheme("light")}>
+                    {t("light")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("dark")}>
+                    {t("dark")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("system")}>
+                    {t("system")}
+                  </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-          )}
 
-          {!isProfilePage && isAuthenticated && (
+            <DropdownMenuSeparator />
+
             <DropdownMenuSub>
-              <DropdownMenuSeparator />
-              <DropdownMenuSubTrigger disabled={isLoggingOut}>
-                <LogOut className="mr-2 size-4" />
-                <span>{t("logout")}</span>
+              <DropdownMenuSubTrigger>
+                {t("language")}: {t(i18n.language)}
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent
-                  className="w-72 max-w-[90vw] p-4"
-                  sideOffset={-90}
-                  alignOffset={90}
-                >
-                  <p className="mb-3 text-center text-sm leading-relaxed">
-                    {t("nav.logoutWarning")}
-                  </p>
-
-                  <Button
-                    onClick={handleLogout}
-                    variant="destructive"
-                    className="w-full"
-                  >
-                    {isLoggingOut ? (
-                      <Loader className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <LogOut className="mr-2 h-4 w-4" />
-                    )}
-                    {t("nav.logoutAnyway")}
-                  </Button>
+                <DropdownMenuSubContent className="m-1">
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage("pt")}>
+                    {t("pt")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage("en")}>
+                    {t("en")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => i18n.changeLanguage("es")}>
+                    {t("es")}
+                  </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-          )}
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+
+            {!isProfilePage && isAuthenticated && (
+              <DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuSubTrigger disabled={isLoggingOut}>
+                  <LogOut className="mr-2 size-4" />
+                  <span>{t("logout")}</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent
+                    className="w-72 max-w-[90vw] p-4"
+                    sideOffset={-90}
+                    alignOffset={90}
+                  >
+                    <p className="mb-3 text-center text-sm leading-relaxed">
+                      {t("nav.logoutWarning")}
+                    </p>
+
+                    <Button
+                      onClick={handleLogout}
+                      variant="destructive"
+                      className="w-full"
+                    >
+                      {isLoggingOut ? (
+                        <Loader className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <LogOut className="mr-2 h-4 w-4" />
+                      )}
+                      {t("nav.logoutAnyway")}
+                    </Button>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            )}
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+    </>
   );
 };
