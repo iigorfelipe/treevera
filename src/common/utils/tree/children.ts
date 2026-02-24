@@ -1,6 +1,6 @@
 import type { Taxon } from "@/common/types/api";
 
-const BELOW_SPECIES_RANKS = new Set([
+const EXCLUDED_RANKS = new Set([
   "SUBSPECIES",
   "VARIETY",
   "SUBVARIETY",
@@ -9,9 +9,10 @@ const BELOW_SPECIES_RANKS = new Set([
   "CULTIVAR_GROUP",
   "CULTIVAR",
   "STRAIN",
+  "UNRANKED",
 ]);
 
 export const filterChildren = (children?: Taxon[]): Taxon[] => {
   if (!children) return [];
-  return children.filter((child) => !BELOW_SPECIES_RANKS.has(child.rank));
+  return children.filter((child) => !EXCLUDED_RANKS.has(child.rank));
 };

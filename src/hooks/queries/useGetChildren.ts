@@ -4,6 +4,15 @@ import { QUERY_KEYS } from "./keys";
 import type { Taxon } from "@/common/types/api";
 import { filterChildren } from "@/common/utils/tree/children";
 
+type RawGbifChild = Taxon & { nubKey?: number; taxonomicStatus?: string };
+
+const isBackboneAccepted = (item: RawGbifChild): boolean => {
+  if (item.taxonomicStatus && item.taxonomicStatus !== "ACCEPTED") return false;
+  if (item.nubKey !== undefined && item.nubKey !== item.key) return false;
+  if (!item.canonicalName) return false;
+  return true;
+};
+
 type UseGetChildrenParams = {
   parentKey: number;
   expanded: boolean;
@@ -39,8 +48,9 @@ export const useGetChildren = ({
   return useQuery<Taxon[]>({
     queryKey: [children_key, parentKey],
     queryFn: async () => {
-      const data = await getChildren(parentKey);
-      return filterChildren(data).map(mapToTaxon);
+      const raw = (await getChildren(parentKey)) as RawGbifChild[];
+      const backbone = raw.filter(isBackboneAccepted);
+      return filterChildren(backbone).map(mapToTaxon);
     },
     enabled: !!parentKey && expanded && numDescendants !== 0,
     staleTime: 1000 * 60 * 60 * 24, // 1 dia
