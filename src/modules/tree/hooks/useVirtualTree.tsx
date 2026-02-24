@@ -13,6 +13,8 @@ import type { NodeEntity } from "@/common/types/tree-atoms";
 export type FlattenedNode = {
   key: number;
   level: number;
+  isEmptyInfo?: true;
+  parentNodeKey?: number;
 };
 
 export type Connector = {
@@ -46,6 +48,18 @@ export const useVirtualTree = (
         if (node.expanded && node.childrenKeys?.length) {
           const children = flattenTree(nodes, node.childrenKeys, level + 1);
           for (let i = 0; i < children.length; i++) result.push(children[i]);
+        } else if (
+          node.expanded &&
+          node.rank !== "KINGDOM" &&
+          node.rank !== "SPECIES" &&
+          node.numDescendants === 0
+        ) {
+          result.push({
+            key: -key,
+            level: level + 1,
+            isEmptyInfo: true,
+            parentNodeKey: key,
+          });
         }
       }
 
@@ -60,8 +74,11 @@ export const useVirtualTree = (
   );
 
   const getRowSize = useCallback(
-    (index: number) =>
-      nodes[flattened[index].key]?.rank === "KINGDOM" ? 72 : 34,
+    (index: number) => {
+      const item = flattened[index];
+      if (item.isEmptyInfo) return 192;
+      return nodes[item.key]?.rank === "KINGDOM" ? 72 : 34;
+    },
     [flattened, nodes],
   );
 
@@ -77,10 +94,16 @@ export const useVirtualTree = (
     return offsets;
   }, [flattened, getRowSize]);
 
+  const getItemKey = useCallback(
+    (index: number) => flattened[index]?.key ?? index,
+    [flattened],
+  );
+
   const rowVirtualizer = useVirtualizer({
     count: flattened.length,
     getScrollElement: () => parentRef.current!,
     estimateSize: (index) => getRowSize(index),
+    getItemKey,
     overscan: 10,
   });
 

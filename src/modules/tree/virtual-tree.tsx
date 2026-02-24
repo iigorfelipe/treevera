@@ -3,6 +3,7 @@ import { useAtomValue } from "jotai";
 
 import { treeAtom } from "@/store/tree";
 import { TreeNodeLiContent } from "./tree-node";
+import { EmptyNodeInfoCard } from "./empty-node-info";
 import { useExpandedSync } from "./hooks/useExpandSync";
 import { useVirtualTree } from "./hooks/useVirtualTree";
 import { Overlay } from "./overlay";
@@ -81,16 +82,23 @@ export const VirtualTree = () => {
           />
 
           {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-            const { key, level } = flattened[virtualItem.index];
+            const item = flattened[virtualItem.index];
             return (
               <li
-                key={key}
+                key={item.key}
                 className="absolute top-0 left-0 w-full"
                 style={{
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                <TreeNodeLiContent nodeKey={key} level={level} />
+                {item.isEmptyInfo ? (
+                  <EmptyNodeInfoCard
+                    parentNodeKey={item.parentNodeKey!}
+                    level={item.level}
+                  />
+                ) : (
+                  <TreeNodeLiContent nodeKey={item.key} level={item.level} />
+                )}
               </li>
             );
           })}

@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAtomValue } from "jotai";
 import { getChildren } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
 import type { Taxon } from "@/common/types/api";
 import { filterChildren } from "@/common/utils/tree/children";
+import { showEmptyNodesAtom } from "@/store/user-settings";
 
 type RawGbifChild = Taxon & { nubKey?: number; taxonomicStatus?: string };
 
@@ -44,13 +46,19 @@ export const useGetChildren = ({
   numDescendants,
 }: UseGetChildrenParams) => {
   const { children_key } = QUERY_KEYS;
+  const showEmptyNodes = useAtomValue(showEmptyNodesAtom);
 
   return useQuery<Taxon[]>({
-    queryKey: [children_key, parentKey],
+    queryKey: [children_key, parentKey, showEmptyNodes],
     queryFn: async () => {
       const raw = (await getChildren(parentKey)) as RawGbifChild[];
       const backbone = raw.filter(isBackboneAccepted);
-      return filterChildren(backbone).map(mapToTaxon);
+      const visible = showEmptyNodes
+        ? backbone
+        : backbone.filter(
+            (item) => item.numDescendants > 0 || item.rank === "SPECIES",
+          );
+      return filterChildren(visible).map(mapToTaxon);
     },
     enabled: !!parentKey && expanded && numDescendants !== 0,
     staleTime: 1000 * 60 * 60 * 24, // 1 dia
