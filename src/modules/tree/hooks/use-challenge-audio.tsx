@@ -26,8 +26,9 @@ export const useChallengeAudio = () => {
     return buildChallengePathFromParents(
       parentsData,
       specieDetail.canonicalName ?? specieDetail.species ?? "",
+      speciesKey,
     );
-  }, [parentsData, specieDetail]);
+  }, [parentsData, specieDetail, speciesKey]);
 
   useEffect(() => {
     if (challengeStatus !== "COMPLETED") return;

@@ -8,7 +8,7 @@ import { ProgressSteps } from "./components/progress-steps";
 import { ChallengeTips } from "./components/tips";
 import type { Rank } from "@/common/types/api";
 
-type PathNode = { rank: Rank; name: string };
+type PathNode = { rank: Rank; name: string; key: number };
 
 export const ChallengeMobile = ({
   speciesName,

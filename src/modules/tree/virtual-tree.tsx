@@ -27,6 +27,8 @@ export const VirtualTree = () => {
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const scrollToRank = useAtomValue(treeAtom.scrollToRank);
   const lastScrolledRank = useRef<Rank | null>(null);
+  const scrollToNodeKey = useAtomValue(treeAtom.scrollToNodeKey);
+  const lastScrolledNodeKey = useRef<number | null>(null);
 
   const { isTablet } = useResponsive();
 
@@ -52,6 +54,21 @@ export const VirtualTree = () => {
       behavior: "smooth",
     });
   }, [scrollToRank, flattened, nodes, rowVirtualizer]);
+
+  useEffect(() => {
+    if (!scrollToNodeKey || scrollToNodeKey === lastScrolledNodeKey.current) return;
+
+    lastScrolledNodeKey.current = scrollToNodeKey;
+
+    const targetIndex = flattened.findIndex((item) => item.key === scrollToNodeKey);
+
+    if (targetIndex === -1) return;
+
+    rowVirtualizer.scrollToIndex(targetIndex, {
+      align: "center",
+      behavior: "smooth",
+    });
+  }, [scrollToNodeKey, flattened, rowVirtualizer]);
 
   useShortcutScroll(flattened, rowVirtualizer);
 

@@ -15,15 +15,17 @@ const SKIP_IN_CHALLENGE = new Set([
 export const buildChallengePathFromParents = (
   parents: Taxon[],
   speciesCanonicalName: string,
-): Array<{ rank: Rank; name: string }> => {
+  speciesKey: number,
+): Array<{ rank: Rank; name: string; key: number }> => {
   const path = parents
     .filter((p) => !SKIP_IN_CHALLENGE.has(p.rank))
     .map((p) => ({
       rank: p.rank,
       name: p.canonicalName ?? p.scientificName ?? "",
+      key: p.key,
     }));
 
-  path.push({ rank: "SPECIES" as Rank, name: speciesCanonicalName });
+  path.push({ rank: "SPECIES" as Rank, name: speciesCanonicalName, key: speciesKey });
 
   return path;
 };

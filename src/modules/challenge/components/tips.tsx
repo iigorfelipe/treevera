@@ -7,14 +7,19 @@ import {
   ChevronRight,
   ImageIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/common/utils/cn";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronDown, Info } from "lucide-react";
 import type { Rank } from "@/common/types/api";
-import { useSetAtom } from "jotai";
-import { scrollToRankAtom, treeAtom } from "@/store/tree";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  scrollToRankAtom,
+  setHighlightedKeysAtom,
+  scrollToNodeKeyAtom,
+  treeAtom,
+} from "@/store/tree";
 import { useTranslation } from "react-i18next";
 import { useGetChallengeTips } from "@/hooks/queries/useGetChallengeTips";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
@@ -22,7 +27,7 @@ import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { Image } from "@/common/components/image";
 import { Skeleton } from "@/common/components/ui/skeleton";
 
-type PathNode = { rank: Rank; name: string };
+type PathNode = { rank: Rank; name: string; key: number };
 
 const RANK_LABELS: Partial<Record<Rank, string>> = {
   KINGDOM: "reino",
@@ -65,8 +70,10 @@ export const ChallengeTips = ({
     {},
   );
   const [open, setOpen] = useState(false);
-  const setHighlightedRank = useSetAtom(treeAtom.highlightedRank);
   const [visibleStep, setVisibleStep] = useState(currentStep);
+  const allNodes = useAtomValue(treeAtom.nodes);
+  const setHighlightedKeys = useSetAtom(setHighlightedKeysAtom);
+  const setScrollToNodeKey = useSetAtom(scrollToNodeKeyAtom);
   const setScrollToRank = useSetAtom(scrollToRankAtom);
 
   const { data: tipsMap = {} } = useGetChallengeTips(correctPath);
@@ -84,17 +91,82 @@ export const ChallengeTips = ({
     setRevealedSteps((prev) => ({ ...prev, [visibleStep]: true }));
   };
 
+  const WINDOW = 7;
+
+  const hasSiblingsRef = useRef(false);
+
+  const applyHighlights = useCallback(
+    (step: number, nodes: typeof allNodes): boolean => {
+      const node = correctPath[step];
+      if (!node) return false;
+
+      const parentKey = step > 0 ? correctPath[step - 1].key : null;
+      const siblings: number[] = parentKey
+        ? (nodes[parentKey]?.childrenKeys ?? [])
+        : [];
+
+      let selected: number[];
+      if (siblings.length === 0) {
+        selected = [node.key];
+      } else {
+        const correctIdx = siblings.indexOf(node.key);
+        if (correctIdx === -1) {
+          selected = [node.key, ...siblings.slice(0, WINDOW - 1)];
+        } else {
+          const minOffset = Math.max(0, correctIdx + WINDOW - siblings.length);
+          const maxOffset = Math.min(WINDOW - 1, correctIdx);
+          if (maxOffset < minOffset) {
+            selected = [...siblings];
+          } else {
+            const offset =
+              Math.floor(Math.random() * (maxOffset - minOffset + 1)) +
+              minOffset;
+            const start = correctIdx - offset;
+            selected = siblings.slice(start, start + WINDOW);
+          }
+        }
+      }
+
+      setHighlightedKeys(selected);
+      setScrollToNodeKey(node.key);
+      setScrollToRank(node.rank);
+      return siblings.length > 0;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [correctPath, setHighlightedKeys, setScrollToNodeKey, setScrollToRank],
+  );
+
   const goToStep = (next: number) => {
     setVisibleStep(next);
-    const rank = correctPath[next]?.rank;
-    if (rank) {
-      setHighlightedRank(rank);
-      setScrollToRank(rank);
-    }
+    hasSiblingsRef.current = false;
+    const hadSiblings = applyHighlights(next, allNodes);
+    hasSiblingsRef.current = hadSiblings;
   };
+
+  useEffect(() => {
+    if (!open) return;
+    setVisibleStep(currentStep);
+    hasSiblingsRef.current = false;
+    const hadSiblings = applyHighlights(currentStep, allNodes);
+    hasSiblingsRef.current = hadSiblings;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (!open || hasSiblingsRef.current) return;
+    const node = correctPath[visibleStep];
+    if (!node) return;
+    const parentKey =
+      visibleStep > 0 ? correctPath[visibleStep - 1]?.key : null;
+    if (!parentKey || !allNodes[parentKey]?.childrenKeys?.length) return;
+    hasSiblingsRef.current = true;
+    applyHighlights(visibleStep, allNodes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allNodes]);
 
   return (
     <Dialog.Root
+      modal={false}
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
@@ -102,8 +174,9 @@ export const ChallengeTips = ({
           setVisibleStep(currentStep);
           goToStep(currentStep);
         } else {
-          setHighlightedRank(null);
+          setHighlightedKeys([]);
           setScrollToRank(null);
+          setScrollToNodeKey(null);
         }
       }}
     >
@@ -137,7 +210,11 @@ export const ChallengeTips = ({
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Content asChild>
+        <Dialog.Content
+          asChild
+          onInteractOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}

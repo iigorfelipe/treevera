@@ -195,6 +195,24 @@ export const scrollToRankAtom = atom(null, (_get, set, rank: Rank | null) => {
   set(scrollToRank, rank);
 });
 
+const highlightedKeys = atom<ReadonlySet<number>>(new Set<number>());
+
+export const setHighlightedKeysAtom = atom(
+  null,
+  (_get, set, keys: number[]) => {
+    set(highlightedKeys, new Set(keys));
+  },
+);
+
+const scrollToNodeKey = atom<number | null>(null);
+
+export const scrollToNodeKeyAtom = atom(
+  null,
+  (_get, set, key: number | null) => {
+    set(scrollToNodeKey, key);
+  },
+);
+
 const playedStepAudioAtom = atom<Record<string, true>>({});
 
 export const selectedSpecieKeyAtom = atom<number | null>(null);
@@ -205,7 +223,9 @@ export const treeAtom = {
   animate,
   expandedNodes,
   highlightedRank,
+  highlightedKeys,
   scrollToRank,
+  scrollToNodeKey,
   shortcutScrollTarget,
   feedbackAudio: playedStepAudioAtom,
   nodes: nodesAtom,

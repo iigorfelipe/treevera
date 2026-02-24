@@ -67,8 +67,9 @@ export const DailyChallengeInProgress = () => {
     return buildChallengePathFromParents(
       parentsData,
       specieDetail.canonicalName ?? specieDetail.species ?? "",
+      speciesKey,
     );
-  }, [parentsData, specieDetail]);
+  }, [parentsData, specieDetail, speciesKey]);
 
   const correctSteps = useMemo(() => {
     return expandedNodes.filter((node, index) => {
@@ -77,7 +78,8 @@ export const DailyChallengeInProgress = () => {
     }).length;
   }, [expandedNodes, correctPath]);
 
-  const isCompleted = correctPath.length > 0 && correctSteps === correctPath.length;
+  const isCompleted =
+    correctPath.length > 0 && correctSteps === correctPath.length;
 
   useEffect(() => {
     if (!isCompleted) return;

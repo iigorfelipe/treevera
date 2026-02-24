@@ -31,11 +31,15 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const challenge = useAtomValue(treeAtom.challenge);
   const challengeStatus = challenge.status;
   const challengeInProgress = challengeStatus === "IN_PROGRESS";
-  const challengeActive = challengeInProgress || challengeStatus === "COMPLETED";
+  const challengeActive =
+    challengeInProgress || challengeStatus === "COMPLETED";
   const speciesKey = challenge.speciesKey ?? 0;
 
-  const highlightedRank = useAtomValue(treeAtom.highlightedRank);
-  const isHighlighted = highlightedRank === node.rank && challengeInProgress;
+  const highlightedKeys = useAtomValue(treeAtom.highlightedKeys);
+  const isHighlighted =
+    highlightedKeys.size > 0 &&
+    highlightedKeys.has(node.key) &&
+    challengeInProgress;
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
@@ -47,8 +51,9 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     return buildChallengePathFromParents(
       parentsData,
       specieDetail.canonicalName ?? specieDetail.species ?? "",
+      speciesKey,
     );
-  }, [parentsData, specieDetail]);
+  }, [parentsData, specieDetail, speciesKey]);
 
   const feedback = useMemo<"success" | "error" | null>(() => {
     if (!challengeActive) return null;
