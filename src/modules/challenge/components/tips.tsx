@@ -91,7 +91,7 @@ export const ChallengeTips = ({
     setRevealedSteps((prev) => ({ ...prev, [visibleStep]: true }));
   };
 
-  const WINDOW = 7;
+  const WINDOW = 3;
 
   const hasSiblingsRef = useRef(false);
 
@@ -132,7 +132,6 @@ export const ChallengeTips = ({
       setScrollToRank(node.rank);
       return siblings.length > 0;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [correctPath, setHighlightedKeys, setScrollToNodeKey, setScrollToRank],
   );
 
@@ -288,12 +287,10 @@ export const ChallengeTips = ({
                       </button>
                     ) : (
                       <p className="text-foreground font-medium">
-                        {speciesName} {t("challenge.belongsTo")}{" "}
                         {getRankLabel(currentNode.rank)}{" "}
                         <span className="font-bold text-green-600">
                           {currentNode.name}
                         </span>
-                        .
                       </p>
                     )}
                   </motion.div>
