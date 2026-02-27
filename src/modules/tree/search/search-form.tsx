@@ -124,7 +124,10 @@ export function SearchForm({
           spellCheck={false}
         />
         {kingdom && !q && (
-          <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 select-none"
+          >
             <span className="text-muted-foreground absolute inset-y-0 left-3 flex items-center text-sm">
               {animatedText}
             </span>

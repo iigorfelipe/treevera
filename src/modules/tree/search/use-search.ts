@@ -5,6 +5,7 @@ import { searchTaxa, getParents, getSpecieDetail } from "@/services/apis/gbif";
 import type { Rank, Taxon } from "@/common/types/api";
 import type { PathNode } from "@/common/types/tree-atoms";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
+import { EXCLUDED_RANKS } from "@/common/utils/tree/children";
 
 const detectGbifKey = (q: string): number | null => {
   const trimmed = q.trim();
@@ -141,13 +142,21 @@ export function useSearch() {
             return;
           }
 
+          const rank =
+            ((d["rank"] as string)?.toUpperCase() as Rank) ?? "SPECIES";
+          if (EXCLUDED_RANKS.has(rank)) {
+            setError(t("search.rankNotInTree"));
+            setResults(null);
+            return;
+          }
+
           const taxon: Taxon = {
             key: nub,
             scientificName: (detail.scientificName || "") as string,
             canonicalName: (detail.canonicalName ||
               detail.scientificName ||
               "") as string,
-            rank: ((d["rank"] as string)?.toUpperCase() as Rank) ?? "SPECIES",
+            rank,
             kingdom: (detail.kingdom || "animalia") as Taxon["kingdom"],
             numDescendants: 0,
             phylum: detail.phylum || "",
@@ -179,7 +188,8 @@ export function useSearch() {
             k === String(kingdom ?? "").toLowerCase() ||
             (k === "metazoa" &&
               String(kingdom ?? "").toLowerCase() === "animalia");
-          return Boolean(hasNub && kingdomOk);
+          const rankOk = !EXCLUDED_RANKS.has(r.rank);
+          return Boolean(hasNub && kingdomOk && rankOk);
         });
 
         const qLower = trimmed.toLowerCase();

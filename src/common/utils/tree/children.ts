@@ -1,6 +1,6 @@
 import type { Taxon } from "@/common/types/api";
 
-const EXCLUDED_RANKS = new Set([
+export const EXCLUDED_RANKS = new Set([
   "SUBSPECIES",
   "VARIETY",
   "SUBVARIETY",
