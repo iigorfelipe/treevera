@@ -173,11 +173,15 @@
     "gbifError": "Error querying GBIF",
     "lineageError": "Could not retrieve lineage for the selected item",
     "pathError": "Error building the selected path",
+    "keyNotFound": "GBIF key not found",
     "kingdom": "Kingdom",
     "searchTaxa": "Search taxa",
     "expandResults": "Expand results",
     "minimizeResults": "Minimize results",
-    "results": "results"
+    "results": "results",
+    "clearSearch": "Clear",
+    "noResults": "No results found",
+    "searchByNameOrKey": "Canonical name or GBIF key..."
   },
 
   "explore": {

@@ -173,11 +173,15 @@
     "gbifError": "Error al consultar GBIF",
     "lineageError": "No se pudo obtener el linaje del elemento seleccionado",
     "pathError": "Error al construir el camino seleccionado",
+    "keyNotFound": "Clave GBIF no encontrada",
     "kingdom": "Reino",
     "searchTaxa": "Buscar taxa",
     "expandResults": "Expandir resultados",
     "minimizeResults": "Minimizar resultados",
-    "results": "resultados"
+    "results": "resultados",
+    "clearSearch": "Limpiar",
+    "noResults": "Sin resultados",
+    "searchByNameOrKey": "Nombre canónico o clave GBIF..."
   },
 
   "explore": {

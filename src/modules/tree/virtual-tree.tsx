@@ -7,7 +7,7 @@ import { EmptyNodeInfoCard } from "./empty-node-info";
 import { useExpandedSync } from "./hooks/useExpandSync";
 import { useVirtualTree } from "./hooks/useVirtualTree";
 import { Overlay } from "./overlay";
-import { Search } from "./search";
+import { Search } from "./search/index";
 
 import "./tree.css";
 import { useResponsive } from "@/hooks/use-responsive";
@@ -15,11 +15,13 @@ import { cn } from "@/common/utils/cn";
 import type { Rank } from "@/common/types/api";
 import { useChallengeAudio } from "./hooks/use-challenge-audio";
 import { useShortcutScroll } from "./hooks/use-shortcut-scroll";
+import { usePrefetchExpandedChildren } from "./hooks/usePrefetchExpandedChildren";
 import { Challenges } from "@/app/challenges";
 
 export const VirtualTree = () => {
   useExpandedSync();
   useChallengeAudio();
+  usePrefetchExpandedChildren();
 
   const parentRef = useRef<HTMLDivElement>(null);
   const nodes = useAtomValue(treeAtom.nodes);
