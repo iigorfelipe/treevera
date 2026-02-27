@@ -60,9 +60,9 @@ export const Profile = () => {
               </div>
 
               <div className="space-y-10 md:space-y-16">
-                <LatestUserActivities />
                 <SpeciesGalleryPreview />
                 <TreeShortcuts />
+                <LatestUserActivities />
                 {/* <UserProgress />
                 {isMobile && <UserAchievements />} */}
               </div>

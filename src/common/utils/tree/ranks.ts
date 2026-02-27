@@ -6,8 +6,33 @@ import fungiUrl from "@/assets/images/avif-fungi.avif?url";
 import plantaeUrl from "@/assets/images/avif-plantae.avif?url";
 import protozoaUrl from "@/assets/images/avif-protozoa.avif?url";
 
-import type { Rank, Taxon } from "../../types/api";
+import animalia1 from "@/assets/images/animalia-1.jpg?url";
+import animalia2 from "@/assets/images/animalia-2.jpg?url";
+import animalia3 from "@/assets/images/animalia-3.jpg?url";
+import animalia4 from "@/assets/images/animalia-4.jpg?url";
+import animalia5 from "@/assets/images/animalia-5.jpg?url";
+import bacteria1 from "@/assets/images/bacteria-1.jpg?url";
+import fungi1 from "@/assets/images/fungi-1.jpg?url";
+import plantae1 from "@/assets/images/plantae-1.jpg?url";
+
+import type { Kingdom, Rank, Taxon } from "../../types/api";
 import { capitalizar } from "../string";
+
+const KINGDOM_IMAGES: Record<Kingdom, string[]> = {
+  animalia: [animalia1, animalia2, animalia3, animalia4, animalia5],
+  bacteria: [bacteria1, bacteriaUrl],
+  fungi: [fungi1, fungiUrl],
+  plantae: [plantae1, plantaeUrl],
+  archaea: [archaeaUrl],
+  chromista: [chromistaUrl],
+  protozoa: [protozoaUrl],
+};
+
+export const getKingdomImages = (kingdom: Kingdom): string[] =>
+  KINGDOM_IMAGES[kingdom] ?? [animaliaUrl];
+
+export const getBgImgByKingdom = (kingdom: Kingdom): string =>
+  KINGDOM_IMAGES[kingdom][0];
 
 export const RANK_ORDER: Rank[] = [
   "KINGDOM",

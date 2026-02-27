@@ -1,10 +1,5 @@
-import { Image } from "@/common/components/image";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/common/components/ui/card";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CardInfo } from "@/modules/explore/card";
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
@@ -15,73 +10,134 @@ export const ExploreInfo = () => {
   const { t } = useTranslation();
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
-
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const { toggleNode } = useTreeNavigation();
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const total = exploreInfos.length;
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setCurrentIndex((i) => (i + 1) % total);
+    }, 7000);
+    return () => clearTimeout(id);
+  }, [currentIndex, total]);
+
   if (!challengeMode && expandedNodes.length) return <CardInfo />;
 
+  const current = exploreInfos[currentIndex];
+
+  const prev = () => setCurrentIndex((i) => (i - 1 + total) % total);
+  const next = () => setCurrentIndex((i) => (i + 1) % total);
+
   return (
-    <div className="p-8">
+    <div
+      className="relative min-h-screen w-full cursor-pointer overflow-hidden bg-black"
+      onClick={() => toggleNode(current.kingdomKey)}
+    >
+      <img
+        key={current.kingdomKey}
+        src={current.bgImg}
+        alt={current.kingdomName}
+        className="animate-fade-in absolute inset-0 h-full w-full object-cover"
+      />
+
+      <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/10" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20" />
+
+      <div className="absolute top-8 left-8 flex items-center gap-3">
+        <div
+          className="h-5 w-0.5 rounded-full"
+          style={{ backgroundColor: current.primaryColor }}
+        />
+        <span className="text-xs font-semibold tracking-[0.2em] text-white/70 uppercase">
+          {t("explore.kingdom")} {current.kingdomName.toUpperCase()}
+        </span>
+      </div>
+
       <div
-        className="mx-auto max-w-7xl space-y-12"
-        style={{ containerType: "inline-size" }}
+        key={currentIndex}
+        className="animate-slide-up absolute bottom-32 left-8 max-w-xl space-y-5 md:left-14"
       >
-        <div className="text-center">
-          <h1 className="mb-4 text-3xl font-semibold">
-            {t("explore.selectKingdom")}
-          </h1>
-        </div>
+        <span
+          className="inline-block rounded-full px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase"
+          style={{ backgroundColor: current.primaryColor }}
+        >
+          {t("explore.kingdom")}
+        </span>
 
-        <div className="grid grid-cols-1 gap-6 [@container(min-width:620px)]:grid-cols-2 [@container(min-width:820px)]:grid-cols-3">
-          {exploreInfos.map((item) => (
-            <Card
-              key={item.kingdomKey}
-              className="cursor-pointer overflow-hidden border-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
-              onClick={() => toggleNode(item.kingdomKey)}
+        <h1 className="text-5xl leading-none font-black tracking-tight text-white md:text-7xl">
+          {current.kingdomName}
+        </h1>
+
+        <p className="max-w-sm text-sm leading-relaxed text-white/65">
+          {current.description}
+        </p>
+
+        <div className="flex flex-wrap gap-3 pt-1">
+          {current.mainGroups.slice(0, 3).map((group, index) => (
+            <div
+              key={index}
+              className="rounded-lg border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm"
             >
-              <CardHeader className="">
-                <div className="mb-4 flex items-center gap-4">
-                  <div
-                    className="flex h-12 w-12 items-center justify-center rounded-xl text-xl shadow-sm"
-                    style={{ backgroundColor: item.lightColor }}
-                  >
-                    <Image
-                      src={item.icon}
-                      className="size-6"
-                      alt={item.kingdomName + "icon"}
-                    />
-                  </div>
-                  <CardTitle className="mb-2 text-xl font-bold">
-                    {item.kingdomName}
-                  </CardTitle>
-                </div>
-                <p className="line-clamp-2 text-sm leading-relaxed">
-                  {item.description}
-                </p>
-              </CardHeader>
-
-              <CardContent>
-                <p className="mb-2 text-xs font-medium">{t("explore.mainGroups")}:</p>
-                <div className="flex flex-wrap gap-1">
-                  {item.mainGroups.slice(0, 3).map((group, index) => (
-                    <span
-                      key={index}
-                      className="bg-accent rounded border px-2 py-1 text-xs"
-                    >
-                      {group.groupName}
-                    </span>
-                  ))}
-                  {item.mainGroups.length > 3 && (
-                    <span className="bg-accent rounded border px-2 py-1 text-xs">
-                      +{item.mainGroups.length - 3}
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+              <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
+                {t("explore.mainGroups")}
+              </p>
+              <p
+                className="mt-0.5 text-sm font-semibold"
+                style={{ color: current.primaryColor }}
+              >
+                {group.groupName}
+              </p>
+            </div>
           ))}
         </div>
+      </div>
+
+      <div className="absolute bottom-10 left-8 flex items-center gap-2 md:left-14">
+        {exploreInfos.map((_, i) => (
+          <button
+            key={i}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCurrentIndex(i);
+            }}
+            className="h-0.5 rounded-full transition-all duration-300"
+            style={{
+              width: i === currentIndex ? 28 : 12,
+              backgroundColor:
+                i === currentIndex
+                  ? current.primaryColor
+                  : "rgba(255,255,255,0.3)",
+            }}
+          />
+        ))}
+      </div>
+
+      <div
+        className="absolute right-8 bottom-7 flex items-center gap-3"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span className="min-w-12 text-right text-sm font-medium text-white/40 tabular-nums">
+          {String(currentIndex + 1).padStart(2, "0")} /{" "}
+          {String(total).padStart(2, "0")}
+        </span>
+
+        <button
+          onClick={prev}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+
+        <button
+          onClick={next}
+          className="flex h-10 w-10 items-center justify-center rounded-full text-black transition"
+          style={{ backgroundColor: current.primaryColor }}
+        >
+          <ChevronRight className="size-5" />
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { COLOR_KINGDOM_BY_KEY } from "../constants/tree";
-import { getRankIcon } from "./tree/ranks";
+import { getBgImgByKingdom, getRankIcon } from "./tree/ranks";
 
 export const dataFake = [
   {
@@ -7,6 +7,7 @@ export const dataFake = [
     kingdomName: "Animalia",
     numDescendants: 0,
     explored: 0,
+    bgImg: getBgImgByKingdom("animalia"),
     icon: getRankIcon(1),
     primaryColor: COLOR_KINGDOM_BY_KEY[1],
     lightColor: "#fff3f0",
@@ -74,6 +75,7 @@ export const dataFake = [
     kingdomName: "Archaea",
     numDescendants: 0,
     explored: 0,
+    bgImg: getBgImgByKingdom("archaea"),
     icon: getRankIcon(2),
     primaryColor: COLOR_KINGDOM_BY_KEY[2],
     lightColor: "#f8f3ff",
@@ -119,6 +121,7 @@ export const dataFake = [
     kingdomName: "Bacteria",
     numDescendants: 0,
     explored: 0,
+    bgImg: getBgImgByKingdom("bacteria"),
     icon: getRankIcon(3),
     primaryColor: COLOR_KINGDOM_BY_KEY[3],
     lightColor: "#f0fbf9",
@@ -168,6 +171,7 @@ export const dataFake = [
     kingdomName: "Chromista",
     numDescendants: 0,
     explored: 0,
+    bgImg: getBgImgByKingdom("chromista"),
     icon: getRankIcon(4),
     primaryColor: COLOR_KINGDOM_BY_KEY[4],
     lightColor: "#fff9ed",
@@ -218,6 +222,7 @@ export const dataFake = [
     kingdomName: "Fungi",
     numDescendants: 0,
     explored: 0,
+    bgImg: getBgImgByKingdom("fungi"),
     icon: getRankIcon(5),
     primaryColor: COLOR_KINGDOM_BY_KEY[5],
     lightColor: "#fff3ef",
@@ -266,6 +271,7 @@ export const dataFake = [
     kingdomName: "Plantae",
     numDescendants: 0,
     explored: 0,
+    bgImg: getBgImgByKingdom("plantae"),
     icon: getRankIcon(6),
     primaryColor: COLOR_KINGDOM_BY_KEY[6],
     lightColor: "#f3fbf0",
@@ -329,6 +335,7 @@ export const dataFake = [
     kingdomName: "Protozoa",
     numDescendants: 0,
     explored: 0,
+    bgImg: getBgImgByKingdom("protozoa"),
     icon: getRankIcon(7),
     primaryColor: COLOR_KINGDOM_BY_KEY[7],
     lightColor: "#f0f7ff",

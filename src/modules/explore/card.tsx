@@ -1,152 +1,207 @@
 import { curiosidades } from "@/common/utils/dataFake";
-import { getRankIcon } from "@/common/utils/tree/ranks";
 import { capitalizar } from "@/common/utils/string";
-import { Image } from "@/common/components/image";
-import { Badge } from "@/common/components/ui/badge";
-import { Card, CardContent } from "@/common/components/ui/card";
+import { getKingdomImages } from "@/common/utils/tree/ranks";
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
-import { Route } from "lucide-react";
-import { Button } from "@/common/components/ui/button";
+import { useMemo, useState, useEffect } from "react";
+import { Route, ChevronLeft, ChevronRight } from "lucide-react";
 import { authStore } from "@/store/auth/atoms";
-import { COLOR_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { useTranslation } from "react-i18next";
+import type { Kingdom, Rank } from "@/common/types/api";
+
+const RANK_PT: Partial<Record<Rank, string>> = {
+  KINGDOM: "Reino",
+  PHYLUM: "Filo",
+  CLASS: "Classe",
+  ORDER: "Ordem",
+  FAMILY: "Família",
+  GENUS: "Gênero",
+  SPECIES: "Espécie",
+};
 
 export const CardInfo = () => {
   const { t } = useTranslation();
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
   const userDb = useAtomValue(authStore.userDb);
-
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const { navigateToNodes } = useTreeNavigation();
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const selectedData = exploreInfos.find(
-    (item) => item.kingdomKey === expandedNodes[0].key,
+    (item) => item.kingdomKey === expandedNodes[0]?.key,
   );
 
-  const message = useMemo(() => {
-    const currentRank = expandedNodes[expandedNodes.length - 1].rank;
+  const currentRank = expandedNodes[expandedNodes.length - 1]?.rank as Rank;
 
+  const currentName = useMemo(() => {
     if (!selectedData) return "";
+    if (currentRank === "KINGDOM") return selectedData.kingdomName;
+    return (
+      expandedNodes[expandedNodes.length - 1]?.name ?? capitalizar(currentRank)
+    );
+  }, [expandedNodes, selectedData, currentRank]);
 
-    if (currentRank !== "KINGDOM") {
-      return `a classificação ${capitalizar(currentRank)}`;
+  const slides = useMemo(() => {
+    if (!selectedData) return [];
+    if (expandedNodes.length === 1) {
+      return curiosidades.KINGDOM[expandedNodes[0].key] ?? [];
     }
+    const entry = curiosidades[currentRank as keyof typeof curiosidades];
+    return Array.isArray(entry) ? entry : [];
+  }, [expandedNodes, selectedData, currentRank]);
 
-    return `o Reino ${selectedData.kingdomName}`;
-  }, [expandedNodes, selectedData]);
+  const total = slides.length;
+
+  useEffect(() => {
+    if (!total) return;
+    const id = setTimeout(() => {
+      setCurrentIndex((i) => (i + 1) % total);
+    }, 6000);
+    return () => clearTimeout(id);
+  }, [currentIndex, total]);
+
+  const kingdomImages = useMemo(
+    () =>
+      selectedData
+        ? getKingdomImages(selectedData.kingdomName.toLowerCase() as Kingdom)
+        : [],
+    [selectedData],
+  );
 
   const shortcuts = useMemo(() => {
-    if (!userDb) return null;
-
-    if (!userDb.game_info?.shortcuts) return null;
-
+    if (!userDb?.game_info?.shortcuts) return null;
     const kingdom = selectedData?.kingdomName.toLocaleLowerCase() as "animalia";
     return userDb.game_info.shortcuts[kingdom];
   }, [selectedData?.kingdomName, userDb]);
 
-  if (!selectedData) return;
+  if (!selectedData || !slides.length) return null;
+
+  const currentBgImg = kingdomImages[currentIndex % kingdomImages.length];
+
+  const rankLabel = RANK_PT[currentRank] ?? capitalizar(currentRank);
+
+  const prev = () => setCurrentIndex((i) => (i - 1 + total) % total);
+  const next = () => setCurrentIndex((i) => (i + 1) % total);
 
   return (
-    <main
-      className="mx-auto min-h-screen w-full max-w-6xl p-10"
-      style={{ containerType: "inline-size" }}
-    >
-      <header className="bg-card flex rounded-xl border p-6 pr-10 shadow-sm">
-        <div className="space-y-2">
-          <Badge variant="secondary">{t("explore.kingdom")}</Badge>
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      <img
+        key={currentBgImg}
+        src={currentBgImg}
+        alt={selectedData.kingdomName}
+        className="animate-fade-in absolute inset-0 h-full w-full object-cover"
+      />
 
-          <h1
-            className="[@container(min-width:350px)]text-4xl text-3xl font-bold tracking-tight [@container(min-width:450px)]:text-5xl"
-            style={{
-              color: COLOR_KINGDOM_BY_KEY[selectedData.kingdomKey],
-            }}
-          >
-            {selectedData.kingdomName}
-          </h1>
-          <p className="text-muted-foreground w-full">
-            {selectedData.description}
-          </p>
+      <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/10" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20" />
 
-          <div className="flex flex-col gap-1">
-            <div className="flex flex-wrap items-center gap-1">
-              {selectedData.mainGroups.map((example, index) => (
-                <Button
-                  variant="outline"
-                  key={index}
-                  onClick={() => navigateToNodes(example.pathNode)}
-                >
-                  <Route className="size-4 scale-x-[-1]" />
-
-                  {example.groupName}
-                </Button>
-              ))}
-            </div>
-
-            {shortcuts && (
-              <div className="flex flex-wrap items-center gap-1">
-                {shortcuts.map(({ name, nodes }, index) => {
-                  if (nodes[0].key === selectedData.kingdomKey) {
-                    return (
-                      <Button
-                        key={name + index}
-                        variant="outline"
-                        onClick={() => navigateToNodes(nodes, true)}
-                      >
-                        <Route className="size-4 scale-x-[-1]" />
-
-                        {name}
-                      </Button>
-                    );
-                  }
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-        <Image
-          src={getRankIcon(selectedData.kingdomKey)}
-          className="mt-8 size-8 [@container(min-width:350px)]:size-12 [@container(min-width:450px)]:my-auto [@container(min-width:450px)]:ml-auto [@container(min-width:450px)]:size-20"
+      <div className="absolute top-8 left-8 flex items-center gap-3">
+        <div
+          className="h-5 w-0.5 rounded-full"
+          style={{ backgroundColor: selectedData.primaryColor }}
         />
-      </header>
+        <span className="text-xs font-semibold tracking-[0.2em] text-white/70 uppercase">
+          {t("explore.kingdom")} {selectedData.kingdomName.toUpperCase()}
+        </span>
+      </div>
 
-      {expandedNodes.length > 0 &&
-        expandedNodes[expandedNodes.length - 1].rank !== "SPECIES" && (
-          <section className="py-8 sm:py-10">
-            <h2 className="mb-6 text-center text-2xl font-semibold tracking-tight">
-              Fatos e curiosidades sobre {message}
-            </h2>
-            <div className="grid gap-4 [@container(min-width:350px)]:grid-cols-2">
-              {expandedNodes.length === 1
-                ? curiosidades.KINGDOM[expandedNodes[0].key].map(
-                    (item, index) => (
-                      <Card
-                        key={index}
-                        className="transition-shadow duration-200 hover:shadow-lg"
-                      >
-                        <CardContent>
-                          <p className="text-foreground/90">{item}</p>
-                        </CardContent>
-                      </Card>
-                    ),
-                  )
-                : curiosidades[
-                    expandedNodes[expandedNodes.length - 1].rank as "PHYLUM"
-                  ].map((item, index) => (
-                    <Card
-                      key={index}
-                      className="transition-shadow duration-200 hover:shadow-lg"
-                    >
-                      <CardContent>
-                        <p className="text-foreground/90">{item}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-            </div>
-          </section>
+      <div
+        key={currentIndex}
+        className="animate-slide-up absolute bottom-32 left-8 max-w-xl space-y-5 md:left-14"
+      >
+        <span
+          className="inline-block rounded-full px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase"
+          style={{ backgroundColor: selectedData.primaryColor }}
+        >
+          {rankLabel}
+        </span>
+
+        <h1 className="text-5xl leading-none font-black tracking-tight text-white md:text-7xl">
+          {currentName}
+        </h1>
+
+        <p className="max-w-sm text-sm leading-relaxed text-white/65">
+          {slides[currentIndex]}
+        </p>
+
+        <div className="flex flex-wrap gap-3 pt-1">
+          {selectedData.mainGroups.slice(0, 3).map((group, i) => (
+            <button
+              key={i}
+              onClick={() => navigateToNodes(group.pathNode)}
+              className="rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-left backdrop-blur-sm transition hover:bg-white/20"
+            >
+              <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
+                {t("explore.mainGroups")}
+              </p>
+              <p
+                className="mt-0.5 text-sm font-semibold"
+                style={{ color: selectedData.primaryColor }}
+              >
+                {group.groupName}
+              </p>
+            </button>
+          ))}
+        </div>
+
+        {shortcuts && (
+          <div className="flex flex-wrap gap-2">
+            {shortcuts
+              .filter(({ nodes }) => nodes[0].key === selectedData.kingdomKey)
+              .map(({ name, nodes }, i) => (
+                <button
+                  key={i}
+                  onClick={() => navigateToNodes(nodes, true)}
+                  className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm transition hover:bg-white/20"
+                >
+                  <Route className="size-3 scale-x-[-1]" />
+                  {name}
+                </button>
+              ))}
+          </div>
         )}
-    </main>
+      </div>
+
+      <div className="absolute bottom-10 left-8 flex items-center gap-2 md:left-14">
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentIndex(i)}
+            className="h-0.5 rounded-full transition-all duration-300"
+            style={{
+              width: i === currentIndex ? 28 : 12,
+              backgroundColor:
+                i === currentIndex
+                  ? selectedData.primaryColor
+                  : "rgba(255,255,255,0.3)",
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="absolute right-8 bottom-7 flex items-center gap-3">
+        <span className="min-w-12 text-right text-sm font-medium text-white/40 tabular-nums">
+          {String(currentIndex + 1).padStart(2, "0")} /{" "}
+          {String(total).padStart(2, "0")}
+        </span>
+
+        <button
+          onClick={prev}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+
+        <button
+          onClick={next}
+          className="flex h-10 w-10 items-center justify-center rounded-full text-black transition"
+          style={{ backgroundColor: selectedData.primaryColor }}
+        >
+          <ChevronRight className="size-5" />
+        </button>
+      </div>
+    </div>
   );
 };

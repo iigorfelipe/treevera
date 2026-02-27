@@ -35,6 +35,7 @@ export type ExploreInfo = {
   kingdomName: Kingdom;
   numDescendants: number;
   explored: number;
+  bgImg: string;
   icon: string;
   primaryColor: string;
   lightColor: string;
