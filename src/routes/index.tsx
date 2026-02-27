@@ -12,9 +12,11 @@ import { getDefaultStore } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { AuthCallback } from "@/app/auth/auth-callback";
 import { SpeciesGalleryPage } from "@/app/profile/species-gallery";
+import { NotFound } from "@/app/not-found";
 
 const rootRoute = createRootRoute({
   component: Layout,
+  notFoundComponent: NotFound,
 });
 
 const homeRoute = createRoute({
