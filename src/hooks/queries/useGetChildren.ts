@@ -6,9 +6,9 @@ import type { Taxon } from "@/common/types/api";
 import { filterChildren } from "@/common/utils/tree/children";
 import { showEmptyNodesAtom } from "@/store/user-settings";
 
-type RawGbifChild = Taxon & { nubKey?: number; taxonomicStatus?: string };
+export type RawGbifChild = Taxon & { nubKey?: number; taxonomicStatus?: string };
 
-const isBackboneAccepted = (item: RawGbifChild): boolean => {
+export const isBackboneAccepted = (item: RawGbifChild): boolean => {
   if (item.taxonomicStatus && item.taxonomicStatus !== "ACCEPTED") return false;
   if (item.nubKey !== undefined && item.nubKey !== item.key) return false;
   if (!item.canonicalName) return false;
