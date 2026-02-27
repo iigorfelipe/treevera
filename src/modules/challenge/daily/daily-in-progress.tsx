@@ -24,15 +24,8 @@ import { ChallengeTips } from "@/modules/challenge/components/tips";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
-import {
-  Trophy,
-  CheckCircle,
-  RotateCcw,
-  CalendarDays,
-  Shuffle,
-} from "lucide-react";
-
-import { motion } from "framer-motion";
+import { CalendarDays } from "lucide-react";
+import { ChallengeCompleted } from "@/modules/challenge/completed";
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
@@ -173,90 +166,30 @@ export const DailyChallengeInProgress = () => {
     const isNavSameAsPlayed = navDate === challengeDate;
     return (
       <div className="flex flex-col gap-4 pb-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          className="mx-4 overflow-hidden rounded-2xl border shadow-sm md:mt-5"
+        <ChallengeCompleted
+          speciesName={speciesName}
+          onReplay={handleReplay}
+          onNext={handleRandom}
+          nextLabel={t("challenge.nextRandom")}
+          nextLoading={randomLoading}
         >
-          <div className="bg-emerald-50/60 px-5 py-4 dark:bg-emerald-950/30">
-            <div className="flex items-center gap-3">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.12, type: "spring", stiffness: 220 }}
-                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-500"
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2">
+              <CalendarDays className="text-muted-foreground size-4 shrink-0" />
+              <DailyDateNav selectedDate={navDate} onSelectDate={setNavDate} />
+            </div>
+            {!isNavSameAsPlayed && (
+              <Button
+                size="sm"
+                className="shrink-0 bg-emerald-600 hover:bg-emerald-700"
+                onClick={handlePlayNavDate}
+                disabled={navLoading || !navChallengeData}
               >
-                <Trophy className="size-5 text-white" />
-              </motion.div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                  {t("challenge.completed")}
-                </p>
-                <p className="truncate text-base font-bold">{speciesName}</p>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-muted-foreground mt-0.5 flex items-center gap-1 text-xs"
-                >
-                  <CheckCircle className="size-3 shrink-0 text-emerald-500" />
-                  {t("challenge.path")}
-                </motion.p>
-              </div>
-            </div>
+                {t("challenge.play")}
+              </Button>
+            )}
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="divide-y"
-          >
-            <button
-              onClick={handleReplay}
-              className="hover:bg-muted/50 flex w-full items-center gap-3 px-5 py-3.5 transition-colors"
-            >
-              <RotateCcw className="text-muted-foreground size-4 shrink-0" />
-              <span className="text-sm font-medium">
-                {t("challenge.replay")}
-              </span>
-            </button>
-
-            <div className="flex items-center justify-between gap-3 px-5 py-3.5">
-              <div className="flex min-w-0 items-center gap-3">
-                <CalendarDays className="text-muted-foreground size-4 shrink-0" />
-                <DailyDateNav
-                  selectedDate={navDate}
-                  onSelectDate={setNavDate}
-                />
-              </div>
-              {!isNavSameAsPlayed && (
-                <Button
-                  size="sm"
-                  className="shrink-0 bg-emerald-600 hover:bg-emerald-700"
-                  onClick={handlePlayNavDate}
-                  disabled={navLoading || !navChallengeData}
-                >
-                  {t("challenge.play")}
-                </Button>
-              )}
-            </div>
-
-            <button
-              onClick={handleRandom}
-              disabled={randomLoading}
-              className="hover:bg-muted/50 flex w-full items-center gap-3 px-5 py-3.5 transition-colors disabled:opacity-50"
-            >
-              <Shuffle
-                className={`text-muted-foreground size-4 shrink-0 ${randomLoading ? "animate-spin" : ""}`}
-              />
-              <span className="text-sm font-medium">
-                {t("challenge.nextRandom")}
-              </span>
-            </button>
-          </motion.div>
-        </motion.div>
+        </ChallengeCompleted>
 
         <SpecieDetail embedded />
       </div>

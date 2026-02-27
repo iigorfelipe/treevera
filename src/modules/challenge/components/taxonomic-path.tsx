@@ -48,10 +48,11 @@ export const TaxonomicPath = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2">
         {correctPath.map((entry, index) => {
           const status = getStatus(index);
           const isActive = activeIndex === index;
+          const isLast = index === correctPath.length - 1;
 
           return (
             <motion.div
@@ -59,7 +60,7 @@ export const TaxonomicPath = ({
               layout
               animate={
                 isActive
-                  ? { scale: 1.03 }
+                  ? { scale: 1 }
                   : status === "error"
                     ? { x: [-4, 4, -3, 3, 0] }
                     : { scale: 1 }
@@ -71,6 +72,7 @@ export const TaxonomicPath = ({
               }
               className={cn(
                 "flex items-center justify-between rounded-xl border p-3 transition-all",
+                isLast && "col-span-2",
                 status === "success" && "border-green-500/60 bg-green-500/10",
                 status === "error" && "border-red-400/60 bg-red-500/10",
                 status === "locked" && "border-dashed opacity-50",

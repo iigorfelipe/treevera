@@ -9,6 +9,7 @@ interface ChallengeCompletedProps {
   onNext: () => void;
   nextLabel: string;
   nextLoading?: boolean;
+  children?: React.ReactNode;
 }
 
 export const ChallengeCompleted = ({
@@ -17,6 +18,7 @@ export const ChallengeCompleted = ({
   onNext,
   nextLabel,
   nextLoading = false,
+  children,
 }: ChallengeCompletedProps) => {
   const { t } = useTranslation();
   return (
@@ -73,6 +75,17 @@ export const ChallengeCompleted = ({
           <ChevronRight className="size-4" />
         </Button>
       </motion.div>
+
+      {children && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="mt-4 border-t pt-4 text-left"
+        >
+          {children}
+        </motion.div>
+      )}
     </motion.div>
   );
 };
