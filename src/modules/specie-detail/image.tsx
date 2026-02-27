@@ -67,7 +67,7 @@ export const SpecieImageDetail = () => {
   }
 
   return (
-    <div className="relative mx-auto h-fit w-full">
+    <div className="mx-auto w-full">
       <figure>
         <ImageWithZoom
           src={imageData.imgUrl || fallbackImage}
@@ -80,10 +80,12 @@ export const SpecieImageDetail = () => {
       </figure>
 
       {imageData.source && (
-        <p className="absolute right-0 -bottom-4 px-1 text-[11px]">
-          {t("specieDetail.imageSource")}: {imageData.source}
-          {imageData.author && `${t("specieDetail.imageBy")}${imageData.author}`}
-          {imageData.licenseCode && `${t("specieDetail.imageLicense")}${imageData.licenseCode}`}
+        <p className="text-muted-foreground px-2 py-1 text-right text-[11px]">
+          {t("specieDetail.imageSource")}: {imageData.source}{" "}
+          {imageData.author &&
+            `${t("specieDetail.imageBy")}${imageData.author.trim()}`}
+          {imageData.licenseCode &&
+            `${t("specieDetail.imageLicense")}${imageData.licenseCode}`}
         </p>
       )}
     </div>
