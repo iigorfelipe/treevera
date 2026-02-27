@@ -24,7 +24,6 @@ import { ChallengeTips } from "@/modules/challenge/components/tips";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
-import { CalendarDays } from "lucide-react";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
@@ -173,11 +172,8 @@ export const DailyChallengeInProgress = () => {
           nextLabel={t("challenge.nextRandom")}
           nextLoading={randomLoading}
         >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
-              <CalendarDays className="text-muted-foreground size-4 shrink-0" />
-              <DailyDateNav selectedDate={navDate} onSelectDate={setNavDate} />
-            </div>
+          <div className="flex w-full items-center justify-center gap-3">
+            <DailyDateNav selectedDate={navDate} onSelectDate={setNavDate} />
             {!isNavSameAsPlayed && (
               <Button
                 size="sm"
