@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Loader, SearchIcon, X } from "lucide-react";
 
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
+import { cn } from "@/common/utils/cn";
 import { capitalizar } from "@/common/utils/string";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { Image } from "@/common/components/image";
@@ -64,8 +65,6 @@ export function SearchForm({
 
   const staticPlaceholder = t("search.searchByNameOrKey");
 
-  const placeholder = animatedText || staticPlaceholder;
-
   const showClear = q.length > 0 || hasResults;
 
   return (
@@ -117,13 +116,28 @@ export function SearchForm({
           ref={inputRef}
           value={q}
           onChange={(ev) => setQ(ev.target.value)}
-          placeholder={placeholder}
+          placeholder={kingdom ? undefined : t("search.selectKingdom")}
           className="h-9.5 w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-inset"
           aria-label={t("search.searchTaxa")}
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
         />
+        {kingdom && !q && (
+          <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
+            <span className="text-muted-foreground absolute inset-y-0 left-3 flex items-center text-sm">
+              {animatedText}
+            </span>
+            <span
+              className={cn(
+                "text-muted-foreground absolute inset-y-0 left-3 flex items-center text-sm transition-opacity duration-200",
+                animatedText ? "opacity-0" : "opacity-100",
+              )}
+            >
+              {staticPlaceholder}
+            </span>
+          </div>
+        )}
       </div>
 
       {showClear && (
