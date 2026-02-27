@@ -24,6 +24,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
 
   return (
     <div className="flex w-full flex-col gap-1 pb-4">
+      <div style={{ isolation: "isolate" }}>
       <MapContainer
         key={`map-${specieKey}`}
         center={[
@@ -88,6 +89,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
           </Marker>
         ))}
       </MapContainer>
+      </div>
 
       <div className="bg-card text-muted-foreground rounded-xl p-2 text-xs">
         {t("occurrenceMap.dataProvidedBy")}
