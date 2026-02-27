@@ -174,6 +174,7 @@
     "lineageError": "Could not retrieve lineage for the selected item",
     "pathError": "Error building the selected path",
     "keyNotFound": "GBIF key not found",
+    "rankNotInTree": "This taxon (subspecies, variety, etc.) does not exist in the tree",
     "kingdom": "Kingdom",
     "searchTaxa": "Search taxa",
     "expandResults": "Expand results",

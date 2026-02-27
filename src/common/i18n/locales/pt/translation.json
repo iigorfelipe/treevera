@@ -174,6 +174,7 @@
     "lineageError": "Não foi possível obter linhagem para o item selecionado",
     "pathError": "Erro ao montar o caminho selecionado",
     "keyNotFound": "Chave GBIF não encontrada",
+    "rankNotInTree": "Este táxon (subespécie, variedade, etc.) não existe na árvore",
     "kingdom": "Reino",
     "searchTaxa": "Pesquisar taxa",
     "expandResults": "Expandir resultados",
