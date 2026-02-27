@@ -1,4 +1,4 @@
-import type { SpecieDetail, Taxon } from "@/common/types/api";
+import type { SpecieDetail, Taxon, VernacularName } from "@/common/types/api";
 
 const GBIF_BASE_URL = "https://api.gbif.org/v1";
 const SPECIES_URL = `${GBIF_BASE_URL}/species`;
@@ -95,11 +95,11 @@ const OCCURRENCE_URL = `${GBIF_BASE_URL}/occurrence`;
 //   return data;
 // };
 
-// export const getVernacularNames = async (key: number) => {
-//   const url = `${SPECIES_URL}/${key}/vernacularNames`;
-//   const data = await fetch(url).then((res) => res.json());
-//   return data.json();
-// };
+export const getVernacularNames = async (key: number) => {
+  const url = `${SPECIES_URL}/${key}/vernacularNames`;
+  const data = await fetch(url).then((res) => res.json());
+  return (data.results ?? []) as VernacularName[];
+};
 // Tem language (ex: "pt", "es", "en")
 // Tem source (ex: "ITIS", "COL", etc.)
 

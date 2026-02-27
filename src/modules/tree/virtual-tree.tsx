@@ -18,6 +18,8 @@ import { useShortcutScroll } from "./hooks/use-shortcut-scroll";
 import { usePrefetchExpandedChildren } from "./hooks/usePrefetchExpandedChildren";
 import { Challenges } from "@/app/challenges";
 
+const TIPS_OPEN_TREE_PUSH_PX = 80;
+
 export const VirtualTree = () => {
   useExpandedSync();
   useChallengeAudio();
@@ -27,6 +29,7 @@ export const VirtualTree = () => {
   const nodes = useAtomValue(treeAtom.nodes);
   const roots = useAtomValue(treeAtom.rootKeys);
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
+  const tipsOpen = useAtomValue(treeAtom.challengeTipsOpen);
   const scrollToRank = useAtomValue(treeAtom.scrollToRank);
   const lastScrolledRank = useRef<Rank | null>(null);
   const scrollToNodeKey = useAtomValue(treeAtom.scrollToNodeKey);
@@ -58,11 +61,14 @@ export const VirtualTree = () => {
   }, [scrollToRank, flattened, nodes, rowVirtualizer]);
 
   useEffect(() => {
-    if (!scrollToNodeKey || scrollToNodeKey === lastScrolledNodeKey.current) return;
+    if (!scrollToNodeKey || scrollToNodeKey === lastScrolledNodeKey.current)
+      return;
 
     lastScrolledNodeKey.current = scrollToNodeKey;
 
-    const targetIndex = flattened.findIndex((item) => item.key === scrollToNodeKey);
+    const targetIndex = flattened.findIndex(
+      (item) => item.key === scrollToNodeKey,
+    );
 
     if (targetIndex === -1) return;
 
@@ -85,11 +91,17 @@ export const VirtualTree = () => {
       <div
         ref={parentRef}
         className={cn(
-          "h-[calc(100dvh-144px)] w-full overflow-auto px-4 pb-28",
+          "h-[calc(100dvh-144px)] w-full overflow-auto px-4 pb-28 transition-[padding-top] duration-200",
           challengeMode && !isTablet && "h-[calc(100dvh-130px)]",
           challengeMode === "UNSET" && "pointer-events-none opacity-40",
         )}
-        style={{ WebkitOverflowScrolling: "touch" }}
+        style={{
+          WebkitOverflowScrolling: "touch",
+          paddingTop:
+            isTablet && challengeMode && tipsOpen
+              ? TIPS_OPEN_TREE_PUSH_PX
+              : undefined,
+        }}
       >
         <ul
           style={{ height: rowVirtualizer.getTotalSize() }}

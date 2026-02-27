@@ -6,26 +6,32 @@ import {
   ChevronLeft,
   ChevronRight,
   ImageIcon,
+  Globe,
+  ChevronDown,
+  Info,
+  CircleQuestionMarkIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { cn } from "@/common/utils/cn";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ChevronDown, Info } from "lucide-react";
 import type { Rank } from "@/common/types/api";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   scrollToRankAtom,
   setHighlightedKeysAtom,
   scrollToNodeKeyAtom,
+  setChallengeTipsOpenAtom,
   treeAtom,
 } from "@/store/tree";
 import { useTranslation } from "react-i18next";
 import { useGetChallengeTips } from "@/hooks/queries/useGetChallengeTips";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
+import { useGetVernacularNames } from "@/hooks/queries/useGetVernacularNames";
 import { Image } from "@/common/components/image";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { useResponsive } from "@/hooks/use-responsive";
 
 type PathNode = { rank: Rank; name: string; key: number };
 
@@ -66,6 +72,7 @@ export const ChallengeTips = ({
   correctPath: PathNode[];
 }) => {
   const { t } = useTranslation();
+  const { isTablet } = useResponsive();
   const [revealedSteps, setRevealedSteps] = useState<Record<number, boolean>>(
     {},
   );
@@ -75,6 +82,9 @@ export const ChallengeTips = ({
   const setHighlightedKeys = useSetAtom(setHighlightedKeysAtom);
   const setScrollToNodeKey = useSetAtom(scrollToNodeKeyAtom);
   const setScrollToRank = useSetAtom(scrollToRankAtom);
+  const setTipsOpen = useSetAtom(setChallengeTipsOpenAtom);
+
+  const dragControls = useDragControls();
 
   const { data: tipsMap = {} } = useGetChallengeTips(correctPath);
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
@@ -82,6 +92,8 @@ export const ChallengeTips = ({
     speciesKey,
     specieDetail?.canonicalName,
   );
+  const { data: vernacularNames = [], isLoading: isLoadingVernacular } =
+    useGetVernacularNames(speciesKey);
 
   const currentNode = correctPath[visibleStep];
   const hints: string[] = currentNode ? (tipsMap[currentNode.name] ?? []) : [];
@@ -169,6 +181,7 @@ export const ChallengeTips = ({
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
+        if (isTablet) setTipsOpen(nextOpen);
         if (nextOpen) {
           setVisibleStep(currentStep);
           goToStep(currentStep);
@@ -215,19 +228,47 @@ export const ChallengeTips = ({
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <motion.div
+            // Desktop: draggable, positioned to avoid overlap with the right panel
+            // Mobile: fixed centered at top (original behaviour)
+            drag={!isTablet}
+            dragControls={dragControls}
+            dragListener={false}
+            dragMomentum={false}
+            dragElastic={0}
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="bg-background fixed top-2 left-1/2 z-50 w-[calc(100%-1rem)] max-w-md -translate-x-1/2 rounded-xl border p-4 shadow-lg"
           >
-            <header className="mb-2 flex items-center justify-between">
+            {/* Mobile-only: target species name so it stays visible when dialog overlaps tree */}
+            {isTablet && (
+              <div className="mb-2.5 flex items-center gap-1.5 border-b pb-2.5">
+                <span className="text-muted-foreground shrink-0 text-[11px] font-semibold tracking-wide uppercase">
+                  Alvo
+                </span>
+                <span className="truncate text-sm font-bold text-emerald-600 italic dark:text-green-400">
+                  {speciesName}
+                </span>
+              </div>
+            )}
+
+            <header
+              className={cn(
+                "mb-2 flex items-center justify-between",
+                !isTablet && "cursor-grab active:cursor-grabbing",
+              )}
+              onPointerDown={
+                !isTablet ? (e) => dragControls.start(e) : undefined
+              }
+            >
               <div className="flex max-h-[45dvh] items-center gap-2 overflow-y-auto">
                 <button
                   onClick={() => goToStep(visibleStep - 1)}
                   disabled={visibleStep === 0}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
                   aria-label={t("challenge.prevStep")}
+                  onPointerDown={(e) => e.stopPropagation()}
                 >
                   <ChevronLeft className="size-4" />
                 </button>
@@ -242,12 +283,16 @@ export const ChallengeTips = ({
                   disabled={visibleStep === currentStep}
                   className="hover:bg-muted rounded p-1 disabled:opacity-30"
                   aria-label={t("challenge.nextStep")}
+                  onPointerDown={(e) => e.stopPropagation()}
                 >
                   <ChevronRight className="size-4" />
                 </button>
               </div>
 
-              <Dialog.Close className="hover:bg-muted rounded p-1">
+              <Dialog.Close
+                className="hover:bg-muted rounded p-1"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
                 <X className="size-3.5" />
               </Dialog.Close>
             </header>
@@ -298,48 +343,105 @@ export const ChallengeTips = ({
               </div>
             )}
 
-            <Collapsible.Root className="mt-4">
-              <Collapsible.Trigger asChild>
-                <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <ImageIcon className="size-3.5" />
-                    Imagem da espécie
-                  </div>
-                  <ChevronDown className="size-3.5 opacity-60" />
-                </button>
-              </Collapsible.Trigger>
-
-              <Collapsible.Content className="mt-2 overflow-hidden rounded-md border">
-                {isLoadingImage ? (
-                  <Skeleton className="h-32 w-full" />
-                ) : imageData?.imgUrl ? (
-                  <Image
-                    src={imageData.imgUrl}
-                    alt={speciesName}
-                    className="h-32 w-full object-cover"
-                  />
-                ) : (
-                  <div className="text-muted-foreground flex h-32 items-center justify-center text-xs">
-                    Imagem não disponível
-                  </div>
-                )}
-              </Collapsible.Content>
-            </Collapsible.Root>
-
-            <Collapsible.Root className="mt-2">
+            <Collapsible.Root className="mt-3">
               <Collapsible.Trigger asChild>
                 <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                   <div className="flex items-center gap-1.5">
                     <Info className="size-3.5" />
-                    {t("challenge.howItWorks")}
+                    Mais informações
                   </div>
                   <ChevronDown className="size-3.5 opacity-60" />
                 </button>
               </Collapsible.Trigger>
 
-              <Collapsible.Content className="text-muted-foreground bg-muted/40 mt-2 rounded-md p-3 text-sm">
-                Expanda os grupos da árvore taxonômica seguindo o caminho
-                correto até chegar à espécie alvo.
+              <Collapsible.Content className="mt-1 space-y-1 overflow-hidden">
+                <Collapsible.Root>
+                  <Collapsible.Trigger asChild>
+                    <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <Globe className="size-3.5" />
+                        Nomes populares
+                      </div>
+                      <ChevronDown className="size-3.5 opacity-60" />
+                    </button>
+                  </Collapsible.Trigger>
+
+                  <Collapsible.Content className="mt-2 overflow-hidden rounded-md border p-2">
+                    {isLoadingVernacular ? (
+                      <div className="space-y-1">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                      </div>
+                    ) : vernacularNames.length === 0 ? (
+                      <div className="text-muted-foreground text-xs">
+                        Nenhum nome popular encontrado.
+                      </div>
+                    ) : (
+                      <ul className="space-y-1">
+                        {vernacularNames.map((v, i) => (
+                          <li
+                            key={i}
+                            className="flex items-center gap-2 text-xs"
+                          >
+                            <span className="bg-muted text-muted-foreground rounded px-1 py-0.5 font-mono text-[10px]">
+                              {v.language || "—"}
+                            </span>
+                            <span>{v.vernacularName}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </Collapsible.Content>
+                </Collapsible.Root>
+
+                <Collapsible.Root>
+                  <Collapsible.Trigger asChild>
+                    <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <ImageIcon className="size-3.5" />
+                        Imagem da espécie
+                      </div>
+                      <ChevronDown className="size-3.5 opacity-60" />
+                    </button>
+                  </Collapsible.Trigger>
+
+                  <Collapsible.Content className="mt-2 overflow-hidden rounded-md border">
+                    {isLoadingImage ? (
+                      <Skeleton className="h-32 w-full" />
+                    ) : imageData?.imgUrl ? (
+                      <Image
+                        src={imageData.imgUrl}
+                        alt={speciesName}
+                        className="h-32 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground flex h-32 items-center justify-center text-xs">
+                        Imagem não disponível
+                      </div>
+                    )}
+                  </Collapsible.Content>
+                </Collapsible.Root>
+
+                <Collapsible.Root>
+                  <Collapsible.Trigger asChild>
+                    <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <CircleQuestionMarkIcon className="size-3.5" />
+                        {t("challenge.howItWorks")}
+                      </div>
+                      <ChevronDown className="size-3.5 opacity-60" />
+                    </button>
+                  </Collapsible.Trigger>
+
+                  <Collapsible.Content className="text-muted-foreground bg-muted/40 mt-2 rounded-md p-3 text-sm">
+                    Expanda os grupos da árvore taxonômica seguindo o caminho
+                    correto até chegar à espécie{" "}
+                    <span className="font-semibold text-emerald-500">
+                      {speciesName}
+                    </span>
+                    .
+                  </Collapsible.Content>
+                </Collapsible.Root>
               </Collapsible.Content>
             </Collapsible.Root>
           </motion.div>

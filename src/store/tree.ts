@@ -180,6 +180,15 @@ export const syncExpandedWithNodesAtom = atom(null, (get, set) => {
   });
 });
 
+const challengeTipsOpen = atom(false);
+
+export const setChallengeTipsOpenAtom = atom(
+  null,
+  (_get, set, open: boolean) => {
+    set(challengeTipsOpen, open);
+  },
+);
+
 const highlightedRank = atom<Rank | null>(null);
 
 export const setHighlightedRankAtom = atom(
@@ -242,4 +251,5 @@ export const treeAtom = {
   nodes: nodesAtom,
   rootKeys,
   mergeNodes,
+  challengeTipsOpen,
 };

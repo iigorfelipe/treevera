@@ -65,6 +65,12 @@ export type RootTaxonNode = Pick<Taxon, "key" | "rank" | "numDescendants"> & {
   color: string;
 };
 
+export type VernacularName = {
+  vernacularName: string;
+  language: string;
+  source: string;
+};
+
 export type SpecieDetail = {
   canonicalName: string;
   scientificName: string;
