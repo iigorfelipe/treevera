@@ -92,7 +92,11 @@ export const TaxonomicPath = ({
                     status === "locked" && "text-muted-foreground",
                   )}
                 >
-                  {status === "locked" ? "—" : expandedNodes[index]?.name}
+                  {isActive
+                    ? "Selecione na árvore"
+                    : status === "locked"
+                      ? "—"
+                      : expandedNodes[index]?.name}
                 </span>
               </div>
 

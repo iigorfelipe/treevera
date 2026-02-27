@@ -207,8 +207,8 @@ export const DailyChallengeInProgress = () => {
   }
 
   return (
-    <div className="mt-22 md:mt-0 md:px-4 md:py-6">
-      <Card className="relative mx-auto rounded-3xl">
+    <div className="mt-22 max-w-5xl md:mt-0 md:px-4 md:py-6">
+      <Card className="relative rounded-3xl">
         {challengeDate === today && (
           <div className="absolute top-3 right-4">
             <Timer />
@@ -249,7 +249,7 @@ export const DailyChallengeInProgress = () => {
           />
 
           {!isCompleted && (
-            <div className="flex justify-end">
+            <div className="-mx-6 flex justify-end border-t px-8 pt-4">
               <Button
                 variant="ghost"
                 size="sm"

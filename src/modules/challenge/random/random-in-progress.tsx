@@ -1,6 +1,6 @@
 import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
-import { Card, CardContent } from "@/common/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/common/components/ui/card";
 import Alvo from "@/assets/alvo.gif";
 import AlvoWhite from "@/assets/alvo-white.gif";
 import { Shuffle } from "lucide-react";
@@ -177,7 +177,7 @@ export const RandomChallengeInProgress = () => {
   }
 
   return (
-    <div className="mt-22 md:mt-0 md:px-4 md:py-6">
+    <div className="mt-22 max-w-5xl md:mt-0 md:px-4 md:py-6">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={speciesKey || "loading"}
@@ -186,7 +186,7 @@ export const RandomChallengeInProgress = () => {
           exit={{ opacity: 0, x: -28 }}
           transition={{ duration: 0.22, ease: "easeOut" }}
         >
-          <Card className="mx-auto rounded-3xl">
+          <Card className="rounded-3xl">
             <CardContent className="flex flex-col gap-4 pt-5">
               <div className="flex items-center gap-3">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-violet-100 dark:bg-violet-900/40">
@@ -223,7 +223,7 @@ export const RandomChallengeInProgress = () => {
               />
 
               {!isCompleted && (
-                <div className="ml-auto flex items-center gap-3">
+                <CardFooter className="-mx-6 flex flex-wrap justify-between border-t px-8 pt-4">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -240,7 +240,7 @@ export const RandomChallengeInProgress = () => {
                     <Shuffle className="size-4" />
                     {t("challenge.nextChallenge")}
                   </Button>
-                </div>
+                </CardFooter>
               )}
             </CardContent>
           </Card>
