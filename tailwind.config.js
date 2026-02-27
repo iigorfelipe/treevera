@@ -7,6 +7,14 @@ export default {
     screens: BREAKPOINTS,
     extend: {
       keyframes: {
+        "slide-up": {
+          "0%": { opacity: "0", transform: "translateY(18px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
         pulse: {
           "0%, 100%": { opacity: "0.4" },
           "50%": { opacity: "1" },
@@ -57,6 +65,8 @@ export default {
         },
       },
       animation: {
+        "slide-up": "slide-up 0.45s ease-out forwards",
+        "fade-in": "fade-in 0.55s ease-out forwards",
         wiggle: "wiggle 1.5s ease-in-out infinite",
         pulse: "pulse 2s ease-in-out infinite",
         skeleton: "shine 1.2s linear infinite",
