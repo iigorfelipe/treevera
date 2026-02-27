@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtomValue, useSetAtom } from "jotai";
 import { authStore } from "@/store/auth/atoms";
@@ -17,6 +17,8 @@ import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import { selectedSpecieKeyAtom } from "@/store/tree";
 
 type SortOrder = "newest" | "oldest";
+
+const PAGE_SIZE = 20;
 
 const useNumColumns = () => {
   const [numColumns, setNumColumns] = useState(1);
@@ -55,6 +57,10 @@ export const SpeciesGallery = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [photosFirst, setPhotosFirst] = useState(true);
   const [imageStatus, setImageStatus] = useState<Record<number, boolean>>({});
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const handleImageResolved = useCallback((key: number, hasImage: boolean) => {
     setImageStatus((prev) => {
@@ -85,16 +91,39 @@ export const SpeciesGallery = () => {
     return result;
   }, [allSpecies, showOnlyFavorites, sortOrder, photosFirst, imageStatus]);
 
+  const visibleSpecies = filteredSpecies.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredSpecies.length;
+
   const columns = useMemo(() => {
     const cols = Array.from(
       { length: numColumns },
       () => [] as { species: SeenSpecies; globalIndex: number }[],
     );
-    filteredSpecies.forEach((species, i) => {
+    visibleSpecies.forEach((species, i) => {
       cols[i % numColumns].push({ species, globalIndex: i });
     });
     return cols;
-  }, [filteredSpecies, numColumns]);
+  }, [visibleSpecies, numColumns]);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [showOnlyFavorites, sortOrder, photosFirst, searchQuery]);
+
+  useEffect(() => {
+    if (!hasMore || !sentinelRef.current || !scrollRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => prev + PAGE_SIZE);
+        }
+      },
+      { root: scrollRef.current, rootMargin: "200px" },
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, visibleCount]);
 
   const handleClose = useCallback(() => {
     setSelectedSpecieKey(null);
@@ -220,7 +249,7 @@ export const SpeciesGallery = () => {
         </div>
       </motion.div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
         {filteredSpecies.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground text-center">
@@ -265,6 +294,7 @@ export const SpeciesGallery = () => {
                   </div>
                 ))}
               </div>
+              {hasMore && <div ref={sentinelRef} className="h-4" />}
             </div>
           </div>
         )}
