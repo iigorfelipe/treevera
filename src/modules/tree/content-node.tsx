@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
@@ -10,10 +10,10 @@ import {
 
 import { capitalizar } from "@/common/utils/string";
 import { Dna, Route, DnaOff, Info } from "lucide-react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
-import { treeAtom } from "@/store/tree";
+import { treeAtom, removeHighlightedKeyAtom } from "@/store/tree";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetParents } from "@/hooks/queries/useGetParents";
@@ -36,7 +36,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const speciesKey = challenge.speciesKey ?? 0;
 
   const highlightedKeys = useAtomValue(treeAtom.highlightedKeys);
-  const isHighlighted =
+  const isInHighlightedSet =
     highlightedKeys.size > 0 &&
     highlightedKeys.has(node.key) &&
     challengeInProgress;
@@ -77,6 +77,16 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     node.scientificName,
     correctPath,
   ]);
+
+  const removeHighlightedKey = useSetAtom(removeHighlightedKeyAtom);
+
+  useEffect(() => {
+    if (isInHighlightedSet && feedback === "error") {
+      removeHighlightedKey(node.key);
+    }
+  }, [isInHighlightedSet, feedback, node.key, removeHighlightedKey]);
+
+  const isHighlighted = isInHighlightedSet && feedback !== "error";
 
   const hasReachedLimit = useMemo(() => {
     const shortcuts = userDb?.game_info?.shortcuts;

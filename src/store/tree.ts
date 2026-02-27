@@ -204,6 +204,17 @@ export const setHighlightedKeysAtom = atom(
   },
 );
 
+export const removeHighlightedKeyAtom = atom(
+  null,
+  (_get, set, key: number) => {
+    set(highlightedKeys, (prev) => {
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  },
+);
+
 const scrollToNodeKey = atom<number | null>(null);
 
 export const scrollToNodeKeyAtom = atom(
