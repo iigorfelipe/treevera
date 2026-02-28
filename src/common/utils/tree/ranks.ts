@@ -12,6 +12,9 @@ import animalia3 from "@/assets/images/animalia-3.jpg?url";
 import animalia4 from "@/assets/images/animalia-4.jpg?url";
 import animalia5 from "@/assets/images/animalia-5.jpg?url";
 import bacteria1 from "@/assets/images/bacteria-1.jpg?url";
+import protozoa1 from "@/assets/images/protozoa-1.png?url";
+import chromista1 from "@/assets/images/chromista-1.jpg?url";
+import archaea1 from "@/assets/images/archaea-1.jpg?url";
 import fungi1 from "@/assets/images/fungi-1.jpg?url";
 import plantae1 from "@/assets/images/plantae-1.jpg?url";
 
@@ -20,12 +23,12 @@ import { capitalizar } from "../string";
 
 const KINGDOM_IMAGES: Record<Kingdom, string[]> = {
   animalia: [animalia1, animalia2, animalia3, animalia4, animalia5],
-  bacteria: [bacteria1, bacteriaUrl],
-  fungi: [fungi1, fungiUrl],
-  plantae: [plantae1, plantaeUrl],
-  archaea: [archaeaUrl],
-  chromista: [chromistaUrl],
-  protozoa: [protozoaUrl],
+  bacteria: [bacteria1],
+  fungi: [fungi1],
+  plantae: [plantae1],
+  archaea: [archaea1],
+  chromista: [chromista1],
+  protozoa: [protozoa1],
 };
 
 export const getKingdomImages = (kingdom: Kingdom): string[] =>
