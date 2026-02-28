@@ -117,7 +117,7 @@ export const SpecieDetail = ({
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-card rounded-xl border p-6 shadow-lg"
+            className="bg-card rounded-xl border p-3 shadow-lg sm:p-6"
           >
             <SpecieInfos />
           </motion.div>

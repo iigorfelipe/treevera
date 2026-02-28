@@ -79,13 +79,19 @@ export const SpecieInfos = () => {
     if (!updatedUser) return;
 
     const speciesName = specieDetail?.canonicalName ?? "";
-    const finalUser = await updateFavActivity({ user: updatedUser, speciesName, isFav: newFav });
+    const finalUser = await updateFavActivity({
+      user: updatedUser,
+      speciesName,
+      isFav: newFav,
+    });
     setUserDb(finalUser ?? updatedUser);
   };
 
   if (!specieDetail)
     return (
-      <p className="text-muted-foreground text-center">{t("specieDetail.dataUnavailable")}</p>
+      <p className="text-muted-foreground text-center">
+        {t("specieDetail.dataUnavailable")}
+      </p>
     );
 
   if (isLoading) return <SkeletonText />;
@@ -95,8 +101,16 @@ export const SpecieInfos = () => {
   const taxonomyFields = [
     [t("specieDetail.kingdomLabel"), specieDetail.kingdom],
     [t("specieDetail.phylumLabel"), specieDetail.phylum],
-    [isOrderClass ? t("specieDetail.orderLabel") : t("specieDetail.classLabel"), specieDetail.class],
-    [t("specieDetail.orderLabel"), isOrderClass ? undefined : specieDetail.order],
+    [
+      isOrderClass
+        ? t("specieDetail.orderLabel")
+        : t("specieDetail.classLabel"),
+      specieDetail.class,
+    ],
+    [
+      t("specieDetail.orderLabel"),
+      isOrderClass ? undefined : specieDetail.order,
+    ],
     [t("specieDetail.familyLabel"), specieDetail.family],
     [t("specieDetail.genusLabel"), specieDetail.genus],
   ].filter(([, value]) => !!value);
@@ -110,11 +124,11 @@ export const SpecieInfos = () => {
       >
         <div className="flex items-start gap-4">
           <div className="flex-1">
-            <h1 className="mb-1 text-3xl font-bold">
+            <h1 className="mb-1 text-2xl font-bold sm:text-3xl">
               {specieDetail.canonicalName}
             </h1>
             {specieDetail.scientificName && (
-              <p className="text-muted-foreground text-lg italic">
+              <p className="text-muted-foreground text-sm italic sm:text-lg">
                 {specieDetail.scientificName}
               </p>
             )}
@@ -195,23 +209,31 @@ export const SpecieInfos = () => {
           transition={{ delay: 0.4 }}
           className="space-y-3 border-t pt-4"
         >
-          <h3 className="text-lg font-semibold">{t("specieDetail.nomenclatureTitle")}</h3>
+          <h3 className="text-lg font-semibold">
+            {t("specieDetail.nomenclatureTitle")}
+          </h3>
           <div className="space-y-2 text-sm">
             {specieDetail.authorship && (
               <p className="text-muted-foreground">
-                <strong className="text-foreground">{t("specieDetail.author")}: </strong>
+                <strong className="text-foreground">
+                  {t("specieDetail.author")}:{" "}
+                </strong>
                 {specieDetail.authorship}
               </p>
             )}
             {specieDetail.publishedIn && (
               <p className="text-muted-foreground">
-                <strong className="text-foreground">{t("specieDetail.publishedIn")}: </strong>
+                <strong className="text-foreground">
+                  {t("specieDetail.publishedIn")}:{" "}
+                </strong>
                 {specieDetail.publishedIn}
               </p>
             )}
             <p className="text-muted-foreground">
-              <strong className="text-foreground">{t("specieDetail.sources")}: </strong>GBIF,
-              Wikipedia
+              <strong className="text-foreground">
+                {t("specieDetail.sources")}:{" "}
+              </strong>
+              GBIF, Wikipedia
             </p>
           </div>
         </motion.div>

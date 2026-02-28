@@ -9,6 +9,7 @@ import { authStore } from "@/store/auth/atoms";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { useTranslation } from "react-i18next";
 import type { Kingdom, Rank } from "@/common/types/api";
+import { useResponsive } from "@/hooks/use-responsive";
 
 const RANK_PT: Partial<Record<Rank, string>> = {
   KINGDOM: "Reino",
@@ -26,6 +27,7 @@ export const CardInfo = () => {
   const userDb = useAtomValue(authStore.userDb);
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const { navigateToNodes } = useTreeNavigation();
+  const { isMobile } = useResponsive();
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -86,7 +88,7 @@ export const CardInfo = () => {
   const next = () => setCurrentIndex((i) => (i + 1) % total);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+    <div className="relative min-h-screen w-full overflow-hidden bg-black pl-4">
       <img
         key={currentBgImg}
         src={currentBgImg}
@@ -97,7 +99,7 @@ export const CardInfo = () => {
       <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/10" />
       <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20" />
 
-      <div className="absolute top-8 left-8 flex items-center gap-3">
+      <div className="absolute top-8 flex items-center gap-3">
         <div
           className="h-5 w-0.5 rounded-full"
           style={{ backgroundColor: selectedData.primaryColor }}
@@ -109,7 +111,7 @@ export const CardInfo = () => {
 
       <div
         key={currentIndex}
-        className="animate-slide-up absolute bottom-32 left-8 max-w-xl space-y-5 md:left-14"
+        className="animate-slide-up absolute bottom-32 max-w-xl space-y-5"
       >
         <span
           className="inline-block rounded-full px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase"
@@ -117,54 +119,58 @@ export const CardInfo = () => {
         >
           {rankLabel}
         </span>
-
-        <h1 className="text-5xl leading-none font-black tracking-tight text-white md:text-7xl">
+        <h1 className="text-4xl leading-none font-black tracking-tight text-white sm:text-5xl md:text-7xl">
           {currentName}
         </h1>
-
         <p className="max-w-sm text-sm leading-relaxed text-white/65">
           {slides[currentIndex]}
         </p>
-
-        <div className="flex flex-wrap gap-3 pt-1">
-          {selectedData.mainGroups.slice(0, 3).map((group, i) => (
-            <button
-              key={i}
-              onClick={() => navigateToNodes(group.pathNode)}
-              className="rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-left backdrop-blur-sm transition hover:bg-white/20"
-            >
-              <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
-                {t("explore.mainGroups")}
-              </p>
-              <p
-                className="mt-0.5 text-sm font-semibold"
-                style={{ color: selectedData.primaryColor }}
+        <div className="space-y-1">
+          <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
+            {t("explore.mainGroups")}:
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {selectedData.mainGroups.slice(0, 3).map((group, i) => (
+              <button
+                key={i}
+                onClick={() => navigateToNodes(group.pathNode)}
+                className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-left backdrop-blur-sm transition hover:bg-white/20"
               >
-                {group.groupName}
-              </p>
-            </button>
-          ))}
+                <p
+                  className="mt-0.5 text-sm font-semibold"
+                  style={{ color: selectedData.primaryColor }}
+                >
+                  {group.groupName}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {shortcuts && (
-          <div className="flex flex-wrap gap-2">
-            {shortcuts
-              .filter(({ nodes }) => nodes[0].key === selectedData.kingdomKey)
-              .map(({ name, nodes }, i) => (
-                <button
-                  key={i}
-                  onClick={() => navigateToNodes(nodes, true)}
-                  className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm transition hover:bg-white/20"
-                >
-                  <Route className="size-3 scale-x-[-1]" />
-                  {name}
-                </button>
-              ))}
-          </div>
-        )}
+        <div className="space-y-1">
+          <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
+            Seus {t("shortcuts.title")}:
+          </p>
+          {shortcuts && (
+            <div className="flex flex-wrap gap-2">
+              {shortcuts
+                .filter(({ nodes }) => nodes[0].key === selectedData.kingdomKey)
+                .map(({ name, nodes }, i) => (
+                  <button
+                    key={i}
+                    onClick={() => navigateToNodes(nodes, true)}
+                    className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm transition hover:bg-white/20"
+                  >
+                    <Route className="size-3 scale-x-[-1]" />
+                    {name}
+                  </button>
+                ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="absolute bottom-10 left-8 flex items-center gap-2 md:left-14">
+      <div className="absolute bottom-10 flex items-center gap-2">
         {slides.map((_, i) => (
           <button
             key={i}
@@ -182,10 +188,12 @@ export const CardInfo = () => {
       </div>
 
       <div className="absolute right-8 bottom-7 flex items-center gap-3">
-        <span className="min-w-12 text-right text-sm font-medium text-white/40 tabular-nums">
-          {String(currentIndex + 1).padStart(2, "0")} /{" "}
-          {String(total).padStart(2, "0")}
-        </span>
+        {!isMobile && (
+          <span className="min-w-12 text-right text-sm font-medium text-white/40 tabular-nums">
+            {String(currentIndex + 1).padStart(2, "0")} /{" "}
+            {String(total).padStart(2, "0")}
+          </span>
+        )}
 
         <button
           onClick={prev}
