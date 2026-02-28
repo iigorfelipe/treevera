@@ -1,15 +1,16 @@
-import { curiosidades } from "@/common/utils/dataFake";
 import { capitalizar } from "@/common/utils/string";
 import { getKingdomImages } from "@/common/utils/tree/ranks";
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
 import { useMemo, useState, useEffect } from "react";
-import { Route, ChevronLeft, ChevronRight } from "lucide-react";
+import { Route } from "lucide-react";
 import { authStore } from "@/store/auth/atoms";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { useTranslation } from "react-i18next";
 import type { Kingdom, Rank } from "@/common/types/api";
-import { useResponsive } from "@/hooks/use-responsive";
+import { curiosidades } from "@/common/utils/dataFake";
+import { useScrollThenNavigate } from "@/hooks/use-scroll-then-navigate";
+import { Explorer } from "./explorer";
 
 const RANK_PT: Partial<Record<Rank, string>> = {
   KINGDOM: "Reino",
@@ -27,7 +28,7 @@ export const CardInfo = () => {
   const userDb = useAtomValue(authStore.userDb);
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const { navigateToNodes } = useTreeNavigation();
-  const { isMobile } = useResponsive();
+  const scrollThenNavigate = useScrollThenNavigate();
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -58,9 +59,7 @@ export const CardInfo = () => {
 
   useEffect(() => {
     if (!total) return;
-    const id = setTimeout(() => {
-      setCurrentIndex((i) => (i + 1) % total);
-    }, 6000);
+    const id = setTimeout(() => setCurrentIndex((i) => (i + 1) % total), 6000);
     return () => clearTimeout(id);
   }, [currentIndex, total]);
 
@@ -81,135 +80,52 @@ export const CardInfo = () => {
   if (!selectedData || !slides.length) return null;
 
   const currentBgImg = kingdomImages[currentIndex % kingdomImages.length];
-
   const rankLabel = RANK_PT[currentRank] ?? capitalizar(currentRank);
 
-  const prev = () => setCurrentIndex((i) => (i - 1 + total) % total);
-  const next = () => setCurrentIndex((i) => (i + 1) % total);
-
-  return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black pl-4">
-      <img
-        key={currentBgImg}
-        src={currentBgImg}
-        alt={selectedData.kingdomName}
-        className="animate-fade-in absolute inset-0 h-full w-full object-cover"
-      />
-
-      <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/10" />
-      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20" />
-
-      <div className="absolute top-8 flex items-center gap-3">
-        <div
-          className="h-5 w-0.5 rounded-full"
-          style={{ backgroundColor: selectedData.primaryColor }}
-        />
-        <span className="text-xs font-semibold tracking-[0.2em] text-white/70 uppercase">
-          {t("explore.kingdom")} {selectedData.kingdomName.toUpperCase()}
-        </span>
-      </div>
-
-      <div
-        key={currentIndex}
-        className="animate-slide-up absolute bottom-32 max-w-xl space-y-5"
-      >
-        <span
-          className="inline-block rounded-full px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase"
-          style={{ backgroundColor: selectedData.primaryColor }}
-        >
-          {rankLabel}
-        </span>
-        <h1 className="text-4xl leading-none font-black tracking-tight text-white sm:text-5xl md:text-7xl">
-          {currentName}
-        </h1>
-        <p className="max-w-sm text-sm leading-relaxed text-white/65">
-          {slides[currentIndex]}
-        </p>
-        <div className="space-y-1">
-          <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
-            {t("explore.mainGroups")}:
-          </p>
-          <div className="flex flex-wrap gap-3">
-            {selectedData.mainGroups.slice(0, 3).map((group, i) => (
-              <button
-                key={i}
-                onClick={() => navigateToNodes(group.pathNode)}
-                className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-left backdrop-blur-sm transition hover:bg-white/20"
-              >
-                <p
-                  className="mt-0.5 text-sm font-semibold"
-                  style={{ color: selectedData.primaryColor }}
-                >
-                  {group.groupName}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
-            Seus {t("shortcuts.title")}:
-          </p>
-          {shortcuts && (
-            <div className="flex flex-wrap gap-2">
-              {shortcuts
-                .filter(({ nodes }) => nodes[0].key === selectedData.kingdomKey)
-                .map(({ name, nodes }, i) => (
-                  <button
-                    key={i}
-                    onClick={() => navigateToNodes(nodes, true)}
-                    className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm transition hover:bg-white/20"
-                  >
-                    <Route className="size-3 scale-x-[-1]" />
-                    {name}
-                  </button>
-                ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="absolute bottom-10 flex items-center gap-2">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentIndex(i)}
-            className="h-0.5 rounded-full transition-all duration-300"
-            style={{
-              width: i === currentIndex ? 28 : 12,
-              backgroundColor:
-                i === currentIndex
-                  ? selectedData.primaryColor
-                  : "rgba(255,255,255,0.3)",
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="absolute right-8 bottom-7 flex items-center gap-3">
-        {!isMobile && (
-          <span className="min-w-12 text-right text-sm font-medium text-white/40 tabular-nums">
-            {String(currentIndex + 1).padStart(2, "0")} /{" "}
-            {String(total).padStart(2, "0")}
-          </span>
-        )}
-
-        <button
-          onClick={prev}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
-        >
-          <ChevronLeft className="size-5" />
-        </button>
-
-        <button
-          onClick={next}
-          className="flex h-10 w-10 items-center justify-center rounded-full text-black transition"
-          style={{ backgroundColor: selectedData.primaryColor }}
-        >
-          <ChevronRight className="size-5" />
-        </button>
+  const shortcutsSection = shortcuts && (
+    <div className="space-y-1">
+      <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
+        Seus {t("shortcuts.title")}:
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {shortcuts
+          .filter(({ nodes }) => nodes[0].key === selectedData.kingdomKey)
+          .map(({ name, nodes }, i) => (
+            <button
+              key={i}
+              onClick={() => scrollThenNavigate(() => navigateToNodes(nodes, true))}
+              className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm transition hover:bg-white/20"
+            >
+              <Route className="size-3 scale-x-[-1]" />
+              {name}
+            </button>
+          ))}
       </div>
     </div>
+  );
+
+  return (
+    <Explorer
+      bgImg={currentBgImg}
+      alt={selectedData.kingdomName}
+      kingdomLabel={t("explore.kingdom")}
+      kingdomName={selectedData.kingdomName}
+      primaryColor={selectedData.primaryColor}
+      slideKey={currentIndex}
+      badge={rankLabel}
+      title={currentName}
+      description={slides[currentIndex]}
+      mainGroupsLabel={t("explore.mainGroups")}
+      mainGroups={selectedData.mainGroups.slice(0, 3).map((g) => ({
+        groupName: g.groupName,
+        onClick: () => scrollThenNavigate(() => navigateToNodes(g.pathNode)),
+      }))}
+      extra={shortcutsSection}
+      total={total}
+      currentIndex={currentIndex}
+      onPrev={() => setCurrentIndex((i) => (i - 1 + total) % total)}
+      onNext={() => setCurrentIndex((i) => (i + 1) % total)}
+      onDotClick={setCurrentIndex}
+    />
   );
 };
