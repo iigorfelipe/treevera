@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next";
 import { ProgressSteps } from "./components/progress-steps";
 import { ChallengeTips } from "./components/tips";
 import type { Rank } from "@/common/types/api";
+import { useTheme } from "@/context/theme";
+import AlvoWhite from "@/assets/alvo-white.gif";
 
 type PathNode = { rank: Rank; name: string; key: number };
 
@@ -32,11 +34,17 @@ export const ChallengeMobile = ({
   correctPath: PathNode[];
 }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
+
   return (
     <div className="px-2">
       <motion.div className="rounded-2xl border px-3 py-2.5 shadow-sm">
         <div className="flex items-center gap-2.5">
-          <Image src={Alvo} className="size-7 shrink-0" alt="Alvo gif" />
+          <Image
+            src={theme === "dark" ? AlvoWhite : Alvo}
+            className="size-7 shrink-0"
+            alt="Alvo gif"
+          />
           <p className="truncate text-sm">
             <span className="font-bold text-emerald-600 dark:text-green-400">
               {speciesName}

@@ -65,7 +65,10 @@ export const Explorer = ({
       primaryColor={primaryColor}
     />
 
-    <div key={slideKey} className="animate-slide-up absolute bottom-32 max-w-xl space-y-5">
+    <div
+      key={slideKey}
+      className="animate-slide-up absolute bottom-32 max-w-xl space-y-5"
+    >
       <span
         className="inline-block rounded-full px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase"
         style={{ backgroundColor: primaryColor }}
@@ -77,7 +80,7 @@ export const Explorer = ({
         {title}
       </h1>
 
-      <p className="max-w-sm text-sm leading-relaxed text-white/65">
+      <p className="max-w-sm pr-2 text-sm leading-relaxed text-white/65">
         {description}
       </p>
 
@@ -93,13 +96,22 @@ export const Explorer = ({
                 onClick={onClick}
                 className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-left backdrop-blur-sm transition hover:bg-white/20"
               >
-                <p className="mt-0.5 text-sm font-semibold" style={{ color: primaryColor }}>
+                <p
+                  className="mt-0.5 text-sm font-semibold"
+                  style={{ color: primaryColor }}
+                >
                   {groupName}
                 </p>
               </button>
             ) : (
-              <div key={i} className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 backdrop-blur-sm">
-                <p className="mt-0.5 text-sm font-semibold" style={{ color: primaryColor }}>
+              <div
+                key={i}
+                className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 backdrop-blur-sm"
+              >
+                <p
+                  className="mt-0.5 text-sm font-semibold"
+                  style={{ color: primaryColor }}
+                >
                   {groupName}
                 </p>
               </div>
