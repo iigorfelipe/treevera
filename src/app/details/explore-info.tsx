@@ -15,13 +15,15 @@ export const ExploreInfo = () => {
   const { toggleNode } = useTreeNavigation();
   const scrollThenNavigate = useScrollThenNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const total = exploreInfos.length;
 
   useEffect(() => {
-    const id = setTimeout(() => setCurrentIndex((i) => (i + 1) % total), 7000);
+    if (isPaused) return;
+    const id = setTimeout(() => setCurrentIndex((i) => (i + 1) % total), 8000);
     return () => clearTimeout(id);
-  }, [currentIndex, total]);
+  }, [currentIndex, total, isPaused]);
 
   if (!challengeMode && expandedNodes.length) return <CardInfo />;
 
@@ -47,10 +49,12 @@ export const ExploreInfo = () => {
         .map((g) => ({ groupName: g.groupName }))}
       total={total}
       currentIndex={currentIndex}
+      isPaused={isPaused}
       stopPropagation
       onPrev={() => setCurrentIndex((i) => (i - 1 + total) % total)}
       onNext={() => setCurrentIndex((i) => (i + 1) % total)}
       onDotClick={setCurrentIndex}
+      onTogglePause={() => setIsPaused((p) => !p)}
     />
   );
 };

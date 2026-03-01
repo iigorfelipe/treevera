@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactNode } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { cn } from "@/common/utils/cn";
 
 interface CardShellProps {
@@ -63,9 +63,11 @@ interface CardSlideControlsProps {
   currentIndex: number;
   primaryColor: string;
   stopPropagation?: boolean;
+  isPaused: boolean;
   onPrev: () => void;
   onNext: () => void;
   onDotClick: (index: number) => void;
+  onTogglePause: () => void;
 }
 
 export const CardSlideControls = ({
@@ -73,9 +75,11 @@ export const CardSlideControls = ({
   currentIndex,
   primaryColor,
   stopPropagation: shouldStop = false,
+  isPaused,
   onPrev,
   onNext,
   onDotClick,
+  onTogglePause,
 }: CardSlideControlsProps) => {
   const stop = (e: MouseEvent) => {
     if (shouldStop) e.stopPropagation();
@@ -110,6 +114,13 @@ export const CardSlideControls = ({
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
         >
           <ChevronLeft className="size-5" />
+        </button>
+
+        <button
+          onClick={onTogglePause}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
+        >
+          {isPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
         </button>
 
         <button

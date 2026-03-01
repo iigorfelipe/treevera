@@ -31,6 +31,7 @@ export const CardInfo = () => {
   const scrollThenNavigate = useScrollThenNavigate();
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const selectedData = exploreInfos.find(
     (item) => item.kingdomKey === expandedNodes[0]?.key,
@@ -58,10 +59,10 @@ export const CardInfo = () => {
   const total = slides.length;
 
   useEffect(() => {
-    if (!total) return;
-    const id = setTimeout(() => setCurrentIndex((i) => (i + 1) % total), 6000);
+    if (!total || isPaused) return;
+    const id = setTimeout(() => setCurrentIndex((i) => (i + 1) % total), 8000);
     return () => clearTimeout(id);
-  }, [currentIndex, total]);
+  }, [currentIndex, total, isPaused]);
 
   const kingdomImages = useMemo(
     () =>
@@ -123,9 +124,11 @@ export const CardInfo = () => {
       extra={shortcutsSection}
       total={total}
       currentIndex={currentIndex}
+      isPaused={isPaused}
       onPrev={() => setCurrentIndex((i) => (i - 1 + total) % total)}
       onNext={() => setCurrentIndex((i) => (i + 1) % total)}
       onDotClick={setCurrentIndex}
+      onTogglePause={() => setIsPaused((p) => !p)}
     />
   );
 };

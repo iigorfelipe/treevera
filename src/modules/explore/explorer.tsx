@@ -27,10 +27,12 @@ export interface ExplorerProps {
 
   total: number;
   currentIndex: number;
+  isPaused: boolean;
   stopPropagation?: boolean;
   onPrev: () => void;
   onNext: () => void;
   onDotClick: (i: number) => void;
+  onTogglePause: () => void;
 }
 
 export const Explorer = ({
@@ -49,10 +51,12 @@ export const Explorer = ({
   extra,
   total,
   currentIndex,
+  isPaused,
   stopPropagation,
   onPrev,
   onNext,
   onDotClick,
+  onTogglePause,
 }: ExplorerProps) => (
   <CardShell bgImg={bgImg} alt={alt} onClick={onCardClick}>
     <CardKingdomTag
@@ -111,10 +115,12 @@ export const Explorer = ({
       total={total}
       currentIndex={currentIndex}
       primaryColor={primaryColor}
+      isPaused={isPaused}
       stopPropagation={stopPropagation}
       onPrev={onPrev}
       onNext={onNext}
       onDotClick={onDotClick}
+      onTogglePause={onTogglePause}
     />
   </CardShell>
 );
