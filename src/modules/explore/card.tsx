@@ -49,11 +49,12 @@ export const CardInfo = () => {
 
   const slides = useMemo(() => {
     if (!selectedData) return [];
+    const kingdomKey = expandedNodes[0].key;
     if (expandedNodes.length === 1) {
-      return curiosidades.KINGDOM[expandedNodes[0].key] ?? [];
+      return curiosidades.KINGDOM[kingdomKey] ?? [];
     }
     const entry = curiosidades[currentRank as keyof typeof curiosidades];
-    return Array.isArray(entry) ? entry : [];
+    return entry?.[kingdomKey] ?? [];
   }, [expandedNodes, selectedData, currentRank]);
 
   const total = slides.length;

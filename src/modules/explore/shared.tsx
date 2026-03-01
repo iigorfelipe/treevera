@@ -17,7 +17,7 @@ export const CardShell = ({
 }: CardShellProps) => (
   <div
     className={cn(
-      "relative min-h-screen w-full overflow-hidden bg-black pl-4 md:pl-8",
+      "relative min-h-screen w-full overflow-hidden bg-black pl-2 md:pl-8",
       onClick && "cursor-pointer",
     )}
     onClick={onClick}
@@ -120,7 +120,11 @@ export const CardSlideControls = ({
           onClick={onTogglePause}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
         >
-          {isPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
+          {isPaused ? (
+            <Play className="size-4" />
+          ) : (
+            <Pause className="size-4" />
+          )}
         </button>
 
         <button
