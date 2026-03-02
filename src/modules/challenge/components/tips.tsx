@@ -35,6 +35,12 @@ import { useResponsive } from "@/hooks/use-responsive";
 
 type PathNode = { rank: Rank; name: string; key: number };
 
+export type StepInteractionType =
+  | "tipsViewed"
+  | "answerRevealed"
+  | "namesExpanded"
+  | "imageExpanded";
+
 const RANK_LABELS: Partial<Record<Rank, string>> = {
   KINGDOM: "reino",
   SUBKINGDOM: "subreino",
@@ -64,12 +70,14 @@ export const ChallengeTips = ({
   currentStep,
   errorIndex,
   correctPath,
+  onInteraction,
 }: {
   speciesName: string;
   speciesKey: number;
   currentStep: number;
   errorIndex: number | null;
   correctPath: PathNode[];
+  onInteraction?: (step: number, type: StepInteractionType) => void;
 }) => {
   const { t } = useTranslation();
   const { isTablet } = useResponsive();
@@ -101,6 +109,7 @@ export const ChallengeTips = ({
 
   const revealStep = () => {
     setRevealedSteps((prev) => ({ ...prev, [visibleStep]: true }));
+    onInteraction?.(visibleStep, "answerRevealed");
   };
 
   const WINDOW = 3;
@@ -152,6 +161,7 @@ export const ChallengeTips = ({
     hasSiblingsRef.current = false;
     const hadSiblings = applyHighlights(next, allNodes);
     hasSiblingsRef.current = hadSiblings;
+    onInteraction?.(next, "tipsViewed");
   };
 
   useEffect(() => {
@@ -160,6 +170,7 @@ export const ChallengeTips = ({
     hasSiblingsRef.current = false;
     const hadSiblings = applyHighlights(currentStep, allNodes);
     hasSiblingsRef.current = hadSiblings;
+    onInteraction?.(currentStep, "tipsViewed");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep]);
 
@@ -355,7 +366,11 @@ export const ChallengeTips = ({
               </Collapsible.Trigger>
 
               <Collapsible.Content className="mt-1 space-y-1 overflow-hidden">
-                <Collapsible.Root>
+                <Collapsible.Root
+                  onOpenChange={(isOpen) => {
+                    if (isOpen) onInteraction?.(visibleStep, "namesExpanded");
+                  }}
+                >
                   <Collapsible.Trigger asChild>
                     <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                       <div className="flex items-center gap-1.5">
@@ -394,7 +409,11 @@ export const ChallengeTips = ({
                   </Collapsible.Content>
                 </Collapsible.Root>
 
-                <Collapsible.Root>
+                <Collapsible.Root
+                  onOpenChange={(isOpen) => {
+                    if (isOpen) onInteraction?.(visibleStep, "imageExpanded");
+                  }}
+                >
                   <Collapsible.Trigger asChild>
                     <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                       <div className="flex items-center gap-1.5">

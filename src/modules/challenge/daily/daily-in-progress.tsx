@@ -1,13 +1,14 @@
 import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
 import { Card, CardContent } from "@/common/components/ui/card";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import Alvo from "@/assets/alvo.gif";
 import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 import { treeAtom } from "@/store/tree";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Timer } from "@/modules/challenge/components/timer";
 import { useResponsive } from "@/hooks/use-responsive";
 import { useNavigate } from "@tanstack/react-router";
@@ -20,11 +21,21 @@ import { buildChallengePathFromParents } from "@/common/utils/game/challenge-pat
 import { saveChallengeResult } from "@/common/utils/supabase/challenge/save-challenge-result";
 import { addChallengeActivity } from "@/common/utils/supabase/add-challenge-activity";
 import { authStore } from "@/store/auth/atoms";
-import { ChallengeTips } from "@/modules/challenge/components/tips";
+import {
+  ChallengeTips,
+  type StepInteractionType,
+} from "@/modules/challenge/components/tips";
+import { ProgressSteps } from "@/modules/challenge/components/progress-steps";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
+import { useQueryClient } from "@tanstack/react-query";
+
+type StepInteractions = Record<
+  number,
+  Partial<Record<StepInteractionType, boolean>>
+>;
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
@@ -34,6 +45,7 @@ export const DailyChallengeInProgress = () => {
   const navigate = useNavigate();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
+  const queryClient = useQueryClient();
 
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
@@ -73,6 +85,46 @@ export const DailyChallengeInProgress = () => {
   const isCompleted =
     correctPath.length > 0 && correctSteps === correctPath.length;
 
+  const [startedAt, setStartedAt] = useState(() => Date.now());
+  const [errorTracking, setErrorTracking] = useState({
+    count: 0,
+    perStep: [] as number[],
+  });
+  const [stepInteractions, setStepInteractions] = useState<StepInteractions>(
+    {},
+  );
+  const [finishedAt, setFinishedAt] = useState<number | null>(null);
+  const prevLastKeyRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (correctPath.length === 0 || expandedNodes.length === 0) return;
+    const lastNode = expandedNodes[expandedNodes.length - 1];
+    if (!lastNode || lastNode.key === prevLastKeyRef.current) return;
+    prevLastKeyRef.current = lastNode.key;
+    const lastIndex = expandedNodes.length - 1;
+    const expected = correctPath[lastIndex];
+    if (!expected) return;
+    if (lastNode.name !== expected.name) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setErrorTracking((prev) => {
+        const perStep = [...prev.perStep];
+        perStep[lastIndex] = (perStep[lastIndex] ?? 0) + 1;
+        return { count: prev.count + 1, perStep };
+      });
+    }
+  }, [expandedNodes, correctPath]);
+
+  useEffect(() => {
+    if (isCompleted && finishedAt === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFinishedAt(Date.now());
+    }
+  }, [isCompleted, finishedAt]);
+
+  const elapsedSeconds = finishedAt
+    ? Math.floor((finishedAt - startedAt) / 1000)
+    : 0;
+
   useEffect(() => {
     if (!isCompleted) return;
 
@@ -97,6 +149,7 @@ export const DailyChallengeInProgress = () => {
           mode: "DAILY",
         });
         if (updatedUser) setUserDb(updatedUser);
+        void queryClient.invalidateQueries({ queryKey: ["challenge_dates"] });
       }
     })();
   }, [
@@ -107,7 +160,15 @@ export const DailyChallengeInProgress = () => {
     userDb,
     speciesName,
     setUserDb,
+    queryClient,
   ]);
+
+  const handleStepInteraction = (step: number, type: StepInteractionType) => {
+    setStepInteractions((prev) => ({
+      ...prev,
+      [step]: { ...prev[step], [type]: true },
+    }));
+  };
 
   const resetTree = () => {
     setExpandedNodes([]);
@@ -121,6 +182,11 @@ export const DailyChallengeInProgress = () => {
 
   const handleReplay = () => {
     resetTree();
+    setStartedAt(Date.now());
+    setErrorTracking({ count: 0, perStep: [] });
+    setStepInteractions({});
+    setFinishedAt(null);
+    prevLastKeyRef.current = undefined;
     setChallenge((prev) => ({ ...prev, status: "IN_PROGRESS" }));
   };
 
@@ -171,6 +237,12 @@ export const DailyChallengeInProgress = () => {
           onNext={handleRandom}
           nextLabel={t("challenge.nextRandom")}
           nextLoading={randomLoading}
+          elapsedSeconds={elapsedSeconds}
+          errorCount={errorTracking.count}
+          totalSteps={correctPath.length}
+          correctPath={correctPath}
+          stepErrors={errorTracking.perStep}
+          stepInteractions={stepInteractions}
         >
           <div className="flex w-full items-center justify-center gap-3">
             <DailyDateNav selectedDate={navDate} onSelectDate={setNavDate} />
@@ -202,13 +274,15 @@ export const DailyChallengeInProgress = () => {
         onCancel={handleCancel}
         errorIndex={errorIndex}
         correctPath={correctPath}
+        errorCount={errorTracking.count}
+        onInteraction={handleStepInteraction}
       />
     );
   }
 
   return (
-    <div className="mt-22 max-w-5xl md:mt-0 md:px-4 md:py-6">
-      <Card className="relative rounded-3xl">
+    <div className="mt-22 md:mt-0 md:px-4 md:py-6">
+      <Card className="relative mx-auto rounded-3xl">
         {challengeDate === today && (
           <div className="absolute top-3 right-4">
             <Timer />
@@ -216,37 +290,53 @@ export const DailyChallengeInProgress = () => {
         )}
         <CardContent className="flex flex-col gap-4 pt-5">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/40">
-              <Image
-                src={theme === "dark" ? AlvoWhite : Alvo}
-                className="size-8"
-                alt="Alvo gif"
-              />
-            </div>
+            <Image
+              src={theme === "dark" ? AlvoWhite : Alvo}
+              className="size-12 shrink-0"
+              alt="Alvo gif"
+            />
             <div className="min-w-0 flex-1">
-              <p className="text-muted-foreground text-[10px] font-semibold tracking-widest uppercase">
-                {t("challenge.title")}
+              <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
+              <p className="truncate text-sm">
+                {t("challenge.find")}:{" "}
+                <span className="font-semibold text-emerald-600">
+                  {speciesName}
+                </span>
               </p>
-              <h2 className="truncate text-base leading-tight font-bold">
-                {speciesName}
-              </h2>
             </div>
           </div>
 
-          {!isCompleted && correctPath.length > 0 && (
-            <ChallengeTips
-              speciesName={speciesName}
-              speciesKey={speciesKey}
-              currentStep={correctSteps}
-              errorIndex={errorIndex}
-              correctPath={correctPath}
-            />
+          {correctPath.length === 0 ? (
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-6 w-1/3 rounded-lg" />
+              <div className="grid grid-cols-2 gap-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 rounded-xl" />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              <ProgressSteps
+                correctSteps={correctSteps}
+                errorIndex={errorIndex}
+                totalSteps={correctPath.length}
+              />
+              <ChallengeTips
+                speciesName={speciesName}
+                speciesKey={speciesKey}
+                currentStep={correctSteps}
+                errorIndex={errorIndex}
+                correctPath={correctPath}
+                onInteraction={handleStepInteraction}
+              />
+              <TaxonomicPath
+                currentStep={correctSteps}
+                correctPath={correctPath}
+                activeIndex={expandedNodes.length}
+              />
+            </>
           )}
-          <TaxonomicPath
-            currentStep={correctSteps}
-            correctPath={correctPath}
-            activeIndex={expandedNodes.length}
-          />
 
           {!isCompleted && (
             <div className="-mx-6 flex justify-end border-t px-8 pt-4">

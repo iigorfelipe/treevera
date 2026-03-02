@@ -60,15 +60,17 @@ export const TaxonomicPath = ({
               layout
               animate={
                 isActive
-                  ? { scale: 1 }
+                  ? { scale: [1, 1.015, 1] }
                   : status === "error"
                     ? { x: [-4, 4, -3, 3, 0] }
                     : { scale: 1 }
               }
               transition={
-                status === "error"
-                  ? { duration: 0.3 }
-                  : { type: "spring", stiffness: 300, damping: 20 }
+                isActive
+                  ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+                  : status === "error"
+                    ? { duration: 0.3 }
+                    : { type: "spring", stiffness: 300, damping: 20 }
               }
               className={cn(
                 "flex items-center justify-between rounded-xl border p-3 transition-all",
@@ -76,7 +78,8 @@ export const TaxonomicPath = ({
                 status === "success" && "border-green-500/60 bg-green-500/10",
                 status === "error" && "border-red-400/60 bg-red-500/10",
                 status === "locked" && "border-dashed opacity-50",
-                isActive && "ring-2 ring-emerald-400",
+                isActive &&
+                  "border-emerald-400 ring-2 ring-emerald-400/50 dark:border-emerald-500",
               )}
             >
               <div className="flex min-w-0 flex-col">
@@ -89,11 +92,14 @@ export const TaxonomicPath = ({
                     status === "success" &&
                       "text-green-600 dark:text-green-400",
                     status === "error" && "text-red-500",
-                    status === "locked" && "text-muted-foreground",
+                    isActive && "text-emerald-600 dark:text-emerald-400",
+                    status === "locked" &&
+                      !isActive &&
+                      "text-muted-foreground",
                   )}
                 >
                   {isActive
-                    ? "Selecione na árvore"
+                    ? t("challenge.selectInTree")
                     : status === "locked"
                       ? "—"
                       : expandedNodes[index]?.name}
@@ -107,7 +113,7 @@ export const TaxonomicPath = ({
                 {status === "error" && (
                   <AlertTriangle className="size-4 text-red-500" />
                 )}
-                {status === "locked" && (
+                {status === "locked" && !isActive && (
                   <Lock className="text-muted-foreground/40 size-3" />
                 )}
               </div>

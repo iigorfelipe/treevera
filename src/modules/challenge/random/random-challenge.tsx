@@ -52,48 +52,42 @@ export const RandomChallengeCard = () => {
   };
 
   return (
-    <div className="md:px-4 md:py-6">
-      <Card className="mx-auto rounded-3xl">
-        <CardContent className="flex flex-col gap-3">
-          <div className="flex items-center gap-3">
-            <Image
-              src={theme === "dark" ? AlvoWhite : Alvo}
-              className="size-12"
-              alt="Alvo gif"
-            />
-            <div>
-              <h2 className="text-xl font-bold">
-                {t("challenge.randomTitle")}
-              </h2>
-              <p className="text-sm">
-                {t("challenge.find")}:{" "}
-                <span className="font-semibold text-violet-600">????</span>
-              </p>
-            </div>
-          </div>
-
-          <p className="text-muted-foreground text-sm">
-            {t("challenge.randomMissionDescription")}
-          </p>
-
-          {allCompleted && (
-            <p className="text-sm font-semibold text-violet-600">
-              {/* TODO: traduzir */}
-              Não foi possivel obter um desafio aleatório. Tente novamente mais
-              tarde.
+    <Card className="max-w-3xl rounded-3xl">
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <Image
+            src={theme === "dark" ? AlvoWhite : Alvo}
+            className="size-12 shrink-0"
+            alt="Alvo gif"
+          />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xl font-bold">{t("challenge.randomTitle")}</h2>
+            <p className="text-sm">
+              {t("challenge.find")}:{" "}
+              <span className="font-semibold text-violet-600">????</span>
             </p>
-          )}
+          </div>
+        </div>
 
-          <Button
-            size="lg"
-            className="bg-violet-600"
-            onClick={handleStart}
-            disabled={isLoading}
-          >
-            {t("challenge.start")}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+        <p className="text-muted-foreground text-sm">
+          {t("challenge.randomMissionDescription")}
+        </p>
+
+        {allCompleted && (
+          <p className="text-sm font-medium text-violet-600">
+            {t("challenge.randomNoChallenge")}
+          </p>
+        )}
+
+        <Button
+          size="lg"
+          className="bg-violet-600 text-white hover:bg-violet-700"
+          onClick={handleStart}
+          disabled={isLoading}
+        >
+          {t("challenge.play")}
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
