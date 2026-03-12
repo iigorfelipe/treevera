@@ -35,7 +35,6 @@ export const TreeNodeLiContent = memo(
         setNodeChildren({
           key: node.key,
           children: data.children,
-          endOfRecords: data.endOfRecords,
         });
       }
     }, [isExpanded, data, node?.key, setNodeChildren]);

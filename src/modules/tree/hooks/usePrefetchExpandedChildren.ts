@@ -46,7 +46,7 @@ export function usePrefetchExpandedChildren() {
         .fetchQuery<ChildrenQueryResult>({
           queryKey: [QUERY_KEYS.children_key, key, showEmptyNodes],
           queryFn: async () => {
-            const { results: raw, endOfRecords } = await getChildren(key);
+            const raw = await getChildren(key);
 
             const filtered = (raw as RawGbifChild[]).filter(isBackboneNode);
 
@@ -58,13 +58,12 @@ export function usePrefetchExpandedChildren() {
 
             return {
               children: filterChildren(visible, node.rank).map(mapToTaxon),
-              endOfRecords,
             };
           },
           staleTime: 1000 * 60 * 60 * 24,
         })
-        .then(({ children, endOfRecords }) => {
-          setNodeChildren({ key, children, endOfRecords });
+        .then(({ children }) => {
+          setNodeChildren({ key, children });
         })
         .finally(() => {
           inflight.current.delete(key);

@@ -78,7 +78,10 @@ export const useVirtualTree = (
 
   const flattened = useMemo(() => {
     const result = flattenTree(nodes, roots);
-    const lastBannerIdx = result.findLastIndex((item) => item.isSearchBanner);
+    let lastBannerIdx = -1;
+    for (let i = result.length - 1; i >= 0; i--) {
+      if (result[i].isSearchBanner) { lastBannerIdx = i; break; }
+    }
     return lastBannerIdx === -1
       ? result
       : result.filter(

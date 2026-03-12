@@ -60,7 +60,6 @@ export const mapToTaxon = (item: Taxon): Taxon => {
 
 export type ChildrenQueryResult = {
   children: Taxon[];
-  endOfRecords: boolean;
 };
 
 export const useGetChildren = ({
@@ -75,7 +74,7 @@ export const useGetChildren = ({
   return useQuery<ChildrenQueryResult>({
     queryKey: [children_key, parentKey, showEmptyNodes],
     queryFn: async () => {
-      const { results: raw, endOfRecords } = await getChildren(parentKey);
+      const raw = await getChildren(parentKey);
 
       const filtered = (raw as RawGbifChild[]).filter(isBackboneNode);
 
@@ -87,7 +86,6 @@ export const useGetChildren = ({
 
       return {
         children: filterChildren(visible, parentRank).map(mapToTaxon),
-        endOfRecords,
       };
     },
     enabled: !!parentKey && expanded && numDescendants !== 0,

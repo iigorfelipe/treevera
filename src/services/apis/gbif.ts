@@ -12,21 +12,10 @@ export const getKingdoms = async () => {
   return data.results as Taxon[];
 };
 
-export type ChildrenPage = {
-  results: Taxon[];
-  endOfRecords: boolean;
-};
-
-export const getChildren = async (
-  parentKey: number,
-  offset = 0,
-): Promise<ChildrenPage> => {
-  const url = `${SPECIES_URL}/${parentKey}/children?limit=1000${STATUS_ACCEPTED}&offset=${offset}`;
+export const getChildren = async (parentKey: number): Promise<Taxon[]> => {
+  const url = `${SPECIES_URL}/${parentKey}/children?limit=1000${STATUS_ACCEPTED}`;
   const data = await fetch(url).then((res) => res.json());
-  return {
-    results: (data.results ?? []) as Taxon[],
-    endOfRecords: data.endOfRecords === true,
-  };
+  return (data.results ?? []) as Taxon[];
 };
 
 export const getSpecieDetail = async (key: number) => {

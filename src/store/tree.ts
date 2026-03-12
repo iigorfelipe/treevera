@@ -116,9 +116,9 @@ export const setNodeChildrenAtom = atom(
   (
     _,
     set,
-    payload: { key: number; children: NodeEntity[]; endOfRecords: boolean },
+    payload: { key: number; children: NodeEntity[] },
   ) => {
-    const { key, children, endOfRecords } = payload;
+    const { key, children } = payload;
     set(nodesAtom, (prev) => {
       const next = { ...prev };
 

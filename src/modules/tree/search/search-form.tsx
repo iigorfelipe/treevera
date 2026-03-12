@@ -30,7 +30,7 @@ interface SearchFormProps {
   hasResults: boolean;
   onSearch: (ev?: React.FormEvent) => void;
   onClear: () => void;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export function SearchForm({
