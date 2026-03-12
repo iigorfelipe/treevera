@@ -23,17 +23,22 @@ export const TreeNodeLiContent = memo(
 
     const isExpanded = node?.expanded;
 
-    const { data: childrenData, isLoading } = useGetChildren({
+    const { data, isLoading } = useGetChildren({
       parentKey: node?.key,
       expanded: !!isExpanded,
       numDescendants: node?.numDescendants,
+      parentRank: node?.rank,
     });
 
     useEffect(() => {
-      if (isExpanded && childrenData) {
-        setNodeChildren({ key: node.key, children: childrenData });
+      if (isExpanded && data) {
+        setNodeChildren({
+          key: node.key,
+          children: data.children,
+          endOfRecords: data.endOfRecords,
+        });
       }
-    }, [isExpanded, childrenData, node?.key, setNodeChildren]);
+    }, [isExpanded, data, node?.key, setNodeChildren]);
 
     const handleClick = useCallback(() => {
       if (!isLoading) toggleNode(nodeKey);

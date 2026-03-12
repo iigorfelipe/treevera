@@ -1,8 +1,10 @@
 import type { SpecieDetail, Taxon, VernacularName } from "@/common/types/api";
 
+const STATUS_ACCEPTED = "&status=ACCEPTED";
+
 const GBIF_BASE_URL = "https://api.gbif.org/v1";
 const SPECIES_URL = `${GBIF_BASE_URL}/species`;
-const KINGDOM_URL = `${SPECIES_URL}/search?rank=KINGDOM&status=ACCEPTED&limit=100&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`;
+const KINGDOM_URL = `${SPECIES_URL}/search?rank=KINGDOM${STATUS_ACCEPTED}&limit=100&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`;
 
 export const getKingdoms = async () => {
   const res = await fetch(KINGDOM_URL);
@@ -10,10 +12,21 @@ export const getKingdoms = async () => {
   return data.results as Taxon[];
 };
 
-export const getChildren = async (parentKey: number) => {
-  const url = `${SPECIES_URL}/${parentKey}/children?limit=1000&status=ACCEPTED`; // aumentei o limit para 1000 pois menor que isso trazia dados repetidos
+export type ChildrenPage = {
+  results: Taxon[];
+  endOfRecords: boolean;
+};
+
+export const getChildren = async (
+  parentKey: number,
+  offset = 0,
+): Promise<ChildrenPage> => {
+  const url = `${SPECIES_URL}/${parentKey}/children?limit=1000${STATUS_ACCEPTED}&offset=${offset}`;
   const data = await fetch(url).then((res) => res.json());
-  return data.results as Taxon[];
+  return {
+    results: (data.results ?? []) as Taxon[],
+    endOfRecords: data.endOfRecords === true,
+  };
 };
 
 export const getSpecieDetail = async (key: number) => {
@@ -68,7 +81,7 @@ export const getSpeciesMatch = async (
 };
 
 export const searchTaxa = async (q: string, kingdom?: string) => {
-  let url = `${SPECIES_URL}/search?q=${encodeURIComponent(q)}&status=ACCEPTED&limit=50`;
+  let url = `${SPECIES_URL}/search?q=${encodeURIComponent(q)}${STATUS_ACCEPTED}&limit=50`;
   if (kingdom) {
     url += `&kingdom=${encodeURIComponent(kingdom)}`;
   }

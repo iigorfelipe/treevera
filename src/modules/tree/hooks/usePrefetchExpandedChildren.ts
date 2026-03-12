@@ -4,11 +4,11 @@ import { useAtomValue, useSetAtom } from "jotai";
 
 import { treeAtom, setNodeChildrenAtom } from "@/store/tree";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
-import { isBackboneAccepted, mapToTaxon } from "@/hooks/queries/useGetChildren";
+import { mapToTaxon, isBackboneNode } from "@/hooks/queries/useGetChildren";
+import type { RawGbifChild, ChildrenQueryResult } from "@/hooks/queries/useGetChildren";
 import { filterChildren } from "@/common/utils/tree/children";
 import { getChildren } from "@/services/apis/gbif";
 import { showEmptyNodesAtom } from "@/store/user-settings";
-import type { Taxon } from "@/common/types/api";
 
 export function usePrefetchExpandedChildren() {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
@@ -43,25 +43,28 @@ export function usePrefetchExpandedChildren() {
       inflight.current.add(key);
 
       queryClient
-        .fetchQuery<Taxon[]>({
+        .fetchQuery<ChildrenQueryResult>({
           queryKey: [QUERY_KEYS.children_key, key, showEmptyNodes],
           queryFn: async () => {
-            const raw = await getChildren(key);
-            const backbone = (
-              raw as typeof raw &
-                { nubKey?: number; taxonomicStatus?: string }[]
-            ).filter(isBackboneAccepted);
+            const { results: raw, endOfRecords } = await getChildren(key);
+
+            const filtered = (raw as RawGbifChild[]).filter(isBackboneNode);
+
             const visible = showEmptyNodes
-              ? backbone
-              : backbone.filter(
+              ? filtered
+              : filtered.filter(
                   (item) => item.numDescendants > 0 || item.rank === "SPECIES",
                 );
-            return filterChildren(visible).map(mapToTaxon);
+
+            return {
+              children: filterChildren(visible, node.rank).map(mapToTaxon),
+              endOfRecords,
+            };
           },
           staleTime: 1000 * 60 * 60 * 24,
         })
-        .then((children) => {
-          setNodeChildren({ key, children });
+        .then(({ children, endOfRecords }) => {
+          setNodeChildren({ key, children, endOfRecords });
         })
         .finally(() => {
           inflight.current.delete(key);

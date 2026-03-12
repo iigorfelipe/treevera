@@ -2,16 +2,33 @@ import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { getChildren } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
-import type { Taxon } from "@/common/types/api";
+import type { Rank, Taxon } from "@/common/types/api";
 import { filterChildren } from "@/common/utils/tree/children";
 import { showEmptyNodesAtom } from "@/store/user-settings";
 
-export type RawGbifChild = Taxon & { nubKey?: number; taxonomicStatus?: string };
+export type RawGbifChild = Taxon & {
+  nubKey?: number;
+  nameType?: string;
+  origin?: string;
+  taxonomicStatus?: string;
+  issues?: string[];
+};
 
-export const isBackboneAccepted = (item: RawGbifChild): boolean => {
-  if (item.taxonomicStatus && item.taxonomicStatus !== "ACCEPTED") return false;
-  if (item.nubKey !== undefined && item.nubKey !== item.key) return false;
+const VALID_ORIGINS = new Set(["SOURCE", "DENORMED_CLASSIFICATION"]);
+const CRITICAL_ISSUES = new Set([
+  "PARENT_CYCLE",
+  "RELATIONSHIP_MISSING",
+  "RANK_INVALID",
+  "BACKBONE_MATCH_NONE",
+]);
+
+export const isBackboneNode = (item: RawGbifChild): boolean => {
   if (!item.canonicalName) return false;
+  if (item.nubKey !== undefined && item.nubKey !== item.key) return false;
+  if (item.nameType && item.nameType !== "SCIENTIFIC") return false;
+  if (item.origin && !VALID_ORIGINS.has(item.origin)) return false;
+  if (item.taxonomicStatus === "DOUBTFUL") return false;
+  if (item.issues?.some((issue) => CRITICAL_ISSUES.has(issue))) return false;
   return true;
 };
 
@@ -19,6 +36,7 @@ type UseGetChildrenParams = {
   parentKey: number;
   expanded: boolean;
   numDescendants: number;
+  parentRank?: Rank;
 };
 
 export const mapToTaxon = (item: Taxon): Taxon => {
@@ -40,25 +58,37 @@ export const mapToTaxon = (item: Taxon): Taxon => {
   return taxon;
 };
 
+export type ChildrenQueryResult = {
+  children: Taxon[];
+  endOfRecords: boolean;
+};
+
 export const useGetChildren = ({
   parentKey,
   expanded,
   numDescendants,
+  parentRank,
 }: UseGetChildrenParams) => {
   const { children_key } = QUERY_KEYS;
   const showEmptyNodes = useAtomValue(showEmptyNodesAtom);
 
-  return useQuery<Taxon[]>({
+  return useQuery<ChildrenQueryResult>({
     queryKey: [children_key, parentKey, showEmptyNodes],
     queryFn: async () => {
-      const raw = (await getChildren(parentKey)) as RawGbifChild[];
-      const backbone = raw.filter(isBackboneAccepted);
+      const { results: raw, endOfRecords } = await getChildren(parentKey);
+
+      const filtered = (raw as RawGbifChild[]).filter(isBackboneNode);
+
       const visible = showEmptyNodes
-        ? backbone
-        : backbone.filter(
+        ? filtered
+        : filtered.filter(
             (item) => item.numDescendants > 0 || item.rank === "SPECIES",
           );
-      return filterChildren(visible).map(mapToTaxon);
+
+      return {
+        children: filterChildren(visible, parentRank).map(mapToTaxon),
+        endOfRecords,
+      };
     },
     enabled: !!parentKey && expanded && numDescendants !== 0,
     staleTime: 1000 * 60 * 60 * 24, // 1 dia
