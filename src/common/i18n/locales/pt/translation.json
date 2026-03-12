@@ -43,6 +43,7 @@
     "challenges": "Desafios",
     "explore": "Explorar",
     "audio": "Áudio",
+    "about": "Sobre",
     "soundOff": "Som desligado",
     "soundOn": "Som ligado",
     "logoutWarning": "Ao sair, seus recursos e progresso só ficarão disponíveis quando entrar novamente.",
@@ -163,7 +164,13 @@
     "loadError": "Erro ao carregar",
     "loadErrorMessage": "Não foi possível carregar a árvore. Tente novamente.",
     "noData": "Nenhum dado disponível",
-    "noDataMessage": "Ainda não há dados taxonômicos para exibir."
+    "noDataMessage": "Ainda não há dados taxonômicos para exibir.",
+    "searchBannerPrompt": "Não encontrou? Pesquisar",
+    "searchBannerTitle": "Pesquisar nesta classificação",
+    "searchBannerPlaceholder": "Nome do táxon...",
+    "searchBannerButton": "Buscar",
+    "searchBannerHint": "Digite o nome do táxon que procura",
+    "searchBannerNoResults": "Nenhum resultado encontrado"
   },
 
   "search": {
@@ -182,7 +189,17 @@
     "results": "resultados",
     "clearSearch": "Limpar",
     "noResults": "Nenhum resultado encontrado",
-    "searchByNameOrKey": "Nome canônico ou chave GBIF..."
+    "searchByNameOrKey": "Nome canônico ou chave GBIF...",
+    "expansionIssueTitle": "Por que a árvore não expandiu?",
+    "statusSynonymOf": "Sinônimo aceito de",
+    "statusDoubtful": "Táxon duvidoso no backbone GBIF",
+    "statusExcluded": "Excluído da taxonomia principal do GBIF",
+    "statusNotAccepted": "Status no backbone GBIF: {{status}}",
+    "gbifRemarks": "Observações",
+    "navigateTo": "Navegar para",
+    "synonymsOf": "Sinônimos de",
+    "synonymsNavigation": "Tente navegar pelos sinônimos:",
+    "viewOnGbif": "Ver no GBIF"
   },
 
   "explore": {

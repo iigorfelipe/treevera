@@ -43,6 +43,7 @@
     "challenges": "Challenges",
     "explore": "Explore",
     "audio": "Audio",
+    "about": "About",
     "soundOff": "Sound off",
     "soundOn": "Sound on",
     "logoutWarning": "When you sign out, your features and progress will only be available when you sign in again.",
@@ -163,7 +164,13 @@
     "loadError": "Failed to load",
     "loadErrorMessage": "Could not load the tree. Please try again.",
     "noData": "No data available",
-    "noDataMessage": "No taxonomic data to display yet."
+    "noDataMessage": "No taxonomic data to display yet.",
+    "searchBannerPrompt": "Can't find it? Search",
+    "searchBannerTitle": "Search within this group",
+    "searchBannerPlaceholder": "Taxon name...",
+    "searchBannerButton": "Search",
+    "searchBannerHint": "Type the taxon name you're looking for",
+    "searchBannerNoResults": "No results found"
   },
 
   "search": {
@@ -182,7 +189,17 @@
     "results": "results",
     "clearSearch": "Clear",
     "noResults": "No results found",
-    "searchByNameOrKey": "Canonical name or GBIF key..."
+    "searchByNameOrKey": "Canonical name or GBIF key...",
+    "expansionIssueTitle": "Why didn't the tree expand?",
+    "statusSynonymOf": "Accepted synonym of",
+    "statusDoubtful": "Doubtful taxon in GBIF backbone",
+    "statusExcluded": "Excluded from GBIF backbone taxonomy",
+    "statusNotAccepted": "GBIF backbone status: {{status}}",
+    "gbifRemarks": "Notes",
+    "navigateTo": "Navigate to",
+    "synonymsOf": "Synonyms of",
+    "synonymsNavigation": "Try navigating through synonyms:",
+    "viewOnGbif": "View on GBIF"
   },
 
   "explore": {
