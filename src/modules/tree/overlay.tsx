@@ -23,39 +23,20 @@ export const Overlay: React.FC<OverlayProps> = ({
         zIndex: 0,
       }}
     >
-      {connectors.map((c, i) => {
-        if (c.type === "vertical") {
-          return (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                left: c.left,
-                top: c.top,
-                width: TREE_CONNECTOR_LINE_WIDTH_PX,
-                height: c.height,
-                backgroundColor: c.color,
-                boxSizing: "border-box",
-              }}
-            />
-          );
-        }
-
-        return (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              left: c.left,
-              top: c.top,
-              width: c.width,
-              height: TREE_CONNECTOR_LINE_WIDTH_PX,
-              backgroundColor: c.color,
-              boxSizing: "border-box",
-            }}
-          />
-        );
-      })}
+      {connectors.map((c, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: c.left,
+            top: c.top,
+            width: TREE_CONNECTOR_LINE_WIDTH_PX,
+            height: c.height,
+            backgroundColor: c.color,
+            boxSizing: "border-box",
+          }}
+        />
+      ))}
     </div>
   );
 };

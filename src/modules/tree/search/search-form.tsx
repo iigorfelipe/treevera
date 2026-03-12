@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader, SearchIcon, X } from "lucide-react";
 
@@ -30,6 +30,7 @@ interface SearchFormProps {
   hasResults: boolean;
   onSearch: (ev?: React.FormEvent) => void;
   onClear: () => void;
+  inputRef: React.RefObject<HTMLInputElement>;
 }
 
 export function SearchForm({
@@ -42,9 +43,9 @@ export function SearchForm({
   hasResults,
   onSearch,
   onClear,
+  inputRef,
 }: SearchFormProps) {
   const { t } = useTranslation();
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const kingdomOptions = useMemo(
     () =>

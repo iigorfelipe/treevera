@@ -48,6 +48,41 @@ const mergeNodes = atom(null, (_, set, nodes: NodeEntity[]) => {
   });
 });
 
+export const focusSearchAtom = atom<{ kingdom: string } | null>(null);
+export const setFocusSearchAtom = atom(
+  null,
+  (_get, set, v: { kingdom: string } | null) => {
+    set(focusSearchAtom, v);
+  },
+);
+
+export const injectPathNodesAtom = atom(null, (_, set, nodes: NodeEntity[]) => {
+  set(nodesAtom, (prev) => {
+    const next = { ...prev };
+    nodes.forEach((n) => {
+      const existing = prev[n.key];
+      if (!existing) {
+        next[n.key] = n;
+      } else if (
+        existing.parentKey === undefined &&
+        n.parentKey !== undefined
+      ) {
+        next[n.key] = { ...existing, parentKey: n.parentKey };
+      }
+      if (n.parentKey !== undefined) {
+        const parent = next[n.parentKey];
+        if (parent?.childrenKeys && !parent.childrenKeys.includes(n.key)) {
+          next[n.parentKey] = {
+            ...parent,
+            childrenKeys: [...parent.childrenKeys, n.key],
+          };
+        }
+      }
+    });
+    return next;
+  });
+});
+
 export const setExpandedPathAtom = atom(
   null,
   (_get, set, pathNodes: PathNode[]) => {
@@ -78,8 +113,12 @@ export const nodeAtomFamily = atomFamily((key: number) =>
 
 export const setNodeChildrenAtom = atom(
   null,
-  (_, set, payload: { key: number; children: NodeEntity[] }) => {
-    const { key, children } = payload;
+  (
+    _,
+    set,
+    payload: { key: number; children: NodeEntity[]; endOfRecords: boolean },
+  ) => {
+    const { key, children, endOfRecords } = payload;
     set(nodesAtom, (prev) => {
       const next = { ...prev };
 
@@ -87,9 +126,15 @@ export const setNodeChildrenAtom = atom(
         next[c.key] = { ...(next[c.key] ?? {}), ...c, parentKey: key };
       });
 
+      const apiChildKeys = new Set(children.map((c) => c.key));
+      const existing = prev[key]?.childrenKeys ?? [];
+      const pinned = existing.filter(
+        (ck) => !apiChildKeys.has(ck) && prev[ck]?.parentKey === key,
+      );
+
       next[key] = {
         ...(next[key] ?? {}),
-        childrenKeys: children.map((c) => c.key),
+        childrenKeys: [...children.map((c) => c.key), ...pinned],
       };
 
       return next;
@@ -213,16 +258,13 @@ export const setHighlightedKeysAtom = atom(
   },
 );
 
-export const removeHighlightedKeyAtom = atom(
-  null,
-  (_get, set, key: number) => {
-    set(highlightedKeys, (prev) => {
-      const next = new Set(prev);
-      next.delete(key);
-      return next;
-    });
-  },
-);
+export const removeHighlightedKeyAtom = atom(null, (_get, set, key: number) => {
+  set(highlightedKeys, (prev) => {
+    const next = new Set(prev);
+    next.delete(key);
+    return next;
+  });
+});
 
 const scrollToNodeKey = atom<number | null>(null);
 

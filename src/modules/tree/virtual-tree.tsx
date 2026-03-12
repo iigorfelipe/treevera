@@ -4,6 +4,7 @@ import { useAtomValue } from "jotai";
 import { treeAtom } from "@/store/tree";
 import { TreeNodeLiContent } from "./tree-node";
 import { EmptyNodeInfoCard } from "./empty-node-info";
+import { SearchBannerNode } from "./search-banner-node";
 import { useExpandedSync } from "./hooks/useExpandSync";
 import { useVirtualTree } from "./hooks/useVirtualTree";
 import { Overlay } from "./overlay";
@@ -17,8 +18,18 @@ import { useChallengeAudio } from "./hooks/use-challenge-audio";
 import { useShortcutScroll } from "./hooks/use-shortcut-scroll";
 import { usePrefetchExpandedChildren } from "./hooks/usePrefetchExpandedChildren";
 import { Challenges } from "@/app/challenges";
+import {
+  COLOR_KINGDOM_BY_NAME,
+  TREE_CONNECTOR_HORIZONTAL_LENGTH_PX,
+  TREE_CONNECTOR_LINE_WIDTH_PX,
+  TREE_LEVEL_INDENT_PX,
+  TREE_TOGGLE_BUTTON_DIAMETER_PX,
+  TREE_TOGGLE_BUTTON_OFFSET_X_PX,
+} from "@/common/constants/tree";
 
 const TIPS_OPEN_TREE_PUSH_PX = 80;
+const CONNECTOR_HALF_THICKNESS = Math.floor(TREE_CONNECTOR_LINE_WIDTH_PX / 2);
+const NON_KINGDOM_ROW_HEIGHT = 34;
 
 export const VirtualTree = () => {
   useExpandedSync();
@@ -114,15 +125,61 @@ export const VirtualTree = () => {
 
           {rowVirtualizer.getVirtualItems().map((virtualItem) => {
             const item = flattened[virtualItem.index];
+            const isRealNode =
+              !item.isSearchBanner && !item.isEmptyInfo && item.key > 0;
+            const node = isRealNode ? nodes[item.key] : undefined;
+
+            const showHConnector =
+              isRealNode && node?.rank !== "KINGDOM" && item.level > 0;
+            const hConnectorLeft = showHConnector
+              ? Math.round(
+                  item.level * TREE_LEVEL_INDENT_PX +
+                    TREE_TOGGLE_BUTTON_OFFSET_X_PX +
+                    TREE_TOGGLE_BUTTON_DIAMETER_PX / 2 -
+                    TREE_CONNECTOR_HORIZONTAL_LENGTH_PX -
+                    CONNECTOR_HALF_THICKNESS,
+                )
+              : 0;
+            const hConnectorColor = showHConnector
+              ? (COLOR_KINGDOM_BY_NAME[
+                  node!.kingdom?.toLocaleLowerCase() as keyof typeof COLOR_KINGDOM_BY_NAME
+                ] ?? "transparent")
+              : "transparent";
+
             return (
               <li
                 key={item.key}
                 className="absolute top-0 left-0 w-full"
                 style={{
+                  height: virtualItem.size,
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                {item.isEmptyInfo ? (
+                {showHConnector && (
+                  <div
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      left: hConnectorLeft,
+                      top:
+                        NON_KINGDOM_ROW_HEIGHT / 2 - CONNECTOR_HALF_THICKNESS,
+                      width:
+                        TREE_CONNECTOR_HORIZONTAL_LENGTH_PX +
+                        CONNECTOR_HALF_THICKNESS,
+                      height: TREE_CONNECTOR_LINE_WIDTH_PX,
+                      backgroundColor: hConnectorColor,
+                      pointerEvents: "none",
+                      zIndex: 0,
+                    }}
+                  />
+                )}
+
+                {item.isSearchBanner ? (
+                  <SearchBannerNode
+                    parentNodeKey={item.parentNodeKey!}
+                    level={item.level}
+                  />
+                ) : item.isEmptyInfo ? (
                   <EmptyNodeInfoCard
                     parentNodeKey={item.parentNodeKey!}
                     level={item.level}

@@ -14,15 +14,14 @@ export type FlattenedNode = {
   key: number;
   level: number;
   isEmptyInfo?: true;
+  isSearchBanner?: true;
   parentNodeKey?: number;
 };
 
 export type Connector = {
-  type: "vertical" | "horizontal";
   top: number;
   left: number;
-  width?: number;
-  height?: number;
+  height: number;
   color: string;
 };
 
@@ -48,6 +47,15 @@ export const useVirtualTree = (
         if (node.expanded && node.childrenKeys?.length) {
           const children = flattenTree(nodes, node.childrenKeys, level + 1);
           for (let i = 0; i < children.length; i++) result.push(children[i]);
+
+          if (node.rank !== "KINGDOM") {
+            result.push({
+              key: -(node.key + 3_000_000_000),
+              level: level + 1,
+              isSearchBanner: true,
+              parentNodeKey: node.key,
+            });
+          }
         } else if (
           node.expanded &&
           node.rank !== "KINGDOM" &&
@@ -68,14 +76,20 @@ export const useVirtualTree = (
     [],
   );
 
-  const flattened = useMemo(
-    () => flattenTree(nodes, roots),
-    [flattenTree, nodes, roots],
-  );
+  const flattened = useMemo(() => {
+    const result = flattenTree(nodes, roots);
+    const lastBannerIdx = result.findLastIndex((item) => item.isSearchBanner);
+    return lastBannerIdx === -1
+      ? result
+      : result.filter(
+          (item, idx) => !item.isSearchBanner || idx === lastBannerIdx,
+        );
+  }, [flattenTree, nodes, roots]);
 
   const getRowSize = useCallback(
     (index: number) => {
       const item = flattened[index];
+      if (item.isSearchBanner) return 40;
       if (item.isEmptyInfo) return 192;
       return nodes[item.key]?.rank === "KINGDOM" ? 72 : 34;
     },
@@ -121,13 +135,14 @@ export const useVirtualTree = (
       if (!parentNode.childrenKeys?.length) continue;
       if (!parentNode.expanded) continue;
 
-      const childIndices = parentNode.childrenKeys
-        .map((childKey) => indexByKey.get(childKey))
-        .filter((v): v is number => typeof v === "number");
-      if (!childIndices.length) continue;
+      const firstChildKey = parentNode.childrenKeys[0];
+      const lastChildKey =
+        parentNode.childrenKeys[parentNode.childrenKeys.length - 1];
 
-      const firstChildIndex = Math.min(...childIndices);
-      const lastChildIndex = Math.max(...childIndices);
+      const firstChildIndex = indexByKey.get(firstChildKey);
+      const lastChildIndex = indexByKey.get(lastChildKey);
+      if (firstChildIndex === undefined || lastChildIndex === undefined)
+        continue;
 
       const top =
         positions[firstChildIndex] -
@@ -145,7 +160,6 @@ export const useVirtualTree = (
       );
 
       const verticalLeft = circleCenterX - TREE_CONNECTOR_HORIZONTAL_LENGTH_PX;
-
       const vx = Math.round(verticalLeft);
       const vt = Math.round(top);
 
@@ -156,28 +170,11 @@ export const useVirtualTree = (
         ];
 
       result.push({
-        type: "vertical",
         left: vx - halfThickness,
         top: vt,
         height,
         color,
       });
-
-      for (const childKey of parentNode.childrenKeys) {
-        const childIndex = indexByKey.get(childKey);
-        if (childIndex == null) continue;
-        const childY = Math.round(
-          positions[childIndex] + getRowSize(childIndex) / 2,
-        );
-
-        result.push({
-          type: "horizontal",
-          left: vx - halfThickness,
-          top: childY - halfThickness,
-          width: TREE_CONNECTOR_HORIZONTAL_LENGTH_PX + halfThickness,
-          color,
-        });
-      }
     }
 
     return result;

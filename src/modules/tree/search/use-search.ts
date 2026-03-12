@@ -1,11 +1,13 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAtomValue, useSetAtom } from "jotai";
 
-import { searchTaxa, getParents, getSpecieDetail } from "@/services/apis/gbif";
+import { searchTaxa, getSpecieDetail } from "@/services/apis/gbif";
 import type { Rank, Taxon } from "@/common/types/api";
-import type { PathNode } from "@/common/types/tree-atoms";
-import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { EXCLUDED_RANKS } from "@/common/utils/tree/children";
+import { useNavigateToTaxon } from "@/hooks/use-navigate-to-taxon";
+import type { TaxonDiagnostic } from "@/hooks/use-navigate-to-taxon";
+import { focusSearchAtom, setFocusSearchAtom } from "@/store/tree";
 
 const detectGbifKey = (q: string): number | null => {
   const trimmed = q.trim();
@@ -93,8 +95,9 @@ const dedupeGenusSpecies = (list: Taxon[], tokens: string[]): Taxon[] => {
 
 export function useSearch() {
   const { t } = useTranslation();
-  const { navigateToNodes } = useTreeNavigation();
+  const { navigateToTaxon } = useNavigateToTaxon();
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
   const [kingdom, setKingdom] = useState("");
   const [loading, setLoading] = useState(false);
@@ -102,9 +105,27 @@ export function useSearch() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Taxon | null>(null);
   const [minimized, setMinimized] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<TaxonDiagnostic | null>(null);
 
   const gbifKey = detectGbifKey(q);
   const isKeySearch = gbifKey !== null;
+
+  // Listen for focus trigger from SearchBannerNode
+  const focusTrigger = useAtomValue(focusSearchAtom);
+  const setFocusTrigger = useSetAtom(setFocusSearchAtom);
+  useEffect(() => {
+    if (!focusTrigger) return;
+    setQ("");
+    setResults(null);
+    setError(null);
+    setSelected(null);
+    setDiagnosis(null);
+    setMinimized(false);
+    if (focusTrigger.kingdom) setKingdom(focusTrigger.kingdom);
+    // Give React one extra frame to render the kingdom selection before focusing
+    setTimeout(() => inputRef.current?.focus(), 50);
+    setFocusTrigger(null);
+  }, [focusTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onClear = useCallback(() => {
     setQ("");
@@ -112,6 +133,7 @@ export function useSearch() {
     setError(null);
     setSelected(null);
     setMinimized(false);
+    setDiagnosis(null);
   }, []);
 
   const onSearch = useCallback(
@@ -121,6 +143,7 @@ export function useSearch() {
       setResults(null);
       setSelected(null);
       setMinimized(false);
+      setDiagnosis(null);
 
       const trimmed = q.trim();
       if (!trimmed) return;
@@ -242,99 +265,9 @@ export function useSearch() {
     async (taxon: Taxon) => {
       setLoading(true);
       try {
-        let nub: number | undefined;
-        let detailRec: Record<string, unknown> | null = null;
-
-        try {
-          const detail = await getSpecieDetail(taxon.key);
-          const d = detail as unknown as Record<string, unknown>;
-          detailRec = d;
-          nub =
-            (d["nubKey"] as number | undefined) ??
-            (d["key"] as number | undefined);
-        } catch {
-          //
-        }
-
-        const parentsSourceKey = nub ?? taxon.key;
-        const parents = await getParents(parentsSourceKey);
-
-        if (!parents || parents.length === 0) {
-          setError(t("search.lineageError"));
-          return;
-        }
-
-        const speciesMatch = taxon.rank === "SPECIES";
-        const genusIndex = parents.findIndex((p) => p.rank === "GENUS");
-        let sliceEnd = parents.length;
-        if (speciesMatch && genusIndex !== -1) sliceEnd = genusIndex + 1;
-        else if (taxon.rank === "GENUS") {
-          const idx = parents.findIndex((p) => {
-            const pp = p as unknown as Record<string, unknown>;
-            const pNub =
-              (pp["nubKey"] as number | undefined) ??
-              (pp["key"] as number | undefined);
-            return p.key === taxon.key || pNub === taxon.key;
-          });
-          if (idx !== -1) sliceEnd = idx + 1;
-        }
-
-        const slice = parents.slice(0, sliceEnd);
-
-        const pathNodes: PathNode[] = slice.map((p) => {
-          const pp = p as unknown as Record<string, unknown>;
-          const nubKey =
-            (pp["nubKey"] as number | undefined) ??
-            (pp["key"] as number | undefined) ??
-            0;
-          const name =
-            (pp["canonicalName"] as string | undefined) ||
-            (pp["scientificName"] as string | undefined) ||
-            (pp["name"] as string | undefined) ||
-            (pp["rank"] as string | undefined) ||
-            "";
-          return {
-            key: nubKey,
-            rank: ((pp["rank"] as string)?.toUpperCase() as Rank) ?? "KINGDOM",
-            name,
-          };
-        });
-
-        const isSpecies =
-          taxon.rank === "SPECIES" ||
-          Boolean(
-            detailRec && (detailRec["species"] || detailRec["species"] === ""),
-          );
-
-        if (isSpecies) {
-          const speciesKey = nub ?? taxon.key;
-          const speciesName =
-            (detailRec?.["species"] as string | undefined) ||
-            taxon.canonicalName ||
-            taxon.scientificName ||
-            "";
-          const lastKey = pathNodes[pathNodes.length - 1]?.key;
-          if (speciesKey && speciesKey !== lastKey) {
-            pathNodes.push({
-              key: speciesKey,
-              rank: "SPECIES" as Rank,
-              name: speciesName,
-            });
-          }
-        } else {
-          const taxonKey = nub ?? taxon.key;
-          const lastKey = pathNodes[pathNodes.length - 1]?.key;
-          if (taxonKey && taxonKey !== lastKey) {
-            pathNodes.push({
-              key: taxonKey,
-              rank: taxon.rank,
-              name: taxon.canonicalName || taxon.scientificName || "",
-            });
-          }
-        }
-
-        navigateToNodes(pathNodes, true);
+        const result = await navigateToTaxon(taxon);
         setSelected(taxon);
+        setDiagnosis(result.diagnostic);
       } catch (e) {
         console.error(e);
         setError(t("search.pathError"));
@@ -342,7 +275,7 @@ export function useSearch() {
         setLoading(false);
       }
     },
-    [t, navigateToNodes],
+    [t, navigateToTaxon],
   );
 
   return {
@@ -360,5 +293,7 @@ export function useSearch() {
     onSearch,
     onPick,
     onClear,
+    diagnosis,
+    inputRef,
   };
 }

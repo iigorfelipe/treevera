@@ -1,5 +1,6 @@
 import { SearchForm } from "./search-form";
 import { SearchResults } from "./search-results";
+import { TaxonDiagnosis } from "./taxon-diagnosis";
 import { useSearch } from "./use-search";
 
 export const Search = () => {
@@ -18,6 +19,8 @@ export const Search = () => {
     onSearch,
     onPick,
     onClear,
+    diagnosis,
+    inputRef,
   } = useSearch();
 
   return (
@@ -32,6 +35,7 @@ export const Search = () => {
         hasResults={results !== null}
         onSearch={onSearch}
         onClear={onClear}
+        inputRef={inputRef}
       />
 
       {error && <p className="mt-1.5 px-1 text-xs text-red-500">{error}</p>}
@@ -45,6 +49,8 @@ export const Search = () => {
           onPick={onPick}
         />
       )}
+
+      {diagnosis && <TaxonDiagnosis diagnostic={diagnosis} />}
     </div>
   );
 };
