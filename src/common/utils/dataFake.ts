@@ -826,8 +826,6 @@ export const curiosidades: Curiosidades = {
 };
 
 export const game_info_fake = {
-  activities: [],
-  seen_species: [],
   shortcuts: [],
   progress: {
     exploited_species: 0,

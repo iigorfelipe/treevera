@@ -1,6 +1,7 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "./client";
 import type { DbUser } from "@/common/types/user";
+import { insertActivity } from "./user-activities";
 
 export const createUser = async (u: SupabaseUser) => {
   const provider =
@@ -15,16 +16,7 @@ export const createUser = async (u: SupabaseUser) => {
     avatar_url: u.user_metadata.avatar_url || null,
     created_at: u.created_at,
     provider,
-    game_info: {
-      activities: [
-        {
-          title: "Conta criada com sucesso!",
-          description: "Bem-vindo ao mundo da taxonomia",
-          date: u.created_at,
-        },
-      ],
-      seen_species: [],
-    } as DbUser["game_info"],
+    game_info: {} as DbUser["game_info"],
   };
 
   const { data, error } = await supabase
@@ -39,6 +31,12 @@ export const createUser = async (u: SupabaseUser) => {
   }
 
   if (!data) throw new Error("createUser: upsert retornou vazio");
+
+  void insertActivity(
+    u.id,
+    "Conta criada com sucesso!",
+    "Bem-vindo ao mundo da taxonomia",
+  );
 
   return JSON.parse(JSON.stringify(data)) as DbUser;
 };

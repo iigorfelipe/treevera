@@ -30,7 +30,7 @@ export const useGetSpecieDetail = ({ specieKey }: UseGetSpecieDetail) => {
         title: data.title,
       };
     },
-    staleTime: 1000 * 60 * 15,
-    gcTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60 * 24, // 24h
+    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 dias
   });
 };

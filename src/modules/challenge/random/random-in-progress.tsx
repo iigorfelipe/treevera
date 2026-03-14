@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 
 import { treeAtom } from "@/store/tree";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { AnimatePresence, motion } from "framer-motion";
@@ -47,7 +47,6 @@ export const RandomChallengeInProgress = () => {
   const { theme } = useTheme();
   const challenge = useAtomValue(treeAtom.challenge);
   const session = useAtomValue(authStore.session);
-  const [userDb, setUserDb] = useAtom(authStore.userDb);
 
   const speciesName = challenge.targetSpecies ?? "";
   const speciesKey = challenge.speciesKey ?? 0;
@@ -123,7 +122,7 @@ export const RandomChallengeInProgress = () => {
     });
 
     const userId = session?.user?.id;
-    if (!userId || !speciesKey || !userDb) return;
+    if (!userId || !speciesKey) return;
 
     void (async () => {
       const { wasNew } = await saveChallengeResult({
@@ -132,12 +131,7 @@ export const RandomChallengeInProgress = () => {
         mode: "RANDOM",
       });
       if (wasNew) {
-        const updatedUser = await addChallengeActivity({
-          user: userDb,
-          speciesName,
-          mode: "RANDOM",
-        });
-        if (updatedUser) setUserDb(updatedUser);
+        await addChallengeActivity({ userId, speciesName, mode: "RANDOM" });
       }
     })();
   }, [
@@ -145,9 +139,7 @@ export const RandomChallengeInProgress = () => {
     setChallenge,
     session,
     speciesKey,
-    userDb,
     speciesName,
-    setUserDb,
   ]);
 
   const handleStepInteraction = (step: number, type: StepInteractionType) => {

@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useAtomValue, useSetAtom } from "jotai";
-import { authStore } from "@/store/auth/atoms";
+import { useSetAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { X, Heart, Search, Images, ArrowUpDown, ImageOff } from "lucide-react";
@@ -12,9 +11,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
-import type { SeenSpecies } from "@/common/types/user";
+import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import { selectedSpecieKeyAtom } from "@/store/tree";
+import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
 type SortOrder = "newest" | "oldest";
 
@@ -43,14 +43,9 @@ const useNumColumns = () => {
 export const SpeciesGallery = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const userDb = useAtomValue(authStore.userDb);
+  const { data: allSpecies = [] } = useGetUserSeenSpecies();
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
   const numColumns = useNumColumns();
-
-  const allSpecies = useMemo(
-    () => userDb?.game_info?.seen_species ?? [],
-    [userDb],
-  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
@@ -73,18 +68,18 @@ export const SpeciesGallery = () => {
     let result = [...allSpecies];
 
     if (showOnlyFavorites) {
-      result = result.filter((s) => s.fav);
+      result = result.filter((s) => s.is_favorite);
     }
 
     result.sort((a, b) => {
       if (photosFirst) {
-        const aNoImage = imageStatus[a.key] === false;
-        const bNoImage = imageStatus[b.key] === false;
+        const aNoImage = imageStatus[a.gbif_key] === false;
+        const bNoImage = imageStatus[b.gbif_key] === false;
         if (aNoImage !== bNoImage) return aNoImage ? 1 : -1;
       }
 
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
+      const dateA = new Date(a.seen_at).getTime();
+      const dateB = new Date(b.seen_at).getTime();
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
     });
 
@@ -97,7 +92,7 @@ export const SpeciesGallery = () => {
   const columns = useMemo(() => {
     const cols = Array.from(
       { length: numColumns },
-      () => [] as { species: SeenSpecies; globalIndex: number }[],
+      () => [] as { species: UserSeenSpeciesRow; globalIndex: number }[],
     );
     visibleSpecies.forEach((species, i) => {
       cols[i % numColumns].push({ species, globalIndex: i });
@@ -131,8 +126,8 @@ export const SpeciesGallery = () => {
   }, [navigate, setSelectedSpecieKey]);
 
   const handleSelectSpecies = useCallback(
-    (species: SeenSpecies) => {
-      setSelectedSpecieKey(species.key);
+    (species: UserSeenSpeciesRow) => {
+      setSelectedSpecieKey(species.gbif_key);
     },
     [setSelectedSpecieKey],
   );
@@ -141,9 +136,7 @@ export const SpeciesGallery = () => {
     setShowOnlyFavorites((prev) => !prev);
   }, []);
 
-  const favoritesCount = allSpecies.filter((s) => s.fav).length;
-
-  if (!userDb) return null;
+  const favoritesCount = allSpecies.filter((s) => s.is_favorite).length;
 
   return (
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
@@ -275,7 +268,7 @@ export const SpeciesGallery = () => {
                   >
                     {column.map(({ species, globalIndex }) => (
                       <motion.div
-                        key={species.key}
+                        key={species.gbif_key}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{

@@ -1,11 +1,16 @@
-import { getSpeciesStatusFromWikidata } from "@/services/apis/wikipedia";
-import { useQuery } from "@tanstack/react-query";
+import { useGetSpeciesCache } from "./useGetSpeciesCache";
 
-export const useGetStatusCode = ({ specieName }: { specieName: string }) => {
-  return useQuery({
-    queryKey: ["iucn-status", specieName],
-    queryFn: async () => await getSpeciesStatusFromWikidata(specieName),
-    enabled: !!specieName,
-    staleTime: 1000 * 60 * 60 * 24, // 24h
-  });
+export const useGetStatusCode = ({
+  gbifKey,
+  specieName,
+}: {
+  gbifKey: number | undefined;
+  specieName: string;
+}) => {
+  const { data: cache, isLoading } = useGetSpeciesCache(gbifKey, specieName);
+
+  return {
+    data: cache?.iucnCode ?? null,
+    isLoading,
+  };
 };

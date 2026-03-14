@@ -1,12 +1,12 @@
 import { Heart, Loader2, ImageOff } from "lucide-react";
-import type { SeenSpecies } from "@/common/types/user";
+import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 
 type SpeciesCardProps = {
-  species: SeenSpecies;
+  species: UserSeenSpeciesRow;
   onClick: () => void;
   searchQuery?: string;
   onImageResolved?: (key: number, hasImage: boolean) => void;
@@ -23,13 +23,13 @@ export const SpeciesCard = ({
     specieName,
     familyName,
     isLoading: isLoadingInfo,
-  } = useSpecieInfo(species.key);
+  } = useSpecieInfo(species.gbif_key);
 
   const resolvedName =
     !isLoadingInfo && specieName !== "—" ? specieName : undefined;
 
   const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
-    species.key,
+    species.gbif_key,
     resolvedName,
   );
 
@@ -37,7 +37,7 @@ export const SpeciesCard = ({
 
   useEffect(() => {
     if (isLoading) return;
-    onImageResolved?.(species.key, !!imageData?.imgUrl);
+    onImageResolved?.(species.gbif_key, !!imageData?.imgUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
@@ -78,7 +78,7 @@ export const SpeciesCard = ({
           </div>
         )}
 
-        {species.fav && (
+        {species.is_favorite && (
           <div className="bg-card/95 absolute top-2 right-2 rounded-full p-1.5 shadow-lg backdrop-blur-sm">
             <Heart className="size-4 fill-red-500 text-red-500" />
           </div>

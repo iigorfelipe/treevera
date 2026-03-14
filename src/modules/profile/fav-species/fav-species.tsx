@@ -31,11 +31,13 @@ import { EmptyFavCard } from "./empty-card";
 import { SortableFilledCard } from "./filled-card";
 import { PickerItem } from "./picker-item";
 import { materializeSlots } from "./utils";
+import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
 export const FavoriteSpecies = () => {
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
+  const { data: seenSpecies = [] } = useGetUserSeenSpecies();
 
   const [editMode, setEditMode] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -55,25 +57,27 @@ export const FavoriteSpecies = () => {
       return topFav.map((n) => n.key);
     }
 
-    const seenSpecies = userDb?.game_info.seen_species ?? [];
     return seenSpecies
-      .filter((s) => s.fav)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .map((s) => s.key)
+      .filter((s) => s.is_favorite)
+      .sort(
+        (a, b) => new Date(b.seen_at).getTime() - new Date(a.seen_at).getTime(),
+      )
+      .map((s) => s.gbif_key)
       .slice(0, 4);
-  }, [userDb]);
+  }, [userDb, seenSpecies]);
 
   const availableFavKeys = useMemo(() => {
-    const seenSpecies = userDb?.game_info.seen_species ?? [];
     const topKeys = new Set(topFavKeys);
     if (replacingIndex !== null && topFavKeys[replacingIndex] !== undefined) {
       topKeys.delete(topFavKeys[replacingIndex]);
     }
     return seenSpecies
-      .filter((s) => s.fav && !topKeys.has(s.key))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .map((s) => s.key);
-  }, [userDb, topFavKeys, replacingIndex]);
+      .filter((s) => s.is_favorite && !topKeys.has(s.gbif_key))
+      .sort(
+        (a, b) => new Date(b.seen_at).getTime() - new Date(a.seen_at).getTime(),
+      )
+      .map((s) => s.gbif_key);
+  }, [seenSpecies, topFavKeys, replacingIndex]);
 
   const emptySlotCount = Math.max(0, 4 - topFavKeys.length);
 

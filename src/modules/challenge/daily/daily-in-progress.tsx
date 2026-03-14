@@ -7,7 +7,7 @@ import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 import { treeAtom } from "@/store/tree";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Timer } from "@/modules/challenge/components/timer";
 import { useResponsive } from "@/hooks/use-responsive";
@@ -31,6 +31,7 @@ import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/hooks/queries/keys";
 
 type StepInteractions = Record<
   number,
@@ -51,7 +52,6 @@ export const DailyChallengeInProgress = () => {
   const { theme } = useTheme();
   const challenge = useAtomValue(treeAtom.challenge);
   const session = useAtomValue(authStore.session);
-  const [userDb, setUserDb] = useAtom(authStore.userDb);
 
   const today = getTodayUTC();
   const speciesName = challenge.targetSpecies ?? "";
@@ -134,7 +134,7 @@ export const DailyChallengeInProgress = () => {
     });
 
     const userId = session?.user?.id;
-    if (!userId || !speciesKey || !userDb) return;
+    if (!userId || !speciesKey) return;
 
     void (async () => {
       const { wasNew } = await saveChallengeResult({
@@ -143,13 +143,11 @@ export const DailyChallengeInProgress = () => {
         mode: "DAILY",
       });
       if (wasNew) {
-        const updatedUser = await addChallengeActivity({
-          user: userDb,
-          speciesName,
-          mode: "DAILY",
-        });
-        if (updatedUser) setUserDb(updatedUser);
+        await addChallengeActivity({ userId, speciesName, mode: "DAILY" });
         void queryClient.invalidateQueries({ queryKey: ["challenge_dates"] });
+        void queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.user_activities_key, userId],
+        });
       }
     })();
   }, [
@@ -157,9 +155,7 @@ export const DailyChallengeInProgress = () => {
     setChallenge,
     session,
     speciesKey,
-    userDb,
     speciesName,
-    setUserDb,
     queryClient,
   ]);
 

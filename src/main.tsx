@@ -4,14 +4,22 @@ import { App } from "./app";
 import "@/common/i18n";
 import "./index.css";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { indexedDbPersister, queryClient } from "@/services/queryClient";
+import {
+  indexedDbPersister,
+  persistDehydrateOptions,
+  queryClient,
+} from "@/services/queryClient";
 import { ThemeProvider } from "./context/theme";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <PersistQueryClientProvider
       client={queryClient}
-      persistOptions={{ persister: indexedDbPersister }}
+      persistOptions={{
+        persister: indexedDbPersister,
+        maxAge: 1000 * 60 * 60 * 24 * 3, // 3 dias
+        dehydrateOptions: persistDehydrateOptions,
+      }}
     >
       <ThemeProvider>
         <App />

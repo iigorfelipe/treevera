@@ -1,6 +1,14 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, type Query } from "@tanstack/react-query";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import localforage from "localforage";
+
+const PERSIST_KEYS = new Set([
+  "kingdoms",
+  "children",
+  "parents",
+  "specie",
+  "species-cache",
+]);
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,3 +31,10 @@ export const indexedDbPersister = createAsyncStoragePersister({
   key: "treevera-react-query-cache",
   throttleTime: 1000,
 });
+
+export const persistDehydrateOptions = {
+  shouldDehydrateQuery: (query: Query) => {
+    const key = query.queryKey[0] as string;
+    return PERSIST_KEYS.has(key) && query.state.status === "success";
+  },
+};

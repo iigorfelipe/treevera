@@ -7,4 +7,7 @@ export const QUERY_KEYS = {
   daily_challenge_key: "daily_challenge",
   challenge_tips_key: "challenge_tips",
   vernacular_names_key: "vernacular_names",
+  user_seen_species_key: "user_seen_species",
+  user_activities_key: "user_activities",
+  species_cache_key: "species-cache",
 };

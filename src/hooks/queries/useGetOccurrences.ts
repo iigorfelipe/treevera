@@ -34,6 +34,6 @@ export const useGetOccurrences = (specieKey: number) => {
         occurrences,
       };
     },
-    staleTime: 1000 * 60 * 15,
+    staleTime: 1000 * 60 * 60 * 24 * 7, // 7 dias
   });
 };

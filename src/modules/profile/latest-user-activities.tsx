@@ -1,23 +1,22 @@
 import { useState } from "react";
 import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
-import { authStore } from "@/store/auth/atoms";
-
-import { useAtomValue } from "jotai";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useGetUserActivities } from "@/hooks/queries/useGetUserActivities";
+
+const DEFAULT_LIMIT = 4;
+const EXPANDED_LIMIT = 50;
 
 export const LatestUserActivities = () => {
   const { t } = useTranslation();
-  const userDb = useAtomValue(authStore.userDb);
-
-  const activities = userDb?.game_info?.activities ?? [];
-
   const [expanded, setExpanded] = useState(false);
 
-  const DEFAULT_LIMIT = 4;
+  const { data: activities = [] } = useGetUserActivities(
+    expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT + 1,
+  );
 
-  const visibleActivities = expanded ? activities : activities.slice(0, 4);
+  const visibleActivities = expanded ? activities : activities.slice(0, DEFAULT_LIMIT);
   const shouldShowButton = activities.length > DEFAULT_LIMIT;
 
   return (
@@ -44,14 +43,14 @@ export const LatestUserActivities = () => {
 
       <div
         className={`space-y-2 ${
-          expanded && activities.length > 4
+          expanded && activities.length > DEFAULT_LIMIT
             ? "max-h-100 overflow-y-auto pr-1"
             : ""
         }`}
       >
-        {visibleActivities.map((activity, index) => (
+        {visibleActivities.map((activity) => (
           <div
-            key={index}
+            key={activity.id}
             className="flex items-center gap-2 border-b py-2 last:border-0"
           >
             <div className="min-w-0 flex-1">
@@ -63,7 +62,7 @@ export const LatestUserActivities = () => {
               </div>
             </div>
             <div className="text-muted-foreground shrink-0 text-xs">
-              {formatActivityDate(activity.date)}
+              {formatActivityDate(activity.created_at)}
             </div>
           </div>
         ))}

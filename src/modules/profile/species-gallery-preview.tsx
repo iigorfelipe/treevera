@@ -1,11 +1,10 @@
 import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
-import { useAtomValue } from "jotai";
-import { authStore } from "@/store/auth/atoms";
 import { Images, ChevronRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
 import { useTranslation } from "react-i18next";
+import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
 const SpecieItem = ({
   specieKey,
@@ -42,12 +41,10 @@ const SpecieItem = ({
 
 export const SpeciesGalleryPreview = () => {
   const { t } = useTranslation();
-  const userDb = useAtomValue(authStore.userDb);
   const navigate = useNavigate();
+  const { data: seenSpecies = [], isLoading } = useGetUserSeenSpecies();
 
-  const seenSpecies = userDb?.game_info?.seen_species ?? [];
-
-  if (!userDb || !userDb.game_info) return null;
+  if (isLoading) return null;
 
   const handleOpenGallery = () => {
     navigate({ to: "/profile/species-gallery" });
@@ -64,26 +61,27 @@ export const SpeciesGalleryPreview = () => {
           disabled={!seenSpecies.length}
           onClick={handleOpenGallery}
         >
-          {t("seenSpecies.openGallery")} <ChevronRight className="ml-1 size-3" />
+          {t("seenSpecies.openGallery")}{" "}
+          <ChevronRight className="ml-1 size-3" />
         </Button>
       </div>
 
       {!seenSpecies.length ? (
         <div className="text-muted-foreground py-8 text-center">
           <Images className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
-          <div className="mb-1 text-sm font-medium">{t("seenSpecies.emptyTitle")}</div>
+          <div className="mb-1 text-sm font-medium">
+            {t("seenSpecies.emptyTitle")}
+          </div>
           <div className="text-xs">{t("seenSpecies.emptyHint")}</div>
         </div>
       ) : (
         seenSpecies
-          .slice()
-          .reverse()
           .slice(0, 4)
           .map((species) => (
             <SpecieItem
-              key={species.key}
-              specieKey={species.key}
-              date={species.date}
+              key={species.gbif_key}
+              specieKey={species.gbif_key}
+              date={species.seen_at}
             />
           ))
       )}

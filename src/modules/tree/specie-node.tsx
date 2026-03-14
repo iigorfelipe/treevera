@@ -1,5 +1,5 @@
 import { capitalizar } from "@/common/utils/string";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { memo, useMemo, useCallback, useState } from "react";
 
 import { cn } from "@/common/utils/cn";
@@ -10,16 +10,20 @@ import {
   TooltipTrigger,
 } from "@/common/components/ui/tooltip";
 import { authStore } from "@/store/auth/atoms";
-import { updateSeenSpecies } from "@/common/utils/supabase/add_species_gallery";
+import { addSeenSpecie } from "@/common/utils/supabase/user-seen-species";
 import type { NodeEntity } from "@/common/types/tree-atoms";
 import { treeAtom } from "@/store/tree";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/hooks/queries/keys";
 
 import { motion } from "framer-motion";
 import { Dna, DnaOff, Info } from "lucide-react";
 
 export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
-  const [userDb, setUserDb] = useAtom(authStore.userDb);
+  const session = useAtomValue(authStore.session);
+  const userId = session?.user?.id;
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
@@ -38,23 +42,13 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   }, [challengeActive, isSelected, node.key, speciesKey]);
 
   const saveSpeciesIfMissing = useCallback(async () => {
-    if (!userDb) return;
+    if (!userId) return;
 
-    void updateSeenSpecies(userDb, (prev) => {
-      const alreadyExists = prev.some((item) => item.key === node.key);
-      if (alreadyExists) return prev;
-
-      const newItem = {
-        key: node.key,
-        date: new Date().toISOString(),
-        fav: false,
-      };
-
-      return [...prev, newItem];
-    }).then((updatedUser) => {
-      if (updatedUser) setUserDb(updatedUser);
+    await addSeenSpecie(userId, node.key);
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.user_seen_species_key, userId],
     });
-  }, [userDb, node.key, setUserDb]);
+  }, [userId, node.key, queryClient]);
 
   const displayName = node.canonicalName || node.scientificName;
   const showInfoIcon =

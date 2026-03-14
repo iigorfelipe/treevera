@@ -1,21 +1,23 @@
 import { VulnerabilityBadge } from "@/common/components/vulnerability-badge";
 import { RANK_FIXES } from "@/common/utils/tree/ranks";
-import { useGetStatusCode } from "@/hooks/queries/useGetIucnRedListCategory";
-import { useGetWikiDetails } from "@/hooks/queries/useGetWikiDetails";
+import { useGetSpeciesCache } from "@/hooks/queries/useGetSpeciesCache";
 import {
   SkeletonDescription,
   SkeletonText,
   SkeletonVulnerabilityBadge,
 } from "@/modules/specie-detail/skeletons";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { Heart } from "lucide-react";
 import { authStore } from "@/store/auth/atoms";
 import { useEffect, useState } from "react";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { motion } from "framer-motion";
-import { updateSeenSpecies } from "@/common/utils/supabase/add_species_gallery";
+import { toggleFavSpecie } from "@/common/utils/supabase/user-seen-species";
 import { updateFavActivity } from "@/common/utils/supabase/update-fav-activity";
+import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useTranslation } from "react-i18next";
 
 export const SpecieInfos = () => {
@@ -31,60 +33,48 @@ export const SpecieInfos = () => {
     specieKey: specieKey!,
   });
 
-  const [userDb, setUserDb] = useAtom(authStore.userDb);
+  const session = useAtomValue(authStore.session);
+  const userId = session?.user?.id;
 
-  const seenSpecies = userDb?.game_info?.seen_species ?? [];
+  const { data: seenSpecies = [] } = useGetUserSeenSpecies();
+  const queryClient = useQueryClient();
 
-  const specie = seenSpecies.find((s) => s.key === specieKey);
+  const canonicalName =
+    specieDetail?.canonicalName || specieDetail?.scientificName;
 
-  const [fav, setFav] = useState(specie?.fav ?? false);
-
-  const { data: status, isLoading: isLoadingStatus } = useGetStatusCode({
-    specieName:
-      (specieDetail?.canonicalName || specieDetail?.scientificName) ?? "",
-  });
-
-  const { data: wikiDetails, isLoading: isLoadingWiki } = useGetWikiDetails(
-    specieDetail?.canonicalName,
+  const { data: cache, isLoading: isLoadingCache } = useGetSpeciesCache(
+    specieKey,
+    canonicalName,
   );
 
+  const specie = seenSpecies.find((s) => s.gbif_key === specieKey);
+  const [fav, setFav] = useState(specie?.is_favorite ?? false);
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFav(specie?.fav ?? false);
-  }, [specie?.fav]);
+    setFav(specie?.is_favorite ?? false);
+  }, [specie?.is_favorite]);
 
   const toggleFav = async () => {
-    if (!userDb || specieKey == null) return;
+    if (!userId || specieKey == null) return;
 
     const newFav = !fav;
     setFav(newFav);
 
-    const updatedUser = await updateSeenSpecies(userDb, (prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex((item) => item.key === specieKey);
-
-      if (index !== -1) {
-        updated[index] = { ...updated[index], fav: newFav };
-      } else if (specieDetail) {
-        updated.push({
-          key: specieKey,
-          date: new Date().toISOString(),
-          fav: newFav,
-        });
-      }
-
-      return updated;
+    await toggleFavSpecie(userId, specieKey, newFav);
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.user_seen_species_key, userId],
     });
 
-    if (!updatedUser) return;
-
-    const speciesName = specieDetail?.canonicalName ?? "";
-    const finalUser = await updateFavActivity({
-      user: updatedUser,
-      speciesName,
-      isFav: newFav,
-    });
-    setUserDb(finalUser ?? updatedUser);
+    if (newFav) {
+      void updateFavActivity({
+        userId,
+        speciesName: canonicalName ?? "",
+        isFav: newFav,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.user_activities_key, userId],
+      });
+    }
   };
 
   if (!specieDetail)
@@ -134,7 +124,7 @@ export const SpecieInfos = () => {
             )}
           </div>
 
-          {userDb && (
+          {userId && (
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -177,16 +167,16 @@ export const SpecieInfos = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        {isLoadingStatus ? (
+        {isLoadingCache ? (
           <SkeletonVulnerabilityBadge />
         ) : (
-          <VulnerabilityBadge statusCode={status} />
+          <VulnerabilityBadge statusCode={cache?.iucnCode ?? null} />
         )}
       </motion.div>
 
-      {isLoadingWiki ? (
+      {isLoadingCache ? (
         <SkeletonDescription />
-      ) : wikiDetails?.extract || wikiDetails?.description ? (
+      ) : cache?.wikiDetails?.extract || cache?.wikiDetails?.description ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,7 +187,7 @@ export const SpecieInfos = () => {
             {t("specieDetail.descriptionTitle")}
           </h3>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            {wikiDetails.extract || wikiDetails.description}
+            {cache.wikiDetails.extract || cache.wikiDetails.description}
           </p>
         </motion.div>
       ) : null}

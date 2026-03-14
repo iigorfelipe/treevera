@@ -29,18 +29,6 @@ export type Shortcuts = {
   plantae: ShortCut[];
 };
 
-type Activities = {
-  title: string;
-  description?: string;
-  date: string;
-};
-
-export type SeenSpecies = {
-  key: number;
-  date: string;
-  fav: boolean;
-};
-
 type Progress = {
   exploited_species: number;
   challenges_completed: number;
@@ -60,8 +48,6 @@ export type UserSettings = {
 };
 
 type GameInfo = {
-  activities: Activities[];
-  seen_species?: SeenSpecies[];
   shortcuts?: Shortcuts;
   progress?: Progress;
   top_fav_species?: FavSpecies[];
