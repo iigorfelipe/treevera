@@ -1,8 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 export const useMidnightRefresh = (onMidnight: () => void) => {
   const callbackRef = useRef(onMidnight);
-  callbackRef.current = onMidnight;
+
+  useLayoutEffect(() => {
+    callbackRef.current = onMidnight;
+  });
 
   useEffect(() => {
     const midnight = new Date();

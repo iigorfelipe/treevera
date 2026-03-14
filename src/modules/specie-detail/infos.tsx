@@ -10,7 +10,7 @@ import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useAtomValue } from "jotai";
 import { Heart } from "lucide-react";
 import { authStore } from "@/store/auth/atoms";
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { motion } from "framer-motion";
 import { toggleFavSpecie } from "@/common/utils/supabase/user-seen-species";
@@ -51,7 +51,7 @@ export const SpecieInfos = () => {
   const [fav, setFav] = useState(specie?.is_favorite ?? false);
 
   useEffect(() => {
-    setFav(specie?.is_favorite ?? false);
+    startTransition(() => setFav(specie?.is_favorite ?? false));
   }, [specie?.is_favorite]);
 
   const toggleFav = async () => {

@@ -20,11 +20,9 @@ export function usePrefetchExpandedChildren() {
 
   const inflight = useRef(new Set<number>());
 
-  const prevTarget = useRef(shortcutTarget);
-  if (prevTarget.current !== shortcutTarget) {
-    prevTarget.current = shortcutTarget;
+  useEffect(() => {
     inflight.current.clear();
-  }
+  }, [shortcutTarget]);
 
   useEffect(() => {
     if (!shortcutTarget || shortcutTarget.length === 0) return;

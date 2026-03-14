@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef, startTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
@@ -101,7 +101,7 @@ export const SpeciesGallery = () => {
   }, [visibleSpecies, numColumns]);
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
+    startTransition(() => setVisibleCount(PAGE_SIZE));
   }, [showOnlyFavorites, sortOrder, photosFirst, searchQuery]);
 
   useEffect(() => {
