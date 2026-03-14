@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useAtom, useAtomValue } from "jotai";
-import { Volume2, VolumeX } from "lucide-react";
+import { Volume2, VolumeX, Trash2, CheckCircle2 } from "lucide-react";
 import {
   Slider as RadixSlider,
   SliderThumb,
@@ -9,6 +10,7 @@ import {
 import { authStore } from "@/store/auth/atoms";
 import { audioSettingsAtom } from "@/store/audio";
 import { useUserSettings } from "@/hooks/user/useUserSettings";
+import { clearAllCache } from "@/services/queryClient";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +50,16 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const { showEmptyNodes, toggleShowEmptyNodes } = useUserSettings();
   const [audio, setAudio] = useAtom(audioSettingsAtom);
+  const [clearing, setClearing] = useState(false);
+  const [cleared, setCleared] = useState(false);
+
+  async function handleClearCache() {
+    setClearing(true);
+    await clearAllCache();
+    setClearing(false);
+    setCleared(true);
+    setTimeout(() => setCleared(false), 5000);
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,6 +138,26 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
                 </div>
               </div>
             )}
+          </section>
+
+          <section className="space-y-3 p-6">
+            <button
+              onClick={handleClearCache}
+              disabled={clearing || cleared}
+              className="hover:bg-muted ml-auto flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60"
+            >
+              {cleared ? (
+                <>
+                  <CheckCircle2 className="size-3.5 text-green-600" />
+                  Limpo
+                </>
+              ) : (
+                <>
+                  <Trash2 className="size-3.5" />
+                  {clearing ? "Limpando…" : "Limpar cache"}
+                </>
+              )}
+            </button>
           </section>
         </div>
       </DialogContent>

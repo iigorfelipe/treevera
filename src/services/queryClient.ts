@@ -32,6 +32,11 @@ export const indexedDbPersister = createAsyncStoragePersister({
   throttleTime: 1000,
 });
 
+export async function clearAllCache() {
+  queryClient.clear();
+  await forageStore.clear();
+}
+
 export const persistDehydrateOptions = {
   shouldDehydrateQuery: (query: Query) => {
     const key = query.queryKey[0] as string;
