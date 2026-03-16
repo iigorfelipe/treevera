@@ -6,7 +6,9 @@ import { useGetUserChallengeHistory } from "@/hooks/queries/useGetUserChallengeH
 import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import type { UserChallengeHistoryRow } from "@/common/utils/supabase/user-challenge-history";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { authStore } from "@/store/auth/atoms";
 import { Lock } from "lucide-react";
+import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -34,6 +36,7 @@ function computeProgress(
   achievementId: string,
   seenSpecies: UserSeenSpeciesRow[],
   challenges: UserChallengeHistoryRow[],
+  topFavCount: number,
 ): number {
   switch (achievementId) {
     case "primeira_descoberta":
@@ -80,6 +83,8 @@ function computeProgress(
     }
     case "incansavel":
       return Math.min((challenges.length / 50) * 100, 100);
+    case "vitrine_pessoal":
+      return Math.min((topFavCount / 4) * 100, 100);
     default:
       return 0;
   }
@@ -95,6 +100,8 @@ function formatUnlockDate(isoDate: string): string {
 
 export const UserAchievements = () => {
   const { t } = useTranslation();
+  const userDb = useAtomValue(authStore.userDb);
+  const topFavCount = userDb?.game_info.top_fav_species?.length ?? 0;
   const { data: unlockedRows = [], isLoading: isLoadingAchievements } =
     useGetUserAchievements();
   const { data: seenSpecies = [], isLoading: isLoadingSpecies } =
@@ -112,24 +119,37 @@ export const UserAchievements = () => {
 
   const unlocked = useMemo(
     () =>
-      ACHIEVEMENTS.filter((a) => unlockedIds.has(a.id)).map((a) => ({
-        ...a,
-        isUnlocked: true as const,
-        unlocked_at:
-          unlockedRows.find((r) => r.achievement_id === a.id)?.unlocked_at ??
-          null,
-      })),
+      ACHIEVEMENTS.filter((a) => unlockedIds.has(a.id))
+        .map((a) => ({
+          ...a,
+          isUnlocked: true as const,
+          unlocked_at:
+            unlockedRows.find((r) => r.achievement_id === a.id)?.unlocked_at ??
+            null,
+        }))
+        .sort((a, b) => {
+          if (!a.unlocked_at) return 1;
+          if (!b.unlocked_at) return -1;
+          return (
+            new Date(a.unlocked_at).getTime() -
+            new Date(b.unlocked_at).getTime()
+          );
+        }),
     [unlockedIds, unlockedRows],
   );
 
   const locked = useMemo(
     () =>
-      ACHIEVEMENTS.filter((a) => !unlockedIds.has(a.id)).map((a) => ({
-        ...a,
-        isUnlocked: false as const,
-        progress: Math.round(computeProgress(a.id, seenSpecies, challenges)),
-      })),
-    [unlockedIds, seenSpecies, challenges],
+      ACHIEVEMENTS.filter((a) => !unlockedIds.has(a.id))
+        .map((a) => ({
+          ...a,
+          isUnlocked: false as const,
+          progress: Math.round(
+            computeProgress(a.id, seenSpecies, challenges, topFavCount),
+          ),
+        }))
+        .sort((a, b) => b.progress - a.progress),
+    [unlockedIds, seenSpecies, challenges, topFavCount],
   );
 
   if (isLoading) {
@@ -158,7 +178,7 @@ export const UserAchievements = () => {
                 <Icon className="text-primary size-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold leading-tight">{a.name}</p>
+                <p className="text-sm leading-tight font-semibold">{a.name}</p>
                 <p className="text-muted-foreground mt-0.5 text-xs leading-snug">
                   {a.description}
                 </p>
@@ -179,7 +199,7 @@ export const UserAchievements = () => {
                 <Lock className="bg-background text-muted-foreground absolute -right-0.5 -bottom-0.5 size-3 rounded-full p-0.5" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-muted-foreground text-sm font-semibold leading-tight">
+                <p className="text-muted-foreground text-sm leading-tight font-semibold">
                   {a.name}
                 </p>
                 <p className="text-muted-foreground/70 mt-0.5 text-xs leading-snug">

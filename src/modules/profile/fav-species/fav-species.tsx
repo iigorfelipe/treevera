@@ -32,6 +32,7 @@ import { SortableFilledCard } from "./filled-card";
 import { PickerItem } from "./picker-item";
 import { materializeSlots } from "./utils";
 import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
+import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
 export const FavoriteSpecies = () => {
   const { t } = useTranslation();
@@ -39,6 +40,7 @@ export const FavoriteSpecies = () => {
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
   const { data: seenSpecies = [] } = useGetUserSeenSpecies();
 
+  const checkAchievements = useCheckAchievements();
   const [editMode, setEditMode] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
@@ -52,19 +54,9 @@ export const FavoriteSpecies = () => {
 
   const topFavKeys = useMemo(() => {
     const topFav = userDb?.game_info.top_fav_species;
-
-    if (topFav !== undefined && topFav !== null) {
-      return topFav.map((n) => n.key);
-    }
-
-    return seenSpecies
-      .filter((s) => s.is_favorite)
-      .sort(
-        (a, b) => new Date(b.seen_at).getTime() - new Date(a.seen_at).getTime(),
-      )
-      .map((s) => s.gbif_key)
-      .slice(0, 4);
-  }, [userDb, seenSpecies]);
+    if (!topFav) return [];
+    return topFav.map((n) => n.key);
+  }, [userDb]);
 
   const availableFavKeys = useMemo(() => {
     const topKeys = new Set(topFavKeys);
@@ -117,7 +109,10 @@ export const FavoriteSpecies = () => {
       return next.slice(0, 4);
     });
 
-    if (updatedUser) setUserDb(updatedUser);
+    if (updatedUser) {
+      setUserDb(updatedUser);
+      void checkAchievements();
+    }
     setReplacingIndex(null);
   };
 

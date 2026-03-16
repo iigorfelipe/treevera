@@ -52,17 +52,29 @@ export const Profile = () => {
           className="h-screen overflow-auto"
         >
           <div className="mx-auto max-w-7xl p-4">
-            <div className="grid grid-cols-1 gap-10 md:gap-14 lg:grid-cols-3 lg:gap-x-20">
-              <div className="space-y-10 md:space-y-14 lg:col-span-2">
-                <HeaderProfile />
-                <FavoriteSpecies />
-                <UserAchievements />
+            <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
+              <div className="contents lg:flex lg:flex-2 lg:flex-col lg:gap-14">
+                <div className="order-1">
+                  <HeaderProfile />
+                </div>
+                <div className="order-2">
+                  <FavoriteSpecies />
+                </div>
+                <div className="order-4">
+                  <UserAchievements />
+                </div>
               </div>
 
-              <div className="order-2 space-y-10 md:space-y-14 lg:order-0">
-                <SpeciesGalleryPreview />
-                <TreeShortcuts />
-                <LatestUserActivities />
+              <div className="contents lg:flex lg:flex-1 lg:flex-col lg:gap-14">
+                <div className="order-3">
+                  <SpeciesGalleryPreview />
+                </div>
+                <div className="order-5">
+                  <TreeShortcuts />
+                </div>
+                <div className="order-6">
+                  <LatestUserActivities />
+                </div>
               </div>
             </div>
           </div>

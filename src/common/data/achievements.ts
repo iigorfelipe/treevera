@@ -9,6 +9,7 @@ import {
   Shield,
   Shuffle,
   Sprout,
+  Star,
   Sun,
   Trophy,
 } from "lucide-react";
@@ -50,7 +51,7 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
   {
     id: "equilibrio_da_vida",
     name: "Equilíbrio da Vida",
-    description: `Espécies de todos os ${KNOWN_KINGDOMS.length} reinos navegáveis exploradas.`,
+    description: `1 espécie explorada de cada um dos reinos.`,
     icon: Globe,
     goal: KNOWN_KINGDOMS.length,
   },
@@ -82,6 +83,13 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
     description: "25 espécies adicionadas aos favoritos.",
     icon: Heart,
     goal: 25,
+  },
+  {
+    id: "vitrine_pessoal",
+    name: "Vitrine Pessoal",
+    description: "4 espécies fixadas como favoritas no perfil.",
+    icon: Star,
+    goal: 4,
   },
   //#region Desafios
   {
