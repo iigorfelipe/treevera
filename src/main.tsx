@@ -10,6 +10,7 @@ import {
   queryClient,
 } from "@/services/queryClient";
 import { ThemeProvider } from "./context/theme";
+import { Toaster } from "sonner";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById("root")!).render(
     >
       <ThemeProvider>
         <App />
+        <Toaster position="bottom-right" richColors />
       </ThemeProvider>
     </PersistQueryClientProvider>
   </StrictMode>,
