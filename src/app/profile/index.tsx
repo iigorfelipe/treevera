@@ -6,7 +6,7 @@ import { LatestUserActivities } from "@/modules/profile/latest-user-activities";
 // import { UserProgress } from "@/modules/profile/progress";
 import { SpeciesGalleryPreview } from "@/modules/profile/species-gallery-preview";
 import { TreeShortcuts } from "@/modules/profile/tree-shortcuts";
-// import { UserAchievements } from "@/modules/profile/user-achievements";
+import { UserAchievements } from "@/modules/profile/user-achievements";
 import { authStore } from "@/store/auth/atoms";
 import { selectedSpecieKeyAtom } from "@/store/tree";
 import { useNavigate } from "@tanstack/react-router";
@@ -51,20 +51,18 @@ export const Profile = () => {
           transition={{ duration: 0.2 }}
           className="h-screen overflow-auto"
         >
-          <div className="mx-auto max-w-7xl space-y-12 p-4">
-            <div className="grid grid-cols-1 gap-20 lg:grid-cols-3">
-              <div className="space-y-10 md:space-y-16 lg:col-span-2">
+          <div className="mx-auto max-w-7xl p-4">
+            <div className="grid grid-cols-1 gap-10 md:gap-14 lg:grid-cols-3 lg:gap-x-20">
+              <div className="space-y-10 md:space-y-14 lg:col-span-2">
                 <HeaderProfile />
                 <FavoriteSpecies />
-                {/* {!isMobile && <UserAchievements />} */}
+                <UserAchievements />
               </div>
 
-              <div className="space-y-10 md:space-y-16">
+              <div className="order-2 space-y-10 md:space-y-14 lg:order-0">
                 <SpeciesGalleryPreview />
                 <TreeShortcuts />
                 <LatestUserActivities />
-                {/* <UserProgress />
-                {isMobile && <UserAchievements />} */}
               </div>
             </div>
           </div>

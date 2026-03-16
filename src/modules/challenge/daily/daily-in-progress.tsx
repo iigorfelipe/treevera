@@ -32,6 +32,7 @@ import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
 type StepInteractions = Record<
   number,
@@ -47,6 +48,7 @@ export const DailyChallengeInProgress = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
   const queryClient = useQueryClient();
+  const checkAchievements = useCheckAchievements();
 
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
@@ -141,6 +143,8 @@ export const DailyChallengeInProgress = () => {
         userId,
         gbifKey: speciesKey,
         mode: "DAILY",
+        speciesName,
+        challengeDate,
       });
       if (wasNew) {
         await addChallengeActivity({ userId, speciesName, mode: "DAILY" });
@@ -148,7 +152,11 @@ export const DailyChallengeInProgress = () => {
         void queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.user_activities_key, userId],
         });
+        void queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.user_challenge_history_key, userId],
+        });
       }
+      await checkAchievements();
     })();
   }, [
     isCompleted,

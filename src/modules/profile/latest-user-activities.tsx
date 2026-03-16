@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Activity } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGetUserActivities } from "@/hooks/queries/useGetUserActivities";
 
@@ -40,6 +40,16 @@ export const LatestUserActivities = () => {
           </Button>
         )}
       </div>
+
+      {visibleActivities.length === 0 ? (
+        <div className="text-muted-foreground py-8 text-center">
+          <Activity className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
+          <div className="mb-1 text-sm font-medium">
+            {t("activity.emptyTitle")}
+          </div>
+          <div className="text-xs">{t("activity.emptyHint")}</div>
+        </div>
+      ) : null}
 
       <div
         className={`space-y-2 ${

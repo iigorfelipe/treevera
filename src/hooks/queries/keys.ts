@@ -10,4 +10,6 @@ export const QUERY_KEYS = {
   user_seen_species_key: "user_seen_species",
   user_activities_key: "user_activities",
   species_cache_key: "species-cache",
+  user_achievements_key: "user_achievements",
+  user_challenge_history_key: "user_challenge_history",
 };

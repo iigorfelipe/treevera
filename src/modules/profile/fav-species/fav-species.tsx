@@ -169,7 +169,7 @@ export const FavoriteSpecies = () => {
           items={topFavKeys.map(String)}
           strategy={rectSortingStrategy}
         >
-          <div className="grid grid-cols-2 gap-3 overflow-visible sm:gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 overflow-visible sm:grid-cols-4 sm:gap-4">
             {topFavKeys.map((key, idx) => (
               <SortableFilledCard
                 key={key}

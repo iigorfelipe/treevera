@@ -13,8 +13,12 @@ import { authStore } from "@/store/auth/atoms";
 import { useEffect, useState, startTransition } from "react";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { motion } from "framer-motion";
-import { toggleFavSpecie } from "@/common/utils/supabase/user-seen-species";
+import {
+  toggleFavSpecie,
+  updateSeenSpeciesIucn,
+} from "@/common/utils/supabase/user-seen-species";
 import { updateFavActivity } from "@/common/utils/supabase/update-fav-activity";
+import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
@@ -47,12 +51,21 @@ export const SpecieInfos = () => {
     canonicalName,
   );
 
+  const checkAchievements = useCheckAchievements();
   const specie = seenSpecies.find((s) => s.gbif_key === specieKey);
   const [fav, setFav] = useState(specie?.is_favorite ?? false);
 
   useEffect(() => {
     startTransition(() => setFav(specie?.is_favorite ?? false));
   }, [specie?.is_favorite]);
+
+  useEffect(() => {
+    if (!userId || !specieKey || !cache?.iucnCode || !specie) return;
+    if (specie.iucn_status === cache.iucnCode) return;
+    void updateSeenSpeciesIucn(userId, specieKey, cache.iucnCode).then(
+      () => void checkAchievements(),
+    );
+  }, [userId, specieKey, cache?.iucnCode, specie, checkAchievements]);
 
   const toggleFav = async () => {
     if (!userId || specieKey == null) return;
@@ -64,6 +77,7 @@ export const SpecieInfos = () => {
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.user_seen_species_key, userId],
     });
+    void checkAchievements();
 
     if (newFav) {
       void updateFavActivity({

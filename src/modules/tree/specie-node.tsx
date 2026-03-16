@@ -15,6 +15,7 @@ import type { NodeEntity } from "@/common/types/tree-atoms";
 import { treeAtom } from "@/store/tree";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
 import { motion } from "framer-motion";
 import { Dna, DnaOff, Info } from "lucide-react";
@@ -25,6 +26,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
   const queryClient = useQueryClient();
 
+  const checkAchievements = useCheckAchievements();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
   const challengeInProgress = challenge.status === "IN_PROGRESS";
@@ -44,11 +46,12 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const saveSpeciesIfMissing = useCallback(async () => {
     if (!userId) return;
 
-    await addSeenSpecie(userId, node.key);
+    await addSeenSpecie(userId, node.key, node.kingdom);
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.user_seen_species_key, userId],
     });
-  }, [userId, node.key, queryClient]);
+    void checkAchievements();
+  }, [userId, node.key, node.kingdom, queryClient, checkAchievements]);
 
   const displayName = node.canonicalName || node.scientificName;
   const showInfoIcon =

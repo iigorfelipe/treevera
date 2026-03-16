@@ -67,12 +67,15 @@
   },
 
   "activity": {
-    "title": "ACTIVITY"
+    "title": "ACTIVITY",
+    "emptyTitle": "No activity yet",
+    "emptyHint": "Explore species and complete challenges to record your journey!"
   },
 
   "achievements": {
     "title": "ACHIEVEMENTS",
-    "locked": "Locked"
+    "locked": "Locked",
+    "unlockedOn": "Unlocked on"
   },
 
   "shortcuts": {

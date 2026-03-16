@@ -67,12 +67,15 @@
   },
 
   "activity": {
-    "title": "ATIVIDADE"
+    "title": "ATIVIDADE",
+    "emptyTitle": "Nenhuma atividade ainda",
+    "emptyHint": "Explore espécies e complete desafios para registrar sua jornada!"
   },
 
   "achievements": {
     "title": "CONQUISTAS",
-    "locked": "Bloqueadas"
+    "locked": "Bloqueadas",
+    "unlockedOn": "Conquistado em"
   },
 
   "shortcuts": {

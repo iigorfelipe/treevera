@@ -30,11 +30,16 @@ import {
   type StepInteractionType,
 } from "@/modules/challenge/components/tips";
 import { ProgressSteps } from "@/modules/challenge/components/progress-steps";
+import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/hooks/queries/keys";
 
 type StepInteractions = Record<
   number,
   Partial<Record<StepInteractionType, boolean>>
 >;
+
+const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
 export const RandomChallengeInProgress = () => {
   const { t } = useTranslation();
@@ -42,6 +47,8 @@ export const RandomChallengeInProgress = () => {
   const setChallenge = useSetAtom(treeAtom.challenge);
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
+  const queryClient = useQueryClient();
+  const checkAchievements = useCheckAchievements();
 
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
@@ -129,10 +136,16 @@ export const RandomChallengeInProgress = () => {
         userId,
         gbifKey: speciesKey,
         mode: "RANDOM",
+        speciesName,
+        challengeDate: getTodayUTC(),
       });
       if (wasNew) {
         await addChallengeActivity({ userId, speciesName, mode: "RANDOM" });
+        void queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.user_challenge_history_key, userId],
+        });
       }
+      await checkAchievements();
     })();
   }, [
     isCompleted,
