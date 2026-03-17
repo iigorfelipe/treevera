@@ -12,4 +12,5 @@ export const QUERY_KEYS = {
   species_cache_key: "species-cache",
   user_achievements_key: "user_achievements",
   user_challenge_history_key: "user_challenge_history",
+  specie_gallery_key: "specie_gallery",
 };

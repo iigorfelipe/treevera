@@ -165,17 +165,23 @@ export const FavoriteSpecies = () => {
           strategy={rectSortingStrategy}
         >
           <div className="grid grid-cols-2 gap-3 overflow-visible sm:grid-cols-4 sm:gap-4">
-            {topFavKeys.map((key, idx) => (
-              <SortableFilledCard
-                key={key}
-                specieKey={key}
-                editMode={editMode}
-                onClick={() =>
-                  editMode ? openPicker(idx) : setSelectedSpecieKey(key)
-                }
-                onRemove={() => handleRemove(idx)}
-              />
-            ))}
+            {topFavKeys.map((key, idx) => {
+              const preferredImageUrl =
+                seenSpecies.find((s) => s.gbif_key === key)
+                  ?.preferred_image_url ?? null;
+              return (
+                <SortableFilledCard
+                  key={key}
+                  specieKey={key}
+                  preferredImageUrl={preferredImageUrl}
+                  editMode={editMode}
+                  onClick={() =>
+                    editMode ? openPicker(idx) : setSelectedSpecieKey(key)
+                  }
+                  onRemove={() => handleRemove(idx)}
+                />
+              );
+            })}
 
             {Array.from({ length: emptySlotCount }).map((_, idx) => (
               <EmptyFavCard

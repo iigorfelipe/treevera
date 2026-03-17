@@ -9,12 +9,14 @@ import { EmptyFavCard } from "./empty-card";
 
 export const FilledFavCard = ({
   specieKey,
+  preferredImageUrl,
   editMode,
   onClick,
   onRemove,
   dragHandleProps,
 }: {
   specieKey: number;
+  preferredImageUrl?: string | null;
   editMode: boolean;
   onClick: () => void;
   onRemove: () => void;
@@ -26,14 +28,16 @@ export const FilledFavCard = ({
     isLoading: isLoadingInfo,
   } = useSpecieInfo(specieKey);
   const { t } = useTranslation();
-  const resolvedName =
-    !isLoadingInfo && specieName !== "—" ? specieName : undefined;
+
+  const hasPreferredImage = !!preferredImageUrl;
+  const resolvedName = !isLoadingInfo && !!specieName ? specieName : undefined;
   const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
-    specieKey,
-    resolvedName,
+    hasPreferredImage ? undefined : specieKey,
+    hasPreferredImage ? undefined : resolvedName,
   );
 
-  const isLoading = isLoadingInfo || isLoadingImage;
+  const imgUrl = preferredImageUrl ?? imageData?.imgUrl ?? null;
+  const isLoading = isLoadingInfo || (!hasPreferredImage && isLoadingImage);
 
   return (
     <div className="group relative">
@@ -41,7 +45,7 @@ export const FilledFavCard = ({
         <div className="bg-accent flex aspect-3/4 w-full animate-pulse items-center justify-center overflow-hidden rounded-xl">
           <Loader className="size-5 animate-spin" />
         </div>
-      ) : imageData?.imgUrl ? (
+      ) : imgUrl ? (
         <>
           <figure
             onClick={onClick}
@@ -52,7 +56,7 @@ export const FilledFavCard = ({
             }`}
           >
             <Image
-              src={imageData.imgUrl}
+              src={imgUrl ?? ""}
               alt={specieName}
               loading="lazy"
               className={`size-full object-cover transition-transform duration-500 ease-out ${
@@ -109,7 +113,7 @@ export const FilledFavCard = ({
             <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-50 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
               <div className="bg-popover ring-border overflow-hidden rounded-xl shadow-2xl ring-1">
                 <img
-                  src={imageData.imgUrl}
+                  src={imgUrl ?? ""}
                   alt={specieName}
                   className="block max-h-56 max-w-56 object-contain"
                 />

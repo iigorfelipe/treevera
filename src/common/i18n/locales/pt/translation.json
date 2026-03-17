@@ -130,7 +130,6 @@
     "backToProfile": "Voltar para o perfil",
     "backToTree": "Voltar para a árvore",
     "dataUnavailable": "Dados indisponíveis.",
-    "taxonomyTitle": "Classificação Taxonômica",
     "kingdomLabel": "Reino",
     "phylumLabel": "Filo",
     "orderLabel": "Ordem",
@@ -147,7 +146,21 @@
     "viewOnGoogle": "Ver no Google Imagens",
     "imageSource": "Fonte",
     "imageBy": "por @",
-    "imageLicense": ", licenciada sob "
+    "imageLicense": ", licenciada sob ",
+    "viewInTree": "Ver na árvore taxonômica",
+    "taxonomyTitle": "Taxonomia",
+    "conservationStatus": "Status de Conservação",
+    "geographicOccurrence": "Ocorrência Geográfica",
+    "shareLabel": "Compartilhar Espécie",
+    "shareText": "Descubra {{name}} no TreeVera",
+    "shareCopied": "Link copiado!",
+    "classifiedAs": "Classificada como",
+    "byIucn": "pela IUCN Red List",
+    "dataProvidedBy": "Dados fornecidos pela Rede Global de Biodiversidade (GBIF).",
+    "unfavTop4Title": "Remover dos favoritos?",
+    "unfavTop4Body": "Esta espécie está entre as suas 4 favoritas destacadas no perfil. Ao desfavoritar, ela será removida do seu Top 4.",
+    "unfavTop4Confirm": "Remover mesmo assim",
+    "unfavTop4Cancel": "Cancelar"
   },
 
   "occurrenceMap": {
@@ -266,15 +279,25 @@
   },
 
   "vulnerability": {
-    "unknown": "Status desconhecido",
+    "unknown": "Sem registro na IUCN Red List",
+    "unknownDesc": "Esta espécie não possui dados na Lista Vermelha da IUCN. A lista avalia espécies viventes sob ameaças atuais. Espécies pré-históricas, grupos extintos geologicamente e táxons pouco documentados frequentemente não têm registro.",
     "EX": "Extinto",
+    "EXDesc": "Esta espécie desapareceu completamente da Terra.",
     "EW": "Extinto na natureza",
+    "EWDesc": "Sobrevive apenas em cativeiro ou cultivo; extinta no habitat natural.",
     "CR": "Criticamente em perigo",
+    "CRDesc": "Risco extremamente alto de extinção na natureza.",
     "EN": "Em perigo",
+    "ENDesc": "Risco muito alto de extinção na natureza.",
     "VU": "Vulnerável",
+    "VUDesc": "Risco alto de extinção se as ameaças persistirem.",
     "NT": "Quase ameaçado",
+    "NTDesc": "Próxima ao limiar de ameaça; monitorada de perto.",
     "LC": "Pouco preocupante",
+    "LCDesc": "Sem ameaças significativas de extinção no momento.",
     "DD": "Dados insuficientes",
-    "NE": "Não avaliado"
+    "DDDesc": "Informações insuficientes para avaliar o risco de extinção.",
+    "NE": "Não avaliado",
+    "NEDesc": "Ainda não foi avaliada pelos critérios da IUCN."
   }
 }

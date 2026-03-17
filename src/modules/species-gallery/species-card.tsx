@@ -25,19 +25,20 @@ export const SpeciesCard = ({
     isLoading: isLoadingInfo,
   } = useSpecieInfo(species.gbif_key);
 
-  const resolvedName =
-    !isLoadingInfo && specieName !== "—" ? specieName : undefined;
+  const hasPreferredImage = !!species.preferred_image_url;
+  const resolvedName = !isLoadingInfo && !!specieName ? specieName : undefined;
 
   const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
-    species.gbif_key,
-    resolvedName,
+    hasPreferredImage ? undefined : species.gbif_key,
+    hasPreferredImage ? undefined : resolvedName,
   );
 
-  const isLoading = isLoadingInfo || isLoadingImage;
+  const imgUrl = species.preferred_image_url ?? imageData?.imgUrl ?? null;
+  const isLoading = isLoadingInfo || (!hasPreferredImage && isLoadingImage);
 
   useEffect(() => {
     if (isLoading) return;
-    onImageResolved?.(species.gbif_key, !!imageData?.imgUrl);
+    onImageResolved?.(species.gbif_key, !!imgUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
@@ -61,10 +62,10 @@ export const SpeciesCard = ({
           <div className="flex aspect-4/3 items-center justify-center">
             <Loader2 className="text-muted-foreground size-8 animate-spin" />
           </div>
-        ) : imageData?.imgUrl ? (
+        ) : imgUrl ? (
           <>
             <img
-              src={imageData.imgUrl}
+              src={imgUrl}
               alt={specieName}
               className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"

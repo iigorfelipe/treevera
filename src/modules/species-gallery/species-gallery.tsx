@@ -1,4 +1,11 @@
-import { useState, useMemo, useCallback, useEffect, useRef, startTransition } from "react";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  startTransition,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useSetAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
@@ -13,6 +20,7 @@ import {
 } from "@/common/components/ui/dropdown-menu";
 import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
+import { Menu } from "@/modules/header/menu";
 import { selectedSpecieKeyAtom } from "@/store/tree";
 import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
@@ -162,14 +170,17 @@ export const SpeciesGallery = () => {
               )}
             </span>
           </div>
-          <Button
-            onClick={handleClose}
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-          >
-            <X className="size-4" />
-          </Button>
+          <div className="flex shrink-0 items-center gap-1">
+            <Menu />
+            <Button
+              onClick={handleClose}
+              variant="ghost"
+              size="icon"
+              className="size-8"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
         </div>
 
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 pb-3">

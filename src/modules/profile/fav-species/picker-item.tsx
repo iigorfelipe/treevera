@@ -1,5 +1,6 @@
 import type { FavSpecies } from "@/common/types/user";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
+import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useSpecieInfo } from "@/hooks/use-specie-info";
 import { Plus } from "lucide-react";
 
@@ -10,22 +11,31 @@ export const PickerItem = ({
   specieKey: number;
   onSelect: (data: FavSpecies) => void;
 }) => {
-  const { specieName, familyName, isLoading: infoLoading } =
-    useSpecieInfo(specieKey);
-  const resolvedName =
-    !infoLoading && specieName !== "—" ? specieName : undefined;
+  const {
+    specieName,
+    familyName,
+    isLoading: infoLoading,
+  } = useSpecieInfo(specieKey);
+  const resolvedName = !infoLoading && !!specieName ? specieName : undefined;
   const { data: imageData, isLoading: imgLoading } = useGetSpecieImage(
     specieKey,
     resolvedName,
   );
+
+  const { data: seenSpecies = [] } = useGetUserSeenSpecies();
+  const seenSpecie = seenSpecies.find((s) => s.gbif_key === specieKey);
+  const preferredImageUrl = seenSpecie?.preferred_image_url ?? null;
+
   const isLoading = infoLoading || imgLoading;
+
+  const displayImgUrl = preferredImageUrl ?? imageData?.imgUrl ?? "";
 
   const handleClick = () => {
     if (isLoading) return;
     onSelect({
       key: specieKey,
       name: specieName,
-      img: imageData?.imgUrl ?? "",
+      img: displayImgUrl,
       family: familyName,
     });
   };
@@ -39,9 +49,9 @@ export const PickerItem = ({
       <div className="bg-muted size-12 shrink-0 overflow-hidden rounded-lg">
         {isLoading ? (
           <div className="size-full animate-pulse" />
-        ) : imageData?.imgUrl ? (
+        ) : displayImgUrl ? (
           <img
-            src={imageData.imgUrl}
+            src={displayImgUrl}
             alt={specieName}
             className="size-full object-cover"
           />

@@ -13,7 +13,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/theme";
 import {
-  ArrowLeft,
   Loader,
   LogIn,
   LogOut,
@@ -21,6 +20,7 @@ import {
   Settings,
   Target,
   Telescope,
+  UserCircle,
 } from "lucide-react";
 import i18n from "@/common/i18n";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -98,54 +98,35 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
               </>
             )}
             {!isProfilePage && isAuthenticated && userDb && (
-              <DropdownMenuItem
-                onClick={() => {
-                  if (challenge.status === "IN_PROGRESS") {
-                    const confirmed = window.confirm(
-                      "Você tem um desafio em andamento. Acessar seu perfil, o desafio será cancelado.\n\nDeseja continuar?",
-                    );
-
-                    if (!confirmed) return;
-                  }
-                  setChallenge({ mode: null, status: "NOT_STARTED" });
-                  navigate({ to: "/profile" });
-                }}
-              >
-                <div className="px-2 py-1.5 text-sm">
-                  <div className="font-medium">{userDb.name}</div>
-                  <div className="text-muted-foreground text-xs">
-                    {userDb.email}
-                  </div>
-                </div>
-
-                <DropdownMenuSeparator />
-              </DropdownMenuItem>
-            )}
-
-            {isProfilePage && (
               <>
-                <DropdownMenuItem>
-                  <Link to="/" className="flex w-full items-center">
-                    <ArrowLeft className="mr-2 size-4" />
-                    <span>{t("nav.back")}</span>
-                  </Link>
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (challenge.status === "IN_PROGRESS") {
+                      const confirmed = window.confirm(
+                        "Você tem um desafio em andamento. Acessar seu perfil, o desafio será cancelado.\n\nDeseja continuar?",
+                      );
+
+                      if (!confirmed) return;
+                    }
+                    setChallenge({ mode: null, status: "NOT_STARTED" });
+                    navigate({ to: "/profile" });
+                  }}
+                >
+                  <div className="flex flex-col gap-2">
+                    <div className="text-muted-foreground truncate text-xs">
+                      {userDb.email}
+                    </div>
+                    <div className="flex items-center">
+                      <UserCircle className="mr-2 size-4 shrink-0" />
+                      <div className="min-w-0 flex-1 py-0.5 text-sm">
+                        <div className="font-medium">Perfil</div>
+                      </div>
+                    </div>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </>
             )}
-
-            <DropdownMenuItem
-              disabled={challenge.status === "IN_PROGRESS"}
-              onClick={() =>
-                setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
-              }
-            >
-              <Link to="/challenges" className="flex w-full items-center">
-                <Target className="mr-2 size-4" /> {t("nav.challenges")}
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
 
             <DropdownMenuItem
               onClick={() => {
@@ -163,6 +144,19 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
               <div className="flex w-full items-center">
                 <Telescope className="mr-2 size-4" /> {t("nav.explore")}
               </div>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              disabled={challenge.status === "IN_PROGRESS"}
+              onClick={() =>
+                setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
+              }
+            >
+              <Link to="/challenges" className="flex w-full items-center">
+                <Target className="mr-2 size-4" /> {t("nav.challenges")}
+              </Link>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -214,7 +208,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
               </DropdownMenuPortal>
             </DropdownMenuSub>
 
-            {!isProfilePage && isAuthenticated && (
+            {isAuthenticated && (
               <DropdownMenuSub>
                 <DropdownMenuSeparator />
                 <DropdownMenuSubTrigger disabled={isLoggingOut}>

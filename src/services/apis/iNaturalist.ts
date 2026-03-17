@@ -2,9 +2,16 @@ const INATURALIST = `https://api.inaturalist.org/v1`;
 
 type Params = { canonicalName: string };
 
+export type INatImageData = {
+  source: string;
+  imgUrl: string;
+  licenseCode: string;
+  author: string;
+};
+
 export const getSpecieImageFromINaturalist = async ({
   canonicalName,
-}: Params) => {
+}: Params): Promise<INatImageData | null | undefined> => {
   const url = `${INATURALIST}/search?q=${encodeURIComponent(canonicalName)}&sources=taxa`;
 
   const iNatData = await fetch(url).then((res) => res.json());
@@ -18,8 +25,36 @@ export const getSpecieImageFromINaturalist = async ({
     return {
       source: "iNaturalist",
       imgUrl: iNatPhoto.original_url,
-      licenseCode: iNatPhoto.license_code,
-      author: iNatPhoto.attribution_name,
+      licenseCode: iNatPhoto.license_code ?? "",
+      author: iNatPhoto.attribution_name ?? "",
     };
   }
+};
+
+export const getSpecieImagesFromINaturalist = async ({
+  canonicalName,
+}: Params): Promise<INatImageData[]> => {
+  const url = `${INATURALIST}/search?q=${encodeURIComponent(canonicalName)}&sources=taxa`;
+
+  const iNatData = await fetch(url).then((res) => res.json());
+
+  if (!iNatData?.results?.[0]?.record?.id) return [];
+
+  const taxonPhotos: {
+    photo?: {
+      original_url?: string;
+      license_code?: string;
+      attribution_name?: string;
+    };
+  }[] = iNatData.results[0].record.taxon_photos ?? [];
+
+  return taxonPhotos
+    .filter((tp) => !!tp.photo?.original_url)
+    .slice(0, 5)
+    .map((tp) => ({
+      source: "iNaturalist",
+      imgUrl: tp.photo!.original_url!,
+      licenseCode: tp.photo?.license_code ?? "",
+      author: tp.photo?.attribution_name ?? "",
+    }));
 };

@@ -130,7 +130,6 @@
     "backToProfile": "Back to profile",
     "backToTree": "Back to tree",
     "dataUnavailable": "Data unavailable.",
-    "taxonomyTitle": "Taxonomic Classification",
     "kingdomLabel": "Kingdom",
     "phylumLabel": "Phylum",
     "orderLabel": "Order",
@@ -147,7 +146,21 @@
     "viewOnGoogle": "View on Google Images",
     "imageSource": "Source",
     "imageBy": "by @",
-    "imageLicense": ", licensed under "
+    "imageLicense": ", licensed under ",
+    "viewInTree": "View in taxonomic tree",
+    "taxonomyTitle": "Taxonomy",
+    "conservationStatus": "Conservation Status",
+    "geographicOccurrence": "Geographic Occurrence",
+    "shareLabel": "Share Species",
+    "shareText": "Discover {{name}} on TreeVera",
+    "shareCopied": "Link copied!",
+    "classifiedAs": "Classified as",
+    "byIucn": "by the IUCN Red List",
+    "dataProvidedBy": "Data provided by the Global Biodiversity Information Facility (GBIF).",
+    "unfavTop4Title": "Remove from favorites?",
+    "unfavTop4Body": "This species is among your top 4 favorites highlighted on your profile. Unfavoriting it will remove it from your Top 4.",
+    "unfavTop4Confirm": "Remove anyway",
+    "unfavTop4Cancel": "Cancel"
   },
 
   "occurrenceMap": {
@@ -266,15 +279,25 @@
   },
 
   "vulnerability": {
-    "unknown": "Unknown status",
+    "unknown": "Not in the IUCN Red List",
+    "unknownDesc": "This species has no data in the IUCN Red List. The list assesses living species under current threats. Prehistoric species, geologically extinct groups, and poorly documented taxa often have no record.",
     "EX": "Extinct",
+    "EXDesc": "This species has completely disappeared from Earth.",
     "EW": "Extinct in the Wild",
+    "EWDesc": "Survives only in captivity; extinct in its natural habitat.",
     "CR": "Critically Endangered",
+    "CRDesc": "Extremely high risk of extinction in the wild.",
     "EN": "Endangered",
+    "ENDesc": "Very high risk of extinction in the wild.",
     "VU": "Vulnerable",
+    "VUDesc": "High risk of extinction if threats persist.",
     "NT": "Near Threatened",
+    "NTDesc": "Close to the threat threshold; closely monitored.",
     "LC": "Least Concern",
+    "LCDesc": "No significant threat of extinction at this time.",
     "DD": "Data Deficient",
-    "NE": "Not Evaluated"
+    "DDDesc": "Insufficient data to assess the risk of extinction.",
+    "NE": "Not Evaluated",
+    "NEDesc": "Not yet assessed under IUCN criteria."
   }
 }

@@ -7,6 +7,7 @@ export type UserSeenSpeciesRow = {
   is_favorite: boolean;
   kingdom: string | null;
   iucn_status: string | null;
+  preferred_image_url: string | null;
 };
 
 export const fetchSeenSpecies = async (
@@ -49,16 +50,27 @@ export const toggleFavSpecie = async (
   userId: string,
   gbifKey: number,
   isFavorite: boolean,
+  preferredImageUrl?: string | null,
 ): Promise<void> => {
-  const { error } = await supabase.from("user_seen_species").upsert(
-    {
-      user_id: userId,
-      gbif_key: gbifKey,
-      seen_at: new Date().toISOString(),
-      is_favorite: isFavorite,
-    },
-    { onConflict: "user_id,gbif_key" },
-  );
+  const payload: Partial<UserSeenSpeciesRow> & {
+    user_id: string;
+    gbif_key: number;
+    seen_at: string;
+    is_favorite: boolean;
+  } = {
+    user_id: userId,
+    gbif_key: gbifKey,
+    seen_at: new Date().toISOString(),
+    is_favorite: isFavorite,
+  };
+
+  if (preferredImageUrl !== undefined) {
+    payload.preferred_image_url = preferredImageUrl;
+  }
+
+  const { error } = await supabase
+    .from("user_seen_species")
+    .upsert(payload, { onConflict: "user_id,gbif_key" });
 
   if (error) console.error("Error toggling fav specie:", error);
 };
