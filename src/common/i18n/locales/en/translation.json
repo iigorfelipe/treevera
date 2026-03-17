@@ -275,7 +275,9 @@
     "dailyFeature2": "Same for everyone",
     "randomFeature1": "Mystery species",
     "randomFeature2": "Unlimited challenges",
-    "randomNoChallenge": "No challenges available right now. Try again later."
+    "randomNoChallenge": "No challenges available right now. Try again later.",
+    "backToChallenges": "Back to challenges",
+    "playThisDay": "Play this day"
   },
 
   "vulnerability": {
@@ -298,6 +300,13 @@
     "DD": "Data Deficient",
     "DDDesc": "Insufficient data to assess the risk of extinction.",
     "NE": "Not Evaluated",
-    "NEDesc": "Not yet assessed under IUCN criteria."
+    "NEDesc": "Not yet assessed under IUCN criteria.",
+    "assessedIn": "Assessed in",
+    "trend": {
+      "decreasing": "Decreasing population",
+      "stable": "Stable population",
+      "increasing": "Increasing population",
+      "unknown": "Unknown trend"
+    }
   }
 }

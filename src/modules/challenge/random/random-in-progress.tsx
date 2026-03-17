@@ -16,13 +16,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import { useResponsive } from "@/hooks/use-responsive";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
-import { ChallengeCompleted } from "@/modules/challenge/completed";
-import { SpecieDetail } from "@/app/details/specie-detail";
 import { useTheme } from "@/context/theme";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetParents } from "@/hooks/queries/useGetParents";
 import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
 import { saveChallengeResult } from "@/common/utils/supabase/challenge/save-challenge-result";
+import { AudioManager } from "@/lib/audio-manager";
 import { addChallengeActivity } from "@/common/utils/supabase/add-challenge-activity";
 import { authStore } from "@/store/auth/atoms";
 import {
@@ -80,7 +79,7 @@ export const RandomChallengeInProgress = () => {
   const isCompleted =
     correctPath.length > 0 && correctSteps === correctPath.length;
 
-  const [startedAt, setStartedAt] = useState(() => Date.now());
+  const [startedAt] = useState(() => Date.now());
   const [errorTracking, setErrorTracking] = useState({
     count: 0,
     perStep: [] as number[],
@@ -92,6 +91,7 @@ export const RandomChallengeInProgress = () => {
   const prevLastKeyRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
+    if (finishedAt !== null) return;
     if (correctPath.length === 0 || expandedNodes.length === 0) return;
     const lastNode = expandedNodes[expandedNodes.length - 1];
     if (!lastNode || lastNode.key === prevLastKeyRef.current) return;
@@ -107,25 +107,35 @@ export const RandomChallengeInProgress = () => {
         return { count: prev.count + 1, perStep };
       });
     }
-  }, [expandedNodes, correctPath]);
+  }, [expandedNodes, correctPath, finishedAt]);
 
   useEffect(() => {
     if (isCompleted && finishedAt === null) {
+      AudioManager.play("win");
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFinishedAt(Date.now());
     }
   }, [isCompleted, finishedAt]);
 
-  const elapsedSeconds = finishedAt
-    ? Math.floor((finishedAt - startedAt) / 1000)
-    : 0;
-
   useEffect(() => {
     if (!isCompleted) return;
 
+    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+
     setChallenge((prev) => {
       if (prev.status === "COMPLETED") return prev;
-      return { ...prev, status: "COMPLETED" };
+      return {
+        ...prev,
+        status: "COMPLETED",
+        completionData: {
+          elapsedSeconds: elapsed,
+          errorCount: errorTracking.count,
+          totalSteps: correctPath.length,
+          correctPath,
+          stepErrors: errorTracking.perStep,
+          stepInteractions,
+        },
+      };
     });
 
     const userId = session?.user?.id;
@@ -147,13 +157,7 @@ export const RandomChallengeInProgress = () => {
       }
       await checkAchievements();
     })();
-  }, [
-    isCompleted,
-    setChallenge,
-    session,
-    speciesKey,
-    speciesName,
-  ]);
+  }, [isCompleted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStepInteraction = (step: number, type: StepInteractionType) => {
     setStepInteractions((prev) => ({
@@ -164,24 +168,10 @@ export const RandomChallengeInProgress = () => {
 
   const [nextLoading, setNextLoading] = useState(false);
 
-  const resetTree = () => {
-    setExpandedNodes([]);
-    void navigate({ to: "/", replace: true });
-  };
-
-  const handleClick = () => {
+  const handleCancel = () => {
     setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
-    resetTree();
-  };
-
-  const handleReplay = () => {
-    resetTree();
-    setStartedAt(Date.now());
-    setErrorTracking({ count: 0, perStep: [] });
-    setStepInteractions({});
-    setFinishedAt(null);
-    prevLastKeyRef.current = undefined;
-    setChallenge((prev) => ({ ...prev, status: "IN_PROGRESS" }));
+    setExpandedNodes([]);
+    void navigate({ to: "/challenges" });
   };
 
   const handleNext = async () => {
@@ -194,13 +184,14 @@ export const RandomChallengeInProgress = () => {
 
     if (!result) return;
 
-    resetTree();
+    setExpandedNodes([]);
     setChallenge({
       mode: "RANDOM",
       status: "IN_PROGRESS",
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
     });
+    void navigate({ to: "/challenges/random", replace: true });
   };
 
   const lastStepWasError = useMemo(() => {
@@ -212,26 +203,7 @@ export const RandomChallengeInProgress = () => {
 
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
-  if (isCompleted) {
-    return (
-      <div className="flex flex-col gap-4 pb-10">
-        <ChallengeCompleted
-          speciesName={speciesName}
-          onReplay={handleReplay}
-          onNext={handleNext}
-          nextLabel={t("challenge.nextChallenge")}
-          nextLoading={nextLoading}
-          elapsedSeconds={elapsedSeconds}
-          errorCount={errorTracking.count}
-          totalSteps={correctPath.length}
-          correctPath={correctPath}
-          stepErrors={errorTracking.perStep}
-          stepInteractions={stepInteractions}
-        />
-        <SpecieDetail embedded />
-      </div>
-    );
-  }
+  if (finishedAt !== null) return null;
 
   if (isTablet) {
     return (
@@ -240,7 +212,7 @@ export const RandomChallengeInProgress = () => {
         speciesKey={speciesKey}
         correctSteps={correctSteps}
         isCompleted={isCompleted}
-        onCancel={handleClick}
+        onCancel={handleCancel}
         onNext={handleNext}
         nextLoading={nextLoading}
         errorIndex={errorIndex}
@@ -314,26 +286,24 @@ export const RandomChallengeInProgress = () => {
                 </>
               )}
 
-              {!isCompleted && (
-                <CardFooter className="-mx-6 flex flex-wrap justify-between border-t px-8 pt-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-destructive text-xs"
-                    onClick={handleClick}
-                  >
-                    {t("challenge.cancel")}
-                  </Button>
-                  <Button
-                    className="gap-2 bg-violet-600 text-white hover:bg-violet-700"
-                    onClick={handleNext}
-                    disabled={nextLoading}
-                  >
-                    <Shuffle className="size-4" />
-                    {t("challenge.nextChallenge")}
-                  </Button>
-                </CardFooter>
-              )}
+              <CardFooter className="-mx-6 flex flex-wrap justify-between border-t px-8 pt-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-destructive text-xs"
+                  onClick={handleCancel}
+                >
+                  {t("challenge.cancel")}
+                </Button>
+                <Button
+                  className="gap-2 bg-violet-600 text-white hover:bg-violet-700"
+                  onClick={handleNext}
+                  disabled={nextLoading}
+                >
+                  <Shuffle className="size-4" />
+                  {t("challenge.nextChallenge")}
+                </Button>
+              </CardFooter>
             </CardContent>
           </Card>
         </motion.div>

@@ -29,7 +29,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button } from "@/common/components/ui/button";
 import { treeAtom } from "@/store/tree";
 import { authStore } from "@/store/auth/atoms";
@@ -47,6 +47,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   const { logout, isLoggingOut } = useAuth();
 
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);
+  const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
 
   const handleLogout = async () => {
     if (challenge.status === "IN_PROGRESS") {
@@ -138,6 +139,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                   if (!confirmed) return;
                 }
                 setChallenge({ mode: null, status: "NOT_STARTED" });
+                setExpandedNodes([]);
                 navigate({ to: "/" });
               }}
             >

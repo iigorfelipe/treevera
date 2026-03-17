@@ -275,7 +275,9 @@
     "dailyFeature2": "Igual para todos",
     "randomFeature1": "Especie sorpresa",
     "randomFeature2": "Desafíos ilimitados",
-    "randomNoChallenge": "No hay desafíos disponibles ahora. Inténtalo más tarde."
+    "randomNoChallenge": "No hay desafíos disponibles ahora. Inténtalo más tarde.",
+    "backToChallenges": "Volver a desafíos",
+    "playThisDay": "Jugar este día"
   },
 
   "vulnerability": {
@@ -298,6 +300,13 @@
     "DD": "Datos insuficientes",
     "DDDesc": "Datos insuficientes para evaluar el riesgo de extinción.",
     "NE": "No evaluado",
-    "NEDesc": "Aún no evaluada según los criterios de la UICN."
+    "NEDesc": "Aún no evaluada según los criterios de la UICN.",
+    "assessedIn": "Evaluado en",
+    "trend": {
+      "decreasing": "Población decreciente",
+      "stable": "Población estable",
+      "increasing": "Población creciente",
+      "unknown": "Tendencia desconocida"
+    }
   }
 }

@@ -8,6 +8,8 @@ export type SpeciesCacheRow = {
   image_attribution: string | null;
   image_license: string | null;
   iucn_code: string | null;
+  iucn_population_trend: string | null;
+  iucn_assessment_year: number | null;
   description_pt: string | null;
   description_source: string | null;
   vernacular_names: unknown | null;

@@ -49,6 +49,7 @@ export const RandomChallengeCard = () => {
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
     });
+    navigate({ to: "/challenges/random" });
   };
 
   return (

@@ -15,7 +15,6 @@ export const useChallengeAudio = () => {
   const challengeActive =
     challengeStatus === "IN_PROGRESS" || challengeStatus === "COMPLETED";
 
-  const hasPlayedWinSound = useRef(false);
   const prevNodeKeysRef = useRef<Set<number>>(new Set());
 
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
@@ -29,14 +28,6 @@ export const useChallengeAudio = () => {
       speciesKey,
     );
   }, [parentsData, specieDetail, speciesKey]);
-
-  useEffect(() => {
-    if (challengeStatus !== "COMPLETED") return;
-    if (hasPlayedWinSound.current) return;
-
-    AudioManager.play("win");
-    hasPlayedWinSound.current = true;
-  }, [challengeStatus]);
 
   useEffect(() => {
     if (challengeStatus !== "IN_PROGRESS") return;
@@ -70,7 +61,6 @@ export const useChallengeAudio = () => {
   }, [expandedNodes, challengeStatus, correctPath]);
 
   useEffect(() => {
-    hasPlayedWinSound.current = false;
     prevNodeKeysRef.current = new Set();
   }, [speciesKey]);
 };

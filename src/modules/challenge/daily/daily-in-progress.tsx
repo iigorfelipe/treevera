@@ -13,12 +13,12 @@ import { Timer } from "@/modules/challenge/components/timer";
 import { useResponsive } from "@/hooks/use-responsive";
 import { useNavigate } from "@tanstack/react-router";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
-import { SpecieDetail } from "@/app/details/specie-detail";
 import { useTheme } from "@/context/theme";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetParents } from "@/hooks/queries/useGetParents";
 import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
 import { saveChallengeResult } from "@/common/utils/supabase/challenge/save-challenge-result";
+import { AudioManager } from "@/lib/audio-manager";
 import { addChallengeActivity } from "@/common/utils/supabase/add-challenge-activity";
 import { authStore } from "@/store/auth/atoms";
 import {
@@ -27,9 +27,6 @@ import {
 } from "@/modules/challenge/components/tips";
 import { ProgressSteps } from "@/modules/challenge/components/progress-steps";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
-import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
-import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
-import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
@@ -60,13 +57,10 @@ export const DailyChallengeInProgress = () => {
   const speciesKey = challenge.speciesKey ?? 0;
   const challengeDate = challenge.challengeDate ?? today;
 
-  const [navDate, setNavDate] = useState(challengeDate);
-  const { data: navChallengeData, isLoading: navLoading } =
-    useGetDailyChallenge(navDate);
-  const [randomLoading, setRandomLoading] = useState(false);
-
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
   const { data: parentsData } = useGetParents(speciesKey, !!speciesKey);
+
+  useGetDailyChallenge(challengeDate);
 
   const correctPath = useMemo(() => {
     if (!parentsData || !specieDetail) return [];
@@ -87,7 +81,7 @@ export const DailyChallengeInProgress = () => {
   const isCompleted =
     correctPath.length > 0 && correctSteps === correctPath.length;
 
-  const [startedAt, setStartedAt] = useState(() => Date.now());
+  const [startedAt] = useState(() => Date.now());
   const [errorTracking, setErrorTracking] = useState({
     count: 0,
     perStep: [] as number[],
@@ -99,6 +93,7 @@ export const DailyChallengeInProgress = () => {
   const prevLastKeyRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
+    if (finishedAt !== null) return;
     if (correctPath.length === 0 || expandedNodes.length === 0) return;
     const lastNode = expandedNodes[expandedNodes.length - 1];
     if (!lastNode || lastNode.key === prevLastKeyRef.current) return;
@@ -114,25 +109,36 @@ export const DailyChallengeInProgress = () => {
         return { count: prev.count + 1, perStep };
       });
     }
-  }, [expandedNodes, correctPath]);
+  }, [expandedNodes, correctPath, finishedAt]);
 
   useEffect(() => {
     if (isCompleted && finishedAt === null) {
+      AudioManager.play("win");
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFinishedAt(Date.now());
     }
   }, [isCompleted, finishedAt]);
 
-  const elapsedSeconds = finishedAt
-    ? Math.floor((finishedAt - startedAt) / 1000)
-    : 0;
-
+  // Save completion data to atom and persist to DB
   useEffect(() => {
     if (!isCompleted) return;
 
+    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+
     setChallenge((prev) => {
       if (prev.status === "COMPLETED") return prev;
-      return { ...prev, status: "COMPLETED" };
+      return {
+        ...prev,
+        status: "COMPLETED",
+        completionData: {
+          elapsedSeconds: elapsed,
+          errorCount: errorTracking.count,
+          totalSteps: correctPath.length,
+          correctPath,
+          stepErrors: errorTracking.perStep,
+          stepInteractions,
+        },
+      };
     });
 
     const userId = session?.user?.id;
@@ -158,14 +164,7 @@ export const DailyChallengeInProgress = () => {
       }
       await checkAchievements();
     })();
-  }, [
-    isCompleted,
-    setChallenge,
-    session,
-    speciesKey,
-    speciesName,
-    queryClient,
-  ]);
+  }, [isCompleted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStepInteraction = (step: number, type: StepInteractionType) => {
     setStepInteractions((prev) => ({
@@ -174,52 +173,10 @@ export const DailyChallengeInProgress = () => {
     }));
   };
 
-  const resetTree = () => {
-    setExpandedNodes([]);
-    void navigate({ to: "/", replace: true });
-  };
-
   const handleCancel = () => {
     setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
-    resetTree();
-  };
-
-  const handleReplay = () => {
-    resetTree();
-    setStartedAt(Date.now());
-    setErrorTracking({ count: 0, perStep: [] });
-    setStepInteractions({});
-    setFinishedAt(null);
-    prevLastKeyRef.current = undefined;
-    setChallenge((prev) => ({ ...prev, status: "IN_PROGRESS" }));
-  };
-
-  const handleRandom = async () => {
-    const userId = session?.user?.id;
-    if (!userId) return;
-    setRandomLoading(true);
-    const result = await getRandomChallengeForUser(userId);
-    setRandomLoading(false);
-    if (!result) return;
-    resetTree();
-    setChallenge({
-      mode: "RANDOM",
-      status: "IN_PROGRESS",
-      targetSpecies: result.scientificName,
-      speciesKey: result.gbifKey,
-    });
-  };
-
-  const handlePlayNavDate = () => {
-    if (!navChallengeData) return;
-    resetTree();
-    setChallenge({
-      mode: "DAILY",
-      status: "IN_PROGRESS",
-      targetSpecies: navChallengeData.scientificName,
-      speciesKey: navChallengeData.gbifKey,
-      challengeDate: navDate,
-    });
+    setExpandedNodes([]);
+    void navigate({ to: "/challenges" });
   };
 
   const lastStepWasError = useMemo(() => {
@@ -231,42 +188,7 @@ export const DailyChallengeInProgress = () => {
 
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
-  if (isCompleted) {
-    const isNavSameAsPlayed = navDate === challengeDate;
-    return (
-      <div className="flex flex-col gap-4 pb-10">
-        <ChallengeCompleted
-          speciesName={speciesName}
-          onReplay={handleReplay}
-          onNext={handleRandom}
-          nextLabel={t("challenge.nextRandom")}
-          nextLoading={randomLoading}
-          elapsedSeconds={elapsedSeconds}
-          errorCount={errorTracking.count}
-          totalSteps={correctPath.length}
-          correctPath={correctPath}
-          stepErrors={errorTracking.perStep}
-          stepInteractions={stepInteractions}
-        >
-          <div className="flex w-full items-center justify-center gap-3">
-            <DailyDateNav selectedDate={navDate} onSelectDate={setNavDate} />
-            {!isNavSameAsPlayed && (
-              <Button
-                size="sm"
-                className="shrink-0 bg-emerald-600 hover:bg-emerald-700"
-                onClick={handlePlayNavDate}
-                disabled={navLoading || !navChallengeData}
-              >
-                {t("challenge.play")}
-              </Button>
-            )}
-          </div>
-        </ChallengeCompleted>
-
-        <SpecieDetail embedded />
-      </div>
-    );
-  }
+  if (finishedAt !== null) return null;
 
   if (isTablet) {
     return (
@@ -342,18 +264,16 @@ export const DailyChallengeInProgress = () => {
             </>
           )}
 
-          {!isCompleted && (
-            <div className="-mx-6 flex justify-end border-t px-8 pt-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-destructive text-xs"
-                onClick={handleCancel}
-              >
-                {t("challenge.cancel")}
-              </Button>
-            </div>
-          )}
+          <div className="-mx-6 flex justify-end border-t px-8 pt-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-destructive text-xs"
+              onClick={handleCancel}
+            >
+              {t("challenge.cancel")}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

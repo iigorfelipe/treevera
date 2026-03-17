@@ -13,6 +13,7 @@ import { authStore } from "@/store/auth/atoms";
 import { AuthCallback } from "@/app/auth/auth-callback";
 import { SpeciesGalleryPage } from "@/app/profile/species-gallery";
 import { NotFound } from "@/app/not-found";
+import { SpecieDetailPage } from "@/app/details/specie-detail-page";
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -124,21 +125,111 @@ const speciesGalleryRoute = createRoute({
   },
 });
 
+const specieDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/specie-detail/$specieKey",
+  component: SpecieDetailPage,
+});
+
 const challengesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/challenges",
   component: Home,
 });
 
-const dailyInProgressRoute = createRoute({
+const challengesDailyRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/challenges/daily/in-progress",
+  path: "/challenges/daily",
   component: Home,
 });
 
-const randomInProgressRoute = createRoute({
+const challengesDaily1Route = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/challenges/random/in-progress",
+  path: "/challenges/daily/$level1",
+  component: Home,
+});
+
+const challengesDaily2Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/daily/$level1/$level2",
+  component: Home,
+});
+
+const challengesDaily3Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/daily/$level1/$level2/$level3",
+  component: Home,
+});
+
+const challengesDaily4Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/daily/$level1/$level2/$level3/$level4",
+  component: Home,
+});
+
+const challengesDaily5Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/daily/$level1/$level2/$level3/$level4/$level5",
+  component: Home,
+});
+
+const challengesDaily6Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/daily/$level1/$level2/$level3/$level4/$level5/$level6",
+  component: Home,
+});
+
+const challengesDaily7Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/daily/$level1/$level2/$level3/$level4/$level5/$level6/$level7",
+  component: Home,
+});
+
+const challengesRandomRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random",
+  component: Home,
+});
+
+const challengesRandom1Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/$level1",
+  component: Home,
+});
+
+const challengesRandom2Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/$level1/$level2",
+  component: Home,
+});
+
+const challengesRandom3Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/$level1/$level2/$level3",
+  component: Home,
+});
+
+const challengesRandom4Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/$level1/$level2/$level3/$level4",
+  component: Home,
+});
+
+const challengesRandom5Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/$level1/$level2/$level3/$level4/$level5",
+  component: Home,
+});
+
+const challengesRandom6Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/$level1/$level2/$level3/$level4/$level5/$level6",
+  component: Home,
+});
+
+const challengesRandom7Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/random/$level1/$level2/$level3/$level4/$level5/$level6/$level7",
   component: Home,
 });
 
@@ -156,9 +247,24 @@ const routeTree = rootRoute.addChildren([
   authCallbackRoute,
   profileRoute,
   speciesGalleryRoute,
+  specieDetailRoute,
   challengesRoute,
-  dailyInProgressRoute,
-  randomInProgressRoute,
+  challengesDailyRoute,
+  challengesDaily1Route,
+  challengesDaily2Route,
+  challengesDaily3Route,
+  challengesDaily4Route,
+  challengesDaily5Route,
+  challengesDaily6Route,
+  challengesDaily7Route,
+  challengesRandomRoute,
+  challengesRandom1Route,
+  challengesRandom2Route,
+  challengesRandom3Route,
+  challengesRandom4Route,
+  challengesRandom5Route,
+  challengesRandom6Route,
+  challengesRandom7Route,
 ]);
 
 export const router = createRouter({

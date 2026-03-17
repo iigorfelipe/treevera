@@ -7,7 +7,6 @@ import {
   startTransition,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { X, Heart, Search, Images, ArrowUpDown, ImageOff } from "lucide-react";
@@ -21,7 +20,6 @@ import {
 import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import { Menu } from "@/modules/header/menu";
-import { selectedSpecieKeyAtom } from "@/store/tree";
 import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
 type SortOrder = "newest" | "oldest";
@@ -52,7 +50,6 @@ export const SpeciesGallery = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: allSpecies = [] } = useGetUserSeenSpecies();
-  const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
   const numColumns = useNumColumns();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -129,15 +126,18 @@ export const SpeciesGallery = () => {
   }, [hasMore, visibleCount]);
 
   const handleClose = useCallback(() => {
-    setSelectedSpecieKey(null);
     navigate({ to: "/profile" });
-  }, [navigate, setSelectedSpecieKey]);
+  }, [navigate]);
 
   const handleSelectSpecies = useCallback(
     (species: UserSeenSpeciesRow) => {
-      setSelectedSpecieKey(species.gbif_key);
+      navigate({
+        to: "/specie-detail/$specieKey",
+        params: { specieKey: String(species.gbif_key) },
+        search: { from: "gallery" },
+      });
     },
-    [setSelectedSpecieKey],
+    [navigate],
   );
 
   const toggleFavoritesFilter = useCallback(() => {

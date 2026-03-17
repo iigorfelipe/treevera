@@ -3,12 +3,22 @@ import type { Kingdom, Rank } from "./api";
 export type ChallengeMode = "DAILY" | "RANDOM" | "UNSET" | null;
 type ChallengeStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 
+export type ChallengeCompletionData = {
+  elapsedSeconds: number;
+  errorCount: number;
+  totalSteps: number;
+  correctPath: { rank: string; name: string; key: number }[];
+  stepErrors: number[];
+  stepInteractions: Record<number, Partial<Record<string, boolean>>>;
+};
+
 export type Challenge = {
   mode: ChallengeMode;
   status: ChallengeStatus;
   targetSpecies?: string;
   speciesKey?: number;
   challengeDate?: string;
+  completionData?: ChallengeCompletionData;
 };
 
 export type PathNode = {

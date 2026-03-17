@@ -11,11 +11,25 @@ export function useTreeNavigation() {
   const allNodes = useAtomValue(treeAtom.nodes);
   const expandedPath = useAtomValue(treeAtom.expandedNodes);
   const setShortcutTarget = useSetAtom(shortcutScrollTargetAtom);
+  const challenge = useAtomValue(treeAtom.challenge);
 
-  const nodesToPath = useCallback((nodes: PathNode[]) => {
-    if (nodes.length === 0) return "/";
-    return `/tree/${nodes.map((n) => n.key).join("/")}`;
-  }, []);
+  const nodesToPath = useCallback(
+    (nodes: PathNode[]) => {
+      const base =
+        challenge.mode === "DAILY"
+          ? "/challenges/daily"
+          : challenge.mode === "RANDOM"
+            ? "/challenges/random"
+            : "/tree";
+
+      if (nodes.length === 0)
+        return challenge.mode === "DAILY" || challenge.mode === "RANDOM"
+          ? base
+          : "/";
+      return `${base}/${nodes.map((n) => n.key).join("/")}`;
+    },
+    [challenge.mode],
+  );
 
   const navigateToNodes = useCallback(
     (nodes: PathNode[], fromShortcut = false) => {

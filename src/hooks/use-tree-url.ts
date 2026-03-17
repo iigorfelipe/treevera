@@ -69,15 +69,22 @@ export function useTreeUrl() {
     const pathname = fullUrl.replace("/treevera", "");
     const parts = pathname.split("/").filter(Boolean);
 
-    if (parts[0] !== "tree") {
+    let keyStrings: string[];
+    if (parts[0] === "tree") {
+      keyStrings = parts.slice(1);
+    } else if (
+      parts[0] === "challenges" &&
+      (parts[1] === "daily" || parts[1] === "random") &&
+      parts.length > 2
+    ) {
+      keyStrings = parts.slice(2);
+    } else {
       pendingKeys.current = [];
       resolvedPath.current = [];
       done.current = true;
       setExpandedPath([]);
       return;
     }
-
-    const keyStrings = parts.slice(1);
 
     if (keyStrings.length === 0) {
       pendingKeys.current = [];

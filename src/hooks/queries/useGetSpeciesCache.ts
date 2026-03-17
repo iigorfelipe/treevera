@@ -8,8 +8,8 @@ import { getSpecieImageFromINaturalist } from "@/services/apis/iNaturalist";
 import {
   getSpecieImageFromWikipedia,
   getWikiSpecieDetail,
-  getSpeciesStatusFromWikidata,
 } from "@/services/apis/wikipedia";
+import { getSpeciesStatusFromIUCN } from "@/services/apis/iucn";
 import { getSpecieImageFromGBIF } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
 
@@ -21,6 +21,8 @@ export type SpeciesCacheResult = {
     author: string;
   } | null;
   iucnCode: StatusCode | null;
+  iucnTrend: string | null;
+  iucnYear: number | null;
   wikiDetails: {
     extract: string;
     description: string;
@@ -39,6 +41,37 @@ export const useGetSpeciesCache = (
       const cached = await getSpeciesCache(gbifKey);
 
       if (cached) {
+        let iucnCode = (cached.iucn_code as StatusCode | null) ?? null;
+        let iucnTrend = cached.iucn_population_trend ?? null;
+        let iucnYear = cached.iucn_assessment_year ?? null;
+
+        if (!cached.has_iucn) {
+          const freshIucn = await getSpeciesStatusFromIUCN(canonicalName);
+          if (freshIucn) {
+            iucnCode = freshIucn.code;
+            iucnTrend = freshIucn.trend;
+            iucnYear = freshIucn.year;
+            void upsertSpeciesCache({
+              gbif_key: gbifKey,
+              scientific_name: canonicalName,
+              image_url: cached.image_url,
+              image_source: cached.image_source,
+              image_attribution: cached.image_attribution,
+              image_license: cached.image_license,
+              iucn_code: freshIucn.code,
+              iucn_population_trend: freshIucn.trend,
+              iucn_assessment_year: freshIucn.year,
+              description_pt: cached.description_pt,
+              description_source: cached.description_source,
+              vernacular_names: cached.vernacular_names,
+              expires_at: cached.expires_at,
+              has_image: cached.has_image,
+              has_iucn: true,
+              has_description: cached.has_description,
+            });
+          }
+        }
+
         return {
           image:
             cached.has_image && cached.image_url
@@ -49,7 +82,9 @@ export const useGetSpeciesCache = (
                   author: cached.image_attribution ?? "",
                 }
               : null,
-          iucnCode: (cached.iucn_code as StatusCode | null) ?? null,
+          iucnCode,
+          iucnTrend,
+          iucnYear,
           wikiDetails:
             cached.has_description && cached.description_pt
               ? {
@@ -65,7 +100,7 @@ export const useGetSpeciesCache = (
           getSpecieImageFromINaturalist({ canonicalName }),
           getSpecieImageFromWikipedia({ canonicalName }),
           getWikiSpecieDetail(canonicalName),
-          getSpeciesStatusFromWikidata(canonicalName),
+          getSpeciesStatusFromIUCN(canonicalName),
         ]);
 
       const iNatImg =
@@ -99,7 +134,9 @@ export const useGetSpeciesCache = (
         image_source: image?.source ?? null,
         image_attribution: image?.author ?? null,
         image_license: image?.licenseCode ?? null,
-        iucn_code: iucn,
+        iucn_code: iucn?.code ?? null,
+        iucn_population_trend: iucn?.trend ?? null,
+        iucn_assessment_year: iucn?.year ?? null,
         description_pt: description,
         description_source: null,
         vernacular_names: null,
@@ -118,7 +155,9 @@ export const useGetSpeciesCache = (
               author: image.author ?? "",
             }
           : null,
-        iucnCode: iucn,
+        iucnCode: iucn?.code ?? null,
+        iucnTrend: iucn?.trend ?? null,
+        iucnYear: iucn?.year ?? null,
         wikiDetails: wikiData
           ? {
               extract: wikiData.extract ?? "",

@@ -8,7 +8,7 @@ import { Button } from "@/common/components/ui/button";
 import type { FavSpecies } from "@/common/types/user";
 import { updateTopFavSpecies } from "@/common/utils/supabase/update-top-fav-species";
 import { authStore } from "@/store/auth/atoms";
-import { selectedSpecieKeyAtom } from "@/store/tree";
+import { useNavigate } from "@tanstack/react-router";
 import {
   DndContext,
   PointerSensor,
@@ -23,7 +23,7 @@ import {
   arrayMove,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,7 +37,7 @@ import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 export const FavoriteSpecies = () => {
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
-  const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
+  const navigate = useNavigate();
   const { data: seenSpecies = [] } = useGetUserSeenSpecies();
 
   const checkAchievements = useCheckAchievements();
@@ -176,7 +176,13 @@ export const FavoriteSpecies = () => {
                   preferredImageUrl={preferredImageUrl}
                   editMode={editMode}
                   onClick={() =>
-                    editMode ? openPicker(idx) : setSelectedSpecieKey(key)
+                    editMode
+                      ? openPicker(idx)
+                      : navigate({
+                          to: "/specie-detail/$specieKey",
+                          params: { specieKey: String(key) },
+                          search: { from: "profile" },
+                        })
                   }
                   onRemove={() => handleRemove(idx)}
                 />

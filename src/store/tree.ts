@@ -113,11 +113,7 @@ export const nodeAtomFamily = atomFamily((key: number) =>
 
 export const setNodeChildrenAtom = atom(
   null,
-  (
-    _,
-    set,
-    payload: { key: number; children: NodeEntity[] },
-  ) => {
+  (_, set, payload: { key: number; children: NodeEntity[] }) => {
     const { key, children } = payload;
     set(nodesAtom, (prev) => {
       const next = { ...prev };

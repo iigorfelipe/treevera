@@ -41,9 +41,11 @@ import { authStore } from "@/store/auth/atoms";
 export const SpecieDetail = ({
   embedded = false,
   backLabel,
+  onBack,
 }: {
   embedded?: boolean;
   backLabel?: string;
+  onBack?: () => void;
 }) => {
   const { t } = useTranslation();
   const { isTablet } = useResponsive();
@@ -103,6 +105,10 @@ export const SpecieDetail = ({
   }, [userId, specieKey, cache?.iucnCode, specie, checkAchievements]);
 
   const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+      return;
+    }
     if (isFromGallery) {
       setSelectedKey(null);
     } else {
@@ -115,6 +121,7 @@ export const SpecieDetail = ({
       void navigate({ to: path });
     }
   }, [
+    onBack,
     isFromGallery,
     setSelectedKey,
     expandedNodes,
@@ -280,7 +287,11 @@ export const SpecieDetail = ({
                   transition={{ delay: 0.2 }}
                 >
                   {!isLoadingCache && (
-                    <VulnerabilityBadge statusCode={cache?.iucnCode ?? null} />
+                    <VulnerabilityBadge
+                      statusCode={cache?.iucnCode ?? null}
+                      trend={cache?.iucnTrend ?? null}
+                      year={cache?.iucnYear ?? null}
+                    />
                   )}
                 </motion.div>
 
