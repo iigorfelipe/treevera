@@ -14,6 +14,7 @@ import { AuthCallback } from "@/app/auth/auth-callback";
 import { SpeciesGalleryPage } from "@/app/profile/species-gallery";
 import { NotFound } from "@/app/not-found";
 import { SpecieDetailPage } from "@/app/details/specie-detail-page";
+import { SettingsPage } from "@/app/settings";
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -131,6 +132,20 @@ const specieDetailRoute = createRoute({
   component: SpecieDetailPage,
 });
 
+const settingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/settings",
+  beforeLoad: () => {
+    throw redirect({ to: "/settings/$section", params: { section: "account" } });
+  },
+});
+
+const settingsSectionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/settings/$section",
+  component: SettingsPage,
+});
+
 const challengesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/challenges",
@@ -236,6 +251,8 @@ const challengesRandom7Route = createRoute({
 const routeTree = rootRoute.addChildren([
   authRoute,
   homeRoute,
+  settingsRoute,
+  settingsSectionRoute,
   treeRoute,
   tree1Route,
   tree2Route,

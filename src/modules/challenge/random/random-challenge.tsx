@@ -65,7 +65,7 @@ export const RandomChallengeCard = () => {
             <h2 className="text-xl font-bold">{t("challenge.randomTitle")}</h2>
             <p className="text-sm">
               {t("challenge.find")}:{" "}
-              <span className="font-semibold text-violet-600">????</span>
+              <span className="font-semibold text-emerald-500">????</span>
             </p>
           </div>
         </div>
@@ -75,7 +75,7 @@ export const RandomChallengeCard = () => {
         </p>
 
         {allCompleted && (
-          <p className="text-sm font-medium text-violet-600">
+          <p className="text-sm font-medium">
             {t("challenge.randomNoChallenge")}
           </p>
         )}

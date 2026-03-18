@@ -300,11 +300,7 @@ export const SpecieDetail = ({
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.25 }}
-                    className="bg-card rounded-xl border p-4 shadow-sm"
                   >
-                    <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
-                      {t("specieDetail.geographicOccurrence")}
-                    </h3>
                     <OccurrenceMap specieKey={specieKey} />
                   </motion.div>
                 )}

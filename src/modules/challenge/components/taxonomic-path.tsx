@@ -93,9 +93,7 @@ export const TaxonomicPath = ({
                       "text-green-600 dark:text-green-400",
                     status === "error" && "text-red-500",
                     isActive && "text-emerald-600 dark:text-emerald-400",
-                    status === "locked" &&
-                      !isActive &&
-                      "text-muted-foreground",
+                    status === "locked" && !isActive && "text-muted-foreground",
                   )}
                 >
                   {isActive

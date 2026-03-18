@@ -47,13 +47,6 @@ export const ChallengeCompletedOverlay = ({
   };
 
   const handleNext = async () => {
-    if (mode === "DAILY") {
-      setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
-      setExpandedNodes([]);
-      void navigate({ to: "/challenges" });
-      return;
-    }
-
     const userId = session?.user?.id;
     if (!userId) return;
 
@@ -89,9 +82,7 @@ export const ChallengeCompletedOverlay = ({
   if (!completionData) return null;
 
   const nextLabel =
-    mode === "DAILY"
-      ? t("challenge.backToChallenges")
-      : t("challenge.nextChallenge");
+    mode === "DAILY" ? t("challenge.tryRandom") : t("challenge.nextChallenge");
 
   if (inline) {
     return (
@@ -109,7 +100,7 @@ export const ChallengeCompletedOverlay = ({
         stepInteractions={completionData.stepInteractions}
       >
         {mode === "DAILY" && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col items-center gap-3">
             <DailyDateNav selectedDate={navDate} onSelectDate={setNavDate} />
             <button
               className="text-sm font-medium text-emerald-600 underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-400"
@@ -140,7 +131,7 @@ export const ChallengeCompletedOverlay = ({
         stepInteractions={completionData.stepInteractions}
       >
         {mode === "DAILY" && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col items-center gap-3">
             <DailyDateNav selectedDate={navDate} onSelectDate={setNavDate} />
             <button
               className="text-sm font-medium text-emerald-600 underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-400"
