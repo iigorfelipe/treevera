@@ -10,7 +10,7 @@ export type SpeciesCacheRow = {
   iucn_code: string | null;
   iucn_population_trend: string | null;
   iucn_assessment_year: number | null;
-  description_pt: string | null;
+  description_pt: string | null; // TODO
   description_source: string | null;
   vernacular_names: unknown | null;
   cached_at: string;
