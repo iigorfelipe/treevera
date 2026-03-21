@@ -5,9 +5,13 @@ import type { SpecieDetail } from "@/common/types/api";
 
 type UseGetSpecieDetail = {
   specieKey: number;
+  enabled?: boolean;
 };
 
-export const useGetSpecieDetail = ({ specieKey }: UseGetSpecieDetail) => {
+export const useGetSpecieDetail = ({
+  specieKey,
+  enabled = true,
+}: UseGetSpecieDetail) => {
   const { specie_key } = QUERY_KEYS;
 
   return useQuery<SpecieDetail>({
@@ -30,6 +34,7 @@ export const useGetSpecieDetail = ({ specieKey }: UseGetSpecieDetail) => {
         title: data.title,
       };
     },
+    enabled,
     staleTime: 1000 * 60 * 60 * 24, // 24h
     gcTime: 1000 * 60 * 60 * 24 * 7, // 7 dias
   });

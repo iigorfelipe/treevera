@@ -94,14 +94,19 @@ export const ChallengeTips = ({
 
   const dragControls = useDragControls();
 
-  const { data: tipsMap = {} } = useGetChallengeTips(correctPath);
-  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
+  const [hasOpened, setHasOpened] = useState(false);
+
+  const { data: tipsMap = {} } = useGetChallengeTips(correctPath, hasOpened);
+  const { data: specieDetail } = useGetSpecieDetail({
+    specieKey: speciesKey,
+    enabled: hasOpened,
+  });
   const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
-    speciesKey,
-    specieDetail?.canonicalName,
+    hasOpened ? speciesKey : 0,
+    hasOpened ? specieDetail?.canonicalName : undefined,
   );
   const { data: vernacularNames = [], isLoading: isLoadingVernacular } =
-    useGetVernacularNames(speciesKey);
+    useGetVernacularNames(hasOpened ? speciesKey : 0);
 
   const currentNode = correctPath[visibleStep];
   const hints: string[] = currentNode ? (tipsMap[currentNode.name] ?? []) : [];
@@ -192,6 +197,7 @@ export const ChallengeTips = ({
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
+        if (nextOpen) setHasOpened(true);
         if (isTablet) setTipsOpen(nextOpen);
         if (nextOpen) {
           setVisibleStep(currentStep);

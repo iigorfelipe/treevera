@@ -19,6 +19,7 @@ export type Challenge = {
   speciesKey?: number;
   challengeDate?: string;
   completionData?: ChallengeCompletionData;
+  replayId?: number;
 };
 
 export type PathNode = {

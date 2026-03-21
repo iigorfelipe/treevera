@@ -63,7 +63,6 @@ export const DailyChallengeCard = () => {
       speciesKey: data.gbifKey,
       challengeDate: selectedDate,
     });
-    navigate({ to: "/challenges/daily" });
   };
 
   const speciesName = data?.scientificName;

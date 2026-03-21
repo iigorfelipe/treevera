@@ -4,6 +4,7 @@ import { authStore } from "@/store/auth/atoms";
 import {
   fetchSeenSpecies,
   fetchSeenSpecieByKey,
+  fetchFavoriteSpeciesPage,
   fetchGalleryPage,
 } from "@/common/utils/supabase/user-seen-species";
 import type { FetchSeenSpeciesPageOptions } from "@/common/utils/supabase/user-seen-species";
@@ -58,9 +59,7 @@ export const useGetFavoriteSpeciesPages = (enabled: boolean) => {
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.favorite_species_page_key, userId],
     queryFn: ({ pageParam = 0 }) =>
-      fetchGalleryPage(userId!, pageParam, FAV_PAGE_SIZE, {
-        favoritesOnly: true,
-      }),
+      fetchFavoriteSpeciesPage(userId!, pageParam, FAV_PAGE_SIZE),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       const loaded = allPages.length * FAV_PAGE_SIZE;

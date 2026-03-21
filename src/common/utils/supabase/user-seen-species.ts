@@ -55,6 +55,62 @@ export const fetchSeenSpecieByKey = async (
   return data as UserSeenSpeciesRow | null;
 };
 
+export type FavoriteSpeciesPage = {
+  rows: UserSeenSpeciesRow[];
+  totalCount: number;
+};
+
+export const fetchFavoriteSpeciesPage = async (
+  userId: string,
+  page: number,
+  pageSize: number,
+): Promise<FavoriteSpeciesPage> => {
+  const { data, error, count } = await supabase
+    .from("user_seen_species")
+    .select("*", { count: "exact" })
+    .eq("user_id", userId)
+    .eq("is_favorite", true)
+    .order("seen_at", { ascending: false })
+    .range(page * pageSize, (page + 1) * pageSize - 1);
+
+  if (error) {
+    console.error("Error fetching favorite species page:", error);
+    return { rows: [], totalCount: 0 };
+  }
+
+  const rows = (data as UserSeenSpeciesRow[]) ?? [];
+
+  const keysWithoutImage = rows
+    .filter((r) => !r.preferred_image_url)
+    .map((r) => r.gbif_key);
+
+  if (keysWithoutImage.length > 0) {
+    const { data: cacheRows } = await supabase
+      .from("species_data_cache")
+      .select("gbif_key, image_url")
+      .in("gbif_key", keysWithoutImage)
+      .eq("has_image", true);
+
+    if (cacheRows) {
+      const cacheMap = new Map(
+        (cacheRows as { gbif_key: number; image_url: string | null }[]).map(
+          (r) => [r.gbif_key, r.image_url],
+        ),
+      );
+      for (const row of rows) {
+        if (!row.preferred_image_url && cacheMap.has(row.gbif_key)) {
+          row.preferred_image_url = cacheMap.get(row.gbif_key) ?? null;
+        }
+      }
+    }
+  }
+
+  return {
+    rows,
+    totalCount: count ?? 0,
+  };
+};
+
 export type GallerySpeciesRow = {
   gbif_key: number;
   canonical_name: string | null;

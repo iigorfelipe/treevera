@@ -191,7 +191,6 @@ export const RandomChallengeInProgress = () => {
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
     });
-    void navigate({ to: "/challenges/random", replace: true });
   };
 
   const lastStepWasError = useMemo(() => {

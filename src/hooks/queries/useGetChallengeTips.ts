@@ -6,7 +6,10 @@ import type { Rank } from "@/common/types/api";
 
 type PathNode = { rank: Rank; name: string };
 
-export const useGetChallengeTips = (correctPath: PathNode[]) => {
+export const useGetChallengeTips = (
+  correctPath: PathNode[],
+  enabled = true,
+) => {
   const canonicalNames = correctPath.map((n) => n.name);
 
   return useQuery<TipsMap>({
@@ -14,7 +17,7 @@ export const useGetChallengeTips = (correctPath: PathNode[]) => {
     queryFn: async () => {
       return await getChallengeTips(canonicalNames);
     },
-    enabled: canonicalNames.length > 0,
+    enabled: enabled && canonicalNames.length > 0,
     staleTime: Infinity,
     gcTime: 1000 * 60 * 60 * 24,
   });

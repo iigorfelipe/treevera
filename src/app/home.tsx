@@ -17,7 +17,12 @@ export const Home = () => {
 
   useEffect(() => {
     if (challengesMatch) {
-      setChallenge({ mode: "UNSET", status: "NOT_STARTED" });
+      setChallenge((prev) => {
+        if (prev.status === "IN_PROGRESS" || prev.status === "COMPLETED") {
+          return prev;
+        }
+        return { mode: "UNSET", status: "NOT_STARTED" };
+      });
     }
   }, [challengesMatch, setChallenge]);
 

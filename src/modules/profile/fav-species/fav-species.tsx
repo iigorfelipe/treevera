@@ -267,7 +267,7 @@ export const FavoriteSpecies = () => {
                     specieKey={s.gbif_key}
                     specieName={s.canonical_name}
                     familyName={s.family}
-                    imgUrl={s.image_url}
+                    imgUrl={s.preferred_image_url}
                     onSelect={handleSelect}
                   />
                 ))}

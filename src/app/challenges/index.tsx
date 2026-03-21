@@ -22,7 +22,11 @@ export const Challenges = () => {
   });
 
   if (challenge.mode === "DAILY" && challenge.status !== "NOT_STARTED") {
-    return <DailyChallengeInProgress />;
+    return (
+      <DailyChallengeInProgress
+        key={`${challenge.speciesKey}-${challenge.replayId ?? 0}`}
+      />
+    );
   }
 
   if (challenge.mode === "DAILY") {
@@ -41,8 +45,12 @@ export const Challenges = () => {
     );
   }
 
-  if (challenge.mode === "RANDOM") {
-    return <RandomChallengeInProgress />;
+  if (challenge.mode === "RANDOM" && challenge.status !== "NOT_STARTED") {
+    return (
+      <RandomChallengeInProgress
+        key={`${challenge.speciesKey}-${challenge.replayId ?? 0}`}
+      />
+    );
   }
 
   return (

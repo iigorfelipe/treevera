@@ -20,12 +20,13 @@ const getMsUntilMidnight = () => {
 export const useGetDailyChallenge = (date?: string) => {
   const { daily_challenge_key } = QUERY_KEYS;
   const today = getToday();
-  const targetDate = date ?? today;
+  const targetDate = date || today;
   const isToday = targetDate === today;
 
   return useQuery<ChallengeData | null>({
     queryKey: [daily_challenge_key, targetDate],
     queryFn: () => getDailyChallenge(targetDate),
+    enabled: !!targetDate,
     staleTime: isToday ? getMsUntilMidnight() : Infinity,
     gcTime: isToday
       ? getMsUntilMidnight() + 1000 * 60 * 5

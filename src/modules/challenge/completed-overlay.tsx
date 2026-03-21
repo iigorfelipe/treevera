@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { treeAtom } from "@/store/tree";
 import { authStore } from "@/store/auth/atoms";
@@ -17,7 +16,6 @@ export const ChallengeCompletedOverlay = ({
   inline?: boolean;
 }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const challenge = useAtomValue(treeAtom.challenge);
   const setChallenge = useSetAtom(treeAtom.challenge);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
@@ -29,7 +27,7 @@ export const ChallengeCompletedOverlay = ({
   const [navDate, setNavDate] = useState(challengeDate ?? getToday());
 
   const { data: navDayData } = useGetDailyChallenge(
-    mode === "DAILY" ? navDate : "",
+    mode === "DAILY" ? navDate : undefined,
   );
 
   const handleReplay = () => {
@@ -38,12 +36,8 @@ export const ChallengeCompletedOverlay = ({
       ...prev,
       status: "IN_PROGRESS",
       completionData: undefined,
+      replayId: (prev.replayId ?? 0) + 1,
     }));
-    if (mode === "DAILY") {
-      void navigate({ to: "/challenges/daily", replace: true });
-    } else {
-      void navigate({ to: "/challenges/random", replace: true });
-    }
   };
 
   const handleNext = async () => {
@@ -63,7 +57,6 @@ export const ChallengeCompletedOverlay = ({
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
     });
-    void navigate({ to: "/challenges/random", replace: true });
   };
 
   const handlePlayNavDate = () => {
@@ -76,7 +69,6 @@ export const ChallengeCompletedOverlay = ({
       speciesKey: navDayData.gbifKey,
       challengeDate: navDate,
     });
-    void navigate({ to: "/challenges/daily", replace: true });
   };
 
   if (!completionData) return null;
