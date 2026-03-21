@@ -14,6 +14,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom, removeHighlightedKeyAtom } from "@/store/tree";
+import { showRankBadgeAtom } from "@/store/user-settings";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetParents } from "@/hooks/queries/useGetParents";
@@ -24,6 +25,7 @@ import { authStore } from "@/store/auth/atoms";
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
+  const showRankBadge = useAtomValue(showRankBadgeAtom);
 
   const isExpanded = node.expanded;
   const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
@@ -202,8 +204,9 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
 
           <Badge
             className={cn(
-              "bg-primary-foreground text-primary flex items-center gap-1 rounded-xl px-1 py-0 text-[11px] opacity-0 outline-1 group-hover:opacity-100",
-              isExpanded && "opacity-100",
+              "bg-primary-foreground text-primary flex items-center gap-1 rounded-xl px-1 py-0 text-[11px] outline-1",
+              !showRankBadge && "opacity-0 group-hover:opacity-100",
+              !showRankBadge && isExpanded && "opacity-100",
             )}
           >
             {capitalizar(node.rank)}

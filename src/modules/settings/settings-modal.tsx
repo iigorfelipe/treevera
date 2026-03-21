@@ -48,7 +48,7 @@ const Toggle = ({
 
 export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
-  const { showEmptyNodes, toggleShowEmptyNodes } = useUserSettings();
+  const { showEmptyNodes, toggleShowEmptyNodes, showRankBadge, toggleShowRankBadge } = useUserSettings();
   const [audio, setAudio] = useAtom(audioSettingsAtom);
   const [clearing, setClearing] = useState(false);
   const [cleared, setCleared] = useState(false);
@@ -90,6 +90,21 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
               <Toggle
                 checked={showEmptyNodes}
                 onCheckedChange={toggleShowEmptyNodes}
+              />
+            </div>
+            <div className="flex items-start justify-between gap-4 pt-3">
+              <div className="space-y-1">
+                <p className="text-sm font-medium">
+                  Exibir badge de rank
+                </p>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  Sempre exibir o badge de rank ao lado de cada nó. Quando{" "}
+                  <strong>desativado</strong>, aparece apenas ao passar o mouse.
+                </p>
+              </div>
+              <Toggle
+                checked={showRankBadge}
+                onCheckedChange={toggleShowRankBadge}
               />
             </div>
           </section>

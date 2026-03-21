@@ -45,6 +45,7 @@ type Achievements = {
 
 export type UserSettings = {
   showEmptyNodes: boolean;
+  showRankBadge: boolean;
 };
 
 type GameInfo = {

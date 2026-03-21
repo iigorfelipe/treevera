@@ -247,19 +247,31 @@ function AccountSection({ flat }: { flat?: boolean }) {
 function TreeSection({
   showEmptyNodes,
   toggleShowEmptyNodes,
+  showRankBadge,
+  toggleShowRankBadge,
   flat,
 }: {
   showEmptyNodes: boolean;
   toggleShowEmptyNodes: () => void;
+  showRankBadge: boolean;
+  toggleShowRankBadge: () => void;
   flat?: boolean;
 }) {
-  const row = (
-    <SettingRow
-      title="Exibir nós sem descendentes"
-      description="Por padrão, apenas nós com descendentes são exibidos. Ative para mostrar todos os nós."
-    >
-      <Toggle checked={showEmptyNodes} onCheckedChange={toggleShowEmptyNodes} />
-    </SettingRow>
+  const rows = (
+    <>
+      <SettingRow
+        title="Exibir nós sem descendentes"
+        description="Por padrão, apenas nós com descendentes são exibidos. Ative para mostrar todos os nós."
+      >
+        <Toggle checked={showEmptyNodes} onCheckedChange={toggleShowEmptyNodes} />
+      </SettingRow>
+      <SettingRow
+        title="Exibir badge de rank"
+        description="Sempre exibir o badge de rank (ex: Order, Family) ao lado de cada nó. Quando desativado, o badge aparece apenas ao passar o mouse."
+      >
+        <Toggle checked={showRankBadge} onCheckedChange={toggleShowRankBadge} />
+      </SettingRow>
+    </>
   );
 
   return (
@@ -268,7 +280,7 @@ function TreeSection({
         title="Árvore Taxonômica"
         description="Controle como a árvore taxonômica é exibida."
       />
-      {flat ? row : <div className="rounded-xl border px-5">{row}</div>}
+      {flat ? rows : <div className="divide-y rounded-xl border px-5">{rows}</div>}
     </div>
   );
 }
@@ -443,7 +455,7 @@ export const SettingsPage = () => {
       ? (section as SectionId)
       : "account";
 
-  const { showEmptyNodes, toggleShowEmptyNodes } = useUserSettings();
+  const { showEmptyNodes, toggleShowEmptyNodes, showRankBadge, toggleShowRankBadge } = useUserSettings();
   const [audio, setAudio] = useAtom(audioSettingsAtom);
   const [clearing, setClearing] = useState(false);
   const [cleared, setCleared] = useState(false);
@@ -459,6 +471,8 @@ export const SettingsPage = () => {
   const sharedProps = {
     showEmptyNodes,
     toggleShowEmptyNodes,
+    showRankBadge,
+    toggleShowRankBadge,
     audio,
     setAudio,
     clearing,
@@ -475,6 +489,8 @@ export const SettingsPage = () => {
           <TreeSection
             showEmptyNodes={sharedProps.showEmptyNodes}
             toggleShowEmptyNodes={sharedProps.toggleShowEmptyNodes}
+            showRankBadge={sharedProps.showRankBadge}
+            toggleShowRankBadge={sharedProps.toggleShowRankBadge}
             flat={flat}
           />
         );
