@@ -5,7 +5,6 @@ import { GripVertical, Leaf, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const FilledFavCard = ({
-  specieKey,
   specieName,
   familyName,
   imgUrl,
