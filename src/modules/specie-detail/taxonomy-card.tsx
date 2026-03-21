@@ -1,13 +1,13 @@
 import { useGetParents } from "@/hooks/queries/useGetParents";
 import { RANK_FIXES } from "@/common/utils/tree/ranks";
-import { setExpandedPathAtom } from "@/store/tree";
+import { injectPathNodesAtom } from "@/store/tree";
 import { useSetAtom } from "jotai";
-import { useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import type { SpecieDetail } from "@/common/types/api";
-import type { PathNode } from "@/common/types/tree-atoms";
+import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import type { Taxon } from "@/common/types/api";
 
 type Props = {
@@ -22,8 +22,8 @@ export const TaxonomyCard = ({
   showViewInTree = true,
 }: Props) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const setExpandedPath = useSetAtom(setExpandedPathAtom);
+  const injectPathNodes = useSetAtom(injectPathNodesAtom);
+  const { navigateToNodes } = useTreeNavigation();
 
   const { data: parents = [], isLoading } = useGetParents(specieKey, true);
 
@@ -91,14 +91,30 @@ export const TaxonomyCard = ({
     [parents],
   );
 
+  const buildEntities = useCallback(
+    (pathNodes: PathNode[]): NodeEntity[] =>
+      pathNodes.map((pn, i) => {
+        const parent = parents.find((p) => p.key === pn.key);
+        return {
+          key: pn.key,
+          rank: pn.rank,
+          numDescendants:
+            parent?.numDescendants ?? (pn.rank === "SPECIES" ? 0 : 1),
+          canonicalName: pn.name || undefined,
+          kingdom: specieDetail.kingdom,
+          parentKey: i > 0 ? pathNodes[i - 1].key : undefined,
+        };
+      }),
+    [parents, specieDetail.kingdom],
+  );
+
   const navigateToTaxon = useCallback(
     (targetKey: number) => {
       const pathNodes = buildPathUpTo(targetKey);
-      setExpandedPath(pathNodes);
-      const keys = pathNodes.map((n) => n.key).join("/");
-      void navigate({ to: `/tree/${keys}` });
+      injectPathNodes(buildEntities(pathNodes));
+      navigateToNodes(pathNodes, true);
     },
-    [buildPathUpTo, navigate, setExpandedPath],
+    [buildPathUpTo, buildEntities, injectPathNodes, navigateToNodes],
   );
 
   const navigateToSpecies = useCallback(() => {
@@ -114,10 +130,9 @@ export const TaxonomyCard = ({
         name: specieDetail.canonicalName || specieDetail.scientificName || "",
       },
     ];
-    setExpandedPath(pathNodes);
-    const keys = pathNodes.map((n) => n.key).join("/");
-    void navigate({ to: `/tree/${keys}` });
-  }, [parents, specieKey, specieDetail, navigate, setExpandedPath]);
+    injectPathNodes(buildEntities(pathNodes));
+    navigateToNodes(pathNodes, true);
+  }, [parents, specieKey, specieDetail, buildEntities, injectPathNodes, navigateToNodes]);
 
   return (
     <div className="bg-card rounded-xl border p-4 shadow-sm">

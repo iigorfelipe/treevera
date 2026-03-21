@@ -13,4 +13,7 @@ export const QUERY_KEYS = {
   user_achievements_key: "user_achievements",
   user_challenge_history_key: "user_challenge_history",
   specie_gallery_key: "specie_gallery",
+  achievement_progress_key: "achievement_progress",
+  seen_specie_by_key_key: "seen_specie_by_key",
+  favorite_species_page_key: "favorite_species_page",
 };

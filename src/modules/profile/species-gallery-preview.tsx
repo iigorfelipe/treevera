@@ -2,34 +2,24 @@ import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import { Images, ChevronRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { useSpecieInfo } from "@/hooks/use-specie-info";
 import { useTranslation } from "react-i18next";
-import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
+import { useGetRecentSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
 const SpecieItem = ({
-  specieKey,
+  canonicalName,
+  family,
   date,
 }: {
-  specieKey: number;
+  canonicalName: string | null;
+  family: string | null;
   date: string;
 }) => {
-  const { specieName, familyName, isLoading } = useSpecieInfo(specieKey);
-
-  if (isLoading) {
-    return (
-      <div className="-mx-2 border-b px-2 py-2 last:border-0">
-        <div className="bg-muted mb-1 h-4 w-32 animate-pulse rounded" />
-        <div className="bg-muted h-3 w-24 animate-pulse rounded" />
-      </div>
-    );
-  }
-
   return (
     <div className="-mx-2 flex items-center justify-between border-b px-2 py-2 last:border-0">
       <div className="flex items-center gap-2">
         <div>
-          <div className="text-xs font-medium italic">{specieName}</div>
-          <div className="text-muted-foreground text-xs">{familyName}</div>
+          <div className="text-xs font-medium italic">{canonicalName}</div>
+          <div className="text-muted-foreground text-xs">{family}</div>
         </div>
       </div>
       <div className="text-muted-foreground shrink-0 text-xs">
@@ -42,7 +32,7 @@ const SpecieItem = ({
 export const SpeciesGalleryPreview = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: seenSpecies = [], isLoading } = useGetUserSeenSpecies();
+  const { data: seenSpecies = [], isLoading } = useGetRecentSeenSpecies(4);
 
   if (isLoading) return null;
 
@@ -75,12 +65,11 @@ export const SpeciesGalleryPreview = () => {
           <div className="text-xs">{t("seenSpecies.emptyHint")}</div>
         </div>
       ) : (
-        seenSpecies
-          .slice(0, 4)
-          .map((species) => (
+        seenSpecies.map((species) => (
             <SpecieItem
               key={species.gbif_key}
-              specieKey={species.gbif_key}
+              canonicalName={species.canonical_name}
+              family={species.family}
               date={species.seen_at}
             />
           ))

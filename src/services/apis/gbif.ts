@@ -106,7 +106,7 @@ export const getVernacularNames = async (key: number) => {
 // Tem source (ex: "ITIS", "COL", etc.)
 
 export const getOccurrence = async (key: number) => {
-  const url = `${OCCURRENCE_URL}/search?taxonKey=${key}`;
+  const url = `${OCCURRENCE_URL}/search?taxonKey=${key}&hasCoordinate=true&limit=20`;
   const data = await fetch(url).then((res) => res.json());
   return data;
 };

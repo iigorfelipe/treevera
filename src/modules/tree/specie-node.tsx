@@ -43,15 +43,25 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
     return node.key === speciesKey ? "success" : "error";
   }, [challengeActive, isSelected, node.key, speciesKey]);
 
+  const familyName =
+    (node as unknown as { family?: string }).family ??
+    expandedNodes.find((n) => n.rank === "FAMILY")?.name;
+
   const saveSpeciesIfMissing = useCallback(async () => {
     if (!userId) return;
 
-    await addSeenSpecie(userId, node.key, node.kingdom);
+    await addSeenSpecie(
+      userId,
+      node.key,
+      node.kingdom,
+      node.canonicalName || node.scientificName,
+      familyName,
+    );
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.user_seen_species_key, userId],
     });
     void checkAchievements();
-  }, [userId, node.key, node.kingdom, queryClient, checkAchievements]);
+  }, [userId, node.key, node.kingdom, node.canonicalName, node.scientificName, familyName, queryClient, checkAchievements]);
 
   const displayName = node.canonicalName || node.scientificName;
   const showInfoIcon =

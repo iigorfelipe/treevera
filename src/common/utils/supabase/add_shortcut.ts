@@ -4,27 +4,20 @@ import { supabase } from "./client";
 export const updateUserShortcut = async (
   user: DbUser,
   updater: (prev: Shortcuts) => Shortcuts,
-) => {
-  try {
-    const currentShortcuts = user.game_info.shortcuts ?? ({} as Shortcuts);
+): Promise<DbUser | null> => {
+  const currentShortcuts = user.game_info.shortcuts ?? ({} as Shortcuts);
+  const newShortcuts = updater(currentShortcuts);
 
-    const newShortcuts = updater(currentShortcuts);
+  const updatedUser: DbUser = {
+    ...user,
+    game_info: { ...user.game_info, shortcuts: newShortcuts },
+  };
 
-    const { data, error } = await supabase
-      .from("users")
-      .update({ game_info: { ...user.game_info, shortcuts: newShortcuts } })
-      .eq("id", user.id)
-      .select()
-      .single();
+  void supabase
+    .rpc("update_user_shortcuts", { p_shortcuts: newShortcuts })
+    .then(({ error }) => {
+      if (error) console.error("Error updating shortcuts:", error);
+    });
 
-    if (error) {
-      console.error("Error updating shortcuts:", error);
-      return null;
-    }
-
-    return data as DbUser;
-  } catch (e) {
-    console.error("Unexpected error updating shortcuts:", e);
-    return null;
-  }
+  return updatedUser;
 };

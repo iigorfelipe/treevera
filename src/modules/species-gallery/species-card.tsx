@@ -1,56 +1,25 @@
-import { Heart, Loader2, ImageOff } from "lucide-react";
-import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
-import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
-import { useSpecieInfo } from "@/hooks/use-specie-info";
+import { useState } from "react";
+import { Heart, ImageOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
+import { clearBrokenImage } from "@/common/utils/supabase/user-seen-species";
 
 type SpeciesCardProps = {
-  species: UserSeenSpeciesRow;
+  species: GallerySpeciesRow;
   onClick: () => void;
-  searchQuery?: string;
-  onImageResolved?: (key: number, hasImage: boolean) => void;
 };
 
 export const SpeciesCard = ({
   species,
   onClick,
-  searchQuery,
-  onImageResolved,
 }: SpeciesCardProps) => {
   const { t } = useTranslation();
-  const {
-    specieName,
-    familyName,
-    isLoading: isLoadingInfo,
-  } = useSpecieInfo(species.gbif_key);
+  const [imgBroken, setImgBroken] = useState(false);
 
-  const hasPreferredImage = !!species.preferred_image_url;
-  const resolvedName = !isLoadingInfo && !!specieName ? specieName : undefined;
-
-  const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
-    hasPreferredImage ? undefined : species.gbif_key,
-    hasPreferredImage ? undefined : resolvedName,
-  );
-
-  const imgUrl = species.preferred_image_url ?? imageData?.imgUrl ?? null;
-  const isLoading = isLoadingInfo || (!hasPreferredImage && isLoadingImage);
-
-  useEffect(() => {
-    if (isLoading) return;
-    onImageResolved?.(species.gbif_key, !!imgUrl);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
-
-  if (!isLoading && searchQuery?.trim()) {
-    const query = searchQuery.toLowerCase();
-    if (
-      !specieName.toLowerCase().includes(query) &&
-      !familyName.toLowerCase().includes(query)
-    ) {
-      return null;
-    }
-  }
+  const specieName = species.canonical_name || "—";
+  const familyName = species.family || "—";
+  const imgUrl = species.image_url;
+  const hasImage = !!imgUrl && !imgBroken;
 
   return (
     <div
@@ -58,17 +27,17 @@ export const SpeciesCard = ({
       className="group bg-card relative cursor-pointer overflow-hidden rounded-xl border shadow-md transition-all duration-300 hover:shadow-2xl"
     >
       <div className="bg-muted relative w-full overflow-hidden">
-        {isLoading ? (
-          <div className="flex aspect-4/3 items-center justify-center">
-            <Loader2 className="text-muted-foreground size-8 animate-spin" />
-          </div>
-        ) : imgUrl ? (
+        {hasImage ? (
           <>
             <img
               src={imgUrl}
               alt={specieName}
               className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
+              onError={() => {
+                setImgBroken(true);
+                void clearBrokenImage(species.gbif_key);
+              }}
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           </>

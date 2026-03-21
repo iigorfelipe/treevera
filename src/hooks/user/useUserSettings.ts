@@ -35,7 +35,7 @@ export const useUserSettings = () => {
       game_info: { ...userDb.game_info, settings: newSettings },
     });
 
-    await updateUserSettings(userDb, newSettings);
+    await updateUserSettings(newSettings);
   };
 
   const toggleShowRankBadge = async () => {
@@ -58,7 +58,7 @@ export const useUserSettings = () => {
       game_info: { ...userDb.game_info, settings: newSettings },
     });
 
-    await updateUserSettings(userDb, newSettings);
+    await updateUserSettings(newSettings);
   };
 
   return {

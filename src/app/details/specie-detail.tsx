@@ -33,7 +33,7 @@ import {
 } from "@/common/utils/supabase/user-seen-species";
 import { updateFavActivity } from "@/common/utils/supabase/update-fav-activity";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
-import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
+import { useGetSeenSpecieByKey } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { authStore } from "@/store/auth/atoms";
@@ -85,13 +85,13 @@ export const SpecieDetail = ({
   const { data: cache, isLoading: isLoadingCache } = useGetSpeciesCache(
     specieKey,
     canonicalName,
+    undefined,
+    specieDetail?.family,
   );
 
-  const { data: seenSpecies = [] } = useGetUserSeenSpecies();
+  const { data: specie } = useGetSeenSpecieByKey(specieKey);
   const queryClient = useQueryClient();
   const checkAchievements = useCheckAchievements();
-
-  const specie = seenSpecies.find((s) => s.gbif_key === specieKey);
 
   const isFav = specie?.is_favorite ?? false;
   const preferredImageUrl = specie?.preferred_image_url ?? null;
@@ -142,23 +142,27 @@ export const SpecieDetail = ({
       const newPreferredUrl = newIsFav ? imgUrl : null;
 
       queryClient.setQueryData(
-        [QUERY_KEYS.user_seen_species_key, userId],
-        (old: UserSeenSpeciesRow[] | undefined) =>
-          old?.map((s) =>
-            s.gbif_key === specieKey
-              ? {
-                  ...s,
-                  is_favorite: newIsFav,
-                  preferred_image_url: newPreferredUrl,
-                }
-              : s,
-          ) ?? [],
+        [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
+        (old: UserSeenSpeciesRow | null | undefined) =>
+          old
+            ? {
+                ...old,
+                is_favorite: newIsFav,
+                preferred_image_url: newPreferredUrl,
+              }
+            : old,
       );
 
       await toggleFavSpecie(userId, specieKey, newIsFav, newPreferredUrl);
 
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_seen_species_key, userId],
+        queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.user_seen_species_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.favorite_species_page_key],
       });
       void checkAchievements();
 
@@ -181,7 +185,6 @@ export const SpecieDetail = ({
       canonicalName,
       queryClient,
       checkAchievements,
-      specie,
     ],
   );
 

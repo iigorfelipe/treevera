@@ -1,15 +1,17 @@
-import {
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-  startTransition,
-} from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { X, Heart, Search, Images, ArrowUpDown, ImageOff } from "lucide-react";
+import {
+  X,
+  Heart,
+  Search,
+  Images,
+  ArrowUpDown,
+  ImageOff,
+  Image,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import {
   DropdownMenu,
@@ -17,14 +19,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
-import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
+import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import { Menu } from "@/modules/header/menu";
-import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
+import { useGetGallerySpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
 type SortOrder = "newest" | "oldest";
-
-const PAGE_SIZE = 20;
 
 const useNumColumns = () => {
   const [numColumns, setNumColumns] = useState(1);
@@ -49,73 +49,56 @@ const useNumColumns = () => {
 export const SpeciesGallery = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: allSpecies = [] } = useGetUserSeenSpecies();
   const numColumns = useNumColumns();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (trimmed.length > 0 && trimmed.length < 3) return;
+    const id = setTimeout(() => setDebouncedSearch(trimmed), 400);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [photosFirst, setPhotosFirst] = useState(true);
-  const [imageStatus, setImageStatus] = useState<Record<number, boolean>>({});
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const handleImageResolved = useCallback((key: number, hasImage: boolean) => {
-    setImageStatus((prev) => {
-      if (prev[key] === hasImage) return prev;
-      return { ...prev, [key]: hasImage };
-    });
-  }, []);
-
-  const filteredSpecies = useMemo(() => {
-    let result = [...allSpecies];
-
-    if (showOnlyFavorites) {
-      result = result.filter((s) => s.is_favorite);
-    }
-
-    result.sort((a, b) => {
-      if (photosFirst) {
-        const aNoImage = imageStatus[a.gbif_key] === false;
-        const bNoImage = imageStatus[b.gbif_key] === false;
-        if (aNoImage !== bNoImage) return aNoImage ? 1 : -1;
-      }
-
-      const dateA = new Date(a.seen_at).getTime();
-      const dateB = new Date(b.seen_at).getTime();
-      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetGallerySpecies({
+      favoritesOnly: showOnlyFavorites,
+      sortOrder,
+      photosFirst,
+      search: debouncedSearch || undefined,
     });
 
-    return result;
-  }, [allSpecies, showOnlyFavorites, sortOrder, photosFirst, imageStatus]);
-
-  const visibleSpecies = filteredSpecies.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredSpecies.length;
+  const totalCount = data?.pages[0]?.totalCount ?? 0;
+  const allSpecies = useMemo(
+    () => data?.pages.flatMap((p) => p.rows) ?? [],
+    [data],
+  );
 
   const columns = useMemo(() => {
     const cols = Array.from(
       { length: numColumns },
-      () => [] as { species: UserSeenSpeciesRow; globalIndex: number }[],
+      () => [] as { species: GallerySpeciesRow; globalIndex: number }[],
     );
-    visibleSpecies.forEach((species, i) => {
+    allSpecies.forEach((species, i) => {
       cols[i % numColumns].push({ species, globalIndex: i });
     });
     return cols;
-  }, [visibleSpecies, numColumns]);
+  }, [allSpecies, numColumns]);
 
   useEffect(() => {
-    startTransition(() => setVisibleCount(PAGE_SIZE));
-  }, [showOnlyFavorites, sortOrder, photosFirst, searchQuery]);
-
-  useEffect(() => {
-    if (!hasMore || !sentinelRef.current || !scrollRef.current) return;
+    if (!hasNextPage || !sentinelRef.current || !scrollRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount((prev) => prev + PAGE_SIZE);
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
         }
       },
       { root: scrollRef.current, rootMargin: "200px" },
@@ -123,14 +106,14 @@ export const SpeciesGallery = () => {
 
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [hasMore, visibleCount]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleClose = useCallback(() => {
     navigate({ to: "/profile" });
   }, [navigate]);
 
   const handleSelectSpecies = useCallback(
-    (species: UserSeenSpeciesRow) => {
+    (species: GallerySpeciesRow) => {
       navigate({
         to: "/specie-detail/$specieKey",
         params: { specieKey: String(species.gbif_key) },
@@ -143,8 +126,6 @@ export const SpeciesGallery = () => {
   const toggleFavoritesFilter = useCallback(() => {
     setShowOnlyFavorites((prev) => !prev);
   }, []);
-
-  const favoritesCount = allSpecies.filter((s) => s.is_favorite).length;
 
   return (
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
@@ -159,15 +140,9 @@ export const SpeciesGallery = () => {
               {t("gallery.title")}
             </h1>
             <span className="text-muted-foreground text-xs">
-              {filteredSpecies.length === allSpecies.length
-                ? `${allSpecies.length} ${t("gallery.species")}`
-                : `${filteredSpecies.length} ${t("gallery.of")} ${allSpecies.length}`}
-              {favoritesCount > 0 && (
-                <span className="ml-1.5">
-                  · {favoritesCount}{" "}
-                  <Heart className="inline size-3 fill-current text-red-500" />
-                </span>
-              )}
+              {allSpecies.length === totalCount
+                ? `${totalCount} ${t("gallery.species")}`
+                : `${allSpecies.length} ${t("gallery.of")} ${totalCount}`}
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1">
@@ -230,7 +205,11 @@ export const SpeciesGallery = () => {
               className="h-8 gap-1.5 px-2.5"
               title={t("gallery.photosFirst")}
             >
-              <ImageOff className="size-3.5" />
+              {photosFirst ? (
+                <Image className="size-3.5" />
+              ) : (
+                <ImageOff className="size-3.5" />
+              )}
               <span className="hidden text-xs sm:inline">
                 {t("gallery.photosFirst")}
               </span>
@@ -254,7 +233,7 @@ export const SpeciesGallery = () => {
       </motion.div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        {filteredSpecies.length === 0 ? (
+        {allSpecies.length === 0 && !isFetchingNextPage ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />
@@ -290,15 +269,22 @@ export const SpeciesGallery = () => {
                         <SpeciesCard
                           species={species}
                           onClick={() => handleSelectSpecies(species)}
-                          searchQuery={searchQuery}
-                          onImageResolved={handleImageResolved}
                         />
                       </motion.div>
                     ))}
                   </div>
                 ))}
               </div>
-              {hasMore && <div ref={sentinelRef} className="h-4" />}
+              {hasNextPage && (
+                <div
+                  ref={sentinelRef}
+                  className="flex items-center justify-center py-8"
+                >
+                  {isFetchingNextPage && (
+                    <Loader2 className="text-muted-foreground size-6 animate-spin" />
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

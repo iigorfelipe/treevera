@@ -15,6 +15,7 @@ export type SpeciesCacheRow = {
   vernacular_names: unknown | null;
   cached_at: string;
   expires_at: string;
+  family: string | null;
   has_image: boolean;
   has_iucn: boolean;
   has_description: boolean;

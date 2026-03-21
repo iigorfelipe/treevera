@@ -24,26 +24,32 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useAtom } from "jotai";
-import { Pencil, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Loader2, Pencil, Plus } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyFavCard } from "./empty-card";
 import { SortableFilledCard } from "./filled-card";
 import { PickerItem } from "./picker-item";
 import { materializeSlots } from "./utils";
-import { useGetUserSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
+import { useGetFavoriteSpeciesPages } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
 export const FavoriteSpecies = () => {
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const navigate = useNavigate();
-  const { data: seenSpecies = [] } = useGetUserSeenSpecies();
 
   const checkAchievements = useCheckAchievements();
   const [editMode, setEditMode] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
+
+  const {
+    data: favPages,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetFavoriteSpeciesPages(pickerOpen);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -58,18 +64,39 @@ export const FavoriteSpecies = () => {
     return topFav.map((n) => n.key);
   }, [userDb]);
 
-  const availableFavKeys = useMemo(() => {
+  const availableFavSpecies = useMemo(() => {
     const topKeys = new Set(topFavKeys);
     if (replacingIndex !== null && topFavKeys[replacingIndex] !== undefined) {
       topKeys.delete(topFavKeys[replacingIndex]);
     }
-    return seenSpecies
-      .filter((s) => s.is_favorite && !topKeys.has(s.gbif_key))
-      .sort(
-        (a, b) => new Date(b.seen_at).getTime() - new Date(a.seen_at).getTime(),
-      )
-      .map((s) => s.gbif_key);
-  }, [seenSpecies, topFavKeys, replacingIndex]);
+    const allFavs = favPages?.pages.flatMap((p) => p.rows) ?? [];
+    return allFavs.filter((s) => !topKeys.has(s.gbif_key));
+  }, [favPages, topFavKeys, replacingIndex]);
+
+  const pickerScrollRef = useRef<HTMLDivElement>(null);
+  const pickerSentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (
+      !pickerOpen ||
+      !hasNextPage ||
+      !pickerSentinelRef.current ||
+      !pickerScrollRef.current
+    )
+      return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root: pickerScrollRef.current, rootMargin: "100px" },
+    );
+
+    observer.observe(pickerSentinelRef.current);
+    return () => observer.disconnect();
+  }, [pickerOpen, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const emptySlotCount = Math.max(0, 4 - topFavKeys.length);
 
@@ -166,14 +193,16 @@ export const FavoriteSpecies = () => {
         >
           <div className="grid grid-cols-2 gap-3 overflow-visible sm:grid-cols-4 sm:gap-4">
             {topFavKeys.map((key, idx) => {
-              const preferredImageUrl =
-                seenSpecies.find((s) => s.gbif_key === key)
-                  ?.preferred_image_url ?? null;
+              const favData = userDb?.game_info.top_fav_species?.find(
+                (f) => f.key === key,
+              );
               return (
                 <SortableFilledCard
                   key={key}
                   specieKey={key}
-                  preferredImageUrl={preferredImageUrl}
+                  specieName={favData?.name ?? ""}
+                  familyName={favData?.family ?? ""}
+                  imgUrl={favData?.img ?? null}
                   editMode={editMode}
                   onClick={() =>
                     editMode
@@ -216,7 +245,7 @@ export const FavoriteSpecies = () => {
             <DialogTitle>{t("favSpecies.pickerTitle")}</DialogTitle>
           </DialogHeader>
 
-          {availableFavKeys.length === 0 ? (
+          {availableFavSpecies.length === 0 && !isFetchingNextPage ? (
             <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
               <Plus className="text-muted-foreground/40 size-10" />
               <p className="text-muted-foreground text-sm font-medium">
@@ -227,16 +256,32 @@ export const FavoriteSpecies = () => {
               </p>
             </div>
           ) : (
-            <div className="max-h-[60dvh] overflow-y-auto px-3 pb-4">
+            <div
+              ref={pickerScrollRef}
+              className="max-h-[60dvh] overflow-y-auto px-3 pb-4"
+            >
               <div className="flex flex-col gap-1">
-                {availableFavKeys.map((key) => (
+                {availableFavSpecies.map((s) => (
                   <PickerItem
-                    key={key}
-                    specieKey={key}
+                    key={s.gbif_key}
+                    specieKey={s.gbif_key}
+                    specieName={s.canonical_name}
+                    familyName={s.family}
+                    imgUrl={s.image_url}
                     onSelect={handleSelect}
                   />
                 ))}
               </div>
+              {hasNextPage && (
+                <div
+                  ref={pickerSentinelRef}
+                  className="flex items-center justify-center py-4"
+                >
+                  {isFetchingNextPage && (
+                    <Loader2 className="text-muted-foreground size-5 animate-spin" />
+                  )}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>

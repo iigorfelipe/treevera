@@ -126,6 +126,7 @@ export const SpecieInfos = () => {
     specieKey,
     canonicalName,
     specieDetail?.genus,
+    specieDetail?.family,
   );
 
   if (!specieDetail)

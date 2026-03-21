@@ -73,6 +73,7 @@ export const useGetSpeciesCache = (
   gbifKey: number | undefined,
   canonicalName: string | undefined,
   genusName?: string,
+  family?: string,
 ) => {
   const { i18n } = useTranslation();
   const lang = i18n.language?.slice(0, 2) ?? "pt";
@@ -108,6 +109,7 @@ export const useGetSpeciesCache = (
               description_pt: cached.description_pt,
               description_source: cached.description_source,
               vernacular_names: cached.vernacular_names,
+              family: cached.family ?? family ?? null,
               expires_at: cached.expires_at,
               has_image: cached.has_image,
               has_iucn: true,
@@ -210,6 +212,7 @@ export const useGetSpeciesCache = (
         description_pt: lang === "pt" ? description : null,
         description_source: null,
         vernacular_names: null,
+        family: family ?? null,
         expires_at,
         has_image: !!image,
         has_iucn: iucn !== null,

@@ -28,6 +28,9 @@ export const useCheckAchievements = () => {
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.user_activities_key, userId],
     });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.achievement_progress_key, userId],
+    });
 
     for (const achievementId of newlyUnlocked) {
       const def = ACHIEVEMENTS.find((a) => a.id === achievementId);

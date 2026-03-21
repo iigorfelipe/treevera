@@ -23,6 +23,26 @@ export const fetchUserAchievements = async (
   return (data as UserAchievementRow[]) ?? [];
 };
 
+export type AchievementProgressRow = {
+  id: string;
+  progress: number;
+};
+
+export const fetchAchievementProgress = async (
+  userId: string,
+): Promise<AchievementProgressRow[]> => {
+  const { data, error } = await supabase.rpc("get_achievement_progress", {
+    p_user_id: userId,
+  });
+
+  if (error) {
+    console.error("Error fetching achievement progress:", error);
+    return [];
+  }
+
+  return (data as AchievementProgressRow[]) ?? [];
+};
+
 export const checkAndUnlockAchievements = async (
   userId: string,
 ): Promise<string[]> => {

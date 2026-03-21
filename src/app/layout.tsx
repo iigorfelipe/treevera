@@ -1,11 +1,13 @@
 import { Image } from "@/common/components/image";
-import { Outlet } from "@tanstack/react-router";
+import { ErrorBoundary } from "@/common/components/error-boundary";
+import { Outlet, useRouterState } from "@tanstack/react-router";
 import Logo from "@/assets/images/avif-new-logo.avif";
 import { useResponsive } from "@/hooks/use-responsive";
 import { cn } from "@/common/utils/cn";
 
 export const Layout = () => {
   const { isMobile } = useResponsive();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <div className="relative">
@@ -29,7 +31,9 @@ export const Layout = () => {
           )}
         />
       </div>
-      <Outlet />
+      <ErrorBoundary key={pathname}>
+        <Outlet />
+      </ErrorBoundary>
     </div>
   );
 };
