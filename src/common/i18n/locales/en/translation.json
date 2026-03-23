@@ -283,7 +283,8 @@
     "randomNoChallenge": "No challenges available right now. Try again later.",
     "backToChallenges": "Back to challenges",
     "tryRandom": "Try a random challenge",
-    "playThisDay": "Play this day"
+    "playThisDay": "Play this day",
+    "incompatibleSpecies": "This species has incompatible taxonomic data and cannot be used in challenges. It has been automatically removed from the species pool."
   },
 
   "vulnerability": {

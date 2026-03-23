@@ -283,7 +283,8 @@
     "randomNoChallenge": "Nenhum desafio disponível no momento. Tente mais tarde.",
     "backToChallenges": "Voltar aos desafios",
     "tryRandom": "Tente um desafio aleatório",
-    "playThisDay": "Jogar este dia"
+    "playThisDay": "Jogar este dia",
+    "incompatibleSpecies": "Esta espécie possui dados taxonômicos incompatíveis com a árvore e não pode ser usada em desafios. Ela foi removida automaticamente do banco de espécies."
   },
 
   "vulnerability": {

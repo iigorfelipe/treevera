@@ -30,6 +30,9 @@ import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
+import { validateChallengeParents } from "@/common/utils/game/validate-challenge-species";
+import { deactivateChallengeSpecies } from "@/common/utils/supabase/challenge/deactivate-challenge-species";
+import { AlertTriangle } from "lucide-react";
 
 type StepInteractions = Record<
   number,
@@ -61,6 +64,19 @@ export const DailyChallengeInProgress = () => {
   const { data: parentsData } = useGetParents(speciesKey, !!speciesKey);
 
   useGetDailyChallenge(challengeDate);
+
+  const isSpeciesInvalid = useMemo(() => {
+    if (!parentsData) return false;
+    return !validateChallengeParents(parentsData);
+  }, [parentsData]);
+
+  const deactivatedKeyRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isSpeciesInvalid || deactivatedKeyRef.current === speciesKey) return;
+    deactivatedKeyRef.current = speciesKey;
+    void deactivateChallengeSpecies(speciesKey);
+  }, [isSpeciesInvalid, speciesKey]);
 
   const correctPath = useMemo(() => {
     if (!parentsData || !specieDetail) return [];
@@ -119,7 +135,6 @@ export const DailyChallengeInProgress = () => {
     }
   }, [isCompleted, finishedAt]);
 
-  // Save completion data to atom and persist to DB
   useEffect(() => {
     if (!isCompleted) return;
 
@@ -189,6 +204,57 @@ export const DailyChallengeInProgress = () => {
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
 
   if (finishedAt !== null) return null;
+
+  if (isSpeciesInvalid) {
+    return (
+      <div className="mt-22 md:mt-0 md:px-4 md:py-6">
+        <Card className="relative mx-auto rounded-3xl">
+          <CardContent className="flex flex-col gap-4 pt-5">
+            <div className="flex items-center gap-3">
+              <Image
+                src={theme === "dark" ? AlvoWhite : Alvo}
+                className="size-12 shrink-0"
+                alt="Alvo gif"
+              />
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
+                <p className="truncate text-sm">
+                  {t("challenge.find")}:{" "}
+                  <span className="font-semibold text-emerald-600">
+                    {speciesName}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/40">
+              <AlertTriangle className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                {t("challenge.incompatibleSpecies")}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={handleCancel}>
+                {t("challenge.backToChallenges")}
+              </Button>
+              <Button
+                size="sm"
+                className="bg-violet-600 text-white hover:bg-violet-700"
+                onClick={() => {
+                  setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
+                  setExpandedNodes([]);
+                  void navigate({ to: "/challenges/random" });
+                }}
+              >
+                {t("challenge.tryRandom")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isTablet) {
     return (

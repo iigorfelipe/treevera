@@ -10,7 +10,7 @@ import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 
 import { treeAtom } from "@/store/tree";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
@@ -32,6 +32,8 @@ import { ProgressSteps } from "@/modules/challenge/components/progress-steps";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { validateChallengeParents } from "@/common/utils/game/validate-challenge-species";
+import { deactivateChallengeSpecies } from "@/common/utils/supabase/challenge/deactivate-challenge-species";
 
 type StepInteractions = Record<
   number,
@@ -59,6 +61,60 @@ export const RandomChallengeInProgress = () => {
 
   const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
   const { data: parentsData } = useGetParents(speciesKey, !!speciesKey);
+
+  const skipCountRef = useRef(0);
+  const lastValidatedKeyRef = useRef<number>(0);
+  const MAX_SKIPS = 5;
+
+  const skipToNext = useCallback(async () => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    const result = await getRandomChallengeForUser(userId);
+    if (!result) {
+      setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
+      setExpandedNodes([]);
+      void navigate({ to: "/challenges" });
+      return;
+    }
+
+    setExpandedNodes([]);
+    setChallenge({
+      mode: "RANDOM",
+      status: "IN_PROGRESS",
+      targetSpecies: result.scientificName,
+      speciesKey: result.gbifKey,
+    });
+  }, [session, setChallenge, setExpandedNodes, navigate]);
+
+  useEffect(() => {
+    if (!parentsData || lastValidatedKeyRef.current === speciesKey) return;
+    lastValidatedKeyRef.current = speciesKey;
+
+    if (validateChallengeParents(parentsData)) {
+      skipCountRef.current = 0;
+      return;
+    }
+
+    void deactivateChallengeSpecies(speciesKey);
+
+    if (skipCountRef.current >= MAX_SKIPS) {
+      setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
+      setExpandedNodes([]);
+      void navigate({ to: "/challenges" });
+      return;
+    }
+
+    skipCountRef.current += 1;
+    void skipToNext();
+  }, [
+    parentsData,
+    speciesKey,
+    skipToNext,
+    setChallenge,
+    setExpandedNodes,
+    navigate,
+  ]);
 
   const correctPath = useMemo(() => {
     if (!parentsData || !specieDetail) return [];
