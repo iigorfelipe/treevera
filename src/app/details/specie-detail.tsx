@@ -28,6 +28,7 @@ import {
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
+  addSeenSpecie,
   toggleFavSpecie,
   updateSeenSpeciesIucn,
 } from "@/common/utils/supabase/user-seen-species";
@@ -97,6 +98,22 @@ export const SpecieDetail = ({
   const preferredImageUrl = specie?.preferred_image_url ?? null;
 
   useEffect(() => {
+    if (!userId || !specieKey || !specieDetail) return;
+    void addSeenSpecie(
+      userId,
+      specieKey,
+      specieDetail.kingdom,
+      canonicalName,
+      specieDetail.family,
+    ).then(() => {
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.user_seen_species_key, userId],
+      });
+      void checkAchievements();
+    });
+  }, [userId, specieKey, specieDetail, canonicalName, queryClient, checkAchievements]);
+
+  useEffect(() => {
     if (!userId || !specieKey || !cache?.iucnCode || !specie) return;
     if (specie.iucn_status === cache.iucnCode) return;
     void updateSeenSpeciesIucn(userId, specieKey, cache.iucnCode).then(
@@ -153,7 +170,11 @@ export const SpecieDetail = ({
             : old,
       );
 
-      await toggleFavSpecie(userId, specieKey, newIsFav, newPreferredUrl);
+      await toggleFavSpecie(userId, specieKey, newIsFav, newPreferredUrl, {
+        canonicalName,
+        family: specieDetail?.family,
+        kingdom: specieDetail?.kingdom,
+      });
 
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
@@ -183,6 +204,7 @@ export const SpecieDetail = ({
       isFav,
       preferredImageUrl,
       canonicalName,
+      specieDetail,
       queryClient,
       checkAchievements,
     ],

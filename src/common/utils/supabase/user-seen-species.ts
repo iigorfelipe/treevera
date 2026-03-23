@@ -214,6 +214,11 @@ export const toggleFavSpecie = async (
   gbifKey: number,
   isFavorite: boolean,
   preferredImageUrl?: string | null,
+  metadata?: {
+    canonicalName?: string | null;
+    family?: string | null;
+    kingdom?: string | null;
+  },
 ): Promise<void> => {
   const payload: Partial<UserSeenSpeciesRow> & {
     user_id: string;
@@ -229,6 +234,16 @@ export const toggleFavSpecie = async (
 
   if (preferredImageUrl !== undefined) {
     payload.preferred_image_url = preferredImageUrl;
+  }
+
+  if (metadata?.canonicalName) {
+    payload.canonical_name = metadata.canonicalName;
+  }
+  if (metadata?.family) {
+    payload.family = metadata.family;
+  }
+  if (metadata?.kingdom) {
+    payload.kingdom = metadata.kingdom;
   }
 
   const { error } = await supabase
