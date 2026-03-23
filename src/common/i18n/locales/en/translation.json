@@ -53,7 +53,9 @@
   "profilePage": {
     "memberSince": "Member since",
     "globalRanking": "Global Ranking",
-    "rankingHint": "Score on explored species, hit accuracy and speed to keep climbing."
+    "rankingHint": "Score on explored species, hit accuracy and speed to keep climbing.",
+    "devNoticeTitle": "Project in development",
+    "devNoticeDescription": "Treevera is still in its early stages. During this period, updates and improvements may affect your progress (species seen, challenges, achievements). It's part of the project's evolution!"
   },
 
   "progress": {

@@ -53,7 +53,9 @@
   "profilePage": {
     "memberSince": "Usuário desde",
     "globalRanking": "Ranking Global",
-    "rankingHint": "Pontue em espécies exploradas, precisão de acerto e velocidade para continuar subindo."
+    "rankingHint": "Pontue em espécies exploradas, precisão de acerto e velocidade para continuar subindo.",
+    "devNoticeTitle": "Projeto em desenvolvimento",
+    "devNoticeDescription": "O Treevera ainda está em fase inicial. Durante esse período, atualizações e melhorias podem afetar seu progresso (espécies vistas, desafios, conquistas). Faz parte da evolução do projeto!"
   },
 
   "progress": {

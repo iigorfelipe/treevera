@@ -5,6 +5,15 @@ import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
 import { Menu } from "../header/menu";
 import { useTranslation } from "react-i18next";
+import { Info } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/common/components/ui/dialog";
 
 export const HeaderProfile = () => {
   const { t } = useTranslation();
@@ -23,15 +32,21 @@ export const HeaderProfile = () => {
           </span>
         </div>
 
-        {/* <div className="flex flex-col items-end">
-          <div className="text-xs font-medium">{t("profilePage.globalRanking")}</div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl text-amber-300">#</span>
-            <span className="text-3xl font-bold text-amber-300">
-              {userProgress.rank}
-            </span>
-          </div>
-        </div> */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="text-muted-foreground hover:text-foreground transition-colors">
+              <Info className="size-5" />
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>{t("profilePage.devNoticeTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("profilePage.devNoticeDescription")}
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* <div className="space-y-2">
