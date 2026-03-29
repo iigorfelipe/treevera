@@ -1,5 +1,5 @@
 import { capitalizar } from "@/common/utils/string";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useStore } from "jotai";
 import { memo, useMemo, useCallback, useState } from "react";
 
 import { cn } from "@/common/utils/cn";
@@ -25,30 +25,31 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const userId = session?.user?.id;
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
   const queryClient = useQueryClient();
+  const store = useStore();
 
   const checkAchievements = useCheckAchievements();
-  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
-  const challengeInProgress = challenge.status === "IN_PROGRESS";
-  const challengeActive = challengeInProgress || challenge.status === "COMPLETED";
+  const challengeActive =
+    challenge.status === "IN_PROGRESS" || challenge.status === "COMPLETED";
   const speciesKey = challenge.speciesKey;
 
-  const isSelected = useMemo(
-    () => expandedNodes.some((n) => n.key === node.key),
-    [expandedNodes, node.key],
-  );
+  const feedbackMap = useAtomValue(treeAtom.challengeFeedbackMap);
+  const isInPath = feedbackMap.has(node.key);
 
   const feedback = useMemo<"success" | "error" | null>(() => {
-    if (!challengeActive || !isSelected) return null;
+    if (!challengeActive || !isInPath) return null;
     return node.key === speciesKey ? "success" : "error";
-  }, [challengeActive, isSelected, node.key, speciesKey]);
+  }, [challengeActive, isInPath, node.key, speciesKey]);
 
-  const familyName =
-    (node as unknown as { family?: string }).family ??
-    expandedNodes.find((n) => n.rank === "FAMILY")?.name;
+  const isSelected = isInPath || !!node.expanded;
 
   const saveSpeciesIfMissing = useCallback(async () => {
     if (!userId) return;
+
+    const expandedNodes = store.get(treeAtom.expandedNodes);
+    const familyName =
+      (node as unknown as { family?: string }).family ??
+      expandedNodes.find((n) => n.rank === "FAMILY")?.name;
 
     await addSeenSpecie(
       userId,
@@ -61,7 +62,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
       queryKey: [QUERY_KEYS.user_seen_species_key, userId],
     });
     void checkAchievements();
-  }, [userId, node.key, node.kingdom, node.canonicalName, node.scientificName, familyName, queryClient, checkAchievements]);
+  }, [node, userId, store, queryClient, checkAchievements]);
 
   const displayName = node.canonicalName || node.scientificName;
   const showInfoIcon =
@@ -71,7 +72,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
 
   return (
     <motion.div
-      key={`${node.key}-${feedback}`}
+      key={node.key}
       className="item flex w-full items-center justify-between"
       animate={
         feedback === "success"

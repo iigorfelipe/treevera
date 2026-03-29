@@ -6,7 +6,7 @@ import Alvo from "@/assets/alvo.gif";
 import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
-import { treeAtom } from "@/store/tree";
+import { treeAtom, setChallengeCorrectPathAtom } from "@/store/tree";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Timer } from "@/modules/challenge/components/timer";
@@ -49,6 +49,7 @@ export const DailyChallengeInProgress = () => {
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
   const queryClient = useQueryClient();
   const checkAchievements = useCheckAchievements();
+  const setChallengeCorrectPath = useSetAtom(setChallengeCorrectPathAtom);
 
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
@@ -86,6 +87,10 @@ export const DailyChallengeInProgress = () => {
       speciesKey,
     );
   }, [parentsData, specieDetail, speciesKey]);
+
+  useEffect(() => {
+    setChallengeCorrectPath(correctPath);
+  }, [correctPath, setChallengeCorrectPath]);
 
   const correctSteps = useMemo(() => {
     return expandedNodes.filter((node, index) => {

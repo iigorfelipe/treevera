@@ -275,6 +275,37 @@ const playedStepAudioAtom = atom<Record<string, true>>({});
 
 export const selectedSpecieKeyAtom = atom<number | null>(null);
 
+const challengeCorrectPath = atom<
+  Array<{ rank: string; name: string; key: number }>
+>([]);
+
+export const setChallengeCorrectPathAtom = atom(
+  null,
+  (_get, set, path: Array<{ rank: string; name: string; key: number }>) => {
+    set(challengeCorrectPath, path);
+  },
+);
+
+const challengeFeedbackMap = atom((get) => {
+  const path = get(expandedNodes);
+  const correct = get(challengeCorrectPath);
+  const ch = get(challenge);
+  const active = ch.status === "IN_PROGRESS" || ch.status === "COMPLETED";
+
+  const map = new Map<number, "success" | "error">();
+  if (!active || correct.length === 0) return map;
+
+  for (let i = 0; i < path.length; i++) {
+    const expanded = path[i];
+    const expected = correct[i];
+    if (!expected) continue;
+    const isCorrect = expanded.name === expected.name;
+    map.set(expanded.key, isCorrect ? "success" : "error");
+  }
+
+  return map;
+});
+
 export const treeAtom = {
   challenge,
   exploreInfos,
@@ -290,4 +321,6 @@ export const treeAtom = {
   rootKeys,
   mergeNodes,
   challengeTipsOpen,
+  challengeCorrectPath,
+  challengeFeedbackMap,
 };

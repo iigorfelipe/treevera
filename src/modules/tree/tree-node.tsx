@@ -31,13 +31,13 @@ export const TreeNodeLiContent = memo(
     });
 
     useEffect(() => {
-      if (isExpanded && data) {
+      if (isExpanded && data && node?.childrenKeys === undefined) {
         setNodeChildren({
           key: node.key,
           children: data.children,
         });
       }
-    }, [isExpanded, data, node?.key, setNodeChildren]);
+    }, [isExpanded, data, node?.key, node?.childrenKeys, setNodeChildren]);
 
     const handleClick = useCallback(() => {
       if (!isLoading) toggleNode(nodeKey);

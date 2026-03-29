@@ -8,7 +8,7 @@ import { Shuffle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 
-import { treeAtom } from "@/store/tree";
+import { treeAtom, setChallengeCorrectPathAtom } from "@/store/tree";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
@@ -50,6 +50,7 @@ export const RandomChallengeInProgress = () => {
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
   const queryClient = useQueryClient();
   const checkAchievements = useCheckAchievements();
+  const setChallengeCorrectPath = useSetAtom(setChallengeCorrectPathAtom);
 
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
@@ -124,6 +125,10 @@ export const RandomChallengeInProgress = () => {
       speciesKey,
     );
   }, [parentsData, specieDetail, speciesKey]);
+
+  useEffect(() => {
+    setChallengeCorrectPath(correctPath);
+  }, [correctPath, setChallengeCorrectPath]);
 
   const correctSteps = useMemo(() => {
     return expandedNodes.filter((node, index) => {

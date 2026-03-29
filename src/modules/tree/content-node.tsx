@@ -10,15 +10,12 @@ import {
 
 import { capitalizar } from "@/common/utils/string";
 import { Dna, Route, DnaOff, Info } from "lucide-react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
 import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom, removeHighlightedKeyAtom } from "@/store/tree";
 import { showRankBadgeAtom } from "@/store/user-settings";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
-import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { useGetParents } from "@/hooks/queries/useGetParents";
-import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
 import { motion } from "framer-motion";
 import { authStore } from "@/store/auth/atoms";
 
@@ -26,16 +23,13 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
   const showRankBadge = useAtomValue(showRankBadgeAtom);
+  const store = useStore();
 
   const isExpanded = node.expanded;
   const taxonRank = node?.kingdom?.toLowerCase() as keyof Shortcuts;
 
   const challenge = useAtomValue(treeAtom.challenge);
-  const challengeStatus = challenge.status;
-  const challengeInProgress = challengeStatus === "IN_PROGRESS";
-  const challengeActive =
-    challengeInProgress || challengeStatus === "COMPLETED";
-  const speciesKey = challenge.speciesKey ?? 0;
+  const challengeInProgress = challenge.status === "IN_PROGRESS";
 
   const highlightedKeys = useAtomValue(treeAtom.highlightedKeys);
   const isInHighlightedSet =
@@ -43,42 +37,8 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     highlightedKeys.has(node.key) &&
     challengeInProgress;
 
-  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-
-  const { data: specieDetail } = useGetSpecieDetail({ specieKey: speciesKey });
-  const { data: parentsData } = useGetParents(speciesKey, challengeActive);
-
-  const correctPath = useMemo(() => {
-    if (!parentsData || !specieDetail) return [];
-    return buildChallengePathFromParents(
-      parentsData,
-      specieDetail.canonicalName ?? specieDetail.species ?? "",
-      speciesKey,
-    );
-  }, [parentsData, specieDetail, speciesKey]);
-
-  const feedback = useMemo<"success" | "error" | null>(() => {
-    if (!challengeActive) return null;
-
-    const index = expandedNodes.findIndex((n) => n.key === node.key);
-    if (index === -1) return null;
-
-    const expected = correctPath[index];
-
-    if (!expected) return null;
-
-    return node.canonicalName === expected.name ||
-      node.scientificName === expected.name
-      ? "success"
-      : "error";
-  }, [
-    challengeActive,
-    expandedNodes,
-    node.key,
-    node.canonicalName,
-    node.scientificName,
-    correctPath,
-  ]);
+  const feedbackMap = useAtomValue(treeAtom.challengeFeedbackMap);
+  const feedback = feedbackMap.get(node.key) ?? null;
 
   const removeHighlightedKey = useSetAtom(removeHighlightedKeyAtom);
 
@@ -98,6 +58,8 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
 
   const saveShortcut = useCallback(async () => {
     if (!userDb || challengeInProgress) return;
+
+    const expandedNodes = store.get(treeAtom.expandedNodes);
 
     void updateUserShortcut(userDb, (prev) => {
       const currentShortcuts = prev[taxonRank] ?? [];
@@ -132,7 +94,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     }).then((updatedUser) => {
       if (updatedUser) setUserDb(updatedUser);
     });
-  }, [userDb, challengeInProgress, taxonRank, expandedNodes, node, setUserDb]);
+  }, [userDb, challengeInProgress, taxonRank, store, node, setUserDb]);
 
   const displayName = node.canonicalName || node.scientificName;
   const showInfoIcon =
@@ -142,7 +104,7 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
 
   return (
     <motion.div
-      key={`${node.key}-${feedback}`}
+      key={node.key}
       className="item group flex h-full w-full flex-row items-center gap-2"
       animate={
         isHighlighted
