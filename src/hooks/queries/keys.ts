@@ -16,4 +16,10 @@ export const QUERY_KEYS = {
   achievement_progress_key: "achievement_progress",
   seen_specie_by_key_key: "seen_specie_by_key",
   favorite_species_page_key: "favorite_species_page",
+  user_lists_key: "user_lists",
+  user_liked_lists_key: "user_liked_lists",
+  public_lists_key: "public_lists",
+  list_detail_key: "list_detail",
+  list_species_key: "list_species",
+  my_lists_picker_key: "my_lists_picker",
 };

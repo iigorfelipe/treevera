@@ -4,6 +4,7 @@ import { SpecieImageDetail } from "@/modules/specie-detail/image";
 import { SpecieInfos } from "@/modules/specie-detail/infos";
 import { TaxonomyCard } from "@/modules/specie-detail/taxonomy-card";
 import { ShareButton } from "@/modules/specie-detail/share-button";
+import { AddToListButton } from "@/modules/lists/add-to-list-button";
 import { OccurrenceMap } from "@/modules/specie-detail/occurrences-map";
 import { VulnerabilityBadge } from "@/common/components/vulnerability-badge";
 import {
@@ -336,6 +337,12 @@ export const SpecieDetail = ({
                   transition={{ delay: 0.3 }}
                   className="flex flex-col gap-2"
                 >
+                  {specieKey && (
+                    <AddToListButton
+                      gbifKey={specieKey}
+                      speciesName={specieDetail.canonicalName}
+                    />
+                  )}
                   <ShareButton
                     specieKey={specieKey!}
                     canonicalName={specieDetail.canonicalName}

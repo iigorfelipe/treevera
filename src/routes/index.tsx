@@ -15,6 +15,8 @@ import { SpeciesGalleryPage } from "@/app/profile/species-gallery";
 import { NotFound } from "@/app/not-found";
 import { SpecieDetailPage } from "@/app/details/specie-detail-page";
 import { SettingsPage } from "@/app/settings";
+import { ListsPageRoute } from "@/app/lists";
+import { ListDetailPageRoute } from "@/app/lists/list-detail";
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -248,6 +250,18 @@ const challengesRandom7Route = createRoute({
   component: Home,
 });
 
+const listsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/lists",
+  component: ListsPageRoute,
+});
+
+const listDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/lists/$listId",
+  component: ListDetailPageRoute,
+});
+
 const routeTree = rootRoute.addChildren([
   authRoute,
   homeRoute,
@@ -265,6 +279,8 @@ const routeTree = rootRoute.addChildren([
   profileRoute,
   speciesGalleryRoute,
   specieDetailRoute,
+  listsRoute,
+  listDetailRoute,
   challengesRoute,
   challengesDailyRoute,
   challengesDaily1Route,

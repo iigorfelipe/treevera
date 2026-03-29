@@ -19,6 +19,7 @@ import {
   Target,
   Telescope,
   UserCircle,
+  List,
 } from "lucide-react";
 import i18n from "@/common/i18n";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -138,6 +139,12 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
               <Link to="/challenges" className="flex w-full items-center">
                 <Target className="mr-2 size-4" /> {t("nav.challenges")}
               </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => navigate({ to: "/lists" })}>
+              <div className="flex w-full items-center">
+                <List className="mr-2 size-4" /> {t("lists.title")}
+              </div>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

@@ -28,6 +28,8 @@ export const SpecieDetailPage = () => {
       void navigate({ to: "/profile" });
     } else if (search.from === "gallery") {
       void navigate({ to: "/profile/species-gallery" });
+    } else if (search.from === "list") {
+      window.history.back();
     } else {
       void navigate({ to: "/" });
     }

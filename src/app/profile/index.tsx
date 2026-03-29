@@ -4,6 +4,8 @@ import { LatestUserActivities } from "@/modules/profile/latest-user-activities";
 import { SpeciesGalleryPreview } from "@/modules/profile/species-gallery-preview";
 import { TreeShortcuts } from "@/modules/profile/tree-shortcuts";
 import { UserAchievements } from "@/modules/profile/user-achievements";
+import { UserListsPreview } from "@/modules/profile/user-lists-preview";
+import { UserLikedListsPreview } from "@/modules/profile/user-liked-lists-preview";
 import { authStore } from "@/store/auth/atoms";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
@@ -41,9 +43,15 @@ export const Profile = () => {
               <SpeciesGalleryPreview />
             </div>
             <div className="order-5">
-              <TreeShortcuts />
+              <UserListsPreview />
             </div>
             <div className="order-6">
+              <UserLikedListsPreview />
+            </div>
+            <div className="order-7">
+              <TreeShortcuts />
+            </div>
+            <div className="order-8">
               <LatestUserActivities />
             </div>
           </div>
