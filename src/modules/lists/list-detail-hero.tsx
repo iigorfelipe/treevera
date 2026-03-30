@@ -1,11 +1,4 @@
-import {
-  ArrowLeft,
-  ImageOff,
-  Calendar,
-  MoreVertical,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { ImageOff, Calendar, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import {
   Avatar,
@@ -26,7 +19,6 @@ import type { ListWithCreator } from "@/common/types/lists";
 
 type ListDetailHeroProps = {
   list: ListWithCreator;
-  onBack: () => void;
   isOwner: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -34,7 +26,6 @@ type ListDetailHeroProps = {
 
 export const ListDetailHero = ({
   list,
-  onBack,
   isOwner,
   onEdit,
   onDelete,
@@ -60,19 +51,10 @@ export const ListDetailHero = ({
           </div>
         )}
         <div className="from-background absolute inset-x-0 bottom-0 h-20 bg-linear-to-t to-transparent" />
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-3 left-3 size-8 bg-black/30 text-white hover:bg-black/50 hover:text-white"
-          onClick={onBack}
-        >
-          <ArrowLeft className="size-4" />
-        </Button>
       </div>
 
       <div className="px-4 pb-4 sm:px-6">
-        <div className="mx-auto max-w-5xl space-y-2">
+        <div className="mx-auto max-w-7xl space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar className="border-border size-7 border">
@@ -144,7 +126,7 @@ export const ListDetailHero = ({
               likesCount={list.likes_count}
             />
 
-            <div className="ml-auto flex min-w-0 flex-1 gap-2">
+            <div className="ml-auto flex min-w-0 gap-2">
               <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground mb-1 truncate text-xs">
                   {knownCount}/{totalCount} {t("lists.knownSpecies")}

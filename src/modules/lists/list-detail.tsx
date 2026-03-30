@@ -3,7 +3,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
-import { Images, Loader2 } from "lucide-react";
+import { Images, Loader2, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { Menu } from "@/modules/header/menu";
+import { Button } from "@/common/components/ui/button";
 import { toast } from "sonner";
 import {
   useGetListDetail,
@@ -21,7 +24,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/common/components/ui/dialog";
-import { Button } from "@/common/components/ui/button";
 
 type ListDetailProps = {
   listId: string;
@@ -103,10 +105,30 @@ export const ListDetail = ({ listId }: ListDetailProps) => {
 
   return (
     <div className="flex h-screen flex-col">
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="relative z-10"
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 py-2">
+          <div />
+          <div className="flex shrink-0 items-center gap-1">
+            <Menu />
+            <Button
+              onClick={handleBack}
+              variant="ghost"
+              size="icon"
+              className="size-8"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <ListDetailHero
           list={list}
-          onBack={handleBack}
           isOwner={isOwner}
           onEdit={() => setEditOpen(true)}
           onDelete={() => setDeleteConfirmOpen(true)}

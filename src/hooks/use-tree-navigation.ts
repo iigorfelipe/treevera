@@ -4,7 +4,6 @@ import { useAtomValue, useSetAtom, useStore } from "jotai";
 import {
   treeAtom,
   shortcutScrollTargetAtom,
-  setExpandedPathAtom,
 } from "@/store/tree";
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { capitalizar } from "@/common/utils/string";
@@ -14,9 +13,7 @@ export function useTreeNavigation() {
   const navigate = useNavigate();
   const store = useStore();
   const setShortcutTarget = useSetAtom(shortcutScrollTargetAtom);
-  const setExpandedPath = useSetAtom(setExpandedPathAtom);
   const challenge = useAtomValue(treeAtom.challenge);
-  const isInChallenge = challenge.status === "IN_PROGRESS";
 
   const nodesToPath = useCallback(
     (nodes: PathNode[]) => {
@@ -55,11 +52,7 @@ export function useTreeNavigation() {
 
       const idx = expandedPath.findIndex((n) => n.key === key);
       if (idx !== -1) {
-        if (isInChallenge) {
-          setExpandedPath(expandedPath.slice(0, idx));
-        } else {
-          navigateToNodes(expandedPath.slice(0, idx));
-        }
+        navigateToNodes(expandedPath.slice(0, idx));
         return;
       }
 
@@ -77,13 +70,9 @@ export function useTreeNavigation() {
         cur = cur.parentKey ? allNodes[cur.parentKey] : undefined!;
       }
 
-      if (isInChallenge) {
-        setExpandedPath(ancestors);
-      } else {
-        navigateToNodes(ancestors);
-      }
+      navigateToNodes(ancestors);
     },
-    [store, navigateToNodes, isInChallenge, setExpandedPath],
+    [store, navigateToNodes],
   );
 
   return { navigateToNodes, toggleNode, nodesToPath };

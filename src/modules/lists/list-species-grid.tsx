@@ -94,7 +94,7 @@ export const ListSpeciesGrid = ({
 
   return (
     <div className="p-4 md:p-6 lg:p-8">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-7xl">
         <div className="flex gap-4">
           {columns.map((column, colIndex) => (
             <div key={colIndex} className="flex min-w-0 flex-1 flex-col gap-4">

@@ -1,8 +1,8 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Search, ArrowUpDown, Plus, Loader2, ListX } from "lucide-react";
+import { Search, ArrowUpDown, Plus, Loader2, ListX, X } from "lucide-react";
 import { Menu } from "@/modules/header/menu";
 import { Button } from "@/common/components/ui/button";
 import {
@@ -72,15 +72,18 @@ export const ListsPage = () => {
     navigate({ to: "/lists/$listId", params: { listId } });
   };
 
+  const handleClose = useCallback(() => {
+    navigate({ to: "/profile" });
+  }, [navigate]);
+
   return (
-    <div className="flex h-screen flex-col">
+    <div className="mx-auto flex h-screen max-w-7xl flex-col">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 pt-3 pb-2">
-          <Menu />
+        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
           <div className="min-w-0 flex-1">
             <h1 className="text-base leading-tight font-bold">
               {t("lists.title")}
@@ -90,23 +93,19 @@ export const ListsPage = () => {
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            {isAuthenticated && (
-              <Button
-                onClick={() => setCreateOpen(true)}
-                variant="default"
-                size="sm"
-                className="h-8 gap-1.5"
-              >
-                <Plus className="size-3.5" />
-                <span className="hidden text-xs sm:inline">
-                  {t("lists.create")}
-                </span>
-              </Button>
-            )}
+            <Menu />
+            <Button
+              onClick={handleClose}
+              variant="ghost"
+              size="icon"
+              className="size-8"
+            >
+              <X className="size-4" />
+            </Button>
           </div>
         </div>
 
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 pb-2">
+        <div className="flex items-center gap-2 px-4 pb-2">
           <div className="relative min-w-0 flex-1">
             <Search className="text-muted-foreground absolute top-1/2 left-3 size-3.5 -translate-y-1/2" />
             <input
@@ -133,6 +132,19 @@ export const ListsPage = () => {
                 </span>
               </Button>
             </DropdownMenuTrigger>
+            {isAuthenticated && (
+              <Button
+                onClick={() => setCreateOpen(true)}
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 px-2.5"
+              >
+                <Plus className="size-3.5" />
+                <span className="hidden text-xs sm:inline">
+                  {t("lists.create")}
+                </span>
+              </Button>
+            )}
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setSortMode("recent")}>
                 {t("lists.newestFirst")}
@@ -143,14 +155,13 @@ export const ListsPage = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
       </motion.div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         {allLists.length === 0 && !isFetchingNextPage ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground text-center">
-              <ListX className="mx-auto mb-3 size-16 opacity-30" />
+              <ListX className="mb-3 size-16 opacity-30" />
               <p className="mb-1 text-lg font-medium">
                 {t("lists.noListsFound")}
               </p>
@@ -159,7 +170,7 @@ export const ListsPage = () => {
           </div>
         ) : (
           <div className="p-4">
-            <div className="mx-auto max-w-3xl space-y-3">
+            <div className="space-y-3">
               {allLists.map((list, i) => (
                 <motion.div
                   key={list.id}
