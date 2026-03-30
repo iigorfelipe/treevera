@@ -331,7 +331,9 @@
     "createNew": "Criar nova lista",
     "listCreated": "Lista criada!",
     "listUpdated": "Lista atualizada!",
-    "listDeleted": "Lista excluída!"
+    "listDeleted": "Lista excluída!",
+    "knownSpecies": "espécies conhecidas",
+    "listsWithSpecies": "Listas com essa espécie"
   },
 
   "vulnerability": {

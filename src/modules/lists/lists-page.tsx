@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Search, ArrowUpDown, Plus, Loader2, ListX } from "lucide-react";
+import { Menu } from "@/modules/header/menu";
 import { Button } from "@/common/components/ui/button";
 import {
   DropdownMenu,
@@ -10,25 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
-import { Badge } from "@/common/components/ui/badge";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useGetPublicLists } from "@/hooks/queries/useGetLists";
 import { ListCard } from "./list-card";
 import { ListCreateDialog } from "./list-create-dialog";
-import type { Kingdom } from "@/common/types/api";
 
 type SortMode = "recent" | "popular";
-
-const KINGDOMS: Kingdom[] = [
-  "animalia",
-  "plantae",
-  "fungi",
-  "chromista",
-  "protozoa",
-  "archaea",
-  "bacteria",
-];
 
 export const ListsPage = () => {
   const { t } = useTranslation();
@@ -38,7 +27,6 @@ export const ListsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("recent");
-  const [kingdomFilter, setKingdomFilter] = useState<string | undefined>();
   const [createOpen, setCreateOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -55,7 +43,6 @@ export const ListsPage = () => {
     useGetPublicLists({
       sort: sortMode,
       search: debouncedSearch || undefined,
-      kingdom: kingdomFilter,
     });
 
   const allLists = useMemo(
@@ -80,23 +67,20 @@ export const ListsPage = () => {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const toggleKingdom = (k: string) => {
-    setKingdomFilter((prev) => (prev === k ? undefined : k));
-  };
-
   const handleListCreated = (listId: string) => {
     setCreateOpen(false);
     navigate({ to: "/lists/$listId", params: { listId } });
   };
 
   return (
-    <div className="bg-background fixed inset-0 z-50 flex flex-col">
+    <div className="flex h-screen flex-col">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-background/95 relative z-10 border-b backdrop-blur-sm"
+        className="relative z-10 border-b"
       >
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 pt-3 pb-2">
+          <Menu />
           <div className="min-w-0 flex-1">
             <h1 className="text-base leading-tight font-bold">
               {t("lists.title")}
@@ -160,25 +144,6 @@ export const ListsPage = () => {
           </DropdownMenu>
         </div>
 
-        <div className="mx-auto flex max-w-3xl gap-1.5 overflow-x-auto px-4 pb-3">
-          <Badge
-            variant={!kingdomFilter ? "default" : "outline"}
-            className="shrink-0 cursor-pointer"
-            onClick={() => setKingdomFilter(undefined)}
-          >
-            {t("lists.allKingdoms")}
-          </Badge>
-          {KINGDOMS.map((k) => (
-            <Badge
-              key={k}
-              variant={kingdomFilter === k ? "default" : "outline"}
-              className="shrink-0 cursor-pointer capitalize"
-              onClick={() => toggleKingdom(k)}
-            >
-              {k}
-            </Badge>
-          ))}
-        </div>
       </motion.div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">

@@ -13,6 +13,7 @@ import {
   fetchUserLikedLists,
   fetchListDetail,
   fetchListSpecies,
+  fetchListsWithSpecies,
   toggleListLike,
   createList,
   updateList,
@@ -49,22 +50,15 @@ export function useGetUserLikedLists(
 export function useGetPublicLists(options: {
   sort: "recent" | "popular";
   search?: string;
-  kingdom?: string;
 }) {
   return useInfiniteQuery({
-    queryKey: [
-      QUERY_KEYS.public_lists_key,
-      options.sort,
-      options.search,
-      options.kingdom,
-    ],
+    queryKey: [QUERY_KEYS.public_lists_key, options.sort, options.search],
     queryFn: ({ pageParam = 0 }) =>
       fetchPublicLists(
         PAGE_SIZE,
         pageParam as number,
         options.sort,
         options.search,
-        options.kingdom,
       ),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
@@ -233,6 +227,15 @@ export function useRemoveSpeciesFromList(listId: string) {
         queryKey: [QUERY_KEYS.my_lists_picker_key],
       });
     },
+  });
+}
+
+export function useGetListsWithSpecies(gbifKey: number | undefined) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.lists_with_species_key, gbifKey],
+    queryFn: () => fetchListsWithSpecies(gbifKey!),
+    enabled: !!gbifKey,
+    staleTime: 5 * 60_000,
   });
 }
 

@@ -22,4 +22,5 @@ export const QUERY_KEYS = {
   list_detail_key: "list_detail",
   list_species_key: "list_species",
   my_lists_picker_key: "my_lists_picker",
+  lists_with_species_key: "lists_with_species",
 };

@@ -15,7 +15,9 @@ export const ListCard = ({ list }: ListCardProps) => {
 
   return (
     <div
-      onClick={() => navigate({ to: "/lists/$listId", params: { listId: list.id } })}
+      onClick={() =>
+        navigate({ to: "/lists/$listId", params: { listId: list.id } })
+      }
       className="group bg-card flex cursor-pointer items-center gap-4 rounded-xl border p-3 shadow-sm transition-all duration-300 hover:shadow-md"
     >
       <div className="bg-muted flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg">
@@ -36,10 +38,11 @@ export const ListCard = ({ list }: ListCardProps) => {
           {list.title}
         </h3>
         <p className="text-muted-foreground mt-0.5 text-xs">
-          {t("lists.by")} @{list.user_name || "—"}
+          {t("lists.by")} {list.user_name || "—"}
         </p>
         <p className="text-muted-foreground mt-1 text-xs">
-          {list.species_count} {t("lists.species")} · {formatActivityDate(list.created_at)}
+          {list.species_count} {t("lists.species")} ·{" "}
+          {formatActivityDate(list.created_at)}
         </p>
       </div>
 

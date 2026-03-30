@@ -17,6 +17,7 @@ export interface ListWithCreator extends ListRow {
   user_avatar_url: string | null;
   is_liked: boolean;
   total_count: number;
+  known_count?: number;
 }
 
 export interface ListPreview {

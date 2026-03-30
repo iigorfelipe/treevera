@@ -52,7 +52,7 @@ export const ListCreateDialog = ({
           <DialogTitle>{t("lists.createTitle")}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+        <form onSubmit={handleSubmit} className="space-y-4 p-3">
           <div>
             <label className="mb-1 block text-sm font-medium">
               {t("lists.titleLabel")}

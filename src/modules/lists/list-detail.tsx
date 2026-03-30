@@ -102,7 +102,7 @@ export const ListDetail = ({ listId }: ListDetailProps) => {
   }
 
   return (
-    <div className="bg-background fixed inset-0 z-50 flex flex-col">
+    <div className="flex h-screen flex-col">
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <ListDetailHero
           list={list}
@@ -132,6 +132,7 @@ export const ListDetail = ({ listId }: ListDetailProps) => {
 
       {isOwner && list && (
         <ListEditDialog
+          key={editOpen ? "open" : "closed"}
           open={editOpen}
           onOpenChange={setEditOpen}
           initialTitle={list.title}
@@ -146,7 +147,7 @@ export const ListDetail = ({ listId }: ListDetailProps) => {
             <DialogTitle>{t("lists.deleteList")}</DialogTitle>
             <DialogDescription>{t("lists.deleteConfirm")}</DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 p-4">
             <Button variant="ghost" onClick={() => setDeleteConfirmOpen(false)}>
               {t("lists.cancel")}
             </Button>

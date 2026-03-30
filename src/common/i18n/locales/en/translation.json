@@ -331,7 +331,9 @@
     "createNew": "Create new list",
     "listCreated": "List created!",
     "listUpdated": "List updated!",
-    "listDeleted": "List deleted!"
+    "listDeleted": "List deleted!",
+    "knownSpecies": "known species",
+    "listsWithSpecies": "Lists with this species"
   },
 
   "vulnerability": {

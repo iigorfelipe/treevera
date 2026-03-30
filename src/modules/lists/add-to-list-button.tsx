@@ -67,7 +67,7 @@ export const AddToListButton = ({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm p-3">
           <DialogHeader>
             <DialogTitle>{t("lists.addToList")}</DialogTitle>
           </DialogHeader>
@@ -94,7 +94,7 @@ export const AddToListButton = ({
           </div>
 
           {creatingNew ? (
-            <div className="flex items-center gap-2 border-t pt-3">
+            <div className="flex items-center gap-2 border-t p-3">
               <input
                 type="text"
                 value={newTitle}
@@ -124,7 +124,7 @@ export const AddToListButton = ({
             <Button
               variant="ghost"
               size="sm"
-              className="w-full gap-2 border-t pt-3"
+              className="w-full gap-2 border p-3"
               onClick={() => setCreatingNew(true)}
             >
               <Plus className="size-3.5" />

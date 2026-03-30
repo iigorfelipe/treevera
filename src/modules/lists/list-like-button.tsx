@@ -40,12 +40,7 @@ export const ListLikeButton = ({
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={btnSize}
-            disabled
-          >
+          <Button variant="ghost" size="sm" className={btnSize} disabled>
             <Heart className={iconSize} />
             <span className="text-xs">{likesCount}</span>
           </Button>

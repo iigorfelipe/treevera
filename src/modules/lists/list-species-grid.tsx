@@ -97,10 +97,7 @@ export const ListSpeciesGrid = ({
       <div className="mx-auto max-w-5xl">
         <div className="flex gap-4">
           {columns.map((column, colIndex) => (
-            <div
-              key={colIndex}
-              className="flex min-w-0 flex-1 flex-col gap-4"
-            >
+            <div key={colIndex} className="flex min-w-0 flex-1 flex-col gap-4">
               {column.map(({ species: s, globalIndex }) => (
                 <motion.div
                   key={s.gbif_key}
