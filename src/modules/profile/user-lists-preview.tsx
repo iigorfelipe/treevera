@@ -10,13 +10,21 @@ import { ListPreviewCard } from "@/modules/lists/list-preview-card";
 const DEFAULT_LIMIT = 2;
 const EXPANDED_LIMIT = 10;
 
-export const UserListsPreview = () => {
+export const UserListsPreview = ({
+  userId,
+  username,
+}: {
+  userId?: string;
+  username?: string;
+}) => {
   const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
   const [expanded, setExpanded] = useState(false);
 
+  const targetUserId = userId ?? userDb?.id;
+  const targetUsername = username ?? userDb?.username ?? "";
   const limit = expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT + 1;
-  const { data } = useGetUserLists(userDb?.id, limit);
+  const { data } = useGetUserLists(targetUserId, limit);
 
   const lists = data?.rows ?? [];
   const visibleLists = expanded ? lists : lists.slice(0, DEFAULT_LIMIT);
@@ -62,7 +70,11 @@ export const UserListsPreview = () => {
         }`}
       >
         {visibleLists.map((list) => (
-          <ListPreviewCard key={list.id} list={list} />
+          <ListPreviewCard
+            key={list.id}
+            list={list}
+            username={targetUsername}
+          />
         ))}
       </div>
     </div>

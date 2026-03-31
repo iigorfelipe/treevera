@@ -12,6 +12,7 @@ import { useNavigate } from "@tanstack/react-router";
 
 export const useCheckAchievements = () => {
   const session = useAtomValue(authStore.session);
+  const userDb = useAtomValue(authStore.userDb);
   const userId = session?.user?.id;
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -39,11 +40,16 @@ export const useCheckAchievements = () => {
       toast.custom(
         () => (
           <div
-            className="bg-background border rounded-xl px-4 py-3 flex items-center justify-between gap-4 cursor-pointer shadow-sm"
-            onClick={() => void navigate({ to: "/profile" })}
+            className="bg-background flex cursor-pointer items-center justify-between gap-4 rounded-xl border px-4 py-3 shadow-sm"
+            onClick={() =>
+              void navigate({
+                to: "/$username",
+                params: { username: userDb?.username ?? "" },
+              })
+            }
           >
             <span className="text-sm font-semibold">{def.name}</span>
-            <div className="flex items-center gap-1 text-muted-foreground text-xs shrink-0">
+            <div className="text-muted-foreground flex shrink-0 items-center gap-1 text-xs">
               <span>Ver conquistas</span>
               <ArrowRight className="size-3" />
             </div>

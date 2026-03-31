@@ -46,7 +46,13 @@ const useNumColumns = () => {
   return numColumns;
 };
 
-export const SpeciesGallery = () => {
+export const SpeciesGallery = ({
+  userId,
+  backUsername,
+}: {
+  userId?: string;
+  backUsername?: string;
+} = {}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const numColumns = useNumColumns();
@@ -67,13 +73,16 @@ export const SpeciesGallery = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useGetGallerySpecies({
-      favoritesOnly: showOnlyFavorites,
-      sortOrder,
-      photosFirst,
-      search: debouncedSearch || undefined,
-    });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useGetGallerySpecies(
+      {
+        favoritesOnly: showOnlyFavorites,
+        sortOrder,
+        photosFirst,
+        search: debouncedSearch || undefined,
+      },
+      userId,
+    );
 
   const totalCount = data?.pages[0]?.totalCount ?? 0;
   const allSpecies = useMemo(
@@ -109,8 +118,12 @@ export const SpeciesGallery = () => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleClose = useCallback(() => {
-    navigate({ to: "/profile" });
-  }, [navigate]);
+    if (backUsername) {
+      navigate({ to: "/$username", params: { username: backUsername } });
+    } else {
+      navigate({ to: "/" });
+    }
+  }, [navigate, backUsername]);
 
   const handleSelectSpecies = useCallback(
     (species: GallerySpeciesRow) => {
@@ -146,7 +159,7 @@ export const SpeciesGallery = () => {
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Menu />
+            {!userId && <Menu />}
             <Button
               onClick={handleClose}
               variant="ghost"
@@ -233,7 +246,25 @@ export const SpeciesGallery = () => {
       </motion.div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        {allSpecies.length === 0 && !isFetchingNextPage ? (
+        {isLoading ? (
+          <div className="p-4 md:p-6 lg:p-8">
+            <div className="mx-auto max-w-7xl">
+              <div className="flex gap-4">
+                {Array.from({ length: numColumns }).map((_, col) => (
+                  <div key={col} className="flex min-w-0 flex-1 flex-col gap-4">
+                    {Array.from({ length: 4 }).map((_, row) => (
+                      <div
+                        key={row}
+                        className="bg-muted animate-pulse rounded-xl"
+                        style={{ height: `${180 + (row % 3) * 40}px` }}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : allSpecies.length === 0 && !isFetchingNextPage ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />

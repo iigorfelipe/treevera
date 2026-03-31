@@ -8,12 +8,13 @@ import { useGetUserActivities } from "@/hooks/queries/useGetUserActivities";
 const DEFAULT_LIMIT = 4;
 const EXPANDED_LIMIT = 50;
 
-export const LatestUserActivities = () => {
+export const LatestUserActivities = ({ userId }: { userId?: string }) => {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   const { data: activities = [] } = useGetUserActivities(
     expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT + 1,
+    userId,
   );
 
   const visibleActivities = expanded ? activities : activities.slice(0, DEFAULT_LIMIT);

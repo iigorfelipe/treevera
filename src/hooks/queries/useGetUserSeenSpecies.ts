@@ -24,14 +24,31 @@ export const useGetUserSeenSpecies = (options?: { enabled?: boolean }) => {
   });
 };
 
-export const useGetRecentSeenSpecies = (limit: number) => {
+export const useGetRecentSeenSpecies = (limit: number, userId?: string) => {
   const session = useAtomValue(authStore.session);
-  const userId = session?.user?.id;
+  const sessionUserId = session?.user?.id;
+  const targetUserId = userId ?? sessionUserId;
 
   return useQuery({
-    queryKey: [QUERY_KEYS.user_seen_species_key, "recent", userId, limit],
-    queryFn: () => fetchSeenSpecies(userId!, limit),
-    enabled: !!userId,
+    queryKey: [QUERY_KEYS.user_seen_species_key, "recent", targetUserId, limit],
+    queryFn: async () => {
+      if (userId) {
+        const page = await fetchGalleryPage(userId, 0, limit);
+        return page.rows.map((r) => ({
+          user_id: userId,
+          gbif_key: r.gbif_key,
+          seen_at: r.seen_at,
+          is_favorite: r.is_favorite,
+          kingdom: null,
+          iucn_status: null,
+          preferred_image_url: r.image_url,
+          canonical_name: r.canonical_name,
+          family: r.family,
+        }));
+      }
+      return fetchSeenSpecies(sessionUserId!, limit);
+    },
+    enabled: !!targetUserId,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 60 * 24,
   });
@@ -75,27 +92,29 @@ const GALLERY_PAGE_SIZE = 50;
 
 export const useGetGallerySpecies = (
   options: FetchSeenSpeciesPageOptions = {},
+  userId?: string,
 ) => {
   const session = useAtomValue(authStore.session);
-  const userId = session?.user?.id;
+  const sessionUserId = session?.user?.id;
+  const targetUserId = userId ?? sessionUserId;
 
   return useInfiniteQuery({
     queryKey: [
       QUERY_KEYS.specie_gallery_key,
-      userId,
+      targetUserId,
       options.favoritesOnly,
       options.sortOrder,
       options.photosFirst,
       options.search,
     ],
     queryFn: ({ pageParam = 0 }) =>
-      fetchGalleryPage(userId!, pageParam, GALLERY_PAGE_SIZE, options),
+      fetchGalleryPage(targetUserId!, pageParam, GALLERY_PAGE_SIZE, options),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       const loaded = allPages.length * GALLERY_PAGE_SIZE;
       return loaded < lastPage.totalCount ? allPages.length : undefined;
     },
-    enabled: !!userId,
+    enabled: !!targetUserId,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 60 * 24,
   });

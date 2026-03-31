@@ -13,7 +13,7 @@ import { useCreateList } from "@/hooks/queries/useGetLists";
 type ListCreateDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: (listId: string) => void;
+  onCreated: (listId: string, title: string) => void;
 };
 
 export const ListCreateDialog = ({
@@ -36,9 +36,10 @@ export const ListCreateDialog = ({
       {
         onSuccess: (data) => {
           if (data) {
+            const createdTitle = title.trim();
             setTitle("");
             setDescription("");
-            onCreated(data.id);
+            onCreated(data.id, createdTitle);
           }
         },
       },

@@ -8,12 +8,14 @@ export interface ListRow {
   likes_count: number;
   species_count: number;
   is_public: boolean;
+  slug: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface ListWithCreator extends ListRow {
   user_name: string;
+  user_username: string;
   user_avatar_url: string | null;
   is_liked: boolean;
   total_count: number;
@@ -26,12 +28,14 @@ export interface ListPreview {
   cover_image_url: string | null;
   species_count: number;
   likes_count: number;
+  slug: string;
   created_at: string;
   total_count: number;
 }
 
 export interface ListLikedPreview extends ListPreview {
   user_name: string;
+  user_username: string;
   user_avatar_url: string | null;
 }
 

@@ -1,0 +1,173 @@
+import { useNavigate } from "@tanstack/react-router";
+import { ChevronLeft } from "lucide-react";
+import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
+import { useTranslation } from "react-i18next";
+import { Skeleton } from "@/common/components/ui/skeleton";
+import { HeaderProfile } from "@/modules/profile/header";
+import { FavoriteSpecies } from "@/modules/profile/fav-species/fav-species";
+import { UserAchievements } from "@/modules/profile/user-achievements";
+import { SpeciesGalleryPreview } from "@/modules/profile/species-gallery-preview";
+import { UserListsPreview } from "@/modules/profile/user-lists-preview";
+import { UserLikedListsPreview } from "@/modules/profile/user-liked-lists-preview";
+import { TreeShortcuts } from "@/modules/profile/tree-shortcuts";
+import { LatestUserActivities } from "@/modules/profile/latest-user-activities";
+
+function ProfileSkeleton() {
+  return (
+    <div className="mx-auto max-w-7xl p-4">
+      <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
+        <div className="flex flex-col gap-10 lg:flex-2 lg:gap-14">
+          <div className="flex items-center gap-3">
+            <Skeleton className="size-10 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-3/4 rounded-xl" />
+            ))}
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 rounded-lg" />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-10 lg:flex-1 lg:gap-14">
+          <div className="space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 rounded-md" />
+            ))}
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function UserProfilePage({ username }: { username: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const { data, isLoading } = useGetPublicProfile(username);
+
+  const handleBack = () => navigate({ to: "/" });
+
+  if (isLoading) {
+    return (
+      <div className="h-screen overflow-auto">
+        <div className="px-4 py-3">
+          <button
+            onClick={handleBack}
+            className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
+          >
+            <ChevronLeft className="size-4" />
+            {t("nav.back")}
+          </button>
+        </div>
+        <ProfileSkeleton />
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="h-screen overflow-auto">
+        <div className="px-4 py-3">
+          <button
+            onClick={handleBack}
+            className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
+          >
+            <ChevronLeft className="size-4" />
+            {t("nav.back")}
+          </button>
+        </div>
+        <div className="flex flex-col items-center justify-center gap-3 pt-24 text-center">
+          <p className="text-4xl">🌿</p>
+          <p className="text-lg font-semibold">Perfil não encontrado</p>
+          <p className="text-muted-foreground text-sm">
+            O usuário <span className="font-medium">@{username}</span> não
+            existe.
+          </p>
+          <button
+            onClick={handleBack}
+            className="mt-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            Voltar ao início
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const publicProfileHeader = {
+    name: data.name,
+    username: data.username,
+    avatar_url: data.avatar_url,
+    created_at: data.created_at,
+  };
+
+  return (
+    <div className="h-screen overflow-auto">
+      <div className="px-4 py-3">
+        <button
+          onClick={handleBack}
+          className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
+        >
+          <ChevronLeft className="size-4" />
+          {t("nav.back")}
+        </button>
+      </div>
+
+      <div className="mx-auto max-w-7xl p-4">
+        <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
+          <div className="contents lg:flex lg:flex-2 lg:flex-col lg:gap-14">
+            <div className="order-1">
+              <HeaderProfile publicProfile={publicProfileHeader} />
+            </div>
+            <div className="order-2">
+              <FavoriteSpecies
+                favSpecies={data.public_info?.top_fav_species}
+                isOwner={false}
+              />
+            </div>
+            <div className="order-4">
+              <UserAchievements userId={data.id} isOwner={false} />
+            </div>
+          </div>
+
+          <div className="contents lg:flex lg:flex-1 lg:flex-col lg:gap-14">
+            <div className="order-3">
+              <SpeciesGalleryPreview
+                userId={data.id}
+                profileUsername={data.username}
+              />
+            </div>
+            <div className="order-5">
+              <UserListsPreview userId={data.id} username={data.username} />
+            </div>
+            <div className="order-6">
+              <UserLikedListsPreview userId={data.id} />
+            </div>
+            <div className="order-7">
+              <TreeShortcuts
+                shortcuts={data.public_info?.shortcuts}
+                isOwner={false}
+              />
+            </div>
+            <div className="order-8">
+              <LatestUserActivities userId={data.id} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

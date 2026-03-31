@@ -7,20 +7,10 @@ import { UserAchievements } from "@/modules/profile/user-achievements";
 import { UserListsPreview } from "@/modules/profile/user-lists-preview";
 import { UserLikedListsPreview } from "@/modules/profile/user-liked-lists-preview";
 import { authStore } from "@/store/auth/atoms";
-import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
-import { useEffect } from "react";
 
 export const Profile = () => {
-  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate({ to: "/login" });
-      return;
-    }
-  }, [isAuthenticated, navigate]);
+  const userDb = useAtomValue(authStore.userDb);
 
   return (
     <div className="h-screen overflow-auto">
@@ -43,7 +33,7 @@ export const Profile = () => {
               <SpeciesGalleryPreview />
             </div>
             <div className="order-5">
-              <UserListsPreview />
+              <UserListsPreview username={userDb?.username} />
             </div>
             <div className="order-6">
               <UserLikedListsPreview />

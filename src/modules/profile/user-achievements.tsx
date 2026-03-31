@@ -17,12 +17,18 @@ function formatUnlockDate(isoDate: string): string {
   });
 }
 
-export const UserAchievements = () => {
+export const UserAchievements = ({
+  userId,
+  isOwner = true,
+}: {
+  userId?: string;
+  isOwner?: boolean;
+}) => {
   const { t } = useTranslation();
   const { data: unlockedRows = [], isLoading: isLoadingAchievements } =
-    useGetUserAchievements();
+    useGetUserAchievements(userId);
   const { data: progressRows = [], isLoading: isLoadingProgress } =
-    useGetAchievementProgress();
+    useGetAchievementProgress(userId);
 
   const isLoading = isLoadingAchievements || isLoadingProgress;
 
@@ -107,7 +113,7 @@ export const UserAchievements = () => {
           );
         })}
 
-        {locked.map((a) => {
+        {isOwner && locked.map((a) => {
           const Icon = a.icon;
           return (
             <div key={a.id} className="flex items-center gap-3 py-3">

@@ -1,6 +1,7 @@
 import { SpecieDetail } from "@/app/details/specie-detail";
 import { selectedSpecieKeyAtom } from "@/store/tree";
-import { useSetAtom } from "jotai";
+import { authStore } from "@/store/auth/atoms";
+import { useSetAtom, useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -22,12 +23,19 @@ export const SpecieDetailPage = () => {
   }, [numericKey, setSelectedKey]);
 
   const navigate = useNavigate();
+  const userDb = useAtomValue(authStore.userDb);
 
   const handleBack = () => {
     if (search.from === "profile") {
-      void navigate({ to: "/profile" });
+      void navigate({
+        to: "/$username",
+        params: { username: userDb?.username ?? "" },
+      });
     } else if (search.from === "gallery") {
-      void navigate({ to: "/profile/species-gallery" });
+      void navigate({
+        to: "/$username/species-gallery",
+        params: { username: userDb?.username ?? "" },
+      });
     } else if (search.from === "list") {
       window.history.back();
     } else {

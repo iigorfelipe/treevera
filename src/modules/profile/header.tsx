@@ -1,5 +1,3 @@
-// import { Progress } from "@/common/components/ui/progress";
-// import { userProgress } from "@/common/utils/data-profile-fake";
 import { formatUserSinceDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
@@ -14,50 +12,72 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/common/components/ui/dialog";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/common/components/ui/avatar";
 
-export const HeaderProfile = () => {
+type PublicProfileHeader = {
+  name: string;
+  username: string;
+  avatar_url: string | null;
+  created_at: string;
+};
+
+export const HeaderProfile = ({
+  publicProfile,
+}: {
+  publicProfile?: PublicProfileHeader;
+}) => {
   const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
+  const isOwner = !publicProfile;
+  const data = publicProfile ?? userDb;
 
   return (
     <header className="flex flex-col gap-4 rounded-2xl">
       <div className="flex items-center gap-3">
-        <Menu isProfilePage />
+        {isOwner && <Menu isProfilePage />}
+
+        {!isOwner && (
+          <Avatar className="size-16 shrink-0">
+            <AvatarImage src={data?.avatar_url ?? undefined} alt={data?.name} />
+            <AvatarFallback className="bg-green-600 text-white">
+              {data?.name?.[0] ?? "?"}
+            </AvatarFallback>
+          </Avatar>
+        )}
 
         <div className="flex-1">
-          <h1 className="text-xl font-bold">{userDb?.name}</h1>
+          <h1 className="text-xl font-bold">{data?.name}</h1>
+          {data?.username && (
+            <p className="text-muted-foreground text-xs">@{data.username}</p>
+          )}
           <span className="mt-0.5 flex items-center gap-1 text-xs">
             {t("profilePage.memberSince")}
-            <strong>{formatUserSinceDate(userDb?.created_at as string)}</strong>
+            <strong>{formatUserSinceDate(data?.created_at as string)}</strong>
           </span>
         </div>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="size-5" />
-            </button>
-          </DialogTrigger>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle>{t("profilePage.devNoticeTitle")}</DialogTitle>
-              <DialogDescription>
-                {t("profilePage.devNoticeDescription")}
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
+        {isOwner && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground transition-colors">
+                <Info className="size-5" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle>{t("profilePage.devNoticeTitle")}</DialogTitle>
+                <DialogDescription>
+                  {t("profilePage.devNoticeDescription")}
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
-
-      {/* <div className="space-y-2">
-        <Progress
-          value={(1000 - userProgress.pointsToNextRank) / 10}
-          className="h-2"
-          indicatorClassName="bg-amber-300"
-        />
-
-        <div className="text-xs">{t("profilePage.rankingHint")}</div>
-      </div> */}
     </header>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,9 @@ import {
   ChevronLeft,
   Loader,
   LogOut,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 import {
   Slider as RadixSlider,
@@ -30,6 +33,10 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
+import {
+  checkUsernameAvailable,
+  updateUsername,
+} from "@/common/utils/supabase/update-username";
 
 const Toggle = ({
   checked,
@@ -151,12 +158,86 @@ function SectionHeading({
   );
 }
 
+type UsernameStatus =
+  | "idle"
+  | "checking"
+  | "available"
+  | "unavailable"
+  | "invalid";
+
+const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
+
 function AccountSection({ flat }: { flat?: boolean }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
-  const userDb = useAtomValue(authStore.userDb);
+  const [userDb, setUserDb] = useAtom(authStore.userDb);
   const { logout, isLoggingOut } = useAuth();
+
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
+  const [savingUsername, setSavingUsername] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleStartEdit = () => {
+    setUsernameInput(userDb?.username ?? "");
+    setUsernameStatus("idle");
+    setSaveError(null);
+    setEditingUsername(true);
+  };
+
+  const handleCancelEdit = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    setEditingUsername(false);
+    setUsernameStatus("idle");
+    setSaveError(null);
+  };
+
+  const handleUsernameChange = (value: string) => {
+    const lower = value.toLowerCase();
+    setUsernameInput(lower);
+    setSaveError(null);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (lower === userDb?.username) {
+      setUsernameStatus("idle");
+      return;
+    }
+
+    if (!USERNAME_REGEX.test(lower)) {
+      setUsernameStatus(lower.length === 0 ? "idle" : "invalid");
+      return;
+    }
+
+    setUsernameStatus("checking");
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const available = await checkUsernameAvailable(lower);
+        setUsernameStatus(available ? "available" : "unavailable");
+      } catch {
+        setUsernameStatus("idle");
+      }
+    }, 500);
+  };
+
+  const handleSaveUsername = async () => {
+    if (!userDb || usernameStatus !== "available") return;
+    setSavingUsername(true);
+    setSaveError(null);
+    try {
+      await updateUsername(userDb.id, usernameInput);
+      setUserDb({ ...userDb, username: usernameInput });
+      setEditingUsername(false);
+      setUsernameStatus("idle");
+    } catch {
+      setSaveError("Erro ao salvar. Tente novamente.");
+    } finally {
+      setSavingUsername(false);
+    }
+  };
 
   const handleLogout = async () => {
     const confirmed = window.confirm(t("nav.logoutWarning"));
@@ -164,6 +245,84 @@ function AccountSection({ flat }: { flat?: boolean }) {
     await logout();
     navigate({ to: "/" });
   };
+
+  const usernameStatusEl = (() => {
+    if (usernameStatus === "checking")
+      return (
+        <span className="text-muted-foreground flex items-center gap-1 text-xs">
+          <Loader className="size-3 animate-spin" /> Verificando…
+        </span>
+      );
+    if (usernameStatus === "available")
+      return (
+        <span className="flex items-center gap-1 text-xs text-green-600">
+          <Check className="size-3" /> Disponível
+        </span>
+      );
+    if (usernameStatus === "unavailable")
+      return (
+        <span className="text-destructive flex items-center gap-1 text-xs">
+          <X className="size-3" /> Já em uso
+        </span>
+      );
+    if (usernameStatus === "invalid")
+      return (
+        <span className="text-muted-foreground text-xs">
+          3–30 caracteres: letras minúsculas, números e _
+        </span>
+      );
+    return null;
+  })();
+
+  const usernameBlock = editingUsername ? (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground text-sm">@</span>
+        <input
+          value={usernameInput}
+          onChange={(e) => handleUsernameChange(e.target.value)}
+          placeholder="seu_username"
+          maxLength={30}
+          autoFocus
+          className="border-input bg-background min-w-0 flex-1 rounded-md border px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-green-600"
+        />
+        <button
+          onClick={handleSaveUsername}
+          disabled={usernameStatus !== "available" || savingUsername}
+          className="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-opacity disabled:opacity-40"
+        >
+          {savingUsername ? (
+            <Loader className="size-3 animate-spin" />
+          ) : (
+            <Check className="size-3" />
+          )}
+          Salvar
+        </button>
+        <button
+          onClick={handleCancelEdit}
+          className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+      {usernameStatusEl}
+      {saveError && <p className="text-destructive text-xs">{saveError}</p>}
+    </div>
+  ) : (
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm font-medium">@{userDb?.username}</p>
+        <p className="text-muted-foreground text-xs">Identificador público</p>
+      </div>
+      <button
+        onClick={handleStartEdit}
+        className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
+        title="Editar username"
+      >
+        <Pencil className="size-4" />
+      </button>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -186,6 +345,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
                 </p>
               </div>
             </div>
+            <div className="py-2">{usernameBlock}</div>
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
@@ -215,6 +375,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
                 </p>
               </div>
             </div>
+            <div className="px-5 py-3.5">{usernameBlock}</div>
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
@@ -263,7 +424,10 @@ function TreeSection({
         title="Exibir nós sem descendentes"
         description="Por padrão, apenas nós com descendentes são exibidos. Ative para mostrar todos os nós."
       >
-        <Toggle checked={showEmptyNodes} onCheckedChange={toggleShowEmptyNodes} />
+        <Toggle
+          checked={showEmptyNodes}
+          onCheckedChange={toggleShowEmptyNodes}
+        />
       </SettingRow>
       <SettingRow
         title="Exibir badge de rank"
@@ -280,7 +444,11 @@ function TreeSection({
         title="Árvore Taxonômica"
         description="Controle como a árvore taxonômica é exibida."
       />
-      {flat ? rows : <div className="divide-y rounded-xl border px-5">{rows}</div>}
+      {flat ? (
+        rows
+      ) : (
+        <div className="divide-y rounded-xl border px-5">{rows}</div>
+      )}
     </div>
   );
 }
@@ -455,7 +623,12 @@ export const SettingsPage = () => {
       ? (section as SectionId)
       : "account";
 
-  const { showEmptyNodes, toggleShowEmptyNodes, showRankBadge, toggleShowRankBadge } = useUserSettings();
+  const {
+    showEmptyNodes,
+    toggleShowEmptyNodes,
+    showRankBadge,
+    toggleShowRankBadge,
+  } = useUserSettings();
   const [audio, setAudio] = useAtom(audioSettingsAtom);
   const [clearing, setClearing] = useState(false);
   const [cleared, setCleared] = useState(false);

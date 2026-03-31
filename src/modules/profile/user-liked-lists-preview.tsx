@@ -10,13 +10,14 @@ import { ListPreviewCard } from "@/modules/lists/list-preview-card";
 const DEFAULT_LIMIT = 2;
 const EXPANDED_LIMIT = 10;
 
-export const UserLikedListsPreview = () => {
+export const UserLikedListsPreview = ({ userId }: { userId?: string }) => {
   const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
   const [expanded, setExpanded] = useState(false);
 
+  const targetUserId = userId ?? userDb?.id;
   const limit = expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT + 1;
-  const { data } = useGetUserLikedLists(userDb?.id, limit);
+  const { data } = useGetUserLikedLists(targetUserId, limit);
 
   const lists = data?.rows ?? [];
   const visibleLists = expanded ? lists : lists.slice(0, DEFAULT_LIMIT);
@@ -62,7 +63,7 @@ export const UserLikedListsPreview = () => {
         }`}
       >
         {visibleLists.map((list) => (
-          <ListPreviewCard key={list.id} list={list} />
+          <ListPreviewCard key={list.id} list={list} username={list.user_username} />
         ))}
       </div>
     </div>

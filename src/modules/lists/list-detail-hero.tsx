@@ -16,6 +16,7 @@ import { ListLikeButton } from "./list-like-button";
 import { useTranslation } from "react-i18next";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import type { ListWithCreator } from "@/common/types/lists";
+import { Link } from "@tanstack/react-router";
 
 type ListDetailHeroProps = {
   list: ListWithCreator;
@@ -64,7 +65,18 @@ export const ListDetailHero = ({
                 </AvatarFallback>
               </Avatar>
               <span className="text-muted-foreground text-sm">
-                Lista criada {t("lists.by")} {list.user_name || "—"}
+                Lista criada {t("lists.by")}{" "}
+                {list.user_username ? (
+                  <Link
+                    to="/$username"
+                    params={{ username: list.user_username }}
+                    className="hover:text-foreground font-medium transition-colors"
+                  >
+                    @{list.user_username}
+                  </Link>
+                ) : (
+                  list.user_name || "—"
+                )}
               </span>
             </div>
 

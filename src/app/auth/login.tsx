@@ -14,6 +14,7 @@ import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/auth/use-auth-profile";
 import { authStore } from "@/store/auth/atoms";
+import { getDefaultStore } from "jotai";
 
 const GoogleLogo = (
   <svg className="mr-3 size-5" viewBox="0 0 24 24">
@@ -45,17 +46,26 @@ export const Login = () => {
   const authError = useAtomValue(authStore.error);
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
 
+  const getUsername = () =>
+    getDefaultStore().get(authStore.userDb)?.username ?? "";
+
   useEffect(() => {
     if (isAuthenticated) {
-      router.navigate({ to: "/profile" });
+      router.navigate({
+        to: "/$username",
+        params: { username: getUsername() },
+      });
     }
-  }, [isAuthenticated, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   const handleLogin = async () => {
     const result = await login("google");
-
     if (result.success) {
-      router.navigate({ to: "/profile" });
+      router.navigate({
+        to: "/$username",
+        params: { username: getUsername() },
+      });
     }
   };
 
@@ -92,7 +102,8 @@ export const Login = () => {
             >
               {isLoggingIn ? (
                 <>
-                  <Loader2 className="mr-2 size-5 animate-spin" /> {t("auth.signingIn")}
+                  <Loader2 className="mr-2 size-5 animate-spin" />{" "}
+                  {t("auth.signingIn")}
                 </>
               ) : (
                 <>
@@ -136,13 +147,13 @@ export const Login = () => {
             </div>
           </CardContent>
 
-          <div className="space-y-4 border-t border-border p-6 pb-1 text-muted-foreground">
+          <div className="border-border text-muted-foreground space-y-4 border-t p-6 pb-1">
             <p className="text-center text-sm leading-relaxed">
               {t("auth.continueWithoutLogin")}
             </p>
 
             <Button
-              className="h-11 w-full border border-border font-medium transition-all duration-200"
+              className="border-border h-11 w-full border font-medium transition-all duration-200"
               variant="outline"
               aria-label={t("auth.backAriaLabel")}
               onClick={handleBack}

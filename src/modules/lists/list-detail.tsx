@@ -26,10 +26,11 @@ import {
 } from "@/common/components/ui/dialog";
 
 type ListDetailProps = {
-  listId: string;
+  username: string;
+  listSlug: string;
 };
 
-export const ListDetail = ({ listId }: ListDetailProps) => {
+export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
@@ -38,16 +39,16 @@ export const ListDetail = ({ listId }: ListDetailProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  const { data: list, isLoading: loadingDetail } = useGetListDetail(listId);
+  const { data: list, isLoading: loadingDetail } = useGetListDetail(username, listSlug);
   const {
     data: speciesData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useGetListSpecies(listId);
+  } = useGetListSpecies(list?.id);
 
   const { mutate: doDelete, isPending: deleting } = useDeleteList();
-  const { mutate: doUpdate } = useUpdateList(listId);
+  const { mutate: doUpdate } = useUpdateList(list?.id ?? "");
 
   const allSpecies = useMemo(
     () => speciesData?.pages.flatMap((p) => p.rows) ?? [],
@@ -57,14 +58,15 @@ export const ListDetail = ({ listId }: ListDetailProps) => {
   const isOwner = !!userDb && !!list && userDb.id === list.user_id;
 
   const handleBack = useCallback(() => {
-    navigate({ to: "/lists" });
-  }, [navigate]);
+    navigate({ to: "/$username/lists", params: { username } });
+  }, [navigate, username]);
 
   const handleDelete = () => {
-    doDelete(listId, {
+    if (!list) return;
+    doDelete(list.id, {
       onSuccess: () => {
         toast.success(t("lists.listDeleted"));
-        navigate({ to: "/lists" });
+        navigate({ to: "/$username/lists", params: { username } });
       },
     });
   };

@@ -4,29 +4,41 @@ import { authStore } from "@/store/auth/atoms";
 import {
   fetchUserAchievements,
   fetchAchievementProgress,
+  type UserAchievementRow,
 } from "@/common/utils/supabase/user-achievements";
+import { supabase } from "@/common/utils/supabase/client";
 import { QUERY_KEYS } from "./keys";
 
-export const useGetUserAchievements = () => {
+export const useGetUserAchievements = (userId?: string) => {
   const session = useAtomValue(authStore.session);
-  const userId = session?.user?.id;
+  const sessionUserId = session?.user?.id;
+  const targetUserId = userId ?? sessionUserId;
 
   return useQuery({
-    queryKey: [QUERY_KEYS.user_achievements_key, userId],
-    queryFn: () => fetchUserAchievements(userId!),
-    enabled: !!userId,
-    staleTime: 1000 * 60 * 5, // 5 min
+    queryKey: [QUERY_KEYS.user_achievements_key, targetUserId],
+    queryFn: async () => {
+      if (userId) {
+        const { data, error } = await supabase.rpc("get_public_achievements", {
+          p_user_id: userId,
+        });
+        if (error) throw error;
+        return (data ?? []) as UserAchievementRow[];
+      }
+      return fetchUserAchievements(sessionUserId!);
+    },
+    enabled: !!targetUserId,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
-export const useGetAchievementProgress = () => {
+export const useGetAchievementProgress = (userId?: string) => {
   const session = useAtomValue(authStore.session);
-  const userId = session?.user?.id;
+  const sessionUserId = session?.user?.id;
 
   return useQuery({
-    queryKey: [QUERY_KEYS.achievement_progress_key, userId],
-    queryFn: () => fetchAchievementProgress(userId!),
-    enabled: !!userId,
+    queryKey: [QUERY_KEYS.achievement_progress_key, sessionUserId],
+    queryFn: () => fetchAchievementProgress(sessionUserId!),
+    enabled: !userId && !!sessionUserId,
     staleTime: 1000 * 60 * 5,
   });
 };

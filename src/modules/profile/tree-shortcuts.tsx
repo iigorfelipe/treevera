@@ -13,7 +13,13 @@ import type { PathNode } from "@/common/types/tree-atoms";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { useTranslation } from "react-i18next";
 
-export const TreeShortcuts = () => {
+export const TreeShortcuts = ({
+  shortcuts: shortcutsProp,
+  isOwner = true,
+}: {
+  shortcuts?: Shortcuts;
+  isOwner?: boolean;
+}) => {
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const { navigateToNodes } = useTreeNavigation();
@@ -29,6 +35,55 @@ export const TreeShortcuts = () => {
   useEffect(() => {
     if (editName.isEdit && inputRef.current) inputRef.current.focus();
   }, [editName.isEdit]);
+
+  if (!isOwner) {
+    if (!shortcutsProp) return null;
+    const kingdoms = Object.keys(shortcutsProp) as (keyof Shortcuts)[];
+    if (kingdoms.every((k) => !shortcutsProp[k]?.length)) return null;
+
+    return (
+      <div className="space-y-3">
+        <h2 className="border-b">{t("shortcuts.title")}</h2>
+        {kingdoms.map((kingdom) => {
+          const kShortcuts = shortcutsProp[kingdom];
+          if (!kShortcuts?.length) return null;
+          return (
+            <div key={kingdom} className="space-y-3">
+              {kShortcuts.map((shortcut, index) => {
+                if (!shortcut?.nodes) return null;
+                return (
+                  <div
+                    key={index}
+                    className="hover:bg-muted/50 flex cursor-pointer items-center rounded-md border py-1 pl-2.5 pr-3"
+                    onClick={() => navigateToNodes(shortcut.nodes, true)}
+                  >
+                    <figure className="flex size-6 shrink-0 items-center">
+                      <Image
+                        src={getRankIcon(KEY_KINGDOM_BY_NAME[kingdom])}
+                        alt={`${kingdom} icon`}
+                        className="size-5"
+                      />
+                    </figure>
+                    <div className="ml-2 min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{shortcut.name}</p>
+                      <span className="text-muted-foreground block truncate text-xs leading-tight">
+                        {shortcut.nodes.map((node, i) => (
+                          <Fragment key={node.key}>
+                            {node.name ?? node.rank}
+                            {i < shortcut.nodes.length - 1 && " > "}
+                          </Fragment>
+                        ))}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   if (!userDb) return null;
 

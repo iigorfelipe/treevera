@@ -5,16 +5,22 @@ import type { ListPreview } from "@/common/types/lists";
 
 type ListPreviewCardProps = {
   list: ListPreview;
+  username: string;
 };
 
-export const ListPreviewCard = ({ list }: ListPreviewCardProps) => {
+export const ListPreviewCard = ({ list, username }: ListPreviewCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <div
-      onClick={() => navigate({ to: "/lists/$listId", params: { listId: list.id } })}
-      className="flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors hover:bg-muted/50"
+      onClick={() =>
+        navigate({
+          to: "/$username/lists/$listSlug",
+          params: { username, listSlug: list.slug },
+        })
+      }
+      className="hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors"
     >
       <div className="bg-muted flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg">
         {list.cover_image_url ? (

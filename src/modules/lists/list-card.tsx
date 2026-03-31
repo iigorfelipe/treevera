@@ -1,5 +1,5 @@
 import { ImageOff } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { ListLikeButton } from "./list-like-button";
 import { formatActivityDate } from "@/common/utils/date-formats";
@@ -16,7 +16,7 @@ export const ListCard = ({ list }: ListCardProps) => {
   return (
     <div
       onClick={() =>
-        navigate({ to: "/lists/$listId", params: { listId: list.id } })
+        navigate({ to: "/$username/lists/$listSlug", params: { username: list.user_username, listSlug: list.slug } })
       }
       className="group bg-card flex cursor-pointer items-center gap-4 rounded-xl border p-3 shadow-sm transition-all duration-300 hover:shadow-md"
     >
@@ -38,7 +38,19 @@ export const ListCard = ({ list }: ListCardProps) => {
           {list.title}
         </h3>
         <p className="text-muted-foreground mt-0.5 text-xs">
-          {t("lists.by")} {list.user_name || "—"}
+          {t("lists.by")}{" "}
+          {list.user_username ? (
+            <Link
+              to="/$username"
+              params={{ username: list.user_username }}
+              onClick={(e) => e.stopPropagation()}
+              className="hover:text-foreground font-medium transition-colors"
+            >
+              @{list.user_username}
+            </Link>
+          ) : (
+            list.user_name || "—"
+          )}
         </p>
         <p className="text-muted-foreground mt-1 text-xs">
           {list.species_count} {t("lists.species")} ·{" "}

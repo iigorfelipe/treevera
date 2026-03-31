@@ -14,6 +14,7 @@ import {
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useGetPublicLists } from "@/hooks/queries/useGetLists";
+import { slugify } from "@/common/utils/slugify";
 import { ListCard } from "./list-card";
 import { ListCreateDialog } from "./list-create-dialog";
 
@@ -23,6 +24,7 @@ export const ListsPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
+  const userDb = useAtomValue(authStore.userDb);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -39,7 +41,7 @@ export const ListsPage = () => {
     return () => clearTimeout(id);
   }, [searchQuery]);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useGetPublicLists({
       sort: sortMode,
       search: debouncedSearch || undefined,
@@ -67,13 +69,18 @@ export const ListsPage = () => {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleListCreated = (listId: string) => {
+  const handleListCreated = (_listId: string, title: string) => {
     setCreateOpen(false);
-    navigate({ to: "/lists/$listId", params: { listId } });
+    if (userDb?.username) {
+      navigate({
+        to: "/$username/lists/$listSlug",
+        params: { username: userDb.username, listSlug: slugify(title) },
+      });
+    }
   };
 
   const handleClose = useCallback(() => {
-    navigate({ to: "/profile" });
+    navigate({ to: "/" });
   }, [navigate]);
 
   return (
@@ -158,7 +165,13 @@ export const ListsPage = () => {
       </motion.div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        {allLists.length === 0 && !isFetchingNextPage ? (
+        {isLoading ? (
+          <div className="space-y-3 p-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-muted animate-pulse flex items-center gap-4 rounded-xl border p-3 h-22" />
+            ))}
+          </div>
+        ) : allLists.length === 0 && !isFetchingNextPage ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground text-center">
               <ListX className="mb-3 size-16 opacity-30" />

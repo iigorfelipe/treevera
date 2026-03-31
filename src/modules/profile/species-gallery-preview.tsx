@@ -2,6 +2,8 @@ import { Button } from "@/common/components/ui/button";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import { Images, ChevronRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { useAtomValue } from "jotai";
+import { authStore } from "@/store/auth/atoms";
 import { useTranslation } from "react-i18next";
 import { useGetRecentSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
@@ -29,15 +31,25 @@ const SpecieItem = ({
   );
 };
 
-export const SpeciesGalleryPreview = () => {
+export const SpeciesGalleryPreview = ({
+  userId,
+  profileUsername,
+}: {
+  userId?: string;
+  profileUsername?: string;
+}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: seenSpecies = [], isLoading } = useGetRecentSeenSpecies(4);
+  const userDb = useAtomValue(authStore.userDb);
+  const { data: seenSpecies = [], isLoading } = useGetRecentSeenSpecies(4, userId);
 
   if (isLoading) return null;
 
   const handleOpenGallery = () => {
-    navigate({ to: "/profile/species-gallery" });
+    const target = profileUsername ?? userDb?.username;
+    if (target) {
+      navigate({ to: "/$username/species-gallery", params: { username: target } });
+    }
   };
 
   return (

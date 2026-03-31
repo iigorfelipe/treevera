@@ -69,11 +69,14 @@ export function useGetPublicLists(options: {
   });
 }
 
-export function useGetListDetail(listId: string | undefined) {
+export function useGetListDetail(
+  username: string | undefined,
+  slug: string | undefined,
+) {
   return useQuery({
-    queryKey: [QUERY_KEYS.list_detail_key, listId],
-    queryFn: () => fetchListDetail(listId!),
-    enabled: !!listId,
+    queryKey: [QUERY_KEYS.list_detail_key, username, slug],
+    queryFn: () => fetchListDetail(username!, slug!),
+    enabled: !!username && !!slug,
     staleTime: 5 * 60_000,
   });
 }
@@ -93,23 +96,21 @@ export function useGetListSpecies(listId: string | undefined) {
   });
 }
 
-export function useToggleListLike(listId: string) {
+export function useToggleListLike(
+  listId: string,
+  username?: string,
+  slug?: string,
+) {
   const queryClient = useQueryClient();
+  const detailKey = [QUERY_KEYS.list_detail_key, username, slug];
 
   return useMutation({
     mutationFn: () => toggleListLike(listId),
     onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: [QUERY_KEYS.list_detail_key, listId],
-      });
-
-      const previous = queryClient.getQueryData<ListWithCreator>([
-        QUERY_KEYS.list_detail_key,
-        listId,
-      ]);
-
+      await queryClient.cancelQueries({ queryKey: detailKey });
+      const previous = queryClient.getQueryData<ListWithCreator>(detailKey);
       if (previous) {
-        queryClient.setQueryData([QUERY_KEYS.list_detail_key, listId], {
+        queryClient.setQueryData(detailKey, {
           ...previous,
           is_liked: !previous.is_liked,
           likes_count: previous.is_liked
@@ -117,21 +118,15 @@ export function useToggleListLike(listId: string) {
             : previous.likes_count + 1,
         });
       }
-
       return { previous };
     },
     onError: (_err, _vars, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(
-          [QUERY_KEYS.list_detail_key, listId],
-          context.previous,
-        );
+        queryClient.setQueryData(detailKey, context.previous);
       }
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.list_detail_key, listId],
-      });
+      void queryClient.invalidateQueries({ queryKey: detailKey });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.public_lists_key],
       });

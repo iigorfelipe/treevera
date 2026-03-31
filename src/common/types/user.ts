@@ -29,7 +29,7 @@ export type Shortcuts = {
   plantae: ShortCut[];
 };
 
-type Progress = {
+export type Progress = {
   exploited_species: number;
   challenges_completed: number;
   accuracy_of_hits: number;
@@ -38,7 +38,7 @@ type Progress = {
   global_ranking: number;
 };
 
-type Achievements = {
+export type Achievements = {
   unlocked: string[];
   locked: { nome: string; progress: number }[];
 };
@@ -58,10 +58,25 @@ type GameInfo = {
 
 export type DbUser = {
   id: SupabaseUser["id"];
+  username: string;
   email: SupabaseUser["email"];
   name: SupabaseUser["user_metadata"]["full_name"];
   avatar_url: SupabaseUser["user_metadata"]["avatar_url"];
   provider: string;
   created_at: SupabaseUser["created_at"];
   game_info: GameInfo;
+};
+
+export type PublicProfile = {
+  id: string;
+  username: string;
+  name: string;
+  avatar_url: string | null;
+  created_at: string;
+  public_info: {
+    progress?: Progress;
+    top_fav_species?: FavSpecies[];
+    achievements?: Achievements;
+    shortcuts?: Shortcuts;
+  };
 };

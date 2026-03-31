@@ -54,7 +54,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
         <DropdownMenuTrigger asChild className="group cursor-pointer">
           <div className="rounded-full">
             {isAuthenticated && userDb ? (
-              <Avatar className={isProfilePage ? "size-12" : "size-8"}>
+              <Avatar className={isProfilePage ? "size-16" : "size-8"}>
                 <AvatarImage src={userDb.avatar_url} alt="User" />
                 <AvatarFallback className="bg-green-600 text-xs text-white">
                   {userDb.name[0]}
@@ -90,7 +90,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                       if (!confirmed) return;
                     }
                     setChallenge({ mode: null, status: "NOT_STARTED" });
-                    navigate({ to: "/profile" });
+                    navigate({ to: "/$username", params: { username: userDb.username } });
                   }}
                 >
                   <div className="flex flex-col gap-2">
@@ -141,6 +141,8 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
               </Link>
             </DropdownMenuItem>
 
+            <DropdownMenuSeparator />
+
             <DropdownMenuItem onClick={() => navigate({ to: "/lists" })}>
               <div className="flex w-full items-center">
                 <List className="mr-2 size-4" /> {t("lists.title")}
@@ -150,7 +152,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
-              <Settings className="mr-2 size-4" />
+              <Settings className="size-4" />
               <span>Configurações</span>
             </DropdownMenuItem>
 
