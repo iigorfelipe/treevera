@@ -15,6 +15,7 @@ import { SpecieDetailPage } from "@/app/details/specie-detail-page";
 import { SettingsPage } from "@/app/settings";
 import { ListsPageRoute } from "@/app/lists";
 import { ListDetailPageRoute } from "@/app/lists/list-detail";
+import { ListLikesPage } from "@/app/lists/list-likes";
 import { ProfileRouter } from "@/app/profile-router";
 import { SpeciesGalleryPageRouter } from "@/app/user-profile/species-gallery";
 import { UserListsPage } from "@/app/user-lists";
@@ -231,6 +232,12 @@ const listDetailRoute = createRoute({
   component: ListDetailPageRoute,
 });
 
+const listLikesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/$username/lists/$listSlug/likes",
+  component: ListLikesPage,
+});
+
 const routeTree = rootRoute.addChildren([
   authRoute,
   homeRoute,
@@ -268,6 +275,7 @@ const routeTree = rootRoute.addChildren([
   userSpeciesGalleryRoute,
   userListsRoute,
   listDetailRoute,
+  listLikesRoute,
 ]);
 
 export const router = createRouter({

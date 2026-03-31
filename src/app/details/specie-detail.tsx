@@ -345,20 +345,22 @@ export const SpecieDetail = ({
                   transition={{ delay: 0.3 }}
                   className="flex flex-col gap-2"
                 >
+                  <ShareButton
+                    specieKey={specieKey!}
+                    canonicalName={specieDetail.canonicalName}
+                  />
                   {specieKey && (
                     <AddToListButton
                       gbifKey={specieKey}
                       speciesName={specieDetail.canonicalName}
                     />
                   )}
-                  {specieKey && <ListsWithSpecies gbifKey={specieKey} />}
-                  <ShareButton
-                    specieKey={specieKey!}
-                    canonicalName={specieDetail.canonicalName}
-                  />
-                  <p className="text-muted-foreground text-center text-xs">
-                    {t("specieDetail.dataProvidedBy")}
-                  </p>
+
+                  {specieKey && (
+                    <div className="pt-4">
+                      <ListsWithSpecies gbifKey={specieKey} />
+                    </div>
+                  )}
                 </motion.div>
               </div>
             </div>

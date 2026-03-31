@@ -95,7 +95,8 @@
     "title": "SEEN SPECIES",
     "openGallery": "Open gallery",
     "emptyTitle": "Your gallery is empty",
-    "emptyHint": "Explore species to fill it!"
+    "emptyHint": "Explore species to fill it!",
+    "emptyTitleOf": "{{username}} hasn't explored any species yet"
   },
 
   "favSpecies": {
@@ -121,6 +122,7 @@
     "favorites": "Favorites",
     "noSpeciesFound": "No species found",
     "noFavorites": "You have no favorites yet",
+    "noFavoritesOf": "{{username}} has no favorites yet",
     "adjustFilters": "Try adjusting the filters",
     "noImage": "No image",
     "photosFirst": "Photos first"
@@ -289,7 +291,8 @@
 
   "lists": {
     "title": "Lists",
-    "myLists": "MY LISTS",
+    "myLists": "My lists",
+    "listsOf": "{{username}}'s lists",
     "likedLists": "LIKED LISTS",
     "create": "Create List",
     "createTitle": "New List",
@@ -315,12 +318,18 @@
     "adjustFilters": "Try adjusting the filters",
     "emptyMyLists": "No lists created",
     "emptyMyListsHint": "Create your first species list!",
+    "emptyListsOf": "{{username}} hasn't created any lists yet",
     "emptyLikedLists": "No liked lists",
     "emptyLikedListsHint": "Explore and like other users' lists!",
+    "emptyLikedListsOf": "{{username}} hasn't liked any lists yet",
     "loginToLike": "Log in to like",
     "loginToCreate": "Log in to create lists",
     "expand": "Expand",
     "collapse": "Collapse",
+    "viewAll": "View all",
+    "likesTitle": "Likes",
+    "people": "people",
+    "noLikesYet": "No likes yet",
     "backToLists": "Back to lists",
     "addToList": "Add to a list",
     "addSpecies": "Add species",

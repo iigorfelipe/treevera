@@ -41,14 +41,20 @@ export const SpeciesGalleryPreview = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
-  const { data: seenSpecies = [], isLoading } = useGetRecentSeenSpecies(4, userId);
+  const { data: seenSpecies = [], isLoading } = useGetRecentSeenSpecies(
+    4,
+    userId,
+  );
 
   if (isLoading) return null;
 
   const handleOpenGallery = () => {
     const target = profileUsername ?? userDb?.username;
     if (target) {
-      navigate({ to: "/$username/species-gallery", params: { username: target } });
+      navigate({
+        to: "/$username/species-gallery",
+        params: { username: target },
+      });
     }
   };
 
@@ -72,19 +78,23 @@ export const SpeciesGalleryPreview = ({
         <div className="text-muted-foreground py-8 text-center">
           <Images className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
           <div className="mb-1 text-sm font-medium">
-            {t("seenSpecies.emptyTitle")}
+            {profileUsername
+              ? t("seenSpecies.emptyTitleOf", { username: profileUsername })
+              : t("seenSpecies.emptyTitle")}
           </div>
-          <div className="text-xs">{t("seenSpecies.emptyHint")}</div>
+          {!profileUsername && (
+            <div className="text-xs">{t("seenSpecies.emptyHint")}</div>
+          )}
         </div>
       ) : (
         seenSpecies.map((species) => (
-            <SpecieItem
-              key={species.gbif_key}
-              canonicalName={species.canonical_name}
-              family={species.family}
-              date={species.seen_at}
-            />
-          ))
+          <SpecieItem
+            key={species.gbif_key}
+            canonicalName={species.canonical_name}
+            family={species.family}
+            date={species.seen_at}
+          />
+        ))
       )}
     </div>
   );

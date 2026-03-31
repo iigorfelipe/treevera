@@ -39,7 +39,10 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  const { data: list, isLoading: loadingDetail } = useGetListDetail(username, listSlug);
+  const { data: list, isLoading: loadingDetail } = useGetListDetail(
+    username,
+    listSlug,
+  );
   const {
     data: speciesData,
     fetchNextPage,
@@ -58,8 +61,8 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const isOwner = !!userDb && !!list && userDb.id === list.user_id;
 
   const handleBack = useCallback(() => {
-    navigate({ to: "/$username/lists", params: { username } });
-  }, [navigate, username]);
+    window.history.back();
+  }, []);
 
   const handleDelete = () => {
     if (!list) return;

@@ -1,14 +1,13 @@
-import { useState } from "react";
 import { Button } from "@/common/components/ui/button";
-import { ChevronDown, ChevronUp, List } from "lucide-react";
+import { List } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useGetUserLists } from "@/hooks/queries/useGetLists";
 import { ListPreviewCard } from "@/modules/lists/list-preview-card";
+import { useNavigate } from "@tanstack/react-router";
 
-const DEFAULT_LIMIT = 2;
-const EXPANDED_LIMIT = 10;
+const LIMIT = 2;
 
 export const UserListsPreview = ({
   userId,
@@ -18,17 +17,17 @@ export const UserListsPreview = ({
   username?: string;
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
-  const [expanded, setExpanded] = useState(false);
 
   const targetUserId = userId ?? userDb?.id;
   const targetUsername = username ?? userDb?.username ?? "";
-  const limit = expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT + 1;
-  const { data } = useGetUserLists(targetUserId, limit);
+  const isOwner = !username || username === userDb?.username;
+  const { data } = useGetUserLists(targetUserId, LIMIT + 1);
 
-  const lists = data?.rows ?? [];
-  const visibleLists = expanded ? lists : lists.slice(0, DEFAULT_LIMIT);
-  const shouldShowButton = lists.length > DEFAULT_LIMIT;
+  const lists = (data?.rows ?? []).slice(0, LIMIT);
+  const totalCount = data?.totalCount ?? 0;
+  const shouldShowButton = totalCount > LIMIT;
 
   return (
     <div className="space-y-3">
@@ -40,36 +39,34 @@ export const UserListsPreview = ({
             variant="ghost"
             size="sm"
             className="text-muted-foreground h-7 px-2 text-xs"
-            onClick={() => setExpanded((prev) => !prev)}
+            onClick={() =>
+              navigate({
+                to: "/$username/lists",
+                params: { username: targetUsername },
+              })
+            }
           >
-            {expanded ? t("lists.collapse") : t("lists.expand")}
-            {expanded ? (
-              <ChevronUp className="ml-1 size-3" />
-            ) : (
-              <ChevronDown className="ml-1 size-3" />
-            )}
+            {t("lists.viewAll")}
           </Button>
         )}
       </div>
 
-      {visibleLists.length === 0 ? (
+      {lists.length === 0 ? (
         <div className="text-muted-foreground py-8 text-center">
           <List className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
           <div className="mb-1 text-sm font-medium">
-            {t("lists.emptyMyLists")}
+            {isOwner
+              ? t("lists.emptyMyLists")
+              : t("lists.emptyListsOf", { username: targetUsername })}
           </div>
-          <div className="text-xs">{t("lists.emptyMyListsHint")}</div>
+          {isOwner && (
+            <div className="text-xs">{t("lists.emptyMyListsHint")}</div>
+          )}
         </div>
       ) : null}
 
-      <div
-        className={`space-y-2 ${
-          expanded && lists.length > DEFAULT_LIMIT
-            ? "max-h-100 overflow-y-auto pr-1"
-            : ""
-        }`}
-      >
-        {visibleLists.map((list) => (
+      <div className="space-y-2">
+        {lists.map((list) => (
           <ListPreviewCard
             key={list.id}
             list={list}

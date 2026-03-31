@@ -44,40 +44,6 @@ export const FavoriteSpecies = ({
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const navigate = useNavigate();
-
-  if (!isOwner) {
-    const publicKeys = favSpecies?.map((f) => f.key) ?? [];
-    const emptyCount = Math.max(0, 4 - publicKeys.length);
-    return (
-      <div className="space-y-3">
-        <h2 className="border-b pb-1">{t("favSpecies.title")}</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {favSpecies?.map((f) => (
-            <FilledFavCard
-              key={f.key}
-              specieKey={f.key}
-              specieName={f.name}
-              familyName={f.family ?? ""}
-              imgUrl={f.img ?? null}
-              editMode={false}
-              onClick={() =>
-                navigate({
-                  to: "/specie-detail/$specieKey",
-                  params: { specieKey: String(f.key) },
-                  search: { from: "profile" },
-                })
-              }
-              onRemove={() => {}}
-            />
-          ))}
-          {Array.from({ length: emptyCount }).map((_, idx) => (
-            <EmptyFavCard key={`empty-${idx}`} editMode={false} />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   const checkAchievements = useCheckAchievements();
   const [editMode, setEditMode] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -136,6 +102,39 @@ export const FavoriteSpecies = ({
     observer.observe(pickerSentinelRef.current);
     return () => observer.disconnect();
   }, [pickerOpen, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  if (!isOwner) {
+    const publicKeys = favSpecies?.map((f) => f.key) ?? [];
+    const emptyCount = Math.max(0, 4 - publicKeys.length);
+    return (
+      <div className="space-y-3">
+        <h2 className="border-b pb-1">{t("favSpecies.title")}</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          {favSpecies?.map((f) => (
+            <FilledFavCard
+              key={f.key}
+              specieKey={f.key}
+              specieName={f.name}
+              familyName={f.family ?? ""}
+              imgUrl={f.img ?? null}
+              editMode={false}
+              onClick={() =>
+                navigate({
+                  to: "/specie-detail/$specieKey",
+                  params: { specieKey: String(f.key) },
+                  search: { from: "profile" },
+                })
+              }
+              onRemove={() => {}}
+            />
+          ))}
+          {Array.from({ length: emptyCount }).map((_, idx) => (
+            <EmptyFavCard key={`empty-${idx}`} editMode={false} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const emptySlotCount = Math.max(0, 4 - topFavKeys.length);
 

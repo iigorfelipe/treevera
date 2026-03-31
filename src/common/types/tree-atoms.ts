@@ -12,6 +12,11 @@ export type ChallengeCompletionData = {
   stepInteractions: Record<number, Partial<Record<string, boolean>>>;
 };
 
+export type ChallengeErrorTracking = {
+  count: number;
+  perStep: number[];
+};
+
 export type Challenge = {
   mode: ChallengeMode;
   status: ChallengeStatus;
@@ -20,6 +25,9 @@ export type Challenge = {
   challengeDate?: string;
   completionData?: ChallengeCompletionData;
   replayId?: number;
+  startedAt?: number;
+  errorTracking?: ChallengeErrorTracking;
+  stepInteractions?: Record<number, Partial<Record<string, boolean>>>;
 };
 
 export type PathNode = {

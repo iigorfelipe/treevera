@@ -14,6 +14,7 @@ import {
   fetchListDetail,
   fetchListSpecies,
   fetchListsWithSpecies,
+  fetchListLikers,
   toggleListLike,
   createList,
   updateList,
@@ -231,6 +232,18 @@ export function useGetListsWithSpecies(gbifKey: number | undefined) {
     queryFn: () => fetchListsWithSpecies(gbifKey!),
     enabled: !!gbifKey,
     staleTime: 5 * 60_000,
+  });
+}
+
+export function useGetListLikers(
+  username: string | undefined,
+  slug: string | undefined,
+) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.list_likers_key, username, slug],
+    queryFn: () => fetchListLikers(username!, slug!),
+    enabled: !!username && !!slug,
+    staleTime: 2 * 60_000,
   });
 }
 

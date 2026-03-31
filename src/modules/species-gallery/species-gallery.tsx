@@ -273,7 +273,9 @@ export const SpeciesGallery = ({
               </p>
               <p className="text-sm">
                 {showOnlyFavorites
-                  ? t("gallery.noFavorites")
+                  ? backUsername
+                    ? t("gallery.noFavoritesOf", { username: backUsername })
+                    : t("gallery.noFavorites")
                   : t("gallery.adjustFilters")}
               </p>
             </div>

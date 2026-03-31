@@ -12,7 +12,9 @@ export const useChallengeAudio = () => {
 
   const correctPath = useAtomValue(treeAtom.challengeCorrectPath);
 
-  const prevNodeKeysRef = useRef<Set<number>>(new Set());
+  const prevNodeKeysRef = useRef<Set<number>>(
+    new Set(expandedNodes.map((n) => n.key)),
+  );
 
   useEffect(() => {
     if (challengeStatus !== "IN_PROGRESS") return;
@@ -27,7 +29,7 @@ export const useChallengeAudio = () => {
 
     const isNewNode = !prevNodeKeysRef.current.has(lastNode.key);
 
-    prevNodeKeysRef.current = new Set(expandedNodes.map((n) => n.key));
+    expandedNodes.forEach((n) => prevNodeKeysRef.current.add(n.key));
 
     if (!isNewNode) return;
 

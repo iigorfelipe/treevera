@@ -35,11 +35,6 @@ import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { validateChallengeParents } from "@/common/utils/game/validate-challenge-species";
 import { deactivateChallengeSpecies } from "@/common/utils/supabase/challenge/deactivate-challenge-species";
 
-type StepInteractions = Record<
-  number,
-  Partial<Record<StepInteractionType, boolean>>
->;
-
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
 export const RandomChallengeInProgress = () => {
@@ -85,6 +80,9 @@ export const RandomChallengeInProgress = () => {
       status: "IN_PROGRESS",
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
     });
   }, [session, setChallenge, setExpandedNodes, navigate]);
 
@@ -140,14 +138,10 @@ export const RandomChallengeInProgress = () => {
   const isCompleted =
     correctPath.length > 0 && correctSteps === correctPath.length;
 
-  const [startedAt] = useState(() => Date.now());
-  const [errorTracking, setErrorTracking] = useState({
+  const errorTracking = challenge.errorTracking ?? {
     count: 0,
     perStep: [] as number[],
-  });
-  const [stepInteractions, setStepInteractions] = useState<StepInteractions>(
-    {},
-  );
+  };
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
   const prevLastKeyRef = useRef<number | undefined>(undefined);
 
@@ -161,14 +155,14 @@ export const RandomChallengeInProgress = () => {
     const expected = correctPath[lastIndex];
     if (!expected) return;
     if (lastNode.name !== expected.name) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setErrorTracking((prev) => {
-        const perStep = [...prev.perStep];
+      setChallenge((prev) => {
+        const et = prev.errorTracking ?? { count: 0, perStep: [] };
+        const perStep = [...et.perStep];
         perStep[lastIndex] = (perStep[lastIndex] ?? 0) + 1;
-        return { count: prev.count + 1, perStep };
+        return { ...prev, errorTracking: { count: et.count + 1, perStep } };
       });
     }
-  }, [expandedNodes, correctPath, finishedAt]);
+  }, [expandedNodes, correctPath, finishedAt, setChallenge]);
 
   useEffect(() => {
     if (isCompleted && finishedAt === null) {
@@ -181,20 +175,21 @@ export const RandomChallengeInProgress = () => {
   useEffect(() => {
     if (!isCompleted) return;
 
-    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-
     setChallenge((prev) => {
       if (prev.status === "COMPLETED") return prev;
+      const elapsed = Math.floor((Date.now() - (prev.startedAt ?? 0)) / 1000);
+      const et = prev.errorTracking ?? { count: 0, perStep: [] };
+      const si = prev.stepInteractions ?? {};
       return {
         ...prev,
         status: "COMPLETED",
         completionData: {
           elapsedSeconds: elapsed,
-          errorCount: errorTracking.count,
+          errorCount: et.count,
           totalSteps: correctPath.length,
           correctPath,
-          stepErrors: errorTracking.perStep,
-          stepInteractions,
+          stepErrors: et.perStep,
+          stepInteractions: si,
         },
       };
     });
@@ -221,9 +216,12 @@ export const RandomChallengeInProgress = () => {
   }, [isCompleted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStepInteraction = (step: number, type: StepInteractionType) => {
-    setStepInteractions((prev) => ({
+    setChallenge((prev) => ({
       ...prev,
-      [step]: { ...prev[step], [type]: true },
+      stepInteractions: {
+        ...prev.stepInteractions,
+        [step]: { ...prev.stepInteractions?.[step], [type]: true },
+      },
     }));
   };
 
@@ -251,6 +249,9 @@ export const RandomChallengeInProgress = () => {
       status: "IN_PROGRESS",
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
     });
   };
 

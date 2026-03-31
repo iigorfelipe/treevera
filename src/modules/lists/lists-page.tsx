@@ -80,8 +80,8 @@ export const ListsPage = () => {
   };
 
   const handleClose = useCallback(() => {
-    navigate({ to: "/" });
-  }, [navigate]);
+    window.history.back();
+  }, []);
 
   return (
     <div className="mx-auto flex h-screen max-w-7xl flex-col">
@@ -168,7 +168,10 @@ export const ListsPage = () => {
         {isLoading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-muted animate-pulse flex items-center gap-4 rounded-xl border p-3 h-22" />
+              <div
+                key={i}
+                className="bg-muted flex h-22 animate-pulse items-center gap-4 rounded-xl border p-3"
+              />
             ))}
           </div>
         ) : allLists.length === 0 && !isFetchingNextPage ? (

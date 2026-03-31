@@ -24,4 +24,5 @@ export const QUERY_KEYS = {
   my_lists_picker_key: "my_lists_picker",
   lists_with_species_key: "lists_with_species",
   public_profile_key: "public_profile",
+  list_likers_key: "list_likers",
 };

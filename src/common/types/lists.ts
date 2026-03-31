@@ -25,12 +25,17 @@ export interface ListWithCreator extends ListRow {
 export interface ListPreview {
   id: string;
   title: string;
+  description: string | null;
   cover_image_url: string | null;
   species_count: number;
   likes_count: number;
   slug: string;
   created_at: string;
   total_count: number;
+}
+
+export interface ListPreviewWithCreator extends ListPreview {
+  user_username: string;
 }
 
 export interface ListLikedPreview extends ListPreview {
@@ -59,4 +64,11 @@ export interface ListPickerItem {
 export interface ToggleLikeResult {
   liked: boolean;
   likes_count: number;
+}
+
+export interface ListLiker {
+  user_id: string;
+  user_name: string;
+  user_username: string;
+  user_avatar_url: string | null;
 }

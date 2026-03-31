@@ -48,6 +48,9 @@ export const RandomChallengeCard = () => {
       status: "IN_PROGRESS",
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
     });
   };
 

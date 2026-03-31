@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { toast } from "sonner";
@@ -17,7 +16,7 @@ export const useCheckAchievements = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  return useCallback(async () => {
+  return async () => {
     if (!userId) return;
 
     const newlyUnlocked = await checkAndUnlockAchievements(userId);
@@ -60,5 +59,5 @@ export const useCheckAchievements = () => {
 
       void insertActivity(userId, `Conquista: ${def.name}`, def.description);
     }
-  }, [userId, queryClient, navigate]);
+  };
 };

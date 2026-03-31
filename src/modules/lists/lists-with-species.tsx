@@ -1,6 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { useAtomValue } from "jotai";
-import { authStore } from "@/store/auth/atoms";
 import { useGetListsWithSpecies } from "@/hooks/queries/useGetLists";
 import { ListPreviewCard } from "./list-preview-card";
 import { slugify } from "@/common/utils/slugify";
@@ -11,7 +9,6 @@ type ListsWithSpeciesProps = {
 
 export const ListsWithSpecies = ({ gbifKey }: ListsWithSpeciesProps) => {
   const { t } = useTranslation();
-  const userDb = useAtomValue(authStore.userDb);
   const { data } = useGetListsWithSpecies(gbifKey);
 
   const lists = data?.rows ?? [];
@@ -34,7 +31,7 @@ export const ListsWithSpecies = ({ gbifKey }: ListsWithSpeciesProps) => {
           <ListPreviewCard
             key={list.id}
             list={{ ...list, slug: list.slug || slugify(list.title) }}
-            username={userDb?.username ?? ""}
+            username={list.user_username}
           />
         ))}
       </div>

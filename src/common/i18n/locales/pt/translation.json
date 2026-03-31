@@ -95,7 +95,8 @@
     "title": "ESPÉCIES VISTAS",
     "openGallery": "Abrir galeria",
     "emptyTitle": "Sua galeria está vazia",
-    "emptyHint": "Explore espécies para preenchê-la!"
+    "emptyHint": "Explore espécies para preenchê-la!",
+    "emptyTitleOf": "{{username}} ainda não explorou espécies"
   },
 
   "favSpecies": {
@@ -121,6 +122,7 @@
     "favorites": "Favoritas",
     "noSpeciesFound": "Nenhuma espécie encontrada",
     "noFavorites": "Você ainda não tem favoritas",
+    "noFavoritesOf": "{{username}} ainda não tem favoritas",
     "adjustFilters": "Tente ajustar os filtros",
     "noImage": "Sem imagem",
     "photosFirst": "Fotos primeiro"
@@ -289,7 +291,8 @@
 
   "lists": {
     "title": "Listas",
-    "myLists": "MINHAS LISTAS",
+    "myLists": "Minhas listas",
+    "listsOf": "Listas de {{username}}",
     "likedLists": "LISTAS CURTIDAS",
     "create": "Criar Lista",
     "createTitle": "Nova Lista",
@@ -315,12 +318,18 @@
     "adjustFilters": "Tente ajustar os filtros",
     "emptyMyLists": "Nenhuma lista criada",
     "emptyMyListsHint": "Crie sua primeira lista de espécies!",
+    "emptyListsOf": "{{username}} ainda não criou listas",
     "emptyLikedLists": "Nenhuma lista curtida",
     "emptyLikedListsHint": "Explore e curta listas de outros usuários!",
+    "emptyLikedListsOf": "{{username}} ainda não curtiu listas",
     "loginToLike": "Faça login para curtir",
     "loginToCreate": "Faça login para criar listas",
     "expand": "Expandir",
     "collapse": "Recolher",
+    "viewAll": "Ver todas",
+    "likesTitle": "Curtidas",
+    "people": "pessoas",
+    "noLikesYet": "Nenhuma curtida ainda",
     "backToLists": "Voltar para listas",
     "addToList": "Adicionar a uma lista",
     "addSpecies": "Adicionar espécie",

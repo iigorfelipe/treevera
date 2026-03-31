@@ -28,7 +28,7 @@ export const Profile = () => {
             </div>
           </div>
 
-          <div className="contents lg:flex lg:flex-1 lg:flex-col lg:gap-14">
+          <div className="contents max-w-1/3 lg:flex lg:flex-1 lg:flex-col lg:gap-14">
             <div className="order-3">
               <SpeciesGalleryPreview />
             </div>

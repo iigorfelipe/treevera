@@ -136,6 +136,8 @@ export const ListDetailHero = ({
               listId={list.id}
               isLiked={list.is_liked}
               likesCount={list.likes_count}
+              username={list.user_username}
+              listSlug={list.slug}
             />
 
             <div className="ml-auto flex min-w-0 gap-2">

@@ -143,7 +143,7 @@ export function UserProfilePage({ username }: { username: string }) {
             </div>
           </div>
 
-          <div className="contents lg:flex lg:flex-1 lg:flex-col lg:gap-14">
+          <div className="contents max-w-1/3 lg:flex lg:flex-1 lg:flex-col lg:gap-14">
             <div className="order-3">
               <SpeciesGalleryPreview
                 userId={data.id}
@@ -154,7 +154,10 @@ export function UserProfilePage({ username }: { username: string }) {
               <UserListsPreview userId={data.id} username={data.username} />
             </div>
             <div className="order-6">
-              <UserLikedListsPreview userId={data.id} />
+              <UserLikedListsPreview
+                userId={data.id}
+                username={data.username}
+              />
             </div>
             <div className="order-7">
               <TreeShortcuts

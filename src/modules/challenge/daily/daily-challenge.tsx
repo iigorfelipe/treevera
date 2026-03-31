@@ -62,6 +62,9 @@ export const DailyChallengeCard = () => {
       targetSpecies: data.scientificName,
       speciesKey: data.gbifKey,
       challengeDate: selectedDate,
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
     });
   };
 

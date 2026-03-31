@@ -10,11 +10,18 @@ import { ListPreviewCard } from "@/modules/lists/list-preview-card";
 const DEFAULT_LIMIT = 2;
 const EXPANDED_LIMIT = 10;
 
-export const UserLikedListsPreview = ({ userId }: { userId?: string }) => {
+export const UserLikedListsPreview = ({
+  userId,
+  username,
+}: {
+  userId?: string;
+  username?: string;
+}) => {
   const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
   const [expanded, setExpanded] = useState(false);
 
+  const isOwner = !username || username === userDb?.username;
   const targetUserId = userId ?? userDb?.id;
   const limit = expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT + 1;
   const { data } = useGetUserLikedLists(targetUserId, limit);
@@ -49,9 +56,13 @@ export const UserLikedListsPreview = ({ userId }: { userId?: string }) => {
         <div className="text-muted-foreground py-8 text-center">
           <Heart className="text-muted-foreground/50 mx-auto mb-3 h-12 w-12" />
           <div className="mb-1 text-sm font-medium">
-            {t("lists.emptyLikedLists")}
+            {isOwner
+              ? t("lists.emptyLikedLists")
+              : t("lists.emptyLikedListsOf", { username })}
           </div>
-          <div className="text-xs">{t("lists.emptyLikedListsHint")}</div>
+          {isOwner && (
+            <div className="text-xs">{t("lists.emptyLikedListsHint")}</div>
+          )}
         </div>
       ) : null}
 
@@ -63,7 +74,11 @@ export const UserLikedListsPreview = ({ userId }: { userId?: string }) => {
         }`}
       >
         {visibleLists.map((list) => (
-          <ListPreviewCard key={list.id} list={list} username={list.user_username} />
+          <ListPreviewCard
+            key={list.id}
+            list={list}
+            username={list.user_username}
+          />
         ))}
       </div>
     </div>

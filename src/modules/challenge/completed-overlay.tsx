@@ -37,6 +37,9 @@ export const ChallengeCompletedOverlay = ({
       status: "IN_PROGRESS",
       completionData: undefined,
       replayId: (prev.replayId ?? 0) + 1,
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
     }));
   };
 
@@ -56,6 +59,9 @@ export const ChallengeCompletedOverlay = ({
       status: "IN_PROGRESS",
       targetSpecies: result.scientificName,
       speciesKey: result.gbifKey,
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
     });
   };
 
@@ -68,6 +74,9 @@ export const ChallengeCompletedOverlay = ({
       targetSpecies: navDayData.scientificName,
       speciesKey: navDayData.gbifKey,
       challengeDate: navDate,
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
     });
   };
 
