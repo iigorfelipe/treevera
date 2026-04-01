@@ -12,6 +12,7 @@ import { authStore } from "@/store/auth/atoms";
 import { AuthCallback } from "@/app/auth/auth-callback";
 import { NotFound } from "@/app/not-found";
 import { SpecieDetailPage } from "@/app/details/specie-detail-page";
+import { SpecieFavoritersPage } from "@/app/details/specie-favoriters";
 import { SettingsPage } from "@/app/settings";
 import { ListsPageRoute } from "@/app/lists";
 import { ListDetailPageRoute } from "@/app/lists/list-detail";
@@ -114,6 +115,12 @@ const specieDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/specie-detail/$specieKey",
   component: SpecieDetailPage,
+});
+
+const specieFavoritersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/specie-detail/$specieKey/favoriters",
+  component: SpecieFavoritersPage,
 });
 
 const listsRoute = createRoute({
@@ -253,6 +260,7 @@ const routeTree = rootRoute.addChildren([
   tree7Route,
   authCallbackRoute,
   specieDetailRoute,
+  specieFavoritersRoute,
   listsRoute,
   challengesRoute,
   challengesDailyRoute,

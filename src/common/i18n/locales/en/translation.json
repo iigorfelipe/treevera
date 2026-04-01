@@ -167,7 +167,9 @@
     "unfavTop4Title": "Remove from favorites?",
     "unfavTop4Body": "This species is among your top 4 favorites highlighted on your profile. Unfavoriting it will remove it from your Top 4.",
     "unfavTop4Confirm": "Remove anyway",
-    "unfavTop4Cancel": "Cancel"
+    "unfavTop4Cancel": "Cancel",
+    "favoritersTitle": "Who favorited",
+    "noFavoritersYet": "No one has favorited this species yet"
   },
 
   "occurrenceMap": {
@@ -323,6 +325,7 @@
     "emptyLikedListsHint": "Explore and like other users' lists!",
     "emptyLikedListsOf": "{{username}} hasn't liked any lists yet",
     "loginToLike": "Log in to like",
+    "loginToFav": "Log in to favorite",
     "loginToCreate": "Log in to create lists",
     "expand": "Expand",
     "collapse": "Collapse",

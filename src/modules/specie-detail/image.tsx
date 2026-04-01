@@ -5,44 +5,55 @@ import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
 import { useAtomValue } from "jotai";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { ImageWithZoom } from "@/common/components/image-with-zoom";
 import { useTranslation } from "react-i18next";
-import { motion } from "framer-motion";
 import { cn } from "@/common/utils/cn";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "@tanstack/react-router";
 
 type Props = {
   favImageUrl: string | null;
-  showFavButton: boolean;
-  onToggleFav: (imgUrl: string | null) => void;
+  showFavButton?: boolean;
+  onToggleFav?: (imgUrl: string | null) => void;
+  favCount?: number;
+  specieKey?: number;
 };
 
 export const SpecieImageDetail = ({
   favImageUrl,
-  showFavButton,
+  showFavButton = false,
   onToggleFav,
+  favCount = 0,
+  specieKey,
 }: Props) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const treeSpecieKey = useAtomValue(treeAtom.expandedNodes).find(
     (node) => node.rank === "SPECIES",
   )?.key;
-  const specieKey = selectedKey ?? treeSpecieKey;
+  const specieKeyFromStore = selectedKey ?? treeSpecieKey;
 
   const { data: specieDetail } = useGetSpecieDetail({
-    specieKey: specieKey!,
+    specieKey: specieKeyFromStore!,
   });
 
   const canonicalName =
     specieDetail?.canonicalName || specieDetail?.scientificName;
 
   const { data: gallery = [], isLoading: isLoadingGallery } =
-    useGetSpecieGallery(specieKey, canonicalName);
+    useGetSpecieGallery(specieKeyFromStore, canonicalName);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isFallback, setIsFallback] = useState(false);
+  const [optimisticCount, setOptimisticCount] = useState(favCount);
+
+  useEffect(() => {
+    setOptimisticCount(favCount);
+  }, [favCount]);
 
   if (!specieDetail) return null;
 
@@ -55,8 +66,11 @@ export const SpecieImageDetail = ({
   }
 
   const currentImage = gallery[selectedIndex] ?? null;
+  const isFav = favImageUrl !== null;
   const isFavCurrentImage =
     favImageUrl !== null && currentImage?.imgUrl === favImageUrl;
+
+  const showCounter = optimisticCount > 0;
 
   const goTo = (index: number) => {
     setSelectedIndex(index);
@@ -66,6 +80,24 @@ export const SpecieImageDetail = ({
   const goPrev = () =>
     goTo((selectedIndex - 1 + gallery.length) % gallery.length);
   const goNext = () => goTo((selectedIndex + 1) % gallery.length);
+
+  const handleFavToggle = () => {
+    if (!isFav) {
+      setOptimisticCount((c) => c + 1);
+    } else if (isFavCurrentImage) {
+      setOptimisticCount((c) => Math.max(c - 1, 0));
+    }
+    onToggleFav?.(currentImage?.imgUrl ?? null);
+  };
+
+  const handleCountClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!specieKey) return;
+    void navigate({
+      to: "/specie-detail/$specieKey/favoriters",
+      params: { specieKey: String(specieKey) },
+    });
+  };
 
   if (gallery.length === 0 || isFallback) {
     return (
@@ -126,26 +158,49 @@ export const SpecieImageDetail = ({
         )}
 
         {showFavButton && (
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onToggleFav(currentImage?.imgUrl ?? null)}
-            className="absolute top-2 right-2 rounded-full bg-black/40 p-2 backdrop-blur-sm"
-            aria-label={
-              isFavCurrentImage
-                ? "Remover dos favoritos"
-                : "Favoritar esta foto"
-            }
-          >
-            <Heart
-              className={cn(
-                "size-5 transition-all",
-                isFavCurrentImage
-                  ? "fill-red-500 text-red-500"
-                  : "text-white hover:text-red-400",
+          <div className="absolute top-2 right-2 flex flex-row-reverse items-center">
+            <AnimatePresence>
+              {showCounter && (
+                <motion.div
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: "auto", opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="overflow-hidden"
+                >
+                  <button
+                    onClick={handleCountClick}
+                    className="h-9 rounded-l-none rounded-r-full bg-black/40 px-2.5 text-xs font-medium whitespace-nowrap text-white tabular-nums backdrop-blur-sm"
+                    aria-label="Ver quem favoritou"
+                  >
+                    {optimisticCount}
+                  </button>
+                </motion.div>
               )}
-            />
-          </motion.button>
+            </AnimatePresence>
+
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleFavToggle}
+              className={cn(
+                "bg-black/40 p-2 backdrop-blur-sm transition-all",
+                showCounter ? "rounded-l-full rounded-r-none" : "rounded-full",
+              )}
+              aria-label={
+                isFavCurrentImage ? "Remover dos favoritos" : "Favoritar"
+              }
+            >
+              <Heart
+                className={cn(
+                  "size-5 transition-all",
+                  isFavCurrentImage
+                    ? "fill-red-500 text-red-500"
+                    : "text-white hover:text-red-400",
+                )}
+              />
+            </motion.button>
+          </div>
         )}
 
         {currentImage?.source && (

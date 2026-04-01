@@ -167,7 +167,9 @@
     "unfavTop4Title": "¿Eliminar de favoritos?",
     "unfavTop4Body": "Esta especie está entre tus 4 favoritas destacadas en tu perfil. Al desfavoritarla, será eliminada de tu Top 4.",
     "unfavTop4Confirm": "Eliminar de todos modos",
-    "unfavTop4Cancel": "Cancelar"
+    "unfavTop4Cancel": "Cancelar",
+    "favoritersTitle": "Quién marcó como favorito",
+    "noFavoritersYet": "Nadie ha marcado esta especie como favorita aún"
   },
 
   "occurrenceMap": {
@@ -323,6 +325,7 @@
     "emptyLikedListsHint": "¡Explora y dale me gusta a las listas de otros usuarios!",
     "emptyLikedListsOf": "{{username}} aún no ha marcado listas como favoritas",
     "loginToLike": "Inicia sesión para dar me gusta",
+    "loginToFav": "Inicia sesión para marcar como favorito",
     "loginToCreate": "Inicia sesión para crear listas",
     "expand": "Expandir",
     "collapse": "Contraer",

@@ -25,4 +25,6 @@ export const QUERY_KEYS = {
   lists_with_species_key: "lists_with_species",
   public_profile_key: "public_profile",
   list_likers_key: "list_likers",
+  species_fav_count_key: "species_fav_count",
+  species_favoriters_key: "species_favoriters",
 };

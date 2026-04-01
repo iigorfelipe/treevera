@@ -262,6 +262,39 @@ export const clearBrokenImage = async (gbifKey: number): Promise<void> => {
   if (error) console.error("Error clearing broken image:", error);
 };
 
+export type SpeciesFavoriter = {
+  user_id: string;
+  user_name: string;
+  user_username: string;
+  user_avatar_url: string | null;
+};
+
+export const fetchSpeciesFavCount = async (
+  gbifKey: number,
+): Promise<number> => {
+  const { data, error } = await supabase.rpc("get_species_fav_count", {
+    p_gbif_key: gbifKey,
+  });
+  if (error) {
+    console.error("Error fetching species fav count:", error);
+    return 0;
+  }
+  return (data as number) ?? 0;
+};
+
+export const fetchSpeciesFavoriters = async (
+  gbifKey: number,
+): Promise<SpeciesFavoriter[]> => {
+  const { data, error } = await supabase.rpc("get_species_favoriters", {
+    p_gbif_key: gbifKey,
+  });
+  if (error) {
+    console.error("Error fetching species favoriters:", error);
+    return [];
+  }
+  return (data as SpeciesFavoriter[]) ?? [];
+};
+
 export const updateSeenSpeciesIucn = async (
   userId: string,
   gbifKey: number,

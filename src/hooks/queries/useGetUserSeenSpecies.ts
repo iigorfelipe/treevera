@@ -1,4 +1,8 @@
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import {
@@ -6,6 +10,8 @@ import {
   fetchSeenSpecieByKey,
   fetchFavoriteSpeciesPage,
   fetchGalleryPage,
+  fetchSpeciesFavCount,
+  fetchSpeciesFavoriters,
 } from "@/common/utils/supabase/user-seen-species";
 import type { FetchSeenSpeciesPageOptions } from "@/common/utils/supabase/user-seen-species";
 import { QUERY_KEYS } from "./keys";
@@ -118,4 +124,30 @@ export const useGetGallerySpecies = (
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 60 * 24,
   });
+};
+
+export const useGetSpeciesFavCount = (gbifKey: number | undefined) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.species_fav_count_key, gbifKey],
+    queryFn: () => fetchSpeciesFavCount(gbifKey!),
+    enabled: !!gbifKey,
+    staleTime: 2 * 60_000,
+  });
+};
+
+export const useGetSpeciesFavoriters = (gbifKey: number | undefined) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.species_favoriters_key, gbifKey],
+    queryFn: () => fetchSpeciesFavoriters(gbifKey!),
+    enabled: !!gbifKey,
+    staleTime: 2 * 60_000,
+  });
+};
+
+export const useInvalidateSpeciesFavCount = () => {
+  const queryClient = useQueryClient();
+  return (gbifKey: number) =>
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.species_fav_count_key, gbifKey],
+    });
 };

@@ -36,7 +36,11 @@ import {
 } from "@/common/utils/supabase/user-seen-species";
 import { updateFavActivity } from "@/common/utils/supabase/update-fav-activity";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
-import { useGetSeenSpecieByKey } from "@/hooks/queries/useGetUserSeenSpecies";
+import {
+  useGetSeenSpecieByKey,
+  useGetSpeciesFavCount,
+  useInvalidateSpeciesFavCount,
+} from "@/hooks/queries/useGetUserSeenSpecies";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { authStore } from "@/store/auth/atoms";
@@ -93,6 +97,8 @@ export const SpecieDetail = ({
   );
 
   const { data: specie } = useGetSeenSpecieByKey(specieKey);
+  const { data: favCount = 0 } = useGetSpeciesFavCount(specieKey);
+  const invalidateSpeciesFavCount = useInvalidateSpeciesFavCount();
   const queryClient = useQueryClient();
   const checkAchievements = useCheckAchievements();
 
@@ -194,6 +200,7 @@ export const SpecieDetail = ({
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.favorite_species_page_key],
       });
+      if (specieKey != null) invalidateSpeciesFavCount(specieKey);
       void checkAchievements();
 
       if (newIsFav) {
@@ -222,8 +229,7 @@ export const SpecieDetail = ({
   const toggleFav = useCallback(
     (imgUrl: string | null) => {
       const isThisImageFaved = isFav && preferredImageUrl === imgUrl;
-      const wouldUnfav = isThisImageFaved;
-      if (wouldUnfav && isInTop4) {
+      if (isThisImageFaved && isInTop4) {
         setPendingUnfavImgUrl(imgUrl);
         return;
       }
@@ -290,6 +296,8 @@ export const SpecieDetail = ({
                     favImageUrl={preferredImageUrl}
                     showFavButton={!!userId}
                     onToggleFav={toggleFav}
+                    favCount={favCount}
+                    specieKey={specieKey}
                   />
                 </motion.div>
 
