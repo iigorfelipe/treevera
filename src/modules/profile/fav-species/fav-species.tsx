@@ -104,8 +104,7 @@ export const FavoriteSpecies = ({
   }, [pickerOpen, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (!isOwner) {
-    const publicKeys = favSpecies?.map((f) => f.key) ?? [];
-    const emptyCount = Math.max(0, 4 - publicKeys.length);
+    const emptyCount = Math.max(0, 4 - (favSpecies?.length ?? 0));
     return (
       <div className="space-y-3">
         <h2 className="border-b pb-1">{t("favSpecies.title")}</h2>
@@ -129,7 +128,10 @@ export const FavoriteSpecies = ({
             />
           ))}
           {Array.from({ length: emptyCount }).map((_, idx) => (
-            <EmptyFavCard key={`empty-${idx}`} editMode={false} />
+            <div
+              key={`empty-${idx}`}
+              className="border-border bg-muted aspect-3/4 w-full rounded-xl border-2 border-dashed"
+            />
           ))}
         </div>
       </div>
