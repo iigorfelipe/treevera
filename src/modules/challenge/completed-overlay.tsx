@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtomValue, useSetAtom } from "jotai";
-import { treeAtom } from "@/store/tree";
+import { treeAtom, setHighlightedKeysAtom } from "@/store/tree";
 import { authStore } from "@/store/auth/atoms";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
@@ -19,6 +19,7 @@ export const ChallengeCompletedOverlay = ({
   const challenge = useAtomValue(treeAtom.challenge);
   const setChallenge = useSetAtom(treeAtom.challenge);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
+  const setHighlightedKeys = useSetAtom(setHighlightedKeysAtom);
   const session = useAtomValue(authStore.session);
 
   const { completionData, targetSpecies, mode, challengeDate } = challenge;
@@ -32,6 +33,7 @@ export const ChallengeCompletedOverlay = ({
 
   const handleReplay = () => {
     setExpandedNodes([]);
+    setHighlightedKeys([]);
     setChallenge((prev) => ({
       ...prev,
       status: "IN_PROGRESS",
@@ -54,6 +56,7 @@ export const ChallengeCompletedOverlay = ({
     if (!result) return;
 
     setExpandedNodes([]);
+    setHighlightedKeys([]);
     setChallenge({
       mode: "RANDOM",
       status: "IN_PROGRESS",
@@ -68,6 +71,7 @@ export const ChallengeCompletedOverlay = ({
   const handlePlayNavDate = () => {
     if (!navDayData) return;
     setExpandedNodes([]);
+    setHighlightedKeys([]);
     setChallenge({
       mode: "DAILY",
       status: "IN_PROGRESS",

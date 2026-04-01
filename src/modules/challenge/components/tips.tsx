@@ -170,7 +170,10 @@ export const ChallengeTips = ({
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setHighlightedKeys([]);
+      return;
+    }
     setVisibleStep(currentStep);
     hasSiblingsRef.current = false;
     const hadSiblings = applyHighlights(currentStep, allNodes);
@@ -245,8 +248,6 @@ export const ChallengeTips = ({
           onPointerDownOutside={(e) => e.preventDefault()}
         >
           <motion.div
-            // Desktop: draggable, positioned to avoid overlap with the right panel
-            // Mobile: fixed centered at top (original behaviour)
             drag={!isTablet}
             dragControls={dragControls}
             dragListener={false}
@@ -258,7 +259,6 @@ export const ChallengeTips = ({
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="bg-background fixed top-2 left-1/2 z-50 w-[calc(100%-1rem)] max-w-md -translate-x-1/2 rounded-xl border p-4 shadow-lg"
           >
-            {/* Mobile-only: target species name so it stays visible when dialog overlaps tree */}
             {isTablet && (
               <div className="mb-2.5 flex items-center gap-1.5 border-b pb-2.5">
                 <span className="text-muted-foreground shrink-0 text-[11px] font-semibold tracking-wide uppercase">

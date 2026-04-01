@@ -299,7 +299,8 @@ const challengeFeedbackMap = atom((get) => {
     const expanded = path[i];
     const expected = correct[i];
     if (!expected) continue;
-    const isCorrect = expanded.name === expected.name;
+    const isCorrect =
+      expanded.name.toLowerCase() === expected.name.toLowerCase();
     map.set(expanded.key, isCorrect ? "success" : "error");
   }
 

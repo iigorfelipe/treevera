@@ -55,7 +55,12 @@ export const VirtualTree = () => {
   );
 
   useEffect(() => {
-    if (!scrollToRank || scrollToRank === lastScrolledRank.current) return;
+    if (!scrollToRank) {
+      lastScrolledRank.current = null;
+      return;
+    }
+
+    if (scrollToRank === lastScrolledRank.current) return;
 
     lastScrolledRank.current = scrollToRank;
 
@@ -72,8 +77,12 @@ export const VirtualTree = () => {
   }, [scrollToRank, flattened, nodes, rowVirtualizer]);
 
   useEffect(() => {
-    if (!scrollToNodeKey || scrollToNodeKey === lastScrolledNodeKey.current)
+    if (!scrollToNodeKey) {
+      lastScrolledNodeKey.current = null;
       return;
+    }
+
+    if (scrollToNodeKey === lastScrolledNodeKey.current) return;
 
     lastScrolledNodeKey.current = scrollToNodeKey;
 

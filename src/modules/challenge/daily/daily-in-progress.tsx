@@ -6,7 +6,11 @@ import Alvo from "@/assets/alvo.gif";
 import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
-import { treeAtom, setChallengeCorrectPathAtom } from "@/store/tree";
+import {
+  treeAtom,
+  setChallengeCorrectPathAtom,
+  setHighlightedKeysAtom,
+} from "@/store/tree";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Timer } from "@/modules/challenge/components/timer";
@@ -45,6 +49,7 @@ export const DailyChallengeInProgress = () => {
   const queryClient = useQueryClient();
   const checkAchievements = useCheckAchievements();
   const setChallengeCorrectPath = useSetAtom(setChallengeCorrectPathAtom);
+  const setHighlightedKeys = useSetAtom(setHighlightedKeysAtom);
 
   const { isTablet } = useResponsive();
   const { theme } = useTheme();
@@ -88,10 +93,17 @@ export const DailyChallengeInProgress = () => {
   }, [correctPath, setChallengeCorrectPath]);
 
   const correctSteps = useMemo(() => {
-    return expandedNodes.filter((node, index) => {
-      const expected = correctPath[index];
-      return expected && node.name === expected.name;
-    }).length;
+    let count = 0;
+    for (let i = 0; i < expandedNodes.length; i++) {
+      const expected = correctPath[i];
+      if (
+        expected &&
+        expandedNodes[i].name.toLowerCase() === expected.name.toLowerCase()
+      )
+        count++;
+      else break;
+    }
+    return count;
   }, [expandedNodes, correctPath]);
 
   const isCompleted =
@@ -113,7 +125,7 @@ export const DailyChallengeInProgress = () => {
     const lastIndex = expandedNodes.length - 1;
     const expected = correctPath[lastIndex];
     if (!expected) return;
-    if (lastNode.name !== expected.name) {
+    if (lastNode.name.toLowerCase() !== expected.name.toLowerCase()) {
       setChallenge((prev) => {
         const et = prev.errorTracking ?? { count: 0, perStep: [] };
         const perStep = [...et.perStep];
@@ -124,15 +136,11 @@ export const DailyChallengeInProgress = () => {
   }, [expandedNodes, correctPath, finishedAt, setChallenge]);
 
   useEffect(() => {
-    if (isCompleted && finishedAt === null) {
-      AudioManager.play("win");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFinishedAt(Date.now());
-    }
-  }, [isCompleted, finishedAt]);
+    if (!isCompleted || finishedAt !== null) return;
 
-  useEffect(() => {
-    if (!isCompleted) return;
+    AudioManager.play("win");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFinishedAt(Date.now());
 
     setChallenge((prev) => {
       if (prev.status === "COMPLETED") return prev;
@@ -191,6 +199,7 @@ export const DailyChallengeInProgress = () => {
   const handleCancel = () => {
     setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
     setExpandedNodes([]);
+    setHighlightedKeys([]);
     void navigate({ to: "/challenges" });
   };
 
@@ -198,7 +207,11 @@ export const DailyChallengeInProgress = () => {
     const index = expandedNodes.length - 1;
     const node = expandedNodes[index];
     const expected = correctPath[index];
-    return index >= 0 && expected && node?.name !== expected.name;
+    return (
+      index >= 0 &&
+      expected &&
+      node?.name.toLowerCase() !== expected.name.toLowerCase()
+    );
   }, [expandedNodes, correctPath]);
 
   const errorIndex = lastStepWasError ? expandedNodes.length - 1 : null;
@@ -244,6 +257,7 @@ export const DailyChallengeInProgress = () => {
                 onClick={() => {
                   setChallenge({ status: "NOT_STARTED", mode: "UNSET" });
                   setExpandedNodes([]);
+                  setHighlightedKeys([]);
                   void navigate({ to: "/challenges/random" });
                 }}
               >
