@@ -1,8 +1,9 @@
-import { useNavigate } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
-import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/common/components/ui/skeleton";
+import { Button } from "@/common/components/ui/button";
+import { X } from "lucide-react";
+import { motion } from "framer-motion";
+import { Menu } from "@/modules/header/menu";
 import { HeaderProfile } from "@/modules/profile/header";
 import { FavoriteSpecies } from "@/modules/profile/fav-species/fav-species";
 import { UserAchievements } from "@/modules/profile/user-achievements";
@@ -52,26 +53,36 @@ function ProfileSkeleton() {
   );
 }
 
+const PageHeader = () => (
+  <motion.div
+    initial={{ y: -20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    className="relative z-10"
+  >
+    <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 py-2">
+      <div />
+      <div className="flex shrink-0 items-center gap-1">
+        <Menu />
+        <Button
+          onClick={() => window.history.back()}
+          variant="ghost"
+          size="icon"
+          className="size-8"
+        >
+          <X className="size-4" />
+        </Button>
+      </div>
+    </div>
+  </motion.div>
+);
+
 export function UserProfilePage({ username }: { username: string }) {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-
   const { data, isLoading } = useGetPublicProfile(username);
-
-  const handleBack = () => navigate({ to: "/" });
 
   if (isLoading) {
     return (
       <div className="h-screen overflow-auto">
-        <div className="px-4 py-3">
-          <button
-            onClick={handleBack}
-            className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
-          >
-            <ChevronLeft className="size-4" />
-            {t("nav.back")}
-          </button>
-        </div>
+        <PageHeader />
         <ProfileSkeleton />
       </div>
     );
@@ -80,15 +91,7 @@ export function UserProfilePage({ username }: { username: string }) {
   if (!data) {
     return (
       <div className="h-screen overflow-auto">
-        <div className="px-4 py-3">
-          <button
-            onClick={handleBack}
-            className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
-          >
-            <ChevronLeft className="size-4" />
-            {t("nav.back")}
-          </button>
-        </div>
+        <PageHeader />
         <div className="flex flex-col items-center justify-center gap-3 pt-24 text-center">
           <p className="text-4xl">🌿</p>
           <p className="text-lg font-semibold">Perfil não encontrado</p>
@@ -96,12 +99,6 @@ export function UserProfilePage({ username }: { username: string }) {
             O usuário <span className="font-medium">@{username}</span> não
             existe.
           </p>
-          <button
-            onClick={handleBack}
-            className="mt-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          >
-            Voltar ao início
-          </button>
         </div>
       </div>
     );
@@ -116,15 +113,7 @@ export function UserProfilePage({ username }: { username: string }) {
 
   return (
     <div className="h-screen overflow-auto">
-      <div className="px-4 py-3">
-        <button
-          onClick={handleBack}
-          className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
-        >
-          <ChevronLeft className="size-4" />
-          {t("nav.back")}
-        </button>
-      </div>
+      <PageHeader />
 
       <div className="mx-auto max-w-7xl p-4">
         <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
