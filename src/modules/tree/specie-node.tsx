@@ -29,6 +29,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
 
   const checkAchievements = useCheckAchievements();
   const challenge = useAtomValue(treeAtom.challenge);
+  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challengeActive =
     challenge.status === "IN_PROGRESS" || challenge.status === "COMPLETED";
   const speciesKey = challenge.speciesKey;
@@ -41,7 +42,8 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
     return node.key === speciesKey ? "success" : "error";
   }, [challengeActive, isInPath, node.key, speciesKey]);
 
-  const isSelected = isInPath || !!node.expanded;
+  const isSelected =
+    isInPath || expandedNodes.some((expandedNode) => expandedNode.key === node.key);
 
   const saveSpeciesIfMissing = useCallback(async () => {
     if (!userId) return;
@@ -73,7 +75,10 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   return (
     <motion.div
       key={node.key}
-      className="item flex w-full items-center justify-between"
+      className={cn(
+        "item group flex w-full items-center justify-between",
+        isSelected && "item-active",
+      )}
       animate={
         feedback === "success"
           ? { scale: [1, 1.08, 1] }
@@ -122,6 +127,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
         <Badge
           className={cn(
             "bg-primary-foreground text-primary rounded-xl px-1 py-0 text-[11px] opacity-0 group-hover:opacity-100",
+            isSelected && "opacity-100",
             feedback && "opacity-100",
           )}
         >
