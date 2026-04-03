@@ -165,78 +165,63 @@ export const SpecieDetail = ({
     userDb?.game_info.top_fav_species?.some((n) => n.key === specieKey) ??
     false;
 
-  const doToggleFav = useCallback(
-    async (imgUrl: string | null) => {
-      if (!userId || specieKey == null) return;
+  const doToggleFav = async (imgUrl: string | null) => {
+    if (!userId || specieKey == null) return;
 
-      const isThisImageFaved = isFav && preferredImageUrl === imgUrl;
-      const newIsFav = !isThisImageFaved;
-      const newPreferredUrl = newIsFav ? imgUrl : null;
+    const isThisImageFaved = isFav && preferredImageUrl === imgUrl;
+    const newIsFav = !isThisImageFaved;
+    const newPreferredUrl = newIsFav ? imgUrl : null;
 
-      queryClient.setQueryData(
-        [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
-        (old: UserSeenSpeciesRow | null | undefined) =>
-          old
-            ? {
-                ...old,
-                is_favorite: newIsFav,
-                preferred_image_url: newPreferredUrl,
-              }
-            : old,
-      );
+    queryClient.setQueryData(
+      [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
+      (old: UserSeenSpeciesRow | null | undefined) =>
+        old
+          ? {
+              ...old,
+              is_favorite: newIsFav,
+              preferred_image_url: newPreferredUrl,
+            }
+          : old,
+    );
 
-      await toggleFavSpecie(userId, specieKey, newIsFav, newPreferredUrl, {
-        canonicalName,
-        family: specieDetail?.family,
-        kingdom: specieDetail?.kingdom,
-      });
-
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_seen_species_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.favorite_species_page_key],
-      });
-      if (specieKey != null) invalidateSpeciesFavCount(specieKey);
-      void checkAchievements();
-
-      if (newIsFav) {
-        void updateFavActivity({
-          userId,
-          speciesName: canonicalName ?? "",
-          isFav: newIsFav,
-        });
-        void queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.user_activities_key, userId],
-        });
-      }
-    },
-    [
-      userId,
-      specieKey,
-      isFav,
-      preferredImageUrl,
+    await toggleFavSpecie(userId, specieKey, newIsFav, newPreferredUrl, {
       canonicalName,
-      specieDetail,
-      queryClient,
-      checkAchievements,
-    ],
-  );
+      family: specieDetail?.family,
+      kingdom: specieDetail?.kingdom,
+    });
 
-  const toggleFav = useCallback(
-    (imgUrl: string | null) => {
-      const isThisImageFaved = isFav && preferredImageUrl === imgUrl;
-      if (isThisImageFaved && isInTop4) {
-        setPendingUnfavImgUrl(imgUrl);
-        return;
-      }
-      void doToggleFav(imgUrl);
-    },
-    [isFav, preferredImageUrl, isInTop4, doToggleFav],
-  );
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.user_seen_species_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.favorite_species_page_key],
+    });
+    if (specieKey != null) invalidateSpeciesFavCount(specieKey);
+    void checkAchievements();
+
+    if (newIsFav) {
+      void updateFavActivity({
+        userId,
+        speciesName: canonicalName ?? "",
+        isFav: newIsFav,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.user_activities_key, userId],
+      });
+    }
+  };
+
+  const toggleFav = (imgUrl: string | null) => {
+    const isThisImageFaved = isFav && preferredImageUrl === imgUrl;
+    if (isThisImageFaved && isInTop4) {
+      setPendingUnfavImgUrl(imgUrl);
+      return;
+    }
+    void doToggleFav(imgUrl);
+  };
 
   if (isLoading) {
     return (
@@ -310,7 +295,7 @@ export const SpecieDetail = ({
                 </motion.div>
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex min-w-0 flex-col gap-4">
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}

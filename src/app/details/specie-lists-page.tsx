@@ -1,0 +1,89 @@
+import { useParams } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
+import { Menu } from "@/modules/header/menu";
+import { Button } from "@/common/components/ui/button";
+import { X, List } from "lucide-react";
+import { Skeleton } from "@/common/components/ui/skeleton";
+import { useGetListsWithSpecies } from "@/hooks/queries/useGetLists";
+import { ListPreviewCard } from "@/modules/lists/list-preview-card";
+import { slugify } from "@/common/utils/slugify";
+
+export const SpecieListsPage = () => {
+  const { t } = useTranslation();
+  const { specieKey } = useParams({ strict: false }) as {
+    specieKey: string;
+  };
+
+  const gbifKey = specieKey ? Number(specieKey) : undefined;
+  const { data, isLoading } = useGetListsWithSpecies(gbifKey, 100);
+
+  const lists = data?.rows ?? [];
+
+  return (
+    <div className="mx-auto flex h-screen max-w-7xl flex-col">
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="relative z-10 border-b"
+      >
+        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base leading-tight font-bold">
+              {t("specieDetail.listsPageTitle")}
+            </h1>
+            {!isLoading && (
+              <span className="text-muted-foreground text-xs">
+                {lists.length} {t("lists.lists")}
+              </span>
+            )}
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <Menu />
+            <Button
+              onClick={() => window.history.back()}
+              variant="ghost"
+              size="icon"
+              className="size-8"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="flex-1 overflow-y-auto">
+        {isLoading ? (
+          <div className="space-y-2 p-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : lists.length === 0 ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-muted-foreground text-center">
+              <List className="mx-auto mb-3 size-16 opacity-30" />
+              <p className="text-sm">{t("specieDetail.noListsYet")}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2 p-4">
+            {lists.map((list, i) => (
+              <motion.div
+                key={list.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.02, duration: 0.2 }}
+              >
+                <ListPreviewCard
+                  list={{ ...list, slug: list.slug || slugify(list.title) }}
+                  username={list.user_username}
+                />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

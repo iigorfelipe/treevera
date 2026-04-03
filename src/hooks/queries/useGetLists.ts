@@ -226,10 +226,13 @@ export function useRemoveSpeciesFromList(listId: string) {
   });
 }
 
-export function useGetListsWithSpecies(gbifKey: number | undefined) {
+export function useGetListsWithSpecies(
+  gbifKey: number | undefined,
+  limit = 5,
+) {
   return useQuery({
-    queryKey: [QUERY_KEYS.lists_with_species_key, gbifKey],
-    queryFn: () => fetchListsWithSpecies(gbifKey!),
+    queryKey: [QUERY_KEYS.lists_with_species_key, gbifKey, limit],
+    queryFn: () => fetchListsWithSpecies(gbifKey!, limit),
     enabled: !!gbifKey,
     staleTime: 5 * 60_000,
   });

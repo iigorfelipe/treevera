@@ -169,7 +169,9 @@
     "unfavTop4Confirm": "Remove anyway",
     "unfavTop4Cancel": "Cancel",
     "favoritersTitle": "Who favorited",
-    "noFavoritersYet": "No one has favorited this species yet"
+    "noFavoritersYet": "No one has favorited this species yet",
+    "listsPageTitle": "Lists with this species",
+    "noListsYet": "This species is not in any list yet"
   },
 
   "occurrenceMap": {
@@ -345,7 +347,9 @@
     "listUpdated": "List updated!",
     "listDeleted": "List deleted!",
     "knownSpecies": "known species",
-    "listsWithSpecies": "Lists with this species"
+    "listsWithSpecies": "Lists with this species",
+    "lists": "lists",
+    "viewAll": "View all"
   },
 
   "vulnerability": {

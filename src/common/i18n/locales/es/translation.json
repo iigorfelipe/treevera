@@ -169,7 +169,9 @@
     "unfavTop4Confirm": "Eliminar de todos modos",
     "unfavTop4Cancel": "Cancelar",
     "favoritersTitle": "Quién marcó como favorito",
-    "noFavoritersYet": "Nadie ha marcado esta especie como favorita aún"
+    "noFavoritersYet": "Nadie ha marcado esta especie como favorita aún",
+    "listsPageTitle": "Listas con esta especie",
+    "noListsYet": "Esta especie aún no está en ninguna lista"
   },
 
   "occurrenceMap": {
@@ -345,7 +347,9 @@
     "listUpdated": "¡Lista actualizada!",
     "listDeleted": "¡Lista eliminada!",
     "knownSpecies": "especies conocidas",
-    "listsWithSpecies": "Listas con esta especie"
+    "listsWithSpecies": "Listas con esta especie",
+    "lists": "listas",
+    "viewAll": "Ver todas"
   },
 
   "vulnerability": {

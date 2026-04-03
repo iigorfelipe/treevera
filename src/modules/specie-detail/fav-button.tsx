@@ -56,7 +56,7 @@ export const SpecieFavButton = ({
     e.stopPropagation();
     if (!specieKey) return;
     void navigate({
-      to: "/specie-detail/$specieKey/favoriters",
+      to: "/specie-detail/$specieKey/likes",
       params: { specieKey: String(specieKey) },
     });
   };
