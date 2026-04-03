@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
@@ -33,6 +33,50 @@ type ListDetailProps = {
   listSlug: string;
 };
 
+const useNumColumns = () => {
+  const [numColumns, setNumColumns] = useState(1);
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w >= 1280) setNumColumns(5);
+      else if (w >= 1024) setNumColumns(4);
+      else if (w >= 768) setNumColumns(3);
+      else if (w >= 640) setNumColumns(2);
+      else setNumColumns(1);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return numColumns;
+};
+
+const ListSpeciesGridSkeleton = () => {
+  const numColumns = useNumColumns();
+
+  return (
+    <div className="p-4 md:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex gap-4">
+          {Array.from({ length: numColumns }).map((_, col) => (
+            <div key={col} className="flex min-w-0 flex-1 flex-col gap-4">
+              {Array.from({ length: 4 }).map((_, row) => (
+                <div
+                  key={row}
+                  className="bg-muted animate-pulse rounded-xl"
+                  style={{ height: `${180 + (row % 3) * 40}px` }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -54,6 +98,8 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isPending: loadingSpecies,
+    isFetching: fetchingSpecies,
   } = useGetListSpecies(list?.id);
 
   const { mutate: doDelete, isPending: deleting } = useDeleteList();
@@ -64,6 +110,8 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     () => speciesData?.pages.flatMap((p) => p.rows) ?? [],
     [speciesData],
   );
+  const isSpeciesInitialLoading =
+    !!list && !speciesData && (loadingSpecies || fetchingSpecies);
 
   const isOwner = !!userDb && !!list && userDb.id === list.user_id;
 
@@ -146,7 +194,9 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
           onDelete={() => setDeleteConfirmOpen(true)}
         />
 
-        {allSpecies.length === 0 && !isFetchingNextPage ? (
+        {isSpeciesInitialLoading ? (
+          <ListSpeciesGridSkeleton />
+        ) : allSpecies.length === 0 && !isFetchingNextPage ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />
