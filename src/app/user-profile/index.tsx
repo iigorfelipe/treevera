@@ -1,3 +1,4 @@
+import { useAtomValue } from "jotai";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { Button } from "@/common/components/ui/button";
@@ -12,6 +13,7 @@ import { UserListsPreview } from "@/modules/profile/user-lists-preview";
 import { UserLikedListsPreview } from "@/modules/profile/user-liked-lists-preview";
 import { TreeShortcuts } from "@/modules/profile/tree-shortcuts";
 import { LatestUserActivities } from "@/modules/profile/latest-user-activities";
+import { authStore } from "@/store/auth/atoms";
 
 function ProfileSkeleton() {
   return (
@@ -78,6 +80,7 @@ const PageHeader = () => (
 
 export function UserProfilePage({ username }: { username: string }) {
   const { data, isLoading } = useGetPublicProfile(username);
+  const userDb = useAtomValue(authStore.userDb);
 
   if (isLoading) {
     return (
@@ -104,6 +107,9 @@ export function UserProfilePage({ username }: { username: string }) {
     );
   }
 
+  const isOfficialProfile =
+    data.username === "treevera" && userDb?.username !== "treevera";
+
   const publicProfileHeader = {
     name: data.name,
     username: data.username,
@@ -121,42 +127,52 @@ export function UserProfilePage({ username }: { username: string }) {
             <div className="order-1">
               <HeaderProfile publicProfile={publicProfileHeader} />
             </div>
-            <div className="order-2">
-              <FavoriteSpecies
-                favSpecies={data.public_info?.top_fav_species}
-                isOwner={false}
-              />
-            </div>
-            <div className="order-4">
-              <UserAchievements userId={data.id} isOwner={false} />
-            </div>
+            {!isOfficialProfile && (
+              <div className="order-2">
+                <FavoriteSpecies
+                  favSpecies={data.public_info?.top_fav_species}
+                  isOwner={false}
+                />
+              </div>
+            )}
+            {!isOfficialProfile && (
+              <div className="order-4">
+                <UserAchievements userId={data.id} isOwner={false} />
+              </div>
+            )}
           </div>
 
           <div className="contents max-w-1/3 lg:flex lg:flex-1 lg:flex-col lg:gap-14">
-            <div className="order-3">
-              <SpeciesGalleryPreview
-                userId={data.id}
-                profileUsername={data.username}
-              />
-            </div>
+            {!isOfficialProfile && (
+              <div className="order-3">
+                <SpeciesGalleryPreview
+                  userId={data.id}
+                  profileUsername={data.username}
+                />
+              </div>
+            )}
             <div className="order-5">
               <UserListsPreview userId={data.id} username={data.username} />
             </div>
-            <div className="order-6">
-              <UserLikedListsPreview
-                userId={data.id}
-                username={data.username}
-              />
-            </div>
+            {!isOfficialProfile && (
+              <div className="order-6">
+                <UserLikedListsPreview
+                  userId={data.id}
+                  username={data.username}
+                />
+              </div>
+            )}
             <div className="order-7">
               <TreeShortcuts
                 shortcuts={data.public_info?.shortcuts}
                 isOwner={false}
               />
             </div>
-            <div className="order-8">
-              <LatestUserActivities userId={data.id} />
-            </div>
+            {!isOfficialProfile && (
+              <div className="order-8">
+                <LatestUserActivities userId={data.id} />
+              </div>
+            )}
           </div>
         </div>
       </div>

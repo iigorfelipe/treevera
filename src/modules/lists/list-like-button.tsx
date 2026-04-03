@@ -6,7 +6,7 @@ import { authStore } from "@/store/auth/atoms";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -37,11 +37,17 @@ export const ListLikeButton = ({
 
   const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
   const [optimisticCount, setOptimisticCount] = useState(likesCount);
+  const [prevIsLiked, setPrevIsLiked] = useState(isLiked);
+  const [prevLikesCount, setPrevLikesCount] = useState(likesCount);
 
-  useEffect(() => {
+  if (prevIsLiked !== isLiked) {
+    setPrevIsLiked(isLiked);
     setOptimisticLiked(isLiked);
+  }
+  if (prevLikesCount !== likesCount) {
+    setPrevLikesCount(likesCount);
     setOptimisticCount(likesCount);
-  }, [isLiked, likesCount]);
+  }
 
   const canNavigateToLikes = !!username && !!listSlug;
   const showCounter = optimisticCount > 0;

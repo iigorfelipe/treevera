@@ -32,7 +32,7 @@ export const UserListsPreview = ({
   return (
     <div className="space-y-3">
       <div className="flex justify-between border-b">
-        <h2>{t("lists.myLists")}</h2>
+        <h2 className="uppercase">{t("lists.myLists")}</h2>
 
         {shouldShowButton && (
           <Button

@@ -13,6 +13,7 @@ import {
   Pencil,
   Check,
   X,
+  Camera,
 } from "lucide-react";
 import {
   Slider as RadixSlider,
@@ -37,6 +38,13 @@ import {
   checkUsernameAvailable,
   updateUsername,
 } from "@/common/utils/supabase/update-username";
+import {
+  uploadAvatar,
+  removeAvatar,
+} from "@/common/utils/supabase/update-avatar";
+import { updateName } from "@/common/utils/supabase/update-name";
+import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
+import { AvatarModal } from "@/common/components/avatar-modal";
 
 const Toggle = ({
   checked,
@@ -173,22 +181,93 @@ function AccountSection({ flat }: { flat?: boolean }) {
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const { logout, isLoggingOut } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [photoViewOpen, setPhotoViewOpen] = useState(false);
+  const [removeAvatarConfirmOpen, setRemoveAvatarConfirmOpen] = useState(false);
+
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const [editingUsername, setEditingUsername] = useState(false);
   const [usernameInput, setUsernameInput] = useState("");
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [savingUsername, setSavingUsername] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
-  const handleStartEdit = () => {
+  const handleAvatarClick = () => fileInputRef.current?.click();
+
+  const handleAvatarFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file || !userDb) return;
+    e.target.value = "";
+    setUploadingAvatar(true);
+    try {
+      const url = await uploadAvatar(userDb.id, file);
+      setUserDb({ ...userDb, avatar_url: url });
+    } catch {
+      //
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!userDb) return;
+    setUploadingAvatar(true);
+    try {
+      await removeAvatar(userDb.id);
+      setUserDb({ ...userDb, avatar_url: null });
+    } catch {
+      //
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleStartEditName = () => {
+    setNameInput(userDb?.name ?? "");
+    setNameError(null);
+    setEditingName(true);
+  };
+
+  const handleCancelEditName = () => {
+    setEditingName(false);
+    setNameError(null);
+  };
+
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim();
+    if (!userDb || trimmed.length < 3 || trimmed.length > 30) return;
+    setSavingName(true);
+    setNameError(null);
+    try {
+      const trimmed = nameInput.trim();
+      await updateName(userDb.id, trimmed);
+      setUserDb({ ...userDb, name: trimmed });
+      setEditingName(false);
+    } catch {
+      setNameError("Erro ao salvar. Tente novamente.");
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const handleStartEditUsername = () => {
     setUsernameInput(userDb?.username ?? "");
     setUsernameStatus("idle");
     setSaveError(null);
     setEditingUsername(true);
   };
 
-  const handleCancelEdit = () => {
+  const handleCancelEditUsername = () => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setEditingUsername(false);
     setUsernameStatus("idle");
@@ -240,8 +319,6 @@ function AccountSection({ flat }: { flat?: boolean }) {
   };
 
   const handleLogout = async () => {
-    const confirmed = window.confirm(t("nav.logoutWarning"));
-    if (!confirmed) return;
     await logout();
     navigate({ to: "/" });
   };
@@ -274,6 +351,114 @@ function AccountSection({ flat }: { flat?: boolean }) {
     return null;
   })();
 
+  const avatarBlock = (size: "sm" | "lg") => {
+    const avatarSize = size === "lg" ? "size-16" : "size-14";
+    const fallbackSize = size === "lg" ? "text-xl" : "text-lg";
+    return (
+      <div className="flex flex-col items-center">
+        <div className="relative">
+          <button
+            onClick={() => userDb?.avatar_url && setPhotoViewOpen(true)}
+            disabled={!userDb?.avatar_url || uploadingAvatar}
+            className="rounded-full disabled:cursor-default"
+          >
+            <Avatar className={cn(avatarSize, "shrink-0")}>
+              <AvatarImage src={userDb?.avatar_url ?? undefined} alt="User" />
+              <AvatarFallback
+                className={cn("bg-green-600 text-white", fallbackSize)}
+              >
+                {userDb?.name?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+          <button
+            onClick={handleAvatarClick}
+            disabled={uploadingAvatar}
+            className="absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full bg-green-600 text-white shadow transition-opacity hover:opacity-90 disabled:opacity-60"
+            title="Alterar foto"
+          >
+            {uploadingAvatar ? (
+              <Loader className="size-3 animate-spin" />
+            ) : (
+              <Camera className="size-3" />
+            )}
+          </button>
+        </div>
+        {userDb?.avatar_url && (
+          <button
+            onClick={() => setRemoveAvatarConfirmOpen(true)}
+            disabled={uploadingAvatar}
+            className="text-muted-foreground hover:text-destructive text-xs transition-colors disabled:opacity-60"
+          >
+            Remover foto
+          </button>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarFileChange}
+        />
+      </div>
+    );
+  };
+
+  const nameBlock = editingName ? (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <input
+          value={nameInput}
+          onChange={(e) => setNameInput(e.target.value)}
+          placeholder="Seu nome"
+          maxLength={30}
+          autoFocus
+          className="border-input bg-background min-w-0 flex-1 rounded-md border px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-green-600"
+        />
+        <button
+          onClick={handleSaveName}
+          disabled={
+            nameInput.trim().length < 3 ||
+            nameInput.trim().length > 30 ||
+            savingName
+          }
+          className="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-opacity disabled:opacity-40"
+        >
+          {savingName ? (
+            <Loader className="size-3 animate-spin" />
+          ) : (
+            <Check className="size-3" />
+          )}
+          Salvar
+        </button>
+        <button
+          onClick={handleCancelEditName}
+          className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+      {nameInput.trim().length < 3 && nameInput.length > 0 && (
+        <p className="text-muted-foreground text-xs">Mínimo de 3 caracteres</p>
+      )}
+      {nameError && <p className="text-destructive text-xs">{nameError}</p>}
+    </div>
+  ) : (
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm font-medium">{userDb?.name}</p>
+        <p className="text-muted-foreground text-xs">Nome de exibição</p>
+      </div>
+      <button
+        onClick={handleStartEditName}
+        className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
+        title="Editar nome"
+      >
+        <Pencil className="size-4" />
+      </button>
+    </div>
+  );
+
   const usernameBlock = editingUsername ? (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -299,7 +484,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
           Salvar
         </button>
         <button
-          onClick={handleCancelEdit}
+          onClick={handleCancelEditUsername}
           className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
         >
           <X className="size-4" />
@@ -315,7 +500,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
         <p className="text-muted-foreground text-xs">Identificador público</p>
       </div>
       <button
-        onClick={handleStartEdit}
+        onClick={handleStartEditUsername}
         className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
         title="Editar username"
       >
@@ -332,22 +517,17 @@ function AccountSection({ flat }: { flat?: boolean }) {
         flat ? (
           <div className="space-y-1">
             <div className="flex items-center gap-4 py-3">
-              <Avatar className="size-10 shrink-0">
-                <AvatarImage src={userDb.avatar_url} alt="User" />
-                <AvatarFallback className="bg-green-600 text-sm text-white">
-                  {userDb.name[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{userDb.name}</p>
+              {avatarBlock("sm")}
+              <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground truncate text-xs">
                   {userDb.email}
                 </p>
               </div>
             </div>
+            <div className="py-2">{nameBlock}</div>
             <div className="py-2">{usernameBlock}</div>
             <button
-              onClick={handleLogout}
+              onClick={() => setLogoutConfirmOpen(true)}
               disabled={isLoggingOut}
               className="text-destructive flex items-center gap-2 py-3 text-sm transition-opacity disabled:opacity-60"
             >
@@ -361,23 +541,18 @@ function AccountSection({ flat }: { flat?: boolean }) {
           </div>
         ) : (
           <div className="divide-y rounded-xl border">
-            <div className="flex items-center gap-4 p-5">
-              <Avatar className="size-10 shrink-0">
-                <AvatarImage src={userDb.avatar_url} alt="User" />
-                <AvatarFallback className="bg-green-600 text-sm text-white">
-                  {userDb.name[0]}
-                </AvatarFallback>
-              </Avatar>
+            <div className="flex items-center gap-5 p-5">
+              {avatarBlock("lg")}
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{userDb.name}</p>
                 <p className="text-muted-foreground truncate text-xs">
                   {userDb.email}
                 </p>
               </div>
             </div>
+            <div className="px-5 py-3.5">{nameBlock}</div>
             <div className="px-5 py-3.5">{usernameBlock}</div>
             <button
-              onClick={handleLogout}
+              onClick={() => setLogoutConfirmOpen(true)}
               disabled={isLoggingOut}
               className="text-destructive hover:bg-destructive/5 flex w-full items-center gap-3 px-5 py-3.5 text-sm transition-colors disabled:opacity-60"
             >
@@ -401,6 +576,34 @@ function AccountSection({ flat }: { flat?: boolean }) {
           </button>
         </p>
       )}
+
+      {photoViewOpen && userDb?.avatar_url && (
+        <AvatarModal
+          src={userDb.avatar_url}
+          alt={userDb.name}
+          onClose={() => setPhotoViewOpen(false)}
+        />
+      )}
+
+      <ConfirmDialog
+        open={removeAvatarConfirmOpen}
+        onOpenChange={setRemoveAvatarConfirmOpen}
+        title="Remover foto"
+        description="Tem certeza que deseja remover sua foto de perfil?"
+        confirmLabel="Remover"
+        onConfirm={handleRemoveAvatar}
+        variant="destructive"
+      />
+
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        onOpenChange={setLogoutConfirmOpen}
+        title={t("logout")}
+        description={t("nav.logoutWarning")}
+        confirmLabel={t("logout")}
+        onConfirm={handleLogout}
+        variant="destructive"
+      />
     </div>
   );
 }

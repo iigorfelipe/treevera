@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { formatUserSinceDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
@@ -17,6 +18,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/common/components/ui/avatar";
+import { AvatarModal } from "@/common/components/avatar-modal";
 
 type PublicProfileHeader = {
   name: string;
@@ -34,6 +36,7 @@ export const HeaderProfile = ({
   const userDb = useAtomValue(authStore.userDb);
   const isOwner = !publicProfile;
   const data = publicProfile ?? userDb;
+  const [photoOpen, setPhotoOpen] = useState(false);
 
   return (
     <header className="flex flex-col gap-4 rounded-2xl">
@@ -41,12 +44,29 @@ export const HeaderProfile = ({
         {isOwner && <Menu isProfilePage />}
 
         {!isOwner && (
-          <Avatar className="size-16 shrink-0">
-            <AvatarImage src={data?.avatar_url ?? undefined} alt={data?.name} />
-            <AvatarFallback className="bg-green-600 text-white">
-              {data?.name?.[0] ?? "?"}
-            </AvatarFallback>
-          </Avatar>
+          <button
+            className="shrink-0 rounded-full disabled:cursor-default"
+            onClick={() => data?.avatar_url && setPhotoOpen(true)}
+            disabled={!data?.avatar_url}
+          >
+            <Avatar className="size-16">
+              <AvatarImage
+                src={data?.avatar_url ?? undefined}
+                alt={data?.name}
+              />
+              <AvatarFallback className="bg-green-600 text-white">
+                {data?.name?.[0] ?? "?"}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        )}
+
+        {photoOpen && data?.avatar_url && (
+          <AvatarModal
+            src={data.avatar_url}
+            alt={data.name}
+            onClose={() => setPhotoOpen(false)}
+          />
         )}
 
         <div className="flex-1">

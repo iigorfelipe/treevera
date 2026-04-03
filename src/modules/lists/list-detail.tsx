@@ -13,10 +13,12 @@ import {
   useGetListSpecies,
   useDeleteList,
   useUpdateList,
+  useRemoveSpeciesFromList,
 } from "@/hooks/queries/useGetLists";
 import { ListDetailHero } from "./list-detail-hero";
 import { ListSpeciesGrid } from "./list-species-grid";
 import { ListEditDialog } from "./list-edit-dialog";
+import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +40,9 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [removeSpeciesGbifKey, setRemoveSpeciesGbifKey] = useState<
+    number | null
+  >(null);
 
   const { data: list, isLoading: loadingDetail } = useGetListDetail(
     username,
@@ -52,6 +57,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
 
   const { mutate: doDelete, isPending: deleting } = useDeleteList();
   const { mutate: doUpdate } = useUpdateList(list?.id ?? "");
+  const { mutate: doRemoveSpecies } = useRemoveSpeciesFromList(list?.id ?? "");
 
   const allSpecies = useMemo(
     () => speciesData?.pages.flatMap((p) => p.rows) ?? [],
@@ -153,6 +159,8 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
             isFetchingNextPage={isFetchingNextPage}
             fetchNextPage={() => void fetchNextPage()}
             scrollRef={scrollRef}
+            isOwner={isOwner}
+            onRemove={(gbifKey) => setRemoveSpeciesGbifKey(gbifKey)}
           />
         )}
       </div>
@@ -188,6 +196,19 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={removeSpeciesGbifKey !== null}
+        onOpenChange={(open) => !open && setRemoveSpeciesGbifKey(null)}
+        title="Remover espécie"
+        description="Tem certeza que deseja remover esta espécie da lista?"
+        confirmLabel="Remover"
+        onConfirm={() => {
+          if (removeSpeciesGbifKey !== null)
+            doRemoveSpecies(removeSpeciesGbifKey);
+        }}
+        variant="destructive"
+      />
     </div>
   );
 };

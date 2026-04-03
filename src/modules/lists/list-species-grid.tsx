@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import type { ListSpeciesRow } from "@/common/types/lists";
@@ -44,6 +44,8 @@ type ListSpeciesGridProps = {
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
   scrollRef: React.RefObject<HTMLDivElement | null>;
+  isOwner?: boolean;
+  onRemove?: (gbifKey: number) => void;
 };
 
 export const ListSpeciesGrid = ({
@@ -52,6 +54,8 @@ export const ListSpeciesGrid = ({
   isFetchingNextPage,
   fetchNextPage,
   scrollRef,
+  isOwner = false,
+  onRemove,
 }: ListSpeciesGridProps) => {
   const navigate = useNavigate();
   const numColumns = useNumColumns();
@@ -107,11 +111,24 @@ export const ListSpeciesGrid = ({
                     delay: globalIndex * 0.02,
                     duration: 0.25,
                   }}
+                  className="relative"
                 >
                   <SpeciesCard
                     species={toGalleryRow(s)}
                     onClick={() => handleSelectSpecies(s.gbif_key)}
                   />
+                  {isOwner && onRemove && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRemove(s.gbif_key);
+                      }}
+                      className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80"
+                      title="Remover da lista"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  )}
                 </motion.div>
               ))}
             </div>

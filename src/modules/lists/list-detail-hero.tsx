@@ -1,4 +1,4 @@
-import { ImageOff, Calendar, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { ImageOff, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import {
   Avatar,
@@ -65,7 +65,7 @@ export const ListDetailHero = ({
                 </AvatarFallback>
               </Avatar>
               <span className="text-muted-foreground text-sm">
-                Lista criada {t("lists.by")}{" "}
+                {t("lists.by")}{" "}
                 {list.user_username ? (
                   <Link
                     to="/$username"
@@ -82,8 +82,7 @@ export const ListDetailHero = ({
 
             <div className="flex items-center">
               <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                <Calendar className="size-3" />
-                Atualizada em:{" "}
+                Atualizada ·{" "}
                 {formatActivityDate(list.updated_at || list.created_at)}
               </div>
 
@@ -121,40 +120,41 @@ export const ListDetailHero = ({
             </div>
           </div>
 
-          <div className="my-5 border-t" />
+          <div className="flex justify-between gap-5 border-t py-5">
+            <div className="flex w-full flex-col gap-px">
+              <h1 className="text-xl font-bold sm:text-2xl">{list.title}</h1>
 
-          <h1 className="text-xl font-bold sm:text-2xl">{list.title}</h1>
-
-          {list.description && (
-            <p className="text-muted-foreground line-clamp-2 text-sm">
-              {list.description}
-            </p>
-          )}
-
-          <div className="flex items-center gap-2 pt-5">
-            <ListLikeButton
-              listId={list.id}
-              isLiked={list.is_liked}
-              likesCount={list.likes_count}
-              username={list.user_username}
-              listSlug={list.slug}
-            />
-
-            <div className="ml-auto flex min-w-0 gap-2">
-              <div className="min-w-0 flex-1">
-                <p className="text-muted-foreground mb-1 truncate text-xs">
-                  {knownCount}/{totalCount} {t("lists.knownSpecies")}
+              {list.description && (
+                <p className="text-muted-foreground line-clamp-2 text-sm">
+                  {list.description}
                 </p>
-                <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                  <div
-                    className="bg-primary h-full rounded-full transition-all"
-                    style={{ width: `${pct}%` }}
-                  />
+              )}
+            </div>
+
+            <div className="flex flex-col items-end gap-3">
+              <ListLikeButton
+                listId={list.id}
+                isLiked={list.is_liked}
+                likesCount={list.likes_count}
+                username={list.user_username}
+                listSlug={list.slug}
+              />
+              <div className="flex w-full gap-2">
+                <div className="min-w-0">
+                  <p className="text-muted-foreground mb-1 truncate text-xs">
+                    {knownCount}/{totalCount} {t("lists.knownSpecies")}
+                  </p>
+                  <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+                    <div
+                      className="bg-primary h-full rounded-full transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
+                <span className="shrink-0 text-lg font-bold tabular-nums">
+                  {pct.toFixed(1)}%
+                </span>
               </div>
-              <span className="mt-auto shrink-0 text-sm font-bold tabular-nums">
-                {pct.toFixed(1)}%
-              </span>
             </div>
           </div>
         </div>

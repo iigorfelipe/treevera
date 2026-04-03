@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -14,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/theme";
 import {
   LogIn,
+  LogOut,
   MenuIcon,
   Settings,
   Target,
@@ -31,6 +33,26 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { treeAtom } from "@/store/tree";
 import { authStore } from "@/store/auth/atoms";
+import { logout as logoutService } from "@/services/auth/profile";
+import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
+
+type ConfirmState = {
+  open: boolean;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+  variant: "default" | "destructive";
+};
+
+const CLOSED_CONFIRM: ConfirmState = {
+  open: false,
+  title: "",
+  description: "",
+  confirmLabel: "Confirmar",
+  onConfirm: () => {},
+  variant: "default",
+};
 
 export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   const { changeTheme, theme } = useTheme();
@@ -38,11 +60,29 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
 
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
+  const setSession = useSetAtom(authStore.session);
+  const setUserDb = useSetAtom(authStore.userDb);
 
   const [challenge, setChallenge] = useAtom(treeAtom.challenge);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
 
   const navigate = useNavigate();
+
+  const [confirmState, setConfirmState] =
+    useState<ConfirmState>(CLOSED_CONFIRM);
+
+  const openConfirm = (params: Omit<ConfirmState, "open">) => {
+    setConfirmState({ ...params, open: true });
+  };
+
+  const closeConfirm = () => setConfirmState(CLOSED_CONFIRM);
+
+  const handleLogout = async () => {
+    await logoutService();
+    setSession(null);
+    setUserDb(null);
+    navigate({ to: "/" });
+  };
 
   if (isProfilePage && !isAuthenticated) {
     navigate({ to: "/login" });
@@ -83,14 +123,27 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 <DropdownMenuItem
                   onClick={() => {
                     if (challenge.status === "IN_PROGRESS") {
-                      const confirmed = window.confirm(
-                        "Você tem um desafio em andamento. Acessar seu perfil, o desafio será cancelado.\n\nDeseja continuar?",
-                      );
-
-                      if (!confirmed) return;
+                      openConfirm({
+                        title: "Desafio em andamento",
+                        description:
+                          "Você tem um desafio em andamento. Acessar seu perfil cancelará o desafio. Deseja continuar?",
+                        confirmLabel: "Continuar",
+                        onConfirm: () => {
+                          setChallenge({ mode: null, status: "NOT_STARTED" });
+                          navigate({
+                            to: "/$username",
+                            params: { username: userDb.username },
+                          });
+                        },
+                        variant: "default",
+                      });
+                      return;
                     }
                     setChallenge({ mode: null, status: "NOT_STARTED" });
-                    navigate({ to: "/$username", params: { username: userDb.username } });
+                    navigate({
+                      to: "/$username",
+                      params: { username: userDb.username },
+                    });
                   }}
                 >
                   <div className="flex flex-col gap-2">
@@ -112,11 +165,19 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
             <DropdownMenuItem
               onClick={() => {
                 if (challenge.status === "IN_PROGRESS") {
-                  const confirmed = window.confirm(
-                    "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado.\n\nDeseja continuar?",
-                  );
-
-                  if (!confirmed) return;
+                  openConfirm({
+                    title: "Desafio em andamento",
+                    description:
+                      "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado. Deseja continuar?",
+                    confirmLabel: "Continuar",
+                    onConfirm: () => {
+                      setChallenge({ mode: null, status: "NOT_STARTED" });
+                      setExpandedNodes([]);
+                      navigate({ to: "/" });
+                    },
+                    variant: "default",
+                  });
+                  return;
                 }
                 setChallenge({ mode: null, status: "NOT_STARTED" });
                 setExpandedNodes([]);
@@ -197,9 +258,39 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
+
+            {isAuthenticated && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() =>
+                    openConfirm({
+                      title: t("logout"),
+                      description: t("nav.logoutWarning"),
+                      confirmLabel: t("logout"),
+                      onConfirm: handleLogout,
+                      variant: "destructive",
+                    })
+                  }
+                >
+                  <LogOut className="mr-2 size-4" />
+                  <span>{t("logout")}</span>
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <ConfirmDialog
+        open={confirmState.open}
+        onOpenChange={(open) => !open && closeConfirm()}
+        title={confirmState.title}
+        description={confirmState.description}
+        confirmLabel={confirmState.confirmLabel}
+        onConfirm={confirmState.onConfirm}
+        variant={confirmState.variant}
+      />
     </>
   );
 };
