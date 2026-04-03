@@ -37,7 +37,7 @@ export function useTreeNavigation() {
     (nodes: PathNode[], fromShortcut = false) => {
       setShortcutTarget(fromShortcut ? [...nodes] : null);
       const path = nodesToPath(nodes);
-      navigate({ to: path });
+      navigate({ to: path, resetScroll: false });
     },
     [navigate, nodesToPath, setShortcutTarget],
   );

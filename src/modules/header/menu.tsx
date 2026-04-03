@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import i18n from "@/common/i18n";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { router } from "@/routes";
 import {
   Avatar,
   AvatarFallback,
@@ -78,6 +79,8 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
   const closeConfirm = () => setConfirmState(CLOSED_CONFIRM);
 
   const handleLogout = async () => {
+    setChallenge({ mode: null, status: "NOT_STARTED" });
+    setExpandedNodes([]);
     await logoutService();
     setSession(null);
     setUserDb(null);
@@ -164,24 +167,23 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
 
             <DropdownMenuItem
               onClick={() => {
+                const goHome = () => {
+                  setChallenge({ mode: null, status: "NOT_STARTED" });
+                  setExpandedNodes([]);
+                  router.history.push(router.basepath + "/");
+                };
                 if (challenge.status === "IN_PROGRESS") {
                   openConfirm({
                     title: "Desafio em andamento",
                     description:
                       "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado. Deseja continuar?",
                     confirmLabel: "Continuar",
-                    onConfirm: () => {
-                      setChallenge({ mode: null, status: "NOT_STARTED" });
-                      setExpandedNodes([]);
-                      navigate({ to: "/" });
-                    },
+                    onConfirm: goHome,
                     variant: "default",
                   });
                   return;
                 }
-                setChallenge({ mode: null, status: "NOT_STARTED" });
-                setExpandedNodes([]);
-                navigate({ to: "/" });
+                goHome();
               }}
             >
               <div className="flex w-full items-center">
@@ -204,7 +206,11 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => navigate({ to: "/lists" })}>
+            <DropdownMenuItem
+              onClick={() =>
+                router.history.push(`${router.basepath}/lists`)
+              }
+            >
               <div className="flex w-full items-center">
                 <List className="mr-2 size-4" /> {t("lists.title")}
               </div>

@@ -27,28 +27,25 @@ export const UserListsPreview = ({
 
   const lists = (data?.rows ?? []).slice(0, LIMIT);
   const totalCount = data?.totalCount ?? 0;
-  const shouldShowButton = totalCount > LIMIT;
-
   return (
     <div className="space-y-3">
       <div className="flex justify-between border-b">
         <h2 className="uppercase">{t("lists.myLists")}</h2>
 
-        {shouldShowButton && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground h-7 px-2 text-xs"
-            onClick={() =>
-              navigate({
-                to: "/$username/lists",
-                params: { username: targetUsername },
-              })
-            }
-          >
-            {t("lists.viewAll")}
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground h-7 px-2 text-xs"
+          disabled={totalCount === 0}
+          onClick={() =>
+            navigate({
+              to: "/$username/lists",
+              params: { username: targetUsername },
+            })
+          }
+        >
+          {t("lists.viewAll")}
+        </Button>
       </div>
 
       {lists.length === 0 ? (

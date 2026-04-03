@@ -8,6 +8,7 @@ import {
   Eye,
   Globe,
   ImageIcon,
+  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/common/components/ui/button";
@@ -35,6 +36,7 @@ interface ChallengeCompletedProps {
   speciesName: string;
   onReplay: () => void;
   onNext: () => void;
+  onClose?: () => void;
   nextLabel: string;
   nextLoading?: boolean;
   children?: React.ReactNode;
@@ -50,6 +52,7 @@ export const ChallengeCompleted = ({
   speciesName,
   onReplay,
   onNext,
+  onClose,
   nextLabel,
   nextLoading = false,
   children,
@@ -76,8 +79,17 @@ export const ChallengeCompleted = ({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="bg-card mx-auto w-full max-w-lg rounded-2xl border p-5 text-center shadow-sm md:mt-5"
+      className="bg-card relative mx-auto w-full max-w-lg rounded-2xl border p-5 text-center shadow-sm md:mt-5"
     >
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="text-muted-foreground hover:text-foreground absolute top-3 right-3 rounded-full p-1 transition-colors"
+          aria-label="Fechar"
+        >
+          <X className="size-4" />
+        </button>
+      )}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}

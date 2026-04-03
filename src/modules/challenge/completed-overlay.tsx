@@ -7,6 +7,7 @@ import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 
 const getToday = () => new Date().toISOString().slice(0, 10);
 
@@ -24,12 +25,27 @@ export const ChallengeCompletedOverlay = ({
 
   const { completionData, targetSpecies, mode, challengeDate } = challenge;
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [nextLoading, setNextLoading] = useState(false);
   const [navDate, setNavDate] = useState(challengeDate ?? getToday());
 
   const { data: navDayData } = useGetDailyChallenge(
     mode === "DAILY" ? navDate : undefined,
   );
+
+  const handleClose = () => {
+    const parts = location.pathname
+      .replace("/treevera", "")
+      .split("/")
+      .filter(Boolean);
+    const keys = parts.slice(2);
+    const treePath = keys.length > 0 ? `/tree/${keys.join("/")}` : "/tree";
+    setChallenge({ mode: null, status: "NOT_STARTED" });
+    setHighlightedKeys([]);
+    navigate({ to: treePath, resetScroll: false });
+  };
 
   const handleReplay = () => {
     setExpandedNodes([]);
@@ -95,6 +111,7 @@ export const ChallengeCompletedOverlay = ({
         speciesName={targetSpecies ?? ""}
         onReplay={handleReplay}
         onNext={handleNext}
+        onClose={handleClose}
         nextLabel={nextLabel}
         nextLoading={nextLoading}
         elapsedSeconds={completionData.elapsedSeconds}
@@ -126,6 +143,7 @@ export const ChallengeCompletedOverlay = ({
         speciesName={targetSpecies ?? ""}
         onReplay={handleReplay}
         onNext={handleNext}
+        onClose={handleClose}
         nextLabel={nextLabel}
         nextLoading={nextLoading}
         elapsedSeconds={completionData.elapsedSeconds}

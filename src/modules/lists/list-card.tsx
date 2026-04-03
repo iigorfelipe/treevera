@@ -37,6 +37,11 @@ export const ListCard = ({ list }: ListCardProps) => {
         <h3 className="group-hover:text-primary truncate text-sm font-semibold transition-colors">
           {list.title}
         </h3>
+        {list.description && (
+          <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
+            {list.description}
+          </p>
+        )}
         <p className="text-muted-foreground mt-0.5 text-xs">
           {t("lists.by")}{" "}
           {list.user_username ? (

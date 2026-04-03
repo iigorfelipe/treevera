@@ -9,6 +9,13 @@ export const Layout = () => {
   const { isMobile } = useResponsive();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  const errorBoundaryKey = (() => {
+    const parts = pathname.replace("/treevera", "").split("/").filter(Boolean);
+    if (parts[0] === "tree") return "tree";
+    if (parts[0] === "challenges") return `challenges/${parts[1] ?? ""}`;
+    return pathname;
+  })();
+
   return (
     <div className="relative">
       <div
@@ -31,7 +38,7 @@ export const Layout = () => {
           )}
         />
       </div>
-      <ErrorBoundary key={pathname}>
+      <ErrorBoundary key={errorBoundaryKey}>
         <Outlet />
       </ErrorBoundary>
     </div>
