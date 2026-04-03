@@ -1,5 +1,7 @@
-import { supabase } from "@/common/utils/supabase/client";
+﻿import i18next from "i18next";
 import type { Provider } from "@supabase/supabase-js";
+
+import { supabase } from "@/common/utils/supabase/client";
 
 const POPUP_WIDTH = 500;
 const POPUP_HEIGHT = 700;
@@ -23,10 +25,10 @@ function waitForOAuthComplete(): Promise<PopupResult> {
 
     const timeout = setTimeout(() => {
       if (bc) bc.close();
-      console.warn("⏰ Timeout aguardando OAuth (90s)");
+      console.warn("OAuth wait timed out (90s)");
       resolve({
         success: false,
-        error: "Tempo limite de autenticação excedido",
+        error: i18next.t("auth.errors.timeout"),
       });
     }, MAX_WAIT_TIME);
 
@@ -42,10 +44,7 @@ function waitForOAuthComplete(): Promise<PopupResult> {
       };
     } catch (error) {
       clearTimeout(timeout);
-      console.warn(
-        "⚠️ BroadcastChannel não disponível, usando timeout fixo",
-        error,
-      );
+      console.warn("BroadcastChannel unavailable, using fixed timeout", error);
 
       setTimeout(() => {
         resolve({ success: true });
@@ -79,19 +78,17 @@ export async function loginWithOAuth(provider: Provider = "google") {
     });
 
     if (error) throw error;
-    if (!data?.url) throw new Error("URL de autenticação não foi gerada");
+    if (!data?.url) throw new Error(i18next.t("auth.errors.authUrlMissing"));
 
     const popup = openOAuthPopup(data.url);
     if (!popup) {
-      throw new Error(
-        "Não foi possível abrir a janela. Verifique o bloqueador de pop-ups.",
-      );
+      throw new Error(i18next.t("auth.errors.popupBlocked"));
     }
 
     const result = await waitForOAuthComplete();
 
     if (!result.success) {
-      throw new Error(result.error || "Falha na autenticação");
+      throw new Error(result.error || i18next.t("auth.errors.authFailed"));
     }
 
     await new Promise((resolve) => setTimeout(resolve, SESSION_WAIT_TIME));
@@ -104,13 +101,12 @@ export async function loginWithOAuth(provider: Provider = "google") {
         await supabase.auth.getSession();
 
       if (sessionError) {
-        console.error("❌ Erro ao buscar sessão:", sessionError);
+        console.error("Error while fetching session:", sessionError);
         if (attempt === maxAttempts) throw sessionError;
       }
 
       if (session.session) {
         sessionData = session;
-
         break;
       }
 
@@ -120,7 +116,7 @@ export async function loginWithOAuth(provider: Provider = "google") {
     }
 
     if (!sessionData?.session) {
-      throw new Error("Sessão não foi estabelecida após autenticação");
+      throw new Error(i18next.t("auth.errors.sessionNotEstablished"));
     }
 
     return {
@@ -128,7 +124,7 @@ export async function loginWithOAuth(provider: Provider = "google") {
       session: sessionData.session,
     };
   } catch (error) {
-    console.error("❌ Erro no login OAuth:", error);
+    console.error("OAuth login error:", error);
     throw error;
   }
 }
@@ -139,7 +135,7 @@ export async function logout() {
     if (error) throw error;
     return { success: true };
   } catch (error) {
-    console.error("❌ Erro no logout:", error);
+    console.error("Logout error:", error);
     throw error;
   }
 }
@@ -150,7 +146,7 @@ export async function getCurrentSession() {
     if (error) throw error;
     return data.session;
   } catch (error) {
-    console.error("❌ Erro ao obter sessão:", error);
+    console.error("Error while fetching session:", error);
     return null;
   }
 }
@@ -161,7 +157,7 @@ export async function getCurrentUser() {
     if (error) throw error;
     return data.user;
   } catch (error) {
-    console.error("❌ Erro ao obter usuário:", error);
+    console.error("Error while fetching user:", error);
     return null;
   }
 }
@@ -172,7 +168,7 @@ export async function refreshSession() {
     if (error) throw error;
     return data.session;
   } catch (error) {
-    console.error("❌ Erro ao atualizar sessão:", error);
+    console.error("Error while refreshing session:", error);
     return null;
   }
 }

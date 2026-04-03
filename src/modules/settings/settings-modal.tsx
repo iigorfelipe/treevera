@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAtom, useAtomValue } from "jotai";
+import { useTranslation } from "react-i18next";
 import { Volume2, VolumeX, Trash2, CheckCircle2 } from "lucide-react";
 import {
   Slider as RadixSlider,
@@ -7,6 +8,7 @@ import {
   SliderTrack,
   SliderRange,
 } from "@radix-ui/react-slider";
+
 import { authStore } from "@/store/auth/atoms";
 import { audioSettingsAtom } from "@/store/audio";
 import { useUserSettings } from "@/hooks/user/useUserSettings";
@@ -47,8 +49,14 @@ const Toggle = ({
 );
 
 export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
+  const { t } = useTranslation();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
-  const { showEmptyNodes, toggleShowEmptyNodes, showRankBadge, toggleShowRankBadge } = useUserSettings();
+  const {
+    showEmptyNodes,
+    toggleShowEmptyNodes,
+    showRankBadge,
+    toggleShowRankBadge,
+  } = useUserSettings();
   const [audio, setAudio] = useAtom(audioSettingsAtom);
   const [clearing, setClearing] = useState(false);
   const [cleared, setCleared] = useState(false);
@@ -65,25 +73,22 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Configurações</DialogTitle>
+          <DialogTitle>{t("settings.title")}</DialogTitle>
         </DialogHeader>
         <div className="divide-y">
           <section className="space-y-3 p-6">
-            <h3 className="text-sm font-semibold">Árvore Taxonômica</h3>
+            <h3 className="text-sm font-semibold">{t("settings.nav.tree")}</h3>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <p className="text-sm font-medium">
-                  Exibir nós sem descendentes
+                  {t("settings.tree.showEmptyNodes")}
                 </p>
                 <p className="text-muted-foreground text-xs leading-relaxed">
-                  Por padrão, é exibido apenas nós que possuem descendentes.
-                  Mantenha <strong>desativado</strong> para continuar com esse
-                  comportamento ou <strong>ative</strong> para exibir nós sem
-                  descendentes.
+                  {t("settings.tree.showEmptyNodesDescription")}
                 </p>
                 {!isAuthenticated && (
                   <p className="text-muted-foreground text-xs italic">
-                    Faça login para salvar esta preferência.
+                    {t("settings.loginToSavePreference")}
                   </p>
                 )}
               </div>
@@ -95,11 +100,10 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
             <div className="flex items-start justify-between gap-4 pt-3">
               <div className="space-y-1">
                 <p className="text-sm font-medium">
-                  Exibir badge de rank
+                  {t("settings.tree.showRankBadge")}
                 </p>
                 <p className="text-muted-foreground text-xs leading-relaxed">
-                  Sempre exibir o badge de rank ao lado de cada nó. Quando{" "}
-                  <strong>desativado</strong>, aparece apenas ao passar o mouse.
+                  {t("settings.tree.showRankBadgeDescription")}
                 </p>
               </div>
               <Toggle
@@ -110,13 +114,17 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
           </section>
 
           <section className="space-y-3 p-6">
-            <h3 className="text-sm font-semibold">Desafios</h3>
+            <h3 className="text-sm font-semibold">
+              {t("settings.nav.challenges")}
+            </h3>
 
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-sm font-medium">Som</p>
+                <p className="text-sm font-medium">
+                  {t("settings.challenges.audio")}
+                </p>
                 <p className="text-muted-foreground text-xs">
-                  Ativar ou desativar os efeitos sonoros durante os desafios.
+                  {t("settings.challenges.audioDescription")}
                 </p>
               </div>
               <Toggle
@@ -130,7 +138,9 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
             {!audio.muted && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">Volume</p>
+                  <p className="text-sm font-medium">
+                    {t("settings.challenges.volume")}
+                  </p>
                   <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
                     <VolumeX className="size-3.5" />
                     <RadixSlider
@@ -164,12 +174,14 @@ export const SettingsModal = ({ open, onOpenChange }: SettingsModalProps) => {
               {cleared ? (
                 <>
                   <CheckCircle2 className="size-3.5 text-green-600" />
-                  Limpo
+                  {t("settings.advanced.cleared")}
                 </>
               ) : (
                 <>
                   <Trash2 className="size-3.5" />
-                  {clearing ? "Limpando…" : "Limpar cache"}
+                  {clearing
+                    ? t("settings.advanced.clearing")
+                    : t("settings.advanced.clearCache")}
                 </>
               )}
             </button>

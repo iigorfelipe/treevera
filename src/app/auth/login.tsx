@@ -8,7 +8,7 @@ import {
 import { Button } from "@/common/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "@tanstack/react-router";
-import { benefits } from "@/common/utils/game/benefits";
+import { benefits, getBenefitCopy } from "@/common/utils/game/benefits";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
@@ -122,6 +122,7 @@ export const Login = () => {
               <ul className="grid h-48 grid-cols-1 overflow-auto 2xl:h-full">
                 {benefits.map((benefit, index) => {
                   const IconComponent = benefit.icon;
+                  const copy = getBenefitCopy(t, benefit.key);
                   return (
                     <li
                       key={index}
@@ -134,10 +135,10 @@ export const Login = () => {
                       </div>
                       <div className="min-w-0 flex-1">
                         <h4 className={`text-sm font-medium ${benefit.color}`}>
-                          {benefit.title}
+                          {copy.title}
                         </h4>
                         <p className="text-xs text-gray-500">
-                          {benefit.description}
+                          {copy.description}
                         </p>
                       </div>
                     </li>

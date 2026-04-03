@@ -1,15 +1,17 @@
-import { useEffect, useCallback } from "react";
-import { useSetAtom, useAtomValue } from "jotai";
-import { authStore } from "@/store/auth/atoms";
+﻿import { useCallback, useEffect } from "react";
+import type { Provider } from "@supabase/supabase-js";
+import i18next from "i18next";
+import { useAtomValue, useSetAtom } from "jotai";
+
+import type { DbUser } from "@/common/types/user";
+import { createUser } from "@/common/utils/supabase/create-user";
+import { supabase } from "@/common/utils/supabase/client";
 import {
+  getCurrentSession,
   loginWithOAuth,
   logout as logoutService,
-  getCurrentSession,
 } from "@/services/auth/profile";
-import { supabase } from "@/common/utils/supabase/client";
-import { createUser } from "@/common/utils/supabase/create-user";
-import type { Provider } from "@supabase/supabase-js";
-import type { DbUser } from "@/common/types/user";
+import { authStore } from "@/store/auth/atoms";
 
 const INIT_TIMEOUT = 10000;
 
@@ -45,25 +47,21 @@ export function useAuth() {
             if (authUser.user) {
               try {
                 const createdUser = await createUser(authUser.user);
-
                 return createdUser;
               } catch (createError) {
-                console.error(
-                  "❌ Erro ao criar usuário no banco:",
-                  createError,
-                );
+                console.error("Error while creating database user:", createError);
                 return null;
               }
             }
           }
 
-          console.error("❌ Erro ao buscar userDb:", error);
+          console.error("Error while fetching userDb:", error);
           return null;
         }
 
         return data as DbUser;
       } catch (error) {
-        console.error("❌ Erro ao buscar userDb:", error);
+        console.error("Error while fetching userDb:", error);
         return null;
       }
     },
@@ -73,7 +71,7 @@ export function useAuth() {
   const initializeSession = useCallback(async () => {
     const timeoutPromise = new Promise<null>((resolve) => {
       setTimeout(() => {
-        console.warn("⏰ Timeout na inicialização");
+        console.warn("Session initialization timed out");
         resolve(null);
       }, INIT_TIMEOUT);
     });
@@ -90,7 +88,7 @@ export function useAuth() {
           if (userData) {
             setUserDb(userData);
           } else {
-            console.warn("⚠️ UserDb não encontrado");
+            console.warn("UserDb not found");
             setUserDb(null);
           }
         } else {
@@ -100,7 +98,7 @@ export function useAuth() {
 
         return currentSession;
       } catch (error) {
-        console.error("❌ Erro ao inicializar:", error);
+        console.error("Error while initializing auth:", error);
         setSession(null);
         setUserDb(null);
         return null;
@@ -137,18 +135,18 @@ export function useAuth() {
           setLoginStatus("success");
 
           return { success: true, user: userData };
-        } else {
-          throw new Error("Não foi possível carregar os dados do usuário");
         }
+
+        throw new Error(i18next.t("auth.errors.userDataLoadFailed"));
       } catch (error) {
         const errorMessage =
           error instanceof Error
             ? error.message
-            : "Erro desconhecido ao fazer login";
+            : i18next.t("auth.errors.loginUnknown");
 
         setAuthError({ message: errorMessage });
         setLoginStatus("error");
-        console.error("❌ Erro no login:", error);
+        console.error("Login error:", error);
 
         return { success: false, error: errorMessage };
       } finally {
@@ -174,11 +172,11 @@ export function useAuth() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Erro desconhecido ao fazer logout";
+          : i18next.t("auth.errors.logoutUnknown");
 
       setAuthError({ message: errorMessage });
       setLogoutStatus("error");
-      console.error("❌ Erro no logout:", error);
+      console.error("Logout error:", error);
 
       return { success: false, error: errorMessage };
     } finally {
@@ -198,7 +196,7 @@ export function useAuth() {
 
   useEffect(() => {
     if (!initialized) {
-      initializeSession();
+      void initializeSession();
     }
 
     const {

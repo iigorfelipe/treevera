@@ -1,18 +1,19 @@
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import { useAtomValue } from "jotai";
+import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { Image } from "@/common/components/image";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
-import { useAtomValue } from "jotai";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
-import { useState, useEffect } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { ImageWithZoom } from "@/common/components/image-with-zoom";
-import { useTranslation } from "react-i18next";
 import { cn } from "@/common/utils/cn";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "@tanstack/react-router";
 
 type Props = {
   favImageUrl: string | null;
@@ -132,7 +133,9 @@ export const SpecieImageDetail = ({
         <ImageWithZoom
           src={currentImage?.imgUrl ?? fallbackImage}
           fallbackSrc={fallbackImage}
-          alt={`Imagem da espécie "${specieDetail.scientificName}"`}
+          alt={t("specieDetail.speciesImageAlt", {
+            name: specieDetail.scientificName,
+          })}
           onFallbackChange={setIsFallback}
           zoom={3}
           contain
@@ -143,14 +146,14 @@ export const SpecieImageDetail = ({
             <button
               onClick={goPrev}
               className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
-              aria-label="Imagem anterior"
+              aria-label={t("specieDetail.previousImage")}
             >
               <ChevronLeft className="size-5" />
             </button>
             <button
               onClick={goNext}
               className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
-              aria-label="Próxima imagem"
+              aria-label={t("specieDetail.nextImage")}
             >
               <ChevronRight className="size-5" />
             </button>
@@ -171,7 +174,7 @@ export const SpecieImageDetail = ({
                   <button
                     onClick={handleCountClick}
                     className="h-9 rounded-l-none rounded-r-full bg-black/40 px-2.5 text-xs font-medium whitespace-nowrap text-white tabular-nums backdrop-blur-sm"
-                    aria-label="Ver quem favoritou"
+                    aria-label={t("specieDetail.viewFavoriters")}
                   >
                     {optimisticCount}
                   </button>
@@ -188,7 +191,9 @@ export const SpecieImageDetail = ({
                 showCounter ? "rounded-l-full rounded-r-none" : "rounded-full",
               )}
               aria-label={
-                isFavCurrentImage ? "Remover dos favoritos" : "Favoritar"
+                isFavCurrentImage
+                  ? t("specieDetail.removeFavorite")
+                  : t("specieDetail.favorite")
               }
             >
               <Heart
@@ -225,7 +230,7 @@ export const SpecieImageDetail = ({
                     ? "bg-white"
                     : "bg-white/40 hover:bg-white/70",
                 )}
-                aria-label={`Foto ${i + 1}`}
+                aria-label={t("specieDetail.photo", { number: i + 1 })}
               />
             ))}
           </div>
@@ -247,7 +252,7 @@ export const SpecieImageDetail = ({
             >
               <img
                 src={img.imgUrl}
-                alt={`Foto ${i + 1}`}
+                alt={t("specieDetail.photo", { number: i + 1 })}
                 className="h-full w-full object-cover"
               />
               {favImageUrl === img.imgUrl && (

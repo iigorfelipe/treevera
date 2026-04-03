@@ -1,5 +1,7 @@
 import { Component, type ReactNode } from "react";
 import { RotateCcw, Home } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 import { Button } from "@/common/components/ui/button";
 
 type Props = {
@@ -35,17 +37,18 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 const ErrorFallback = ({ onReset }: { onReset: () => void }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-4 p-6 text-center">
-      <p className="text-lg font-semibold">Algo deu errado</p>
+      <p className="text-lg font-semibold">{t("errorBoundary.title")}</p>
       <p className="text-muted-foreground max-w-sm text-sm">
-        Ocorreu um erro inesperado. Tente novamente ou volte para a página
-        inicial.
+        {t("errorBoundary.description")}
       </p>
       <div className="flex gap-2">
         <Button onClick={onReset} variant="outline" className="gap-2">
           <RotateCcw className="size-4" />
-          Tentar novamente
+          {t("errorBoundary.retry")}
         </Button>
         <Button
           onClick={() => {
@@ -55,7 +58,7 @@ const ErrorFallback = ({ onReset }: { onReset: () => void }) => {
           className="gap-2"
         >
           <Home className="size-4" />
-          Início
+          {t("errorBoundary.home")}
         </Button>
       </div>
     </div>

@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Loader2, X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import type { ListSpeciesRow } from "@/common/types/lists";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
@@ -57,6 +59,7 @@ export const ListSpeciesGrid = ({
   isOwner = false,
   onRemove,
 }: ListSpeciesGridProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const numColumns = useNumColumns();
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -124,7 +127,7 @@ export const ListSpeciesGrid = ({
                         onRemove(s.gbif_key);
                       }}
                       className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80"
-                      title="Remover da lista"
+                      title={t("lists.removeFromList")}
                     >
                       <X className="size-3.5" />
                     </button>

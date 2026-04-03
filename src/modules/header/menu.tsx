@@ -32,6 +32,7 @@ import {
   AvatarImage,
 } from "@/common/components/ui/avatar";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+
 import { treeAtom } from "@/store/tree";
 import { authStore } from "@/store/auth/atoms";
 import { logout as logoutService } from "@/services/auth/profile";
@@ -50,7 +51,7 @@ const CLOSED_CONFIRM: ConfirmState = {
   open: false,
   title: "",
   description: "",
-  confirmLabel: "Confirmar",
+  confirmLabel: "",
   onConfirm: () => {},
   variant: "default",
 };
@@ -98,7 +99,10 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
           <div className="rounded-full">
             {isAuthenticated && userDb ? (
               <Avatar className={isProfilePage ? "size-16" : "size-8"}>
-                <AvatarImage src={userDb.avatar_url} alt="User" />
+                <AvatarImage
+                  src={userDb.avatar_url}
+                  alt={t("header.userAvatarAlt")}
+                />
                 <AvatarFallback className="bg-green-600 text-xs text-white">
                   {userDb.name[0]}
                 </AvatarFallback>
@@ -127,10 +131,9 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                   onClick={() => {
                     if (challenge.status === "IN_PROGRESS") {
                       openConfirm({
-                        title: "Desafio em andamento",
-                        description:
-                          "Você tem um desafio em andamento. Acessar seu perfil cancelará o desafio. Deseja continuar?",
-                        confirmLabel: "Continuar",
+                        title: t("challenge.inProgressTitle"),
+                        description: t("challenge.leaveToProfileWarning"),
+                        confirmLabel: t("challenge.continue"),
                         onConfirm: () => {
                           setChallenge({ mode: null, status: "NOT_STARTED" });
                           navigate({
@@ -156,7 +159,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                     <div className="flex items-center">
                       <UserCircle className="mr-2 size-4 shrink-0" />
                       <div className="min-w-0 flex-1 py-0.5 text-sm">
-                        <div className="font-medium">Perfil</div>
+                        <div className="font-medium">{t("profile")}</div>
                       </div>
                     </div>
                   </div>
@@ -174,10 +177,9 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 };
                 if (challenge.status === "IN_PROGRESS") {
                   openConfirm({
-                    title: "Desafio em andamento",
-                    description:
-                      "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado. Deseja continuar?",
-                    confirmLabel: "Continuar",
+                    title: t("challenge.inProgressTitle"),
+                    description: t("challenge.leaveToExploreWarning"),
+                    confirmLabel: t("challenge.continue"),
                     onConfirm: goHome,
                     variant: "default",
                   });
@@ -207,9 +209,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              onClick={() =>
-                router.history.push(`${router.basepath}/lists`)
-              }
+              onClick={() => router.history.push(`${router.basepath}/lists`)}
             >
               <div className="flex w-full items-center">
                 <List className="mr-2 size-4" /> {t("lists.title")}
@@ -220,7 +220,7 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
 
             <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
               <Settings className="size-4" />
-              <span>Configurações</span>
+              <span>{t("nav.settings")}</span>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

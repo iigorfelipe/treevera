@@ -13,7 +13,7 @@ type Props = {
 };
 
 export const OccurrenceMap = memo(({ specieKey }: Props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data, isFetching } = useGetOccurrences(specieKey);
 
   const occurrences = data?.occurrences ?? [];
@@ -77,7 +77,9 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
                     <p>
                       <strong>{t("occurrenceMap.date")}: </strong>
                       {o.eventDate
-                        ? new Date(o.eventDate).toLocaleDateString()
+                        ? new Date(o.eventDate).toLocaleDateString(
+                            i18n.resolvedLanguage ?? i18n.language,
+                          )
                         : t("occurrenceMap.noDate")}
                     </p>
                     <p className="wrap-break-word">

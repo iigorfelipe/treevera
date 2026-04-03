@@ -1,26 +1,17 @@
+import { useMemo, useState, useEffect } from "react";
+import { Route } from "lucide-react";
+import { useAtomValue } from "jotai";
+import { useTranslation } from "react-i18next";
+
 import { capitalizar } from "@/common/utils/string";
 import { getKingdomImages } from "@/common/utils/tree/ranks";
 import { treeAtom } from "@/store/tree";
-import { useAtomValue } from "jotai";
-import { useMemo, useState, useEffect } from "react";
-import { Route } from "lucide-react";
 import { authStore } from "@/store/auth/atoms";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
-import { useTranslation } from "react-i18next";
 import type { Kingdom, Rank } from "@/common/types/api";
 import { curiosidades } from "@/common/utils/dataFake";
 import { useScrollThenNavigate } from "@/hooks/use-scroll-then-navigate";
 import { Explorer } from "./explorer";
-
-const RANK_PT: Partial<Record<Rank, string>> = {
-  KINGDOM: "Reino",
-  PHYLUM: "Filo",
-  CLASS: "Classe",
-  ORDER: "Ordem",
-  FAMILY: "Família",
-  GENUS: "Gênero",
-  SPECIES: "Espécie",
-};
 
 export const CardInfo = () => {
   const { t } = useTranslation();
@@ -82,12 +73,14 @@ export const CardInfo = () => {
   if (!selectedData || !slides.length) return null;
 
   const currentBgImg = kingdomImages[currentIndex % kingdomImages.length];
-  const rankLabel = RANK_PT[currentRank] ?? capitalizar(currentRank);
+  const rankLabel = t(`ranks.${currentRank}`, {
+    defaultValue: capitalizar(currentRank),
+  });
 
   const shortcutsSection = shortcuts && (
     <div className="space-y-1">
       <p className="text-[10px] font-medium tracking-widest text-white/45 uppercase">
-        Seus {t("shortcuts.title")}:
+        {t("explore.yourShortcuts", { title: t("shortcuts.title") })}
       </p>
       <div className="flex flex-wrap gap-2">
         {shortcuts
@@ -95,7 +88,9 @@ export const CardInfo = () => {
           .map(({ name, nodes }, i) => (
             <button
               key={i}
-              onClick={() => scrollThenNavigate(() => navigateToNodes(nodes, true))}
+              onClick={() =>
+                scrollThenNavigate(() => navigateToNodes(nodes, true))
+              }
               className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm transition hover:bg-white/20"
             >
               <Route className="size-3 scale-x-[-1]" />

@@ -79,15 +79,6 @@ export type SectionId =
   | "language"
   | "advanced";
 
-const NAV_ITEMS: { id: SectionId; label: string }[] = [
-  { id: "account", label: "Conta" },
-  { id: "tree", label: "Árvore Taxonômica" },
-  { id: "challenges", label: "Desafios" },
-  { id: "theme", label: "Tema" },
-  { id: "language", label: "Idioma" },
-  { id: "advanced", label: "Avançado" },
-];
-
 function SettingRow({
   title,
   description,
@@ -254,7 +245,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
       setUserDb({ ...userDb, name: trimmed });
       setEditingName(false);
     } catch {
-      setNameError("Erro ao salvar. Tente novamente.");
+      setNameError(t("settings.account.saveError"));
     } finally {
       setSavingName(false);
     }
@@ -312,7 +303,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
       setEditingUsername(false);
       setUsernameStatus("idle");
     } catch {
-      setSaveError("Erro ao salvar. Tente novamente.");
+      setSaveError(t("settings.account.saveError"));
     } finally {
       setSavingUsername(false);
     }
@@ -327,25 +318,23 @@ function AccountSection({ flat }: { flat?: boolean }) {
     if (usernameStatus === "checking")
       return (
         <span className="text-muted-foreground flex items-center gap-1 text-xs">
-          <Loader className="size-3 animate-spin" /> Verificando…
-        </span>
+          <Loader className="size-3 animate-spin" /> {t("settings.account.checking")}</span>
       );
     if (usernameStatus === "available")
       return (
         <span className="flex items-center gap-1 text-xs text-green-600">
-          <Check className="size-3" /> Disponível
-        </span>
+          <Check className="size-3" /> {t("settings.account.available")}</span>
       );
     if (usernameStatus === "unavailable")
       return (
         <span className="text-destructive flex items-center gap-1 text-xs">
-          <X className="size-3" /> Já em uso
+          <X className="size-3" /> {t("settings.account.unavailable")}
         </span>
       );
     if (usernameStatus === "invalid")
       return (
         <span className="text-muted-foreground text-xs">
-          3–30 caracteres: letras minúsculas, números e _
+          {t("settings.account.usernameHint")}
         </span>
       );
     return null;
@@ -363,7 +352,10 @@ function AccountSection({ flat }: { flat?: boolean }) {
             className="rounded-full disabled:cursor-default"
           >
             <Avatar className={cn(avatarSize, "shrink-0")}>
-              <AvatarImage src={userDb?.avatar_url ?? undefined} alt="User" />
+              <AvatarImage
+                src={userDb?.avatar_url ?? undefined}
+                alt={t("header.userAvatarAlt")}
+              />
               <AvatarFallback
                 className={cn("bg-green-600 text-white", fallbackSize)}
               >
@@ -375,7 +367,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
             onClick={handleAvatarClick}
             disabled={uploadingAvatar}
             className="absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full bg-green-600 text-white shadow transition-opacity hover:opacity-90 disabled:opacity-60"
-            title="Alterar foto"
+            title={t("settings.account.changePhoto")}
           >
             {uploadingAvatar ? (
               <Loader className="size-3 animate-spin" />
@@ -390,7 +382,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
             disabled={uploadingAvatar}
             className="text-muted-foreground hover:text-destructive text-xs transition-colors disabled:opacity-60"
           >
-            Remover foto
+            {t("settings.account.removePhoto")}
           </button>
         )}
         <input
@@ -410,7 +402,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
         <input
           value={nameInput}
           onChange={(e) => setNameInput(e.target.value)}
-          placeholder="Seu nome"
+          placeholder={t("settings.account.yourName")}
           maxLength={30}
           autoFocus
           className="border-input bg-background min-w-0 flex-1 rounded-md border px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-green-600"
@@ -429,7 +421,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
           ) : (
             <Check className="size-3" />
           )}
-          Salvar
+          {t("lists.save")}
         </button>
         <button
           onClick={handleCancelEditName}
@@ -439,7 +431,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
         </button>
       </div>
       {nameInput.trim().length < 3 && nameInput.length > 0 && (
-        <p className="text-muted-foreground text-xs">Mínimo de 3 caracteres</p>
+        <p className="text-muted-foreground text-xs">{t("settings.account.nameMin")}</p>
       )}
       {nameError && <p className="text-destructive text-xs">{nameError}</p>}
     </div>
@@ -447,12 +439,12 @@ function AccountSection({ flat }: { flat?: boolean }) {
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium">{userDb?.name}</p>
-        <p className="text-muted-foreground text-xs">Nome de exibição</p>
+        <p className="text-muted-foreground text-xs">{t("settings.account.displayName")}</p>
       </div>
       <button
         onClick={handleStartEditName}
         className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
-        title="Editar nome"
+        title={t("settings.account.editName")}
       >
         <Pencil className="size-4" />
       </button>
@@ -466,7 +458,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
         <input
           value={usernameInput}
           onChange={(e) => handleUsernameChange(e.target.value)}
-          placeholder="seu_username"
+          placeholder="your_username"
           maxLength={30}
           autoFocus
           className="border-input bg-background min-w-0 flex-1 rounded-md border px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-green-600"
@@ -481,7 +473,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
           ) : (
             <Check className="size-3" />
           )}
-          Salvar
+          {t("lists.save")}
         </button>
         <button
           onClick={handleCancelEditUsername}
@@ -497,12 +489,12 @@ function AccountSection({ flat }: { flat?: boolean }) {
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium">@{userDb?.username}</p>
-        <p className="text-muted-foreground text-xs">Identificador público</p>
+        <p className="text-muted-foreground text-xs">{t("settings.account.publicIdentifier")}</p>
       </div>
       <button
         onClick={handleStartEditUsername}
         className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
-        title="Editar username"
+        title={t("settings.account.editUsername")}
       >
         <Pencil className="size-4" />
       </button>
@@ -511,7 +503,10 @@ function AccountSection({ flat }: { flat?: boolean }) {
 
   return (
     <div className="space-y-4">
-      <SectionHeading title="Conta" description="Informações da sua conta." />
+      <SectionHeading
+        title={t("settings.account.title")}
+        description={t("settings.account.description")}
+      />
 
       {isAuthenticated && userDb ? (
         flat ? (
@@ -567,12 +562,12 @@ function AccountSection({ flat }: { flat?: boolean }) {
         )
       ) : (
         <p className="text-muted-foreground text-sm">
-          Você não está autenticado.{" "}
+          {t("settings.account.notAuthenticated")} {" "}
           <button
             onClick={() => navigate({ to: "/login" })}
             className="text-foreground underline underline-offset-2"
           >
-            Fazer login
+            {t("settings.account.login")}
           </button>
         </p>
       )}
@@ -588,9 +583,9 @@ function AccountSection({ flat }: { flat?: boolean }) {
       <ConfirmDialog
         open={removeAvatarConfirmOpen}
         onOpenChange={setRemoveAvatarConfirmOpen}
-        title="Remover foto"
-        description="Tem certeza que deseja remover sua foto de perfil?"
-        confirmLabel="Remover"
+        title={t("settings.account.removePhotoTitle")}
+        description={t("settings.account.removePhotoDescription")}
+        confirmLabel={t("settings.account.removePhoto")}
         onConfirm={handleRemoveAvatar}
         variant="destructive"
       />
@@ -621,11 +616,13 @@ function TreeSection({
   toggleShowRankBadge: () => void;
   flat?: boolean;
 }) {
+  const { t } = useTranslation();
+
   const rows = (
     <>
       <SettingRow
-        title="Exibir nós sem descendentes"
-        description="Por padrão, apenas nós com descendentes são exibidos. Ative para mostrar todos os nós."
+        title={t("settings.tree.showEmptyNodes")}
+        description={t("settings.tree.showEmptyNodesDescription")}
       >
         <Toggle
           checked={showEmptyNodes}
@@ -633,8 +630,8 @@ function TreeSection({
         />
       </SettingRow>
       <SettingRow
-        title="Exibir badge de rank"
-        description="Sempre exibir o badge de rank (ex: Order, Family) ao lado de cada nó. Quando desativado, o badge aparece apenas ao passar o mouse."
+        title={t("settings.tree.showRankBadge")}
+        description={t("settings.tree.showRankBadgeDescription")}
       >
         <Toggle checked={showRankBadge} onCheckedChange={toggleShowRankBadge} />
       </SettingRow>
@@ -644,8 +641,8 @@ function TreeSection({
   return (
     <div className="space-y-4">
       <SectionHeading
-        title="Árvore Taxonômica"
-        description="Controle como a árvore taxonômica é exibida."
+        title={t("settings.tree.title")}
+        description={t("settings.tree.description")}
       />
       {flat ? (
         rows
@@ -670,10 +667,12 @@ function ChallengesSection({
   ) => void;
   flat?: boolean;
 }) {
+  const { t } = useTranslation();
+
   const volumeRow = (
     <SettingRow
-      title="Volume"
-      description="Ajuste o volume dos efeitos sonoros durante os desafios."
+      title={t("settings.challenges.volume")}
+      description={t("settings.challenges.description")}
     >
       <div className="flex items-center gap-2.5">
         <VolumeX className="text-muted-foreground size-4 shrink-0" />
@@ -700,8 +699,8 @@ function ChallengesSection({
   return (
     <div className="space-y-4">
       <SectionHeading
-        title="Desafios"
-        description="Configurações de áudio durante os desafios."
+        title={t("settings.challenges.title")}
+        description={t("settings.challenges.description")}
       />
       {flat ? (
         volumeRow
@@ -720,7 +719,7 @@ function ThemeSection() {
     <div className="space-y-4">
       <SectionHeading
         title={t("theme")}
-        description="Escolha a aparência do aplicativo."
+        description={t("settings.themeDescription")}
       />
       <RadioGroup
         value={theme}
@@ -742,7 +741,7 @@ function LanguageSection() {
     <div className="space-y-4">
       <SectionHeading
         title={t("language")}
-        description="Escolha o idioma do aplicativo."
+        description={t("settings.languageDescription")}
       />
       <RadioGroup
         value={i18n.language}
@@ -768,13 +767,14 @@ function AdvancedSection({
   onClearCache: () => void;
   flat?: boolean;
 }) {
+  const { t } = useTranslation();
+
   const inner = (
     <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="min-w-0 space-y-0.5">
-        <p className="text-sm font-medium">Limpar cache</p>
+        <p className="text-sm font-medium">{t("settings.advanced.clearCache")}</p>
         <p className="text-muted-foreground text-xs leading-relaxed">
-          Remove dados em cache como informações de espécies já consultadas. Os
-          dados serão recarregados na próxima consulta.
+          {t("settings.advanced.clearCacheDescription")}
         </p>
       </div>
       <button
@@ -785,12 +785,12 @@ function AdvancedSection({
         {cleared ? (
           <>
             <CheckCircle2 className="size-3.5 text-green-600" />
-            Limpo
+            {t("settings.advanced.cleared")}
           </>
         ) : (
           <>
             <Trash2 className="size-3.5" />
-            {clearing ? "Limpando…" : "Limpar cache"}
+            {clearing ? t("settings.advanced.clearing") : t("settings.advanced.clearCache")}
           </>
         )}
       </button>
@@ -800,8 +800,8 @@ function AdvancedSection({
   return (
     <div className="space-y-4">
       <SectionHeading
-        title="Avançado"
-        description="Opções de cache e dados do aplicativo."
+        title={t("settings.advanced.title")}
+        description={t("settings.advanced.description")}
       />
       {flat ? inner : <div className="rounded-xl border px-5">{inner}</div>}
     </div>
@@ -819,6 +819,14 @@ const VALID_SECTIONS = new Set<SectionId>([
 
 export const SettingsPage = () => {
   const { t } = useTranslation();
+  const navItems: { id: SectionId; label: string }[] = [
+    { id: "account", label: t("settings.nav.account") },
+    { id: "tree", label: t("settings.nav.tree") },
+    { id: "challenges", label: t("settings.nav.challenges") },
+    { id: "theme", label: t("settings.nav.theme") },
+    { id: "language", label: t("settings.nav.language") },
+    { id: "advanced", label: t("settings.nav.advanced") },
+  ];
   const navigate = useNavigate();
   const { section } = useParams({ strict: false }) as { section?: string };
   const activeSection: SectionId =
@@ -908,10 +916,10 @@ export const SettingsPage = () => {
 
       <div className="md:hidden">
         <div className="px-4 pb-2">
-          <p className="text-xl font-semibold">Configurações</p>
+          <p className="text-xl font-semibold">{t("settings.title")}</p>
         </div>
         <div className="divide-y">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <div key={item.id} className="px-4 py-6">
               {renderSection(item.id, true)}
             </div>
@@ -922,10 +930,10 @@ export const SettingsPage = () => {
       <div className="mx-auto hidden max-w-4xl md:flex">
         <aside className="w-56 shrink-0 py-2 pr-2">
           <p className="text-muted-foreground mb-3 px-3 text-base font-semibold">
-            Configurações
+            {t("settings.title")}
           </p>
           <div className="space-y-0.5">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() =>

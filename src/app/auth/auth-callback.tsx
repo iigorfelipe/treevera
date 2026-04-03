@@ -1,6 +1,9 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export const AuthCallback = () => {
+  const { t } = useTranslation();
+
   useEffect(() => {
     const handleCallback = async () => {
       try {
@@ -11,7 +14,7 @@ export const AuthCallback = () => {
           bc.postMessage("oauth_complete");
           bc.close();
         } catch (e) {
-          console.warn("⚠️ [Popup] BroadcastChannel falhou:", e);
+          console.warn("BroadcastChannel failed:", e);
         }
 
         if (window.opener && !window.opener.closed) {
@@ -21,7 +24,7 @@ export const AuthCallback = () => {
               window.location.origin,
             );
           } catch (e) {
-            console.warn("⚠️ [Popup] postMessage falhou:", e);
+            console.warn("postMessage failed:", e);
           }
         }
 
@@ -29,7 +32,7 @@ export const AuthCallback = () => {
 
         window.close();
       } catch (error) {
-        console.error("❌ [Popup] Erro:", error);
+        console.error("[Popup] Error:", error);
 
         setTimeout(() => {
           window.close();
@@ -37,7 +40,7 @@ export const AuthCallback = () => {
       }
     };
 
-    handleCallback();
+    void handleCallback();
   }, []);
 
   return (
@@ -59,10 +62,10 @@ export const AuthCallback = () => {
           </svg>
         </div>
         <h1 className="mb-2 text-xl font-semibold">
-          Finalizando autenticação...
+          {t("auth.finalizingAuth")}
         </h1>
         <p className="text-muted-foreground text-sm">
-          Aguarde alguns segundos.
+          {t("auth.waitSeconds")}
         </p>
       </div>
     </div>

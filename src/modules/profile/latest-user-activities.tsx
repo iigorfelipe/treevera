@@ -17,7 +17,9 @@ export const LatestUserActivities = ({ userId }: { userId?: string }) => {
     userId,
   );
 
-  const visibleActivities = expanded ? activities : activities.slice(0, DEFAULT_LIMIT);
+  const visibleActivities = expanded
+    ? activities
+    : activities.slice(0, DEFAULT_LIMIT);
   const shouldShowButton = activities.length > DEFAULT_LIMIT;
 
   return (
@@ -32,7 +34,7 @@ export const LatestUserActivities = ({ userId }: { userId?: string }) => {
             className="text-muted-foreground h-7 px-2 text-xs"
             onClick={() => setExpanded((prev) => !prev)}
           >
-            {expanded ? "Recolher" : "Expandir"}
+            {expanded ? t("lists.collapse") : t("lists.expand")}
             {expanded ? (
               <ChevronUp className="ml-1 size-3" />
             ) : (

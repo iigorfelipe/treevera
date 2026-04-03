@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ListPlus, Check, Plus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAtomValue } from "jotai";
+
 import { Button } from "@/common/components/ui/button";
 import {
   Dialog,
@@ -8,14 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/common/components/ui/dialog";
-import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import {
   useGetMyListsForPicker,
   useAddSpeciesToList,
   useCreateList,
 } from "@/hooks/queries/useGetLists";
-import { toast } from "sonner";
 
 type AddToListButtonProps = {
   gbifKey: number;
@@ -161,7 +162,12 @@ const ListPickerRow = ({
     if (alreadyAdded) return;
     addToList(gbifKey, {
       onSuccess: () => {
-        toast.success(`${speciesName || "Espécie"} → ${title}`);
+        toast.success(
+          t("lists.speciesAddedToList", {
+            species: speciesName || t("lists.defaultSpeciesName"),
+            list: title,
+          }),
+        );
         onAdded();
       },
     });

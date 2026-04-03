@@ -1,9 +1,11 @@
 import { useAtomValue } from "jotai";
+import { motion } from "framer-motion";
+import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { Button } from "@/common/components/ui/button";
-import { X } from "lucide-react";
-import { motion } from "framer-motion";
 import { Menu } from "@/modules/header/menu";
 import { HeaderProfile } from "@/modules/profile/header";
 import { FavoriteSpecies } from "@/modules/profile/fav-species/fav-species";
@@ -79,6 +81,7 @@ const PageHeader = () => (
 );
 
 export function UserProfilePage({ username }: { username: string }) {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetPublicProfile(username);
   const userDb = useAtomValue(authStore.userDb);
 
@@ -97,10 +100,11 @@ export function UserProfilePage({ username }: { username: string }) {
         <PageHeader />
         <div className="flex flex-col items-center justify-center gap-3 pt-24 text-center">
           <p className="text-4xl">🌿</p>
-          <p className="text-lg font-semibold">Perfil não encontrado</p>
+          <p className="text-lg font-semibold">
+            {t("profilePage.notFoundTitle")}
+          </p>
           <p className="text-muted-foreground text-sm">
-            O usuário <span className="font-medium">@{username}</span> não
-            existe.
+            {t("profilePage.notFoundDescription", { username })}
           </p>
         </div>
       </div>

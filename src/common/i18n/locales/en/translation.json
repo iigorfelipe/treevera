@@ -11,7 +11,53 @@
   "logout": "Logout",
   "theme": "Theme",
   "loginWithGoogle": "Login with Google",
-
+  "header": {
+    "logoAlt": "Logo",
+    "tagline": "Interactive taxonomy",
+    "userAvatarAlt": "User"
+  },
+  "dialog": {
+    "close": "Close"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Try again or go back to the home page.",
+    "retry": "Try again",
+    "home": "Home"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "This branch leads nowhere. The page may have been moved or never existed.",
+    "backHome": "Back to home page"
+  },
+  "ranks": {
+    "KINGDOM": "Kingdom",
+    "PHYLUM": "Phylum",
+    "CLASS": "Class",
+    "ORDER": "Order",
+    "FAMILY": "Family",
+    "GENUS": "Genus",
+    "SPECIES": "Species"
+  },
+  "ranksLower": {
+    "KINGDOM": "kingdom",
+    "SUBKINGDOM": "subkingdom",
+    "PHYLUM": "phylum",
+    "SUBPHYLUM": "subphylum",
+    "SUPERCLASS": "superclass",
+    "CLASS": "class",
+    "SUBCLASS": "subclass",
+    "SUPERORDER": "superorder",
+    "ORDER": "order",
+    "SUBORDER": "suborder",
+    "SUPERFAMILY": "superfamily",
+    "FAMILY": "family",
+    "SUBFAMILY": "subfamily",
+    "GENUS": "genus",
+    "SUBGENUS": "subgenus",
+    "SPECIES": "species",
+    "SUBSPECIES": "subspecies"
+  },
   "time": {
     "now": "Just now",
     "minutesAgo": "{{count}}m ago",
@@ -19,12 +65,10 @@
     "yesterday": "Yesterday",
     "daysAgo": "{{count}} days ago"
   },
-
   "loading": {
     "restoringCache": "Restoring cache...",
     "initializing": "Initializing..."
   },
-
   "auth": {
     "finalizingAuth": "Finalizing authentication...",
     "waitSeconds": "Please wait a few seconds.",
@@ -35,13 +79,45 @@
     "exclusiveFeatures": "Exclusive features when signed in",
     "continueWithoutLogin": "You can continue without signing in, but you won't have access to the features listed above.",
     "back": "Back",
-    "backAriaLabel": "Go back to previous page"
+    "backAriaLabel": "Go back to previous page",
+    "benefits": {
+      "saveShortcuts": {
+        "title": "Save shortcuts",
+        "description": "Pin your most visited nodes to speed up navigation"
+      },
+      "dailyAndRandomChallenges": {
+        "title": "Daily and random challenges",
+        "description": "Fresh challenges every day to test your knowledge"
+      },
+      "viewHistory": {
+        "title": "View history",
+        "description": "Track the species you have already explored"
+      },
+      "speciesGallery": {
+        "title": "Species gallery",
+        "description": "Organize and favorite the species you have discovered"
+      },
+      "activityHistory": {
+        "title": "Activity history",
+        "description": "See a summary of your interactions on the platform"
+      }
+    },
+    "errors": {
+      "timeout": "Authentication timed out",
+      "authUrlMissing": "The authentication URL was not generated",
+      "popupBlocked": "Could not open the sign-in window. Please check your pop-up blocker.",
+      "authFailed": "Authentication failed",
+      "sessionNotEstablished": "The session was not established after authentication",
+      "userDataLoadFailed": "Could not load the user data",
+      "loginUnknown": "Unknown error while signing in",
+      "logoutUnknown": "Unknown error while signing out"
+    }
   },
-
   "nav": {
     "back": "Back",
     "challenges": "Challenges",
     "explore": "Explore",
+    "settings": "Settings",
     "audio": "Audio",
     "about": "About",
     "soundOff": "Sound off",
@@ -49,15 +125,15 @@
     "logoutWarning": "When you sign out, your features and progress will only be available when you sign in again.",
     "logoutAnyway": "Sign out anyway"
   },
-
   "profilePage": {
     "memberSince": "Member since",
     "globalRanking": "Global Ranking",
     "rankingHint": "Score on explored species, hit accuracy and speed to keep climbing.",
     "devNoticeTitle": "Project in development",
-    "devNoticeDescription": "Treevera is still in its early stages. During this period, updates and improvements may affect your progress (species seen, challenges, achievements). It's part of the project's evolution!"
+    "devNoticeDescription": "Treevera is still in its early stages. During this period, updates and improvements may affect your progress (species seen, challenges, achievements). It's part of the project's evolution!",
+    "notFoundTitle": "Profile not found",
+    "notFoundDescription": "The user @{{username}} does not exist."
   },
-
   "progress": {
     "title": "PROGRESS",
     "speciesExplored": "Species explored",
@@ -67,19 +143,68 @@
     "dayStreak": "Day streak",
     "globalRanking": "Global ranking"
   },
-
   "activity": {
     "title": "ACTIVITY",
     "emptyTitle": "No activity yet",
     "emptyHint": "Explore species and complete challenges to record your journey!"
   },
-
   "achievements": {
     "title": "ACHIEVEMENTS",
     "locked": "Locked",
-    "unlockedOn": "Unlocked on"
+    "unlockedOn": "Unlocked on",
+    "view": "View achievements",
+    "activityTitle": "Achievement: {{name}}",
+    "items": {
+      "primeira_descoberta": {
+        "name": "First discovery",
+        "description": "First species explored in the taxonomic tree."
+      },
+      "explorador_da_vida": {
+        "name": "Explorer of life",
+        "description": "100 different species explored."
+      },
+      "equilibrio_da_vida": {
+        "name": "Balance of life",
+        "description": "1 species explored from each kingdom."
+      },
+      "defensor_biodiversidade": {
+        "name": "Biodiversity defender",
+        "description": "5 threatened species (EN or VU) explored."
+      },
+      "na_linha_vermelha": {
+        "name": "On the red line",
+        "description": "5 critically endangered species (CR) explored."
+      },
+      "habito_selvagem": {
+        "name": "Wild streak",
+        "description": "7 consecutive days with at least one new species explored."
+      },
+      "curador_da_vida": {
+        "name": "Curator of life",
+        "description": "25 species added to favorites."
+      },
+      "vitrine_pessoal": {
+        "name": "Personal showcase",
+        "description": "4 species pinned as favorites on the profile."
+      },
+      "primeiro_desafio_diario": {
+        "name": "First daily challenge",
+        "description": "First daily challenge completed."
+      },
+      "sem_roteiro": {
+        "name": "Off script",
+        "description": "5 random challenges completed."
+      },
+      "semana_perfeita": {
+        "name": "Perfect week",
+        "description": "7 consecutive days of daily challenges completed."
+      },
+      "incansavel": {
+        "name": "Tireless",
+        "description": "50 challenges completed in total."
+      }
+    }
   },
-
   "shortcuts": {
     "title": "SHORTCUTS",
     "saveEdit": "Save edit",
@@ -90,7 +215,6 @@
     "emptyHint": "Create shortcuts by browsing the tree",
     "tip": "Browse the taxonomic tree and save selected nodes as shortcuts for quick access."
   },
-
   "seenSpecies": {
     "title": "SEEN SPECIES",
     "openGallery": "Open gallery",
@@ -98,7 +222,6 @@
     "emptyHint": "Explore species to fill it!",
     "emptyTitleOf": "{{username}} hasn't explored any species yet"
   },
-
   "favSpecies": {
     "title": "FAVORITE SPECIES",
     "addFavorite": "Add favorite",
@@ -109,7 +232,6 @@
     "pickerEmpty": "No species available",
     "pickerEmptyHint": "Favorite species in the gallery to add them here"
   },
-
   "gallery": {
     "title": "Species Gallery",
     "species": "species",
@@ -127,7 +249,6 @@
     "noImage": "No image",
     "photosFirst": "Photos first"
   },
-
   "specieDetail": {
     "notFound": "No data found",
     "backToGallery": "Back to gallery",
@@ -151,6 +272,7 @@
     "imageNotFound": "Image not found.",
     "imageNote": "Images are sourced from Wikipedia, iNaturalist and GBIF, and may be missing for species with limited visual documentation.",
     "viewOnGoogle": "View on Google Images",
+    "speciesImageAlt": "Image of species \"{{name}}\"",
     "imageSource": "Source",
     "imageBy": "by @",
     "imageLicense": ", licensed under ",
@@ -171,9 +293,14 @@
     "favoritersTitle": "Who favorited",
     "noFavoritersYet": "No one has favorited this species yet",
     "listsPageTitle": "Lists with this species",
-    "noListsYet": "This species is not in any list yet"
+    "noListsYet": "This species is not in any list yet",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "viewFavoriters": "View who favorited",
+    "removeFavorite": "Remove from favorites",
+    "favorite": "Favorite",
+    "photo": "Photo {{number}}"
   },
-
   "occurrenceMap": {
     "locality": "Locality",
     "country": "Country",
@@ -186,12 +313,16 @@
     "dataProvidedBy": "Occurrence data provided by",
     "dataNote": ". The points represent global records from various databases, which may differ from the image source above."
   },
-
   "tree": {
     "loadError": "Failed to load",
     "loadErrorMessage": "Could not load the tree. Please try again.",
     "noData": "No data available",
     "noDataMessage": "No taxonomic data to display yet.",
+    "descendants": "descendants",
+    "emptyNodeAcceptedPrefix": "{{name}} is registered as an accepted classification in",
+    "emptyNodeAcceptedSuffix": "but it has no recorded descendants.",
+    "emptyNodeSettingsHint": "If you do not want to see nodes without descendants, disable it in",
+    "emptyNodeSettingsPath": "Menu > Settings > Show nodes without descendants",
     "searchBannerPrompt": "Can't find it? Search",
     "searchBannerTitle": "Search within this group",
     "searchBannerPlaceholder": "Taxon name...",
@@ -199,7 +330,6 @@
     "searchBannerHint": "Type the taxon name you're looking for",
     "searchBannerNoResults": "No results found"
   },
-
   "search": {
     "selectKingdom": "Select a kingdom",
     "example": "Example",
@@ -228,13 +358,12 @@
     "synonymsNavigation": "Try navigating through synonyms:",
     "viewOnGbif": "View on GBIF"
   },
-
   "explore": {
     "selectKingdom": "Choose a Kingdom to start exploring!",
     "mainGroups": "Main Groups",
-    "kingdom": "Kingdom"
+    "kingdom": "Kingdom",
+    "yourShortcuts": "Your {{title}}:"
   },
-
   "challenge": {
     "title": "Daily Challenge",
     "find": "Find",
@@ -253,6 +382,7 @@
     "interactions": "interactions",
     "tips": "Tips to advance",
     "needHelp": "Need help?",
+    "target": "Target",
     "prevStep": "Previous step",
     "step": "Step",
     "of": "of",
@@ -290,9 +420,19 @@
     "backToChallenges": "Back to challenges",
     "tryRandom": "Try a random challenge",
     "playThisDay": "Play this day",
-    "incompatibleSpecies": "This species has incompatible taxonomic data and cannot be used in challenges. It has been automatically removed from the species pool."
+    "incompatibleSpecies": "This species has incompatible taxonomic data and cannot be used in challenges. It has been automatically removed from the species pool.",
+    "inProgressTitle": "Challenge in progress",
+    "leaveToProfileWarning": "You have a challenge in progress. Going to your profile will cancel it. Do you want to continue?",
+    "leaveToExploreWarning": "You have a challenge in progress. Going to Explore will cancel it. Do you want to continue?",
+    "continue": "Continue",
+    "noTips": "No tips available for this step.",
+    "moreInfo": "More information",
+    "commonNames": "Common names",
+    "noCommonNames": "No common names found.",
+    "speciesImage": "Species image",
+    "imageUnavailable": "Image unavailable",
+    "followPathHelp": "Expand the taxonomic tree groups following the correct path until you reach the species {{speciesName}}."
   },
-
   "lists": {
     "title": "Lists",
     "myLists": "My lists",
@@ -349,9 +489,69 @@
     "knownSpecies": "known species",
     "listsWithSpecies": "Lists with this species",
     "lists": "lists",
-    "viewAll": "View all"
+    "removeFromList": "Remove from list",
+    "removeSpeciesConfirm": "Are you sure you want to remove this species from the list?",
+    "speciesAddedToList": "{{species}} → {{list}}",
+    "defaultSpeciesName": "Species"
   },
-
+  "settings": {
+    "title": "Settings",
+    "nav": {
+      "account": "Account",
+      "tree": "Taxonomic Tree",
+      "challenges": "Challenges",
+      "theme": "Theme",
+      "language": "Language",
+      "advanced": "Advanced"
+    },
+    "account": {
+      "title": "Account",
+      "description": "Information about your account.",
+      "displayName": "Display name",
+      "publicIdentifier": "Public identifier",
+      "changePhoto": "Change photo",
+      "removePhoto": "Remove photo",
+      "yourName": "Your name",
+      "editName": "Edit name",
+      "editUsername": "Edit username",
+      "saveError": "Failed to save. Please try again.",
+      "checking": "Checking...",
+      "available": "Available",
+      "unavailable": "Already in use",
+      "usernameHint": "3–30 characters: lowercase letters, numbers, and _",
+      "nameMin": "Minimum of 3 characters",
+      "notAuthenticated": "You are not authenticated.",
+      "login": "Sign in",
+      "removePhotoTitle": "Remove photo",
+      "removePhotoDescription": "Are you sure you want to remove your profile photo?"
+    },
+    "tree": {
+      "title": "Taxonomic Tree",
+      "description": "Control how the taxonomic tree is displayed.",
+      "showEmptyNodes": "Show nodes without descendants",
+      "showEmptyNodesDescription": "By default, only nodes with descendants are shown. Enable this to show all nodes.",
+      "showRankBadge": "Show rank badge",
+      "showRankBadgeDescription": "Always show the rank badge (for example: Order, Family) next to each node. When disabled, the badge only appears on hover."
+    },
+    "challenges": {
+      "title": "Challenges",
+      "description": "Audio settings during challenges.",
+      "audio": "Sound",
+      "audioDescription": "Enable or disable sound effects during challenges.",
+      "volume": "Volume"
+    },
+    "themeDescription": "Choose the app appearance.",
+    "languageDescription": "Choose the app language.",
+    "advanced": {
+      "title": "Advanced",
+      "description": "Cache and app data options.",
+      "clearCache": "Clear cache",
+      "clearing": "Clearing...",
+      "cleared": "Cleared",
+      "clearCacheDescription": "Removes cached data such as species information you have already viewed. The data will be reloaded on the next request."
+    },
+    "loginToSavePreference": "Sign in to save this preference."
+  },
   "vulnerability": {
     "unknown": "Not in the IUCN Red List",
     "unknownDesc": "This species has no data in the IUCN Red List. The list assesses living species under current threats. Prehistoric species, geologically extinct groups, and poorly documented taxa often have no record.",

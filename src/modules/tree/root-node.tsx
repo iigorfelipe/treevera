@@ -13,9 +13,11 @@ import {
 } from "@/common/constants/tree";
 import { capitalizar } from "@/common/utils/string";
 import type { NodeEntity } from "@/common/types/tree-atoms";
+import { useTranslation } from "react-i18next";
 
 export const RootNode = memo(
   ({ node, isLoading }: { node: NodeEntity; isLoading: boolean }) => {
+    const { t } = useTranslation();
     const { isShaking, shakeDirection } = useAtomValue(treeAtom.animate);
 
     const isExpanded = node.expanded;
@@ -65,7 +67,8 @@ export const RootNode = memo(
               {capitalizar(NAME_KINGDOM_BY_KEY[node.key])}
             </h1>
             <span className="text-xs">
-              {formatNumber(node.numDescendants)} <span>descendentes</span>
+              {formatNumber(node.numDescendants)}{" "}
+              <span>{t("tree.descendants")}</span>
             </span>
           </div>
         </div>

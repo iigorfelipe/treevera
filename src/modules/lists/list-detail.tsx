@@ -2,12 +2,13 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
-import { authStore } from "@/store/auth/atoms";
 import { Images, Loader2, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+
+import { authStore } from "@/store/auth/atoms";
 import { Menu } from "@/modules/header/menu";
 import { Button } from "@/common/components/ui/button";
-import { toast } from "sonner";
 import {
   useGetListDetail,
   useGetListSpecies,
@@ -200,12 +201,13 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
       <ConfirmDialog
         open={removeSpeciesGbifKey !== null}
         onOpenChange={(open) => !open && setRemoveSpeciesGbifKey(null)}
-        title="Remover espécie"
-        description="Tem certeza que deseja remover esta espécie da lista?"
-        confirmLabel="Remover"
+        title={t("lists.removeSpecies")}
+        description={t("lists.removeSpeciesConfirm")}
+        confirmLabel={t("lists.removeFromList")}
         onConfirm={() => {
-          if (removeSpeciesGbifKey !== null)
+          if (removeSpeciesGbifKey !== null) {
             doRemoveSpecies(removeSpeciesGbifKey);
+          }
         }}
         variant="destructive"
       />

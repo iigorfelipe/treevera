@@ -18,8 +18,10 @@ import { showRankBadgeAtom } from "@/store/user-settings";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { motion } from "framer-motion";
 import { authStore } from "@/store/auth/atoms";
+import { useTranslation } from "react-i18next";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
+  const { i18n } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
   const showRankBadge = useAtomValue(showRankBadgeAtom);
@@ -191,7 +193,10 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
         </div>
 
         <span className="text-[11px]">
-          {node.numDescendants && node.numDescendants.toLocaleString("pt-BR")}
+          {node.numDescendants &&
+            new Intl.NumberFormat(
+              i18n.resolvedLanguage ?? i18n.language,
+            ).format(node.numDescendants)}
         </span>
       </div>
     </motion.div>

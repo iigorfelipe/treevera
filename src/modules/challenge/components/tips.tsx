@@ -25,6 +25,7 @@ import {
   treeAtom,
 } from "@/store/tree";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useGetChallengeTips } from "@/hooks/queries/useGetChallengeTips";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
@@ -41,28 +42,13 @@ export type StepInteractionType =
   | "namesExpanded"
   | "imageExpanded";
 
-const RANK_LABELS: Partial<Record<Rank, string>> = {
-  KINGDOM: "reino",
-  SUBKINGDOM: "subreino",
-  PHYLUM: "filo",
-  SUBPHYLUM: "subfilo",
-  SUPERCLASS: "superclasse",
-  CLASS: "classe",
-  SUBCLASS: "subclasse",
-  SUPERORDER: "superordem",
-  ORDER: "ordem",
-  SUBORDER: "subordem",
-  SUPERFAMILY: "superfamília",
-  FAMILY: "família",
-  SUBFAMILY: "subfamília",
-  GENUS: "gênero",
-  SUBGENUS: "subgênero",
-  SPECIES: "espécie",
-  SUBSPECIES: "subespécie",
-};
-
-const getRankLabel = (rank: Rank): string =>
-  RANK_LABELS[rank] ?? rank.toLowerCase().replace(/_/g, " ");
+const getRankLabel = (
+  rank: Rank,
+  t: TFunction,
+): string =>
+  t(`ranksLower.${rank}`, {
+    defaultValue: rank.toLowerCase().replace(/_/g, " "),
+  });
 
 export const ChallengeTips = ({
   speciesName,
@@ -262,7 +248,7 @@ export const ChallengeTips = ({
             {isTablet && (
               <div className="mb-2.5 flex items-center gap-1.5 border-b pb-2.5">
                 <span className="text-muted-foreground shrink-0 text-[11px] font-semibold tracking-wide uppercase">
-                  Alvo
+                  {t("challenge.target")}
                 </span>
                 <span className="truncate text-sm font-bold text-emerald-600 italic dark:text-green-400">
                   {speciesName}
@@ -325,7 +311,7 @@ export const ChallengeTips = ({
               </div>
             ) : (
               <div className="bg-muted/40 text-muted-foreground mt-3 rounded-lg border p-3 text-sm">
-                Sem dicas disponíveis para esta etapa.
+                {t("challenge.noTips")}
               </div>
             )}
 
@@ -349,7 +335,7 @@ export const ChallengeTips = ({
                       </button>
                     ) : (
                       <p className="text-foreground font-medium">
-                        {getRankLabel(currentNode.rank)}{" "}
+                        {getRankLabel(currentNode.rank, t)}{" "}
                         <span className="font-bold text-green-600">
                           {currentNode.name}
                         </span>
@@ -365,7 +351,7 @@ export const ChallengeTips = ({
                 <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                   <div className="flex items-center gap-1.5">
                     <Info className="size-3.5" />
-                    Mais informações
+                    {t("challenge.moreInfo")}
                   </div>
                   <ChevronDown className="size-3.5 opacity-60" />
                 </button>
@@ -381,7 +367,7 @@ export const ChallengeTips = ({
                     <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                       <div className="flex items-center gap-1.5">
                         <Globe className="size-3.5" />
-                        Nomes populares
+                        {t("challenge.commonNames")}
                       </div>
                       <ChevronDown className="size-3.5 opacity-60" />
                     </button>
@@ -395,7 +381,7 @@ export const ChallengeTips = ({
                       </div>
                     ) : vernacularNames.length === 0 ? (
                       <div className="text-muted-foreground text-xs">
-                        Nenhum nome popular encontrado.
+                        {t("challenge.noCommonNames")}
                       </div>
                     ) : (
                       <ul className="space-y-1">
@@ -424,7 +410,7 @@ export const ChallengeTips = ({
                     <button className="text-muted-foreground hover:bg-muted/50 flex w-full items-center justify-between rounded-md px-2 py-1 text-xs">
                       <div className="flex items-center gap-1.5">
                         <ImageIcon className="size-3.5" />
-                        Imagem da espécie
+                        {t("challenge.speciesImage")}
                       </div>
                       <ChevronDown className="size-3.5 opacity-60" />
                     </button>
@@ -441,7 +427,7 @@ export const ChallengeTips = ({
                       />
                     ) : (
                       <div className="text-muted-foreground flex h-32 items-center justify-center text-xs">
-                        Imagem não disponível
+                        {t("challenge.imageUnavailable")}
                       </div>
                     )}
                   </Collapsible.Content>
@@ -459,12 +445,7 @@ export const ChallengeTips = ({
                   </Collapsible.Trigger>
 
                   <Collapsible.Content className="text-muted-foreground bg-muted/40 mt-2 rounded-md p-3 text-sm">
-                    Expanda os grupos da árvore taxonômica seguindo o caminho
-                    correto até chegar à espécie{" "}
-                    <span className="font-semibold text-emerald-500">
-                      {speciesName}
-                    </span>
-                    .
+                    {t("challenge.followPathHelp", { speciesName })}
                   </Collapsible.Content>
                 </Collapsible.Root>
               </Collapsible.Content>
