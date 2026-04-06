@@ -1,13 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { searchTaxa, getSpecieDetail } from "@/services/apis/gbif";
 import type { Rank, Taxon } from "@/common/types/api";
 import { EXCLUDED_RANKS } from "@/common/utils/tree/children";
 import { useNavigateToTaxon } from "@/hooks/use-navigate-to-taxon";
-import type { TaxonDiagnostic } from "@/hooks/use-navigate-to-taxon";
-import { focusSearchAtom, setFocusSearchAtom } from "@/store/tree";
+import {
+  focusSearchAtom,
+  setFocusSearchAtom,
+  searchQAtom,
+  searchKingdomAtom,
+  searchResultsAtom,
+  searchErrorAtom,
+  searchSelectedAtom,
+  searchMinimizedAtom,
+  searchDiagnosisAtom,
+} from "@/store/tree";
 
 const detectGbifKey = (q: string): number | null => {
   const trimmed = q.trim();
@@ -98,19 +107,18 @@ export function useSearch() {
   const { navigateToTaxon } = useNavigateToTaxon();
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const [q, setQ] = useState("");
-  const [kingdom, setKingdom] = useState("");
+  const [q, setQ] = useAtom(searchQAtom);
+  const [kingdom, setKingdom] = useAtom(searchKingdomAtom);
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<Taxon[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Taxon | null>(null);
-  const [minimized, setMinimized] = useState(false);
-  const [diagnosis, setDiagnosis] = useState<TaxonDiagnostic | null>(null);
+  const [results, setResults] = useAtom(searchResultsAtom);
+  const [error, setError] = useAtom(searchErrorAtom);
+  const [selected, setSelected] = useAtom(searchSelectedAtom);
+  const [minimized, setMinimized] = useAtom(searchMinimizedAtom);
+  const [diagnosis, setDiagnosis] = useAtom(searchDiagnosisAtom);
 
   const gbifKey = detectGbifKey(q);
   const isKeySearch = gbifKey !== null;
 
-  // Listen for focus trigger from SearchBannerNode
   const focusTrigger = useAtomValue(focusSearchAtom);
   const setFocusTrigger = useSetAtom(setFocusSearchAtom);
   useEffect(() => {
@@ -122,7 +130,6 @@ export function useSearch() {
     setDiagnosis(null);
     setMinimized(false);
     if (focusTrigger.kingdom) setKingdom(focusTrigger.kingdom);
-    // Give React one extra frame to render the kingdom selection before focusing
     setTimeout(() => inputRef.current?.focus(), 50);
     setFocusTrigger(null);
   }, [focusTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -134,7 +141,7 @@ export function useSearch() {
     setSelected(null);
     setMinimized(false);
     setDiagnosis(null);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSearch = useCallback(
     async (ev?: React.FormEvent) => {
@@ -194,61 +201,75 @@ export function useSearch() {
         }
 
         // #region Text search
-        if (!kingdom) {
-          setError(t("search.selectKingdomFirst"));
-          return;
-        }
-
-        const data = await searchTaxa(trimmed, kingdom);
+        const data = await searchTaxa(trimmed, kingdom || undefined);
         const all = (data ?? []) as Taxon[];
 
         const filtered = all.filter((r) => {
           const det = r as unknown as Record<string, unknown>;
           const nub = det["nubKey"] as number | undefined;
           const hasNub = typeof nub === "number" && nub > 0;
+          const rankOk = !EXCLUDED_RANKS.has(r.rank);
+          if (!kingdom) return Boolean(hasNub && rankOk);
           const k = String(r.kingdom ?? "").toLowerCase();
           const kingdomOk =
             k === String(kingdom ?? "").toLowerCase() ||
             (k === "metazoa" &&
               String(kingdom ?? "").toLowerCase() === "animalia");
-          const rankOk = !EXCLUDED_RANKS.has(r.rank);
           return Boolean(hasNub && kingdomOk && rankOk);
         });
 
         const qLower = trimmed.toLowerCase();
         const tokens = qLower.split(/\s+/).filter(Boolean);
 
-        if (tokens.length >= 2) {
-          const exact = filtered.filter((r) => {
-            const name = (
-              (r.canonicalName || r.scientificName) ??
-              ""
-            ).toLowerCase();
-            return name === qLower;
-          });
-          const chosen = exact.length
-            ? exact
-            : filtered.filter((r) => {
-                const name = (
-                  (r.canonicalName || r.scientificName) ??
-                  ""
-                ).toLowerCase();
-                return tokens.every((tok) => name.includes(tok));
-              });
-          setResults(dedupeGenusSpecies(chosen, tokens));
+        const dedupeFiltered = (list: Taxon[]) => {
+          if (tokens.length >= 2) {
+            const exact = list.filter((r) => {
+              const name = (
+                (r.canonicalName || r.scientificName) ??
+                ""
+              ).toLowerCase();
+              return name === qLower;
+            });
+            const chosen = exact.length
+              ? exact
+              : list.filter((r) => {
+                  const name = (
+                    (r.canonicalName || r.scientificName) ??
+                    ""
+                  ).toLowerCase();
+                  return tokens.every((tok) => name.includes(tok));
+                });
+            return dedupeGenusSpecies(chosen, tokens);
+          } else {
+            const exactSpecies = list.filter(
+              (r) =>
+                ((r.canonicalName || r.scientificName) ?? "").toLowerCase() ===
+                  qLower && r.rank === "SPECIES",
+            );
+            const chosen = exactSpecies.length
+              ? [
+                  ...exactSpecies,
+                  ...list.filter((r) => !exactSpecies.includes(r)),
+                ]
+              : list;
+            return dedupeGenusSpecies(chosen, tokens);
+          }
+        };
+
+        if (!kingdom) {
+          const byKingdom = new Map<string, Taxon[]>();
+          for (const r of filtered) {
+            const k = String(r.kingdom ?? "unknown").toLowerCase();
+            if (!byKingdom.has(k)) byKingdom.set(k, []);
+            byKingdom.get(k)!.push(r);
+          }
+          const combined: Taxon[] = [];
+          for (const group of byKingdom.values()) {
+            combined.push(...dedupeFiltered(group));
+          }
+          setResults(combined);
         } else {
-          const exactSpecies = filtered.filter(
-            (r) =>
-              ((r.canonicalName || r.scientificName) ?? "").toLowerCase() ===
-                qLower && r.rank === "SPECIES",
-          );
-          const chosen = exactSpecies.length
-            ? [
-                ...exactSpecies,
-                ...filtered.filter((r) => !exactSpecies.includes(r)),
-              ]
-            : filtered;
-          setResults(dedupeGenusSpecies(chosen, tokens));
+          setResults(dedupeFiltered(filtered));
         }
       } catch (e) {
         console.error(e);
@@ -258,7 +279,7 @@ export function useSearch() {
         setLoading(false);
       }
     },
-    [q, kingdom, isKeySearch, gbifKey, t],
+    [q, kingdom, isKeySearch, gbifKey, t], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const onPick = useCallback(
@@ -275,7 +296,7 @@ export function useSearch() {
         setLoading(false);
       }
     },
-    [t, navigateToTaxon],
+    [t, navigateToTaxon], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return {

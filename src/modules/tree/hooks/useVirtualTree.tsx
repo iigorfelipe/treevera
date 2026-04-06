@@ -78,14 +78,17 @@ export const useVirtualTree = (
 
   const flattened = useMemo(() => {
     const result = flattenTree(nodes, roots);
-    let lastBannerIdx = -1;
-    for (let i = result.length - 1; i >= 0; i--) {
-      if (result[i].isSearchBanner) { lastBannerIdx = i; break; }
+    let firstBannerIdx = -1;
+    for (let i = 0; i < result.length; i++) {
+      if (result[i].isSearchBanner) {
+        firstBannerIdx = i;
+        break;
+      }
     }
-    return lastBannerIdx === -1
+    return firstBannerIdx === -1
       ? result
       : result.filter(
-          (item, idx) => !item.isSearchBanner || idx === lastBannerIdx,
+          (item, idx) => !item.isSearchBanner || idx === firstBannerIdx,
         );
   }, [flattenTree, nodes, roots]);
 

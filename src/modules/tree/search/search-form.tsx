@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader, SearchIcon, X } from "lucide-react";
 
@@ -46,6 +46,7 @@ export function SearchForm({
   inputRef,
 }: SearchFormProps) {
   const { t } = useTranslation();
+  const clearingRef = useRef(false);
 
   const kingdomOptions = useMemo(
     () =>
@@ -74,7 +75,16 @@ export function SearchForm({
       className="flex h-9.5 flex-nowrap items-center gap-1.5"
     >
       {!isKeySearch && (
-        <Select value={kingdom} onValueChange={setKingdom}>
+        <Select
+          value={kingdom}
+          onValueChange={(v) => {
+            if (clearingRef.current) {
+              clearingRef.current = false;
+              return;
+            }
+            setKingdom(v);
+          }}
+        >
           <SelectTrigger className="rounded-lg border px-2 text-sm font-medium">
             <SelectValue placeholder={t("search.kingdom")}>
               {kingdom ? (
@@ -93,7 +103,16 @@ export function SearchForm({
 
           <SelectContent className="rounded-lg text-sm font-medium">
             {kingdomOptions.map((opt) => (
-              <SelectItem key={opt.key} value={opt.name}>
+              <SelectItem
+                key={opt.key}
+                value={opt.name}
+                onPointerDown={() => {
+                  if (kingdom === opt.name) {
+                    clearingRef.current = true;
+                    setKingdom("");
+                  }
+                }}
+              >
                 <Image
                   src={getRankIcon(opt.key)}
                   alt={`${opt.name} icon`}
@@ -117,14 +136,13 @@ export function SearchForm({
           ref={inputRef}
           value={q}
           onChange={(ev) => setQ(ev.target.value)}
-          placeholder={kingdom ? undefined : t("search.selectKingdom")}
           className="h-9.5 w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-inset"
           aria-label={t("search.searchTaxa")}
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
         />
-        {kingdom && !q && (
+        {!q && (
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 select-none"

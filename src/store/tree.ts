@@ -12,7 +12,8 @@ import type {
   NodeEntity,
   PathNode,
 } from "@/common/types/tree-atoms";
-import type { Rank } from "@/common/types/api";
+import type { Rank, Taxon } from "@/common/types/api";
+import type { TaxonDiagnostic } from "@/hooks/use-navigate-to-taxon";
 
 const challenge = atom<Challenge>({ mode: null, status: "NOT_STARTED" });
 
@@ -47,6 +48,14 @@ const mergeNodes = atom(null, (_, set, nodes: NodeEntity[]) => {
     return next;
   });
 });
+
+export const searchQAtom = atom("");
+export const searchKingdomAtom = atom("");
+export const searchResultsAtom = atom<Taxon[] | null>(null);
+export const searchErrorAtom = atom<string | null>(null);
+export const searchSelectedAtom = atom<Taxon | null>(null);
+export const searchMinimizedAtom = atom(false);
+export const searchDiagnosisAtom = atom<TaxonDiagnostic | null>(null);
 
 export const focusSearchAtom = atom<{ kingdom: string } | null>(null);
 export const setFocusSearchAtom = atom(
