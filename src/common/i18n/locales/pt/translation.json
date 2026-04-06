@@ -83,32 +83,32 @@
     "benefits": {
       "saveShortcuts": {
         "title": "Salvar atalhos",
-        "description": "Defina n?s mais visitados para agilizar sua navega??o"
+        "description": "Defina nós mais visitados para agilizar sua navegação"
       },
       "dailyAndRandomChallenges": {
-        "title": "Desafios di?rios e aleat?rios",
+        "title": "Desafios diários e aleatórios",
         "description": "Novos desafios todos os dias para testar seus conhecimentos"
       },
       "viewHistory": {
-        "title": "Hist?rico de visualiza??es",
-        "description": "Acompanhe as esp?cies que voc? j? explorou"
+        "title": "Histórico de visualizações",
+        "description": "Acompanhe as espécies que você já explorou"
       },
       "speciesGallery": {
-        "title": "Galeria de esp?cies",
-        "description": "Organize e favorite suas esp?cies j? descobertas"
+        "title": "Galeria de espécies",
+        "description": "Organize e favorite suas espécies já descobertas"
       },
       "activityHistory": {
-        "title": "Hist?rico de atividades",
-        "description": "Veja um resumo das suas intera??es na plataforma"
+        "title": "Histórico de atividades",
+        "description": "Veja um resumo das suas interações na plataforma"
       }
     },
     "errors": {
-      "timeout": "Tempo limite de autentica??o excedido",
-      "authUrlMissing": "A URL de autentica??o n?o foi gerada",
-      "popupBlocked": "N?o foi poss?vel abrir a janela. Verifique o bloqueador de pop-ups.",
-      "authFailed": "Falha na autentica??o",
-      "sessionNotEstablished": "A sess?o n?o foi estabelecida ap?s a autentica??o",
-      "userDataLoadFailed": "N?o foi poss?vel carregar os dados do usu?rio",
+      "timeout": "Tempo limite de autenticação excedido",
+      "authUrlMissing": "A URL de autenticação não foi gerada",
+      "popupBlocked": "Não foi possível abrir a janela. Verifique o bloqueador de pop-ups.",
+      "authFailed": "Falha na autenticação",
+      "sessionNotEstablished": "A sessão não foi estabelecida após a autenticação",
+      "userDataLoadFailed": "Não foi possível carregar os dados do usuário",
       "loginUnknown": "Erro desconhecido ao fazer login",
       "logoutUnknown": "Erro desconhecido ao fazer logout"
     }
@@ -157,51 +157,51 @@
     "items": {
       "primeira_descoberta": {
         "name": "Primeira descoberta",
-        "description": "Primeira esp?cie explorada na ?rvore taxon?mica."
+        "description": "Primeira espécie explorada na árvore taxonômica."
       },
       "explorador_da_vida": {
         "name": "Explorador da vida",
-        "description": "100 esp?cies diferentes exploradas."
+        "description": "100 espécies diferentes exploradas."
       },
       "equilibrio_da_vida": {
-        "name": "Equil?brio da vida",
-        "description": "1 esp?cie explorada de cada um dos reinos."
+        "name": "Equilíbrio da vida",
+        "description": "1 espécie explorada de cada um dos reinos."
       },
       "defensor_biodiversidade": {
         "name": "Defensor da biodiversidade",
-        "description": "5 esp?cies amea?adas (EN ou VU) exploradas."
+        "description": "5 espécies ameaçadas (EN ou VU) exploradas."
       },
       "na_linha_vermelha": {
         "name": "Na linha vermelha",
-        "description": "5 esp?cies criticamente amea?adas (CR) exploradas."
+        "description": "5 espécies criticamente ameaçadas (CR) exploradas."
       },
       "habito_selvagem": {
-        "name": "H?bito selvagem",
-        "description": "7 dias consecutivos com pelo menos uma esp?cie nova explorada."
+        "name": "Hábito selvagem",
+        "description": "7 dias consecutivos com pelo menos uma espécie nova explorada."
       },
       "curador_da_vida": {
         "name": "Curador da vida",
-        "description": "25 esp?cies adicionadas aos favoritos."
+        "description": "25 espécies adicionadas aos favoritos."
       },
       "vitrine_pessoal": {
         "name": "Vitrine pessoal",
-        "description": "4 esp?cies fixadas como favoritas no perfil."
+        "description": "4 espécies fixadas como favoritas no perfil."
       },
       "primeiro_desafio_diario": {
-        "name": "Primeiro desafio di?rio",
-        "description": "Primeiro desafio di?rio conclu?do."
+        "name": "Primeiro desafio diário",
+        "description": "Primeiro desafio diário concluído."
       },
       "sem_roteiro": {
         "name": "Sem roteiro",
-        "description": "5 desafios aleat?rios conclu?dos."
+        "description": "5 desafios aleatórios concluídos."
       },
       "semana_perfeita": {
         "name": "Semana perfeita",
-        "description": "7 dias consecutivos de desafios di?rios conclu?dos."
+        "description": "7 dias consecutivos de desafios diários concluídos."
       },
       "incansavel": {
-        "name": "Incans?vel",
-        "description": "50 desafios conclu?dos no total."
+        "name": "Incansável",
+        "description": "50 desafios concluídos no total."
       }
     }
   },

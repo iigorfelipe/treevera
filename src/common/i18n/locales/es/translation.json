@@ -83,18 +83,18 @@
     "benefits": {
       "saveShortcuts": {
         "title": "Guardar atajos",
-        "description": "Fija los nodos que m?s visitas para agilizar la navegaci?n"
+        "description": "Fija los nodos que más visitas para agilizar la navegación"
       },
       "dailyAndRandomChallenges": {
-        "title": "Desaf?os diarios y aleatorios",
-        "description": "Nuevos desaf?os cada d?a para poner a prueba tus conocimientos"
+        "title": "Desafíos diarios y aleatorios",
+        "description": "Nuevos desafíos cada día para poner a prueba tus conocimientos"
       },
       "viewHistory": {
         "title": "Historial de visualizaciones",
         "description": "Sigue las especies que ya exploraste"
       },
       "speciesGallery": {
-        "title": "Galer?a de especies",
+        "title": "Galería de especies",
         "description": "Organiza y marca como favoritas las especies que ya descubriste"
       },
       "activityHistory": {
@@ -103,14 +103,14 @@
       }
     },
     "errors": {
-      "timeout": "Se agot? el tiempo de autenticaci?n",
-      "authUrlMissing": "No se gener? la URL de autenticaci?n",
-      "popupBlocked": "No se pudo abrir la ventana de inicio de sesi?n. Revisa el bloqueador de ventanas emergentes.",
-      "authFailed": "La autenticaci?n fall?",
-      "sessionNotEstablished": "La sesi?n no se estableci? despu?s de la autenticaci?n",
+      "timeout": "Se agotó el tiempo de autenticación",
+      "authUrlMissing": "No se generó la URL de autenticación",
+      "popupBlocked": "No se pudo abrir la ventana de inicio de sesión. Revisa el bloqueador de ventanas emergentes.",
+      "authFailed": "La autenticación falló",
+      "sessionNotEstablished": "La sesión no se estableció después de la autenticación",
       "userDataLoadFailed": "No se pudieron cargar los datos del usuario",
-      "loginUnknown": "Error desconocido al iniciar sesi?n",
-      "logoutUnknown": "Error desconocido al cerrar sesi?n"
+      "loginUnknown": "Error desconocido al iniciar sesión",
+      "logoutUnknown": "Error desconocido al cerrar sesión"
     }
   },
   "nav": {
@@ -157,7 +157,7 @@
     "items": {
       "primeira_descoberta": {
         "name": "Primer descubrimiento",
-        "description": "Primera especie explorada en el ?rbol taxon?mico."
+        "description": "Primera especie explorada en el árbol taxonómico."
       },
       "explorador_da_vida": {
         "name": "Explorador de la vida",
@@ -172,36 +172,36 @@
         "description": "5 especies amenazadas (EN o VU) exploradas."
       },
       "na_linha_vermelha": {
-        "name": "En la l?nea roja",
-        "description": "5 especies en peligro cr?tico (CR) exploradas."
+        "name": "En la línea roja",
+        "description": "5 especies en peligro crítico (CR) exploradas."
       },
       "habito_selvagem": {
-        "name": "H?bito salvaje",
-        "description": "7 d?as consecutivos con al menos una especie nueva explorada."
+        "name": "Hábito salvaje",
+        "description": "7 días consecutivos con al menos una especie nueva explorada."
       },
       "curador_da_vida": {
         "name": "Curador de la vida",
-        "description": "25 especies a?adidas a favoritos."
+        "description": "25 especies añadidas a favoritos."
       },
       "vitrine_pessoal": {
         "name": "Vitrina personal",
         "description": "4 especies fijadas como favoritas en el perfil."
       },
       "primeiro_desafio_diario": {
-        "name": "Primer desaf?o diario",
-        "description": "Primer desaf?o diario completado."
+        "name": "Primer desafío diario",
+        "description": "Primer desafío diario completado."
       },
       "sem_roteiro": {
         "name": "Sin guion",
-        "description": "5 desaf?os aleatorios completados."
+        "description": "5 desafíos aleatorios completados."
       },
       "semana_perfeita": {
         "name": "Semana perfecta",
-        "description": "7 d?as consecutivos de desaf?os diarios completados."
+        "description": "7 días consecutivos de desafíos diarios completados."
       },
       "incansavel": {
         "name": "Incansable",
-        "description": "50 desaf?os completados en total."
+        "description": "50 desafíos completados en total."
       }
     }
   },
