@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MoreVertical,
@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import {
@@ -29,7 +28,10 @@ import {
   DialogTitle,
 } from "@/common/components/ui/dialog";
 import { authStore } from "@/store/auth/atoms";
-import { selectedSpecieKeyAtom } from "@/store/tree";
+import { injectPathNodesAtom } from "@/store/tree";
+import { useGetParents } from "@/hooks/queries/useGetParents";
+import { useTreeNavigation } from "@/hooks/use-tree-navigation";
+import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
@@ -59,8 +61,6 @@ export const SpeciesCardQuickMenu = ({
   const { t } = useTranslation();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
-  const navigate = useNavigate();
-  const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
   const queryClient = useQueryClient();
 
   const [addToListOpen, setAddToListOpen] = useState(false);
@@ -68,6 +68,7 @@ export const SpeciesCardQuickMenu = ({
   const [isFav, setIsFav] = useState(species.is_favorite);
   const [currentImageUrl, setCurrentImageUrl] = useState(species.image_url);
   const [favPending, setFavPending] = useState(false);
+  const [viewInTreePending, setViewInTreePending] = useState(false);
 
   const { data: gallery = [], isLoading: galleryLoading } = useGetSpecieGallery(
     imagePickerOpen ? species.gbif_key : undefined,
@@ -76,7 +77,49 @@ export const SpeciesCardQuickMenu = ({
       : undefined,
   );
 
+  const { data: parents = [] } = useGetParents(species.gbif_key, viewInTreePending);
+  const injectPathNodes = useSetAtom(injectPathNodesAtom);
+  const { navigateToNodes } = useTreeNavigation();
+
+  useEffect(() => {
+    if (!viewInTreePending || parents.length === 0) return;
+
+    const kingdom =
+      parents.find((p) => p.rank?.toUpperCase() === "KINGDOM")?.canonicalName ?? "";
+
+    const pathNodes: PathNode[] = [
+      ...parents.map((p) => ({
+        key: p.key,
+        rank: p.rank,
+        name: p.canonicalName || p.scientificName || "",
+      })),
+      {
+        key: species.gbif_key,
+        rank: "SPECIES" as const,
+        name: species.canonical_name ?? "",
+      },
+    ];
+
+    const entities: NodeEntity[] = pathNodes.map((pn, i) => {
+      const parent = parents.find((p) => p.key === pn.key);
+      return {
+        key: pn.key,
+        rank: pn.rank,
+        numDescendants: parent?.numDescendants ?? (pn.rank === "SPECIES" ? 0 : 1),
+        canonicalName: pn.name || undefined,
+        kingdom,
+        parentKey: i > 0 ? pathNodes[i - 1].key : undefined,
+      };
+    });
+
+    injectPathNodes(entities);
+    navigateToNodes(pathNodes, true);
+    setViewInTreePending(false);
+  }, [viewInTreePending, parents, species, injectPathNodes, navigateToNodes]);
+
   if (!isAuthenticated || !userDb) return null;
+
+  const isOwner = !listId || listUsername === userDb.username;
 
   const handleFavToggle = async () => {
     if (favPending) return;
@@ -120,8 +163,7 @@ export const SpeciesCardQuickMenu = ({
   };
 
   const handleViewInTree = () => {
-    setSelectedKey(species.gbif_key);
-    void navigate({ to: "/" });
+    setViewInTreePending(true);
   };
 
   const handlePickImage = async (imgUrl: string) => {
@@ -193,18 +235,22 @@ export const SpeciesCardQuickMenu = ({
             {t("gallery.viewInTree")}
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+          {isOwner && (
+            <>
+              <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={() => setImagePickerOpen(true)}>
-            <ImageIcon className="mr-2 size-4" />
-            {t("gallery.chooseImage")}
-          </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setImagePickerOpen(true)}>
+                <ImageIcon className="mr-2 size-4" />
+                {t("gallery.chooseImage")}
+              </DropdownMenuItem>
 
-          {listId && currentImageUrl && (
-            <DropdownMenuItem onClick={handleSetListCover}>
-              <ImagePlus className="mr-2 size-4" />
-              {t("lists.setAsCover")}
-            </DropdownMenuItem>
+              {listId && currentImageUrl && (
+                <DropdownMenuItem onClick={handleSetListCover}>
+                  <ImagePlus className="mr-2 size-4" />
+                  {t("lists.setAsCover")}
+                </DropdownMenuItem>
+              )}
+            </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
