@@ -39,7 +39,7 @@ export const TaxonomicPath = ({
           {t("challenge.taxonomicPath")}
         </h3>
         <div>
-          <span className="text-xl font-bold text-emerald-600 tabular-nums dark:text-emerald-400">
+          <span className="animate-pulse text-xl font-bold text-emerald-600 tabular-nums dark:text-emerald-400">
             {currentStep}
           </span>
           <span className="text-muted-foreground text-sm font-medium">
@@ -57,7 +57,6 @@ export const TaxonomicPath = ({
           return (
             <motion.div
               key={`${entry.rank}-${index}`}
-              layout
               animate={
                 isActive
                   ? { scale: [1, 1.015, 1] }
