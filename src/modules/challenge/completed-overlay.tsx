@@ -6,6 +6,7 @@ import { authStore } from "@/store/auth/atoms";
 import { ChallengeCompleted } from "@/modules/challenge/completed";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
+import { getSectionPathname } from "@/common/utils/router-path";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 
@@ -36,8 +37,7 @@ export const ChallengeCompletedOverlay = ({
   );
 
   const handleClose = () => {
-    const parts = location.pathname
-      .replace("/treevera", "")
+    const parts = getSectionPathname(location.pathname, "challenges")
       .split("/")
       .filter(Boolean);
     const keys = parts.slice(2);

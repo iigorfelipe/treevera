@@ -2,9 +2,7 @@ import { useParams } from "@tanstack/react-router";
 import { useGetSpeciesFavoriters } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Menu } from "@/modules/header/menu";
-import { Button } from "@/common/components/ui/button";
-import { X, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import {
   Avatar,
@@ -23,14 +21,14 @@ export const SpecieFavoritersPage = () => {
   const { data: favoriters = [], isLoading } = useGetSpeciesFavoriters(gbifKey);
 
   return (
-    <div className="mx-auto flex h-screen max-w-7xl flex-col">
+    <div className="mx-auto flex h-full max-w-7xl flex-col">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
-          <div className="min-w-0 flex-1">
+        <div className="px-4 py-4">
+          <div className="min-w-0">
             <h1 className="text-base leading-tight font-bold">
               {t("specieDetail.favoritersTitle")}
             </h1>
@@ -39,17 +37,6 @@ export const SpecieFavoritersPage = () => {
                 {favoriters.length} {t("lists.people")}
               </span>
             )}
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <Menu />
-            <Button
-              onClick={() => window.history.back()}
-              variant="ghost"
-              size="icon"
-              className="size-8"
-            >
-              <X className="size-4" />
-            </Button>
           </div>
         </div>
       </motion.div>

@@ -47,10 +47,12 @@ import { authStore } from "@/store/auth/atoms";
 
 export const SpecieDetail = ({
   embedded = false,
+  showBackHeader = true,
   backLabel,
   onBack,
 }: {
   embedded?: boolean;
+  showBackHeader?: boolean;
   backLabel?: string;
   onBack?: () => void;
 }) => {
@@ -240,6 +242,9 @@ export const SpecieDetail = ({
     );
   }
 
+  const showContextualHeader =
+    showBackHeader && (isFromGallery || isFromTree) && !embedded;
+
   return (
     <>
       <motion.div
@@ -249,7 +254,7 @@ export const SpecieDetail = ({
         className={embedded ? undefined : "h-full overflow-auto"}
         style={{ containerType: "inline-size" }}
       >
-        {(isFromGallery || isFromTree) && !embedded && (
+        {showContextualHeader && (
           <div className="bg-card/95 sticky top-0 z-10 border-b px-4 py-3 shadow-sm backdrop-blur-sm">
             <Button
               onClick={handleBack}
@@ -267,7 +272,7 @@ export const SpecieDetail = ({
         )}
 
         <div
-          className={`p-4 ${isFromGallery || isFromTree ? "pt-6" : embedded ? "pt-2" : "md:mt-4"}`}
+          className={`p-4 ${showContextualHeader ? "pt-6" : embedded ? "pt-2" : "md:mt-4"}`}
         >
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">

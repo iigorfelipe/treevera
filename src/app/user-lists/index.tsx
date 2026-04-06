@@ -1,13 +1,11 @@
 import { useParams } from "@tanstack/react-router";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
 import { useGetUserLists } from "@/hooks/queries/useGetLists";
-import { ListX, X } from "lucide-react";
+import { ListX } from "lucide-react";
 import { ListPreviewCard } from "@/modules/lists/list-preview-card";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Menu } from "@/modules/header/menu";
-import { Button } from "@/common/components/ui/button";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { slugify } from "@/common/utils/slugify";
@@ -31,14 +29,14 @@ export const UserListsPage = () => {
   const title = isOwner ? t("lists.myLists") : t("lists.listsOf", { username });
 
   return (
-    <div className="mx-auto flex h-screen max-w-7xl flex-col">
+    <div className="mx-auto flex h-full max-w-7xl flex-col">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
-          <div className="min-w-0 flex-1">
+        <div className="px-4 py-4">
+          <div className="min-w-0">
             {loadingProfile ? (
               <Skeleton className="h-5 w-32" />
             ) : (
@@ -49,18 +47,6 @@ export const UserListsPage = () => {
                 ? `${lists.length} ${t("lists.title").toLowerCase()}`
                 : ""}
             </span>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1">
-            <Menu />
-            <Button
-              onClick={() => window.history.back()}
-              variant="ghost"
-              size="icon"
-              className="size-8"
-            >
-              <X className="size-4" />
-            </Button>
           </div>
         </div>
       </motion.div>

@@ -4,6 +4,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { treeAtom, setExpandedPathAtom } from "@/store/tree";
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { capitalizar } from "@/common/utils/string";
+import { getSectionPathname } from "@/common/utils/router-path";
 import type { PathNode } from "@/common/types/tree-atoms";
 
 export function useTreeUrl() {
@@ -66,7 +67,11 @@ export function useTreeUrl() {
     if (fullUrl === lastUrl.current) return;
     lastUrl.current = fullUrl;
 
-    const pathname = fullUrl.replace("/treevera", "");
+    const treePathname = getSectionPathname(fullUrl, "tree");
+    const challengePathname = getSectionPathname(fullUrl, "challenges");
+    const pathname = treePathname.startsWith("/tree")
+      ? treePathname
+      : challengePathname;
     const parts = pathname.split("/").filter(Boolean);
 
     let keyStrings: string[];

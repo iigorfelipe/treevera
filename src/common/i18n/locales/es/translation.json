@@ -14,7 +14,8 @@
   "header": {
     "logoAlt": "Logo",
     "tagline": "Taxonomía interactiva",
-    "userAvatarAlt": "Usuario"
+    "userAvatarAlt": "Usuario",
+    "userMenu": "Menú de usuario"
   },
   "dialog": {
     "close": "Cerrar"
@@ -115,6 +116,8 @@
   },
   "nav": {
     "back": "Volver",
+    "home": "Inicio",
+    "signIn": "Entrar",
     "challenges": "Desafíos",
     "explore": "Explorar",
     "settings": "Configuración",

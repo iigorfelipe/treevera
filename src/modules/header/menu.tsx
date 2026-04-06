@@ -1,30 +1,31 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuGroup,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
+  DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/theme";
 import {
+  House,
+  List,
   LogIn,
   LogOut,
   MenuIcon,
   Settings,
   Target,
-  Telescope,
   UserCircle,
-  List,
+  ChevronDown,
 } from "lucide-react";
 import i18n from "@/common/i18n";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { router } from "@/routes";
 import {
   Avatar,
@@ -47,6 +48,13 @@ type ConfirmState = {
   variant: "default" | "destructive";
 };
 
+type MenuProps = {
+  trigger?: "avatar" | "label";
+  label?: string;
+  hoverOpen?: boolean;
+  avatarSize?: "sm" | "lg";
+};
+
 const CLOSED_CONFIRM: ConfirmState = {
   open: false,
   title: "",
@@ -56,7 +64,12 @@ const CLOSED_CONFIRM: ConfirmState = {
   variant: "default",
 };
 
-export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
+export const Menu = ({
+  trigger = "avatar",
+  label,
+  hoverOpen = false,
+  avatarSize = "sm",
+}: MenuProps) => {
   const { changeTheme, theme } = useTheme();
   const { t } = useTranslation();
 
@@ -72,6 +85,8 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
 
   const [confirmState, setConfirmState] =
     useState<ConfirmState>(CLOSED_CONFIRM);
+  const [open, setOpen] = useState(false);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openConfirm = (params: Omit<ConfirmState, "open">) => {
     setConfirmState({ ...params, open: true });
@@ -79,90 +94,180 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
 
   const closeConfirm = () => setConfirmState(CLOSED_CONFIRM);
 
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const openMenu = () => {
+    clearCloseTimeout();
+    setOpen(true);
+  };
+
+  const scheduleCloseMenu = () => {
+    clearCloseTimeout();
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 200);
+  };
+
+  const closeMenuImmediately = () => {
+    clearCloseTimeout();
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    return () => clearCloseTimeout();
+  }, []);
+
+  const navigateToAppHome = () => {
+    router.history.push(`${router.basepath}/`);
+  };
+
   const handleLogout = async () => {
     setChallenge({ mode: null, status: "NOT_STARTED" });
     setExpandedNodes([]);
     await logoutService();
     setSession(null);
     setUserDb(null);
-    navigate({ to: "/" });
+    navigateToAppHome();
   };
 
-  if (isProfilePage && !isAuthenticated) {
-    navigate({ to: "/login" });
-  }
+  const navigateHome = () => {
+    const goHome = () => {
+      setChallenge({ mode: null, status: "NOT_STARTED" });
+      setExpandedNodes([]);
+      navigateToAppHome();
+    };
+
+    if (challenge.status === "IN_PROGRESS") {
+      openConfirm({
+        title: t("challenge.inProgressTitle"),
+        description: t("challenge.leaveToExploreWarning"),
+        confirmLabel: t("challenge.continue"),
+        onConfirm: goHome,
+        variant: "default",
+      });
+      return;
+    }
+
+    goHome();
+  };
+
+  const navigateProfile = () => {
+    if (!userDb?.username) return;
+
+    const goProfile = () => {
+      setChallenge({ mode: null, status: "NOT_STARTED" });
+      navigate({
+        to: "/$username",
+        params: { username: userDb.username },
+      });
+    };
+
+    if (challenge.status === "IN_PROGRESS") {
+      openConfirm({
+        title: t("challenge.inProgressTitle"),
+        description: t("challenge.leaveToProfileWarning"),
+        confirmLabel: t("challenge.continue"),
+        onConfirm: goProfile,
+        variant: "default",
+      });
+      return;
+    }
+
+    goProfile();
+  };
+
+  const navigateChallenges = () => {
+    const goChallenges = () => {
+      setChallenge({ mode: "UNSET", status: "NOT_STARTED" });
+      navigate({ to: "/challenges" });
+    };
+
+    if (challenge.status === "IN_PROGRESS") {
+      openConfirm({
+        title: t("challenge.inProgressTitle"),
+        description: t("challenge.leaveToExploreWarning"),
+        confirmLabel: t("challenge.continue"),
+        onConfirm: goChallenges,
+        variant: "default",
+      });
+      return;
+    }
+
+    goChallenges();
+  };
+
+  const navigateLists = () => {
+    router.history.push(`${router.basepath}/lists`);
+  };
+
+  const renderTrigger = () => {
+    if (trigger === "label") {
+      return (
+        <button
+          aria-label={t("header.userMenu")}
+          className="text-muted-foreground hover:text-foreground flex items-center gap-0.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:outline-none"
+          onMouseEnter={hoverOpen ? openMenu : undefined}
+          onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
+        >
+          <span className="block max-w-28 truncate lowercase">{label}</span>
+          <ChevronDown className="size-3.5 shrink-0" />
+        </button>
+      );
+    }
+
+    return (
+      <div
+        className="rounded-full"
+        onMouseEnter={hoverOpen ? openMenu : undefined}
+        onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
+      >
+        {isAuthenticated && userDb ? (
+          <Avatar className={avatarSize === "lg" ? "size-16" : "size-8"}>
+            <AvatarImage
+              src={userDb.avatar_url}
+              alt={t("header.userAvatarAlt")}
+            />
+            <AvatarFallback className="bg-green-600 text-xs text-white">
+              {userDb.name[0]}
+            </AvatarFallback>
+          </Avatar>
+        ) : (
+          <MenuIcon className="size-6" />
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="group cursor-pointer">
-          <div className="rounded-full">
-            {isAuthenticated && userDb ? (
-              <Avatar className={isProfilePage ? "size-16" : "size-8"}>
-                <AvatarImage
-                  src={userDb.avatar_url}
-                  alt={t("header.userAvatarAlt")}
-                />
-                <AvatarFallback className="bg-green-600 text-xs text-white">
-                  {userDb.name[0]}
-                </AvatarFallback>
-              </Avatar>
-            ) : (
-              <MenuIcon className="size-6" />
-            )}
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="m-1 w-full" align="start">
+      <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+        <DropdownMenuTrigger asChild>{renderTrigger()}</DropdownMenuTrigger>
+        <DropdownMenuContent
+          className={trigger === "avatar" ? "m-1 w-full" : "w-56"}
+          align={trigger === "avatar" ? "start" : "end"}
+          sideOffset={trigger === "avatar" ? 4 : 0}
+          onMouseEnter={hoverOpen ? openMenu : undefined}
+          onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
+          onCloseAutoFocus={(event) => event.preventDefault()}
+          onInteractOutside={() => closeMenuImmediately()}
+          onEscapeKeyDown={() => closeMenuImmediately()}
+        >
           <DropdownMenuGroup>
             {!isAuthenticated && (
               <>
-                <DropdownMenuItem>
-                  <Link to="/login" className="flex w-full items-center">
-                    <LogIn className="mr-2 size-4" />
-                    <span>{t("loginWithGoogle")}</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </>
-            )}
-            {!isProfilePage && isAuthenticated && userDb && (
-              <>
                 <DropdownMenuItem
                   onClick={() => {
-                    if (challenge.status === "IN_PROGRESS") {
-                      openConfirm({
-                        title: t("challenge.inProgressTitle"),
-                        description: t("challenge.leaveToProfileWarning"),
-                        confirmLabel: t("challenge.continue"),
-                        onConfirm: () => {
-                          setChallenge({ mode: null, status: "NOT_STARTED" });
-                          navigate({
-                            to: "/$username",
-                            params: { username: userDb.username },
-                          });
-                        },
-                        variant: "default",
-                      });
-                      return;
-                    }
-                    setChallenge({ mode: null, status: "NOT_STARTED" });
-                    navigate({
-                      to: "/$username",
-                      params: { username: userDb.username },
-                    });
+                    closeMenuImmediately();
+                    navigate({ to: "/login" });
                   }}
                 >
-                  <div className="flex flex-col gap-2">
-                    <div className="text-muted-foreground truncate text-xs">
-                      {userDb.email}
-                    </div>
-                    <div className="flex items-center">
-                      <UserCircle className="mr-2 size-4 shrink-0" />
-                      <div className="min-w-0 flex-1 py-0.5 text-sm">
-                        <div className="font-medium">{t("profile")}</div>
-                      </div>
-                    </div>
-                  </div>
+                  <LogIn className="mr-2 size-4" />
+                  <span>{t("loginWithGoogle")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </>
@@ -170,59 +275,50 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
 
             <DropdownMenuItem
               onClick={() => {
-                const goHome = () => {
-                  setChallenge({ mode: null, status: "NOT_STARTED" });
-                  setExpandedNodes([]);
-                  router.history.push(router.basepath + "/");
-                };
-                if (challenge.status === "IN_PROGRESS") {
-                  openConfirm({
-                    title: t("challenge.inProgressTitle"),
-                    description: t("challenge.leaveToExploreWarning"),
-                    confirmLabel: t("challenge.continue"),
-                    onConfirm: goHome,
-                    variant: "default",
-                  });
-                  return;
-                }
-                goHome();
+                closeMenuImmediately();
+                navigateHome();
               }}
             >
-              <div className="flex w-full items-center">
-                <Telescope className="mr-2 size-4" /> {t("nav.explore")}
-              </div>
+              <House className="mr-2 size-4" />
+              {t("nav.home")}
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
 
+            {isAuthenticated && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => {
+                    closeMenuImmediately();
+                    navigateProfile();
+                  }}
+                >
+                  <UserCircle className="mr-2 size-4" />
+                  {t("profile")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+
+            <DropdownMenuItem
+              onClick={() => {
+                closeMenuImmediately();
+                navigateChallenges();
+              }}
+            >
+              <Target className="mr-2 size-4" />
+              {t("nav.challenges")}
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              disabled={challenge.status === "IN_PROGRESS"}
-              onClick={() =>
-                setChallenge({ mode: "UNSET", status: "NOT_STARTED" })
-              }
+              onClick={() => {
+                closeMenuImmediately();
+                navigateLists();
+              }}
             >
-              <Link to="/challenges" className="flex w-full items-center">
-                <Target className="mr-2 size-4" /> {t("nav.challenges")}
-              </Link>
+              <List className="mr-2 size-4" />
+              {t("lists.title")}
             </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem
-              onClick={() => router.history.push(`${router.basepath}/lists`)}
-            >
-              <div className="flex w-full items-center">
-                <List className="mr-2 size-4" /> {t("lists.title")}
-              </div>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
-              <Settings className="size-4" />
-              <span>{t("nav.settings")}</span>
-            </DropdownMenuItem>
-
             <DropdownMenuSeparator />
 
             <DropdownMenuSub>
@@ -230,7 +326,11 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 {t("theme")}: {t(theme)}
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="m-1">
+                <DropdownMenuSubContent
+                  className="m-1"
+                  onMouseEnter={hoverOpen ? openMenu : undefined}
+                  onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
+                >
                   <DropdownMenuItem onClick={() => changeTheme("light")}>
                     {t("light")}
                   </DropdownMenuItem>
@@ -243,7 +343,6 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-
             <DropdownMenuSeparator />
 
             <DropdownMenuSub>
@@ -251,7 +350,11 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 {t("language")}: {t(i18n.language)}
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="m-1">
+                <DropdownMenuSubContent
+                  className="m-1"
+                  onMouseEnter={hoverOpen ? openMenu : undefined}
+                  onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
+                >
                   <DropdownMenuItem onClick={() => i18n.changeLanguage("pt")}>
                     {t("pt")}
                   </DropdownMenuItem>
@@ -264,20 +367,32 @@ export const Menu = ({ isProfilePage }: { isProfilePage?: boolean }) => {
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={() => {
+                closeMenuImmediately();
+                navigate({ to: "/settings" });
+              }}
+            >
+              <Settings className="mr-2 size-4" />
+              {t("nav.settings")}
+            </DropdownMenuItem>
 
             {isAuthenticated && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() =>
+                  onClick={() => {
+                    closeMenuImmediately();
                     openConfirm({
                       title: t("logout"),
                       description: t("nav.logoutWarning"),
                       confirmLabel: t("logout"),
                       onConfirm: handleLogout,
                       variant: "destructive",
-                    })
-                  }
+                    });
+                  }}
                 >
                   <LogOut className="mr-2 size-4" />
                   <span>{t("logout")}</span>

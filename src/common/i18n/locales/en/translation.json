@@ -14,7 +14,8 @@
   "header": {
     "logoAlt": "Logo",
     "tagline": "Interactive taxonomy",
-    "userAvatarAlt": "User"
+    "userAvatarAlt": "User",
+    "userMenu": "User menu"
   },
   "dialog": {
     "close": "Close"
@@ -115,6 +116,8 @@
   },
   "nav": {
     "back": "Back",
+    "home": "Home",
+    "signIn": "Sign in",
     "challenges": "Challenges",
     "explore": "Explore",
     "settings": "Settings",

@@ -40,7 +40,7 @@ const ErrorFallback = ({ onReset }: { onReset: () => void }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+    <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
       <p className="text-lg font-semibold">{t("errorBoundary.title")}</p>
       <p className="text-muted-foreground max-w-sm text-sm">
         {t("errorBoundary.description")}

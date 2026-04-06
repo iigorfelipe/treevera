@@ -2,12 +2,10 @@ import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
-import { Images, Loader2, X } from "lucide-react";
-import { motion } from "framer-motion";
+import { Images, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { authStore } from "@/store/auth/atoms";
-import { Menu } from "@/modules/header/menu";
 import { Button } from "@/common/components/ui/button";
 import {
   useGetListDetail,
@@ -143,7 +141,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
 
   if (loadingDetail) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <Loader2 className="text-muted-foreground size-8 animate-spin" />
       </div>
     );
@@ -151,7 +149,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
 
   if (!list) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <div className="text-muted-foreground text-center">
           <Images className="mx-auto mb-3 size-16 opacity-30" />
           <p className="text-lg font-medium">{t("lists.noListsFound")}</p>
@@ -164,28 +162,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="relative z-10"
-      >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 py-2">
-          <div />
-          <div className="flex shrink-0 items-center gap-1">
-            <Menu />
-            <Button
-              onClick={handleBack}
-              variant="ghost"
-              size="icon"
-              className="size-8"
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-        </div>
-      </motion.div>
-
+    <div className="flex h-full flex-col">
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <ListDetailHero
           list={list}

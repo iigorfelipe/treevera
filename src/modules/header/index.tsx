@@ -16,7 +16,7 @@ export const Header = () => {
         <p className="line-clamp-1 text-base/4">{t("header.tagline")}</p>
       </div>
 
-      <Menu />
+      <Menu hoverOpen />
     </header>
   );
 };

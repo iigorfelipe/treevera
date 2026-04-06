@@ -7,7 +7,6 @@ import {
   VolumeX,
   Trash2,
   CheckCircle2,
-  ChevronLeft,
   Loader,
   LogOut,
   Pencil,
@@ -318,12 +317,15 @@ function AccountSection({ flat }: { flat?: boolean }) {
     if (usernameStatus === "checking")
       return (
         <span className="text-muted-foreground flex items-center gap-1 text-xs">
-          <Loader className="size-3 animate-spin" /> {t("settings.account.checking")}</span>
+          <Loader className="size-3 animate-spin" />{" "}
+          {t("settings.account.checking")}
+        </span>
       );
     if (usernameStatus === "available")
       return (
         <span className="flex items-center gap-1 text-xs text-green-600">
-          <Check className="size-3" /> {t("settings.account.available")}</span>
+          <Check className="size-3" /> {t("settings.account.available")}
+        </span>
       );
     if (usernameStatus === "unavailable")
       return (
@@ -431,7 +433,9 @@ function AccountSection({ flat }: { flat?: boolean }) {
         </button>
       </div>
       {nameInput.trim().length < 3 && nameInput.length > 0 && (
-        <p className="text-muted-foreground text-xs">{t("settings.account.nameMin")}</p>
+        <p className="text-muted-foreground text-xs">
+          {t("settings.account.nameMin")}
+        </p>
       )}
       {nameError && <p className="text-destructive text-xs">{nameError}</p>}
     </div>
@@ -439,7 +443,9 @@ function AccountSection({ flat }: { flat?: boolean }) {
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium">{userDb?.name}</p>
-        <p className="text-muted-foreground text-xs">{t("settings.account.displayName")}</p>
+        <p className="text-muted-foreground text-xs">
+          {t("settings.account.displayName")}
+        </p>
       </div>
       <button
         onClick={handleStartEditName}
@@ -489,7 +495,9 @@ function AccountSection({ flat }: { flat?: boolean }) {
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium">@{userDb?.username}</p>
-        <p className="text-muted-foreground text-xs">{t("settings.account.publicIdentifier")}</p>
+        <p className="text-muted-foreground text-xs">
+          {t("settings.account.publicIdentifier")}
+        </p>
       </div>
       <button
         onClick={handleStartEditUsername}
@@ -562,7 +570,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
         )
       ) : (
         <p className="text-muted-foreground text-sm">
-          {t("settings.account.notAuthenticated")} {" "}
+          {t("settings.account.notAuthenticated")}{" "}
           <button
             onClick={() => navigate({ to: "/login" })}
             className="text-foreground underline underline-offset-2"
@@ -772,7 +780,9 @@ function AdvancedSection({
   const inner = (
     <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="min-w-0 space-y-0.5">
-        <p className="text-sm font-medium">{t("settings.advanced.clearCache")}</p>
+        <p className="text-sm font-medium">
+          {t("settings.advanced.clearCache")}
+        </p>
         <p className="text-muted-foreground text-xs leading-relaxed">
           {t("settings.advanced.clearCacheDescription")}
         </p>
@@ -790,7 +800,9 @@ function AdvancedSection({
         ) : (
           <>
             <Trash2 className="size-3.5" />
-            {clearing ? t("settings.advanced.clearing") : t("settings.advanced.clearCache")}
+            {clearing
+              ? t("settings.advanced.clearing")
+              : t("settings.advanced.clearCache")}
           </>
         )}
       </button>
@@ -903,19 +915,9 @@ export const SettingsPage = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="px-4 py-3">
-        <button
-          onClick={() => navigate({ to: "/" })}
-          className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
-        >
-          <ChevronLeft className="size-4" />
-          {t("nav.back")}
-        </button>
-      </div>
-
+    <div className="min-h-full overflow-auto">
       <div className="md:hidden">
-        <div className="px-4 pb-2">
+        <div className="px-4 pt-4 pb-2">
           <p className="text-xl font-semibold">{t("settings.title")}</p>
         </div>
         <div className="divide-y">

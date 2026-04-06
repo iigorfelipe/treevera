@@ -10,7 +10,7 @@ export function NotFound() {
   const { t } = useTranslation();
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center px-4 text-center">
+    <div className="relative flex min-h-full flex-col items-center justify-center px-4 text-center">
       <div className="flex max-w-md flex-col items-center gap-6">
         <Image
           alt={t("header.logoAlt")}

@@ -13,7 +13,7 @@ export const Profile = () => {
   const userDb = useAtomValue(authStore.userDb);
 
   return (
-    <div className="h-screen overflow-auto">
+    <div className="h-full overflow-auto">
       <div className="mx-auto max-w-7xl p-4">
         <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
           <div className="contents lg:flex lg:flex-2 lg:flex-col lg:gap-14">

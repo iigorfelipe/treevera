@@ -1,9 +1,8 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Search, ArrowUpDown, Plus, Loader2, ListX, X } from "lucide-react";
-import { Menu } from "@/modules/header/menu";
+import { Search, ArrowUpDown, Plus, Loader2, ListX } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import {
   DropdownMenu,
@@ -79,36 +78,21 @@ export const ListsPage = () => {
     }
   };
 
-  const handleClose = useCallback(() => {
-    window.history.back();
-  }, []);
-
   return (
-    <div className="mx-auto flex h-screen max-w-7xl flex-col">
+    <div className="mx-auto flex h-full max-w-7xl flex-col">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
-          <div className="min-w-0 flex-1">
+        <div className="px-4 pt-4 pb-2">
+          <div className="min-w-0">
             <h1 className="text-base leading-tight font-bold">
               {t("lists.title")}
             </h1>
             <span className="text-muted-foreground text-xs">
               {totalCount} {t("lists.title").toLowerCase()}
             </span>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <Menu />
-            <Button
-              onClick={handleClose}
-              variant="ghost"
-              size="icon"
-              className="size-8"
-            >
-              <X className="size-4" />
-            </Button>
           </div>
         </div>
 
@@ -124,21 +108,32 @@ export const ListsPage = () => {
             />
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1.5 px-2.5"
-              >
-                <ArrowUpDown className="size-3.5" />
-                <span className="hidden text-xs sm:inline">
-                  {sortMode === "recent"
-                    ? t("lists.newest")
-                    : t("lists.popular")}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
+          <div className="flex shrink-0 items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5 px-2.5"
+                >
+                  <ArrowUpDown className="size-3.5" />
+                  <span className="hidden text-xs sm:inline">
+                    {sortMode === "recent"
+                      ? t("lists.newest")
+                      : t("lists.popular")}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setSortMode("recent")}>
+                  {t("lists.newestFirst")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortMode("popular")}>
+                  {t("lists.popularFirst")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {isAuthenticated && (
               <Button
                 onClick={() => setCreateOpen(true)}
@@ -152,15 +147,7 @@ export const ListsPage = () => {
                 </span>
               </Button>
             )}
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSortMode("recent")}>
-                {t("lists.newestFirst")}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortMode("popular")}>
-                {t("lists.popularFirst")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          </div>
         </div>
       </motion.div>
 

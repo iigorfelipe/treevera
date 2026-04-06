@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
-  X,
   Heart,
   Search,
   Images,
@@ -21,7 +20,6 @@ import {
 } from "@/common/components/ui/dropdown-menu";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
-import { Menu } from "@/modules/header/menu";
 import { useGetGallerySpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
 type SortOrder = "newest" | "oldest";
@@ -117,14 +115,6 @@ export const SpeciesGallery = ({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleClose = useCallback(() => {
-    if (backUsername) {
-      navigate({ to: "/$username", params: { username: backUsername } });
-    } else {
-      navigate({ to: "/" });
-    }
-  }, [navigate, backUsername]);
-
   const handleSelectSpecies = useCallback(
     (species: GallerySpeciesRow) => {
       navigate({
@@ -141,14 +131,14 @@ export const SpeciesGallery = ({
   }, []);
 
   return (
-    <div className="bg-background fixed inset-0 z-50 flex flex-col">
+    <div className="bg-background mx-auto flex h-full max-w-7xl flex-col">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-background/95 relative z-10 border-b backdrop-blur-sm"
+        className="bg-background relative z-10 border-b"
       >
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pt-3 pb-2">
-          <div className="min-w-0 flex-1">
+        <div className="px-4 pt-4 pb-2">
+          <div className="min-w-0">
             <h1 className="text-base leading-tight font-bold">
               {t("gallery.title")}
             </h1>
@@ -158,20 +148,9 @@ export const SpeciesGallery = ({
                 : `${allSpecies.length} ${t("gallery.of")} ${totalCount}`}
             </span>
           </div>
-          <div className="flex shrink-0 items-center gap-1">
-            {!userId && <Menu />}
-            <Button
-              onClick={handleClose}
-              variant="ghost"
-              size="icon"
-              className="size-8"
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
         </div>
 
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 pb-3">
+        <div className="flex items-center gap-2 px-4 pb-4">
           <div className="relative min-w-0 flex-1">
             <Search className="text-muted-foreground absolute top-1/2 left-3 size-3.5 -translate-y-1/2" />
             <input
@@ -248,24 +227,22 @@ export const SpeciesGallery = ({
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="p-4 md:p-6 lg:p-8">
-            <div className="mx-auto max-w-7xl">
-              <div className="flex gap-4">
-                {Array.from({ length: numColumns }).map((_, col) => (
-                  <div key={col} className="flex min-w-0 flex-1 flex-col gap-4">
-                    {Array.from({ length: 4 }).map((_, row) => (
-                      <div
-                        key={row}
-                        className="bg-muted animate-pulse rounded-xl"
-                        style={{ height: `${180 + (row % 3) * 40}px` }}
-                      />
-                    ))}
-                  </div>
-                ))}
-              </div>
+            <div className="flex gap-4">
+              {Array.from({ length: numColumns }).map((_, col) => (
+                <div key={col} className="flex min-w-0 flex-1 flex-col gap-4">
+                  {Array.from({ length: 4 }).map((_, row) => (
+                    <div
+                      key={row}
+                      className="bg-muted animate-pulse rounded-xl"
+                      style={{ height: `${180 + (row % 3) * 40}px` }}
+                    />
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
         ) : allSpecies.length === 0 && !isFetchingNextPage ? (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full items-center justify-center px-4">
             <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />
               <p className="mb-1 text-lg font-medium">
@@ -282,43 +259,41 @@ export const SpeciesGallery = ({
           </div>
         ) : (
           <div className="p-4 md:p-6 lg:p-8">
-            <div className="mx-auto max-w-7xl">
-              <div className="flex gap-4">
-                {columns.map((column, colIndex) => (
-                  <div
-                    key={colIndex}
-                    className="flex min-w-0 flex-1 flex-col gap-4"
-                  >
-                    {column.map(({ species, globalIndex }) => (
-                      <motion.div
-                        key={species.gbif_key}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{
-                          delay: globalIndex * 0.02,
-                          duration: 0.25,
-                        }}
-                      >
-                        <SpeciesCard
-                          species={species}
-                          onClick={() => handleSelectSpecies(species)}
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-              {hasNextPage && (
+            <div className="flex gap-4">
+              {columns.map((column, colIndex) => (
                 <div
-                  ref={sentinelRef}
-                  className="flex items-center justify-center py-8"
+                  key={colIndex}
+                  className="flex min-w-0 flex-1 flex-col gap-4"
                 >
-                  {isFetchingNextPage && (
-                    <Loader2 className="text-muted-foreground size-6 animate-spin" />
-                  )}
+                  {column.map(({ species, globalIndex }) => (
+                    <motion.div
+                      key={species.gbif_key}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        delay: globalIndex * 0.02,
+                        duration: 0.25,
+                      }}
+                    >
+                      <SpeciesCard
+                        species={species}
+                        onClick={() => handleSelectSpecies(species)}
+                      />
+                    </motion.div>
+                  ))}
                 </div>
-              )}
+              ))}
             </div>
+            {hasNextPage && (
+              <div
+                ref={sentinelRef}
+                className="flex items-center justify-center py-8"
+              >
+                {isFetchingNextPage && (
+                  <Loader2 className="text-muted-foreground size-6 animate-spin" />
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

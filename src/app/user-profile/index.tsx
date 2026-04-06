@@ -1,12 +1,8 @@
 import { useAtomValue } from "jotai";
-import { motion } from "framer-motion";
-import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
 import { Skeleton } from "@/common/components/ui/skeleton";
-import { Button } from "@/common/components/ui/button";
-import { Menu } from "@/modules/header/menu";
 import { HeaderProfile } from "@/modules/profile/header";
 import { FavoriteSpecies } from "@/modules/profile/fav-species/fav-species";
 import { UserAchievements } from "@/modules/profile/user-achievements";
@@ -57,28 +53,6 @@ function ProfileSkeleton() {
   );
 }
 
-const PageHeader = () => (
-  <motion.div
-    initial={{ y: -20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    className="relative z-10"
-  >
-    <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 py-2">
-      <div />
-      <div className="flex shrink-0 items-center gap-1">
-        <Menu />
-        <Button
-          onClick={() => window.history.back()}
-          variant="ghost"
-          size="icon"
-          className="size-8"
-        >
-          <X className="size-4" />
-        </Button>
-      </div>
-    </div>
-  </motion.div>
-);
 
 export function UserProfilePage({ username }: { username: string }) {
   const { t } = useTranslation();
@@ -87,8 +61,7 @@ export function UserProfilePage({ username }: { username: string }) {
 
   if (isLoading) {
     return (
-      <div className="h-screen overflow-auto">
-        <PageHeader />
+      <div className="h-full overflow-auto">
         <ProfileSkeleton />
       </div>
     );
@@ -96,8 +69,7 @@ export function UserProfilePage({ username }: { username: string }) {
 
   if (!data) {
     return (
-      <div className="h-screen overflow-auto">
-        <PageHeader />
+      <div className="h-full overflow-auto">
         <div className="flex flex-col items-center justify-center gap-3 pt-24 text-center">
           <p className="text-4xl">🌿</p>
           <p className="text-lg font-semibold">
@@ -122,9 +94,7 @@ export function UserProfilePage({ username }: { username: string }) {
   };
 
   return (
-    <div className="h-screen overflow-auto">
-      <PageHeader />
-
+    <div className="h-full overflow-auto">
       <div className="mx-auto max-w-7xl p-4">
         <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
           <div className="contents lg:flex lg:flex-2 lg:flex-col lg:gap-14">

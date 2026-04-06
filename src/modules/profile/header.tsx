@@ -2,7 +2,6 @@ import { useState } from "react";
 import { formatUserSinceDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
-import { Menu } from "../header/menu";
 import { useTranslation } from "react-i18next";
 import { Info } from "lucide-react";
 import {
@@ -41,25 +40,21 @@ export const HeaderProfile = ({
   return (
     <header className="flex flex-col gap-4 rounded-2xl">
       <div className="flex items-center gap-3">
-        {isOwner && <Menu isProfilePage />}
-
-        {!isOwner && (
-          <button
-            className="shrink-0 rounded-full disabled:cursor-default"
-            onClick={() => data?.avatar_url && setPhotoOpen(true)}
-            disabled={!data?.avatar_url}
-          >
-            <Avatar className="size-16">
-              <AvatarImage
-                src={data?.avatar_url ?? undefined}
-                alt={data?.name}
-              />
-              <AvatarFallback className="bg-green-600 text-white">
-                {data?.name?.[0] ?? "?"}
-              </AvatarFallback>
-            </Avatar>
-          </button>
-        )}
+        <button
+          className="shrink-0 rounded-full disabled:cursor-default"
+          onClick={() => data?.avatar_url && setPhotoOpen(true)}
+          disabled={!data?.avatar_url}
+        >
+          <Avatar className="size-16">
+            <AvatarImage
+              src={data?.avatar_url ?? undefined}
+              alt={data?.name}
+            />
+            <AvatarFallback className="bg-green-600 text-white">
+              {data?.name?.[0] ?? "?"}
+            </AvatarFallback>
+          </Avatar>
+        </button>
 
         {photoOpen && data?.avatar_url && (
           <AvatarModal
