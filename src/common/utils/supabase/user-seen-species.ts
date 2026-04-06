@@ -253,6 +253,28 @@ export const toggleFavSpecie = async (
   if (error) console.error("Error toggling fav specie:", error);
 };
 
+export const updatePreferredImage = async (
+  userId: string,
+  gbifKey: number,
+  imageUrl: string,
+  metadata?: { canonicalName?: string | null; family?: string | null },
+): Promise<void> => {
+  const { error } = await supabase.from("user_seen_species").upsert(
+    {
+      user_id: userId,
+      gbif_key: gbifKey,
+      seen_at: new Date().toISOString(),
+      preferred_image_url: imageUrl,
+      ...(metadata?.canonicalName
+        ? { canonical_name: metadata.canonicalName }
+        : {}),
+      ...(metadata?.family ? { family: metadata.family } : {}),
+    },
+    { onConflict: "user_id,gbif_key" },
+  );
+  if (error) console.error("Error updating preferred image:", error);
+};
+
 export const clearBrokenImage = async (gbifKey: number): Promise<void> => {
   const { error } = await supabase
     .from("species_data_cache")

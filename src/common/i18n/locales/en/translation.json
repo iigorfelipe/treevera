@@ -250,7 +250,14 @@
     "noFavoritesOf": "{{username}} has no favorites yet",
     "adjustFilters": "Try adjusting the filters",
     "noImage": "No image",
-    "photosFirst": "Photos first"
+    "photosFirst": "Photos first",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "viewInTree": "View in tree",
+    "chooseImage": "Choose display image",
+    "imageUpdated": "Image updated!",
+    "noImages": "No images available",
+    "quickActions": "Quick actions"
   },
   "specieDetail": {
     "notFound": "No data found",
@@ -495,7 +502,17 @@
     "removeFromList": "Remove from list",
     "removeSpeciesConfirm": "Are you sure you want to remove this species from the list?",
     "speciesAddedToList": "{{species}} → {{list}}",
-    "defaultSpeciesName": "Species"
+    "defaultSpeciesName": "Species",
+    "visibilityLabel": "Visibility",
+    "visibilityPublic": "Public",
+    "visibilityPrivate": "Private",
+    "visibilityPublicHint": "Anyone can see and like this list.",
+    "visibilityPrivateHint": "Only you can see this list. Make it public to share it.",
+    "shareLabel": "Share List",
+    "shareText": "Check out the list \"{{name}}\" on TreeVera",
+    "shareCopied": "Link copied!",
+    "setAsCover": "Set as list cover",
+    "listCoverUpdated": "List cover updated!"
   },
   "settings": {
     "title": "Settings",

@@ -29,6 +29,7 @@ export interface ListPreview {
   cover_image_url: string | null;
   species_count: number;
   likes_count: number;
+  is_public: boolean;
   slug: string;
   created_at: string;
   total_count: number;

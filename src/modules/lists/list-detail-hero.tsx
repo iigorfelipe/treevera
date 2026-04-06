@@ -1,4 +1,11 @@
-import { ImageOff, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  ImageOff,
+  Lock,
+  MoreVertical,
+  Pencil,
+  Share2,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import {
   Avatar,
@@ -17,6 +24,7 @@ import { useTranslation } from "react-i18next";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import type { ListWithCreator } from "@/common/types/lists";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 type ListDetailHeroProps = {
   list: ListWithCreator;
@@ -37,6 +45,23 @@ export const ListDetailHero = ({
   const totalCount = list.species_count;
   const pct = totalCount > 0 ? (knownCount / totalCount) * 100 : 0;
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/treevera/${list.user_username}/lists/${list.slug}`;
+    const title = list.title;
+    const text = t("lists.shareText", { name: list.title });
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url, text });
+      } catch {
+        //
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast(t("lists.shareCopied"));
+    }
+  };
+
   return (
     <div>
       <div className="relative h-52 w-full overflow-hidden sm:h-64 md:h-72">
@@ -52,6 +77,13 @@ export const ListDetailHero = ({
           </div>
         )}
         <div className="from-background absolute inset-x-0 bottom-0 h-20 bg-linear-to-t to-transparent" />
+
+        {!list.is_public && (
+          <div className="bg-background/80 absolute top-3 left-3 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
+            <Lock className="size-3" />
+            {t("lists.visibilityPrivate")}
+          </div>
+        )}
       </div>
 
       <div className="px-4 pb-4 sm:px-6">
@@ -132,13 +164,15 @@ export const ListDetailHero = ({
             </div>
 
             <div className="flex flex-col items-end gap-3">
-              <ListLikeButton
-                listId={list.id}
-                isLiked={list.is_liked}
-                likesCount={list.likes_count}
-                username={list.user_username}
-                listSlug={list.slug}
-              />
+              {list.is_public && (
+                <ListLikeButton
+                  listId={list.id}
+                  isLiked={list.is_liked}
+                  likesCount={list.likes_count}
+                  username={list.user_username}
+                  listSlug={list.slug}
+                />
+              )}
               <div className="flex w-full gap-2">
                 <div className="min-w-0">
                   <p className="text-muted-foreground mb-1 truncate text-xs">
@@ -157,6 +191,17 @@ export const ListDetailHero = ({
               </div>
             </div>
           </div>
+
+          {list.is_public && (
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={handleShare}
+            >
+              <Share2 className="size-4" />
+              {t("lists.shareLabel")}
+            </Button>
+          )}
         </div>
       </div>
     </div>

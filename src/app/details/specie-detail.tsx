@@ -1,5 +1,6 @@
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpeciesCache } from "@/hooks/queries/useGetSpeciesCache";
+import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
 import { SpecieImageDetail } from "@/modules/specie-detail/image";
 import { SpecieInfos } from "@/modules/specie-detail/infos";
 import { TaxonomyCard } from "@/modules/specie-detail/taxonomy-card";
@@ -68,9 +69,7 @@ export const SpecieDetail = ({
   const userId = session?.user?.id;
   const userDb = useAtomValue(authStore.userDb);
 
-  const [pendingUnfavImgUrl, setPendingUnfavImgUrl] = useState<
-    string | null | undefined
-  >(undefined);
+  const [pendingUnfav, setPendingUnfav] = useState(false);
 
   const treeSpecieKey = expandedNodes.find(
     (node) => node.rank === "SPECIES",
@@ -91,6 +90,8 @@ export const SpecieDetail = ({
   const canonicalName =
     specieDetail?.canonicalName || specieDetail?.scientificName;
 
+  const { data: gallery = [] } = useGetSpecieGallery(specieKey, canonicalName);
+
   const { data: cache, isLoading: isLoadingCache } = useGetSpeciesCache(
     specieKey,
     canonicalName,
@@ -105,7 +106,6 @@ export const SpecieDetail = ({
   const checkAchievements = useCheckAchievements();
 
   const isFav = specie?.is_favorite ?? false;
-  const preferredImageUrl = specie?.preferred_image_url ?? null;
 
   useEffect(() => {
     if (!userId || !specieKey || !specieDetail) return;
@@ -167,26 +167,18 @@ export const SpecieDetail = ({
     userDb?.game_info.top_fav_species?.some((n) => n.key === specieKey) ??
     false;
 
-  const doToggleFav = async (imgUrl: string | null) => {
+  const doToggleFav = async () => {
     if (!userId || specieKey == null) return;
 
-    const isThisImageFaved = isFav && preferredImageUrl === imgUrl;
-    const newIsFav = !isThisImageFaved;
-    const newPreferredUrl = newIsFav ? imgUrl : null;
+    const newIsFav = !isFav;
 
     queryClient.setQueryData(
       [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
       (old: UserSeenSpeciesRow | null | undefined) =>
-        old
-          ? {
-              ...old,
-              is_favorite: newIsFav,
-              preferred_image_url: newPreferredUrl,
-            }
-          : old,
+        old ? { ...old, is_favorite: newIsFav } : old,
     );
 
-    await toggleFavSpecie(userId, specieKey, newIsFav, newPreferredUrl, {
+    await toggleFavSpecie(userId, specieKey, newIsFav, undefined, {
       canonicalName,
       family: specieDetail?.family,
       kingdom: specieDetail?.kingdom,
@@ -216,13 +208,12 @@ export const SpecieDetail = ({
     }
   };
 
-  const toggleFav = (imgUrl: string | null) => {
-    const isThisImageFaved = isFav && preferredImageUrl === imgUrl;
-    if (isThisImageFaved && isInTop4) {
-      setPendingUnfavImgUrl(imgUrl);
+  const toggleFav = () => {
+    if (isFav && isInTop4) {
+      setPendingUnfav(true);
       return;
     }
-    void doToggleFav(imgUrl);
+    void doToggleFav();
   };
 
   if (isLoading) {
@@ -283,7 +274,7 @@ export const SpecieDetail = ({
                   transition={{ delay: 0.05 }}
                 >
                   <SpecieImageDetail
-                    favImageUrl={preferredImageUrl}
+                    isFav={isFav}
                     showFavButton={!!userId}
                     onToggleFav={toggleFav}
                     favCount={favCount}
@@ -351,6 +342,7 @@ export const SpecieDetail = ({
                     <AddToListButton
                       gbifKey={specieKey}
                       speciesName={specieDetail.canonicalName}
+                      imageUrl={gallery[0]?.imgUrl}
                     />
                   )}
 
@@ -367,9 +359,9 @@ export const SpecieDetail = ({
       </motion.div>
 
       <Dialog
-        open={pendingUnfavImgUrl !== undefined}
+        open={pendingUnfav}
         onOpenChange={(open) => {
-          if (!open) setPendingUnfavImgUrl(undefined);
+          if (!open) setPendingUnfav(false);
         }}
       >
         <DialogContent className="max-w-sm">
@@ -380,18 +372,14 @@ export const SpecieDetail = ({
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 px-6 pb-6">
-            <Button
-              variant="outline"
-              onClick={() => setPendingUnfavImgUrl(undefined)}
-            >
+            <Button variant="outline" onClick={() => setPendingUnfav(false)}>
               {t("specieDetail.unfavTop4Cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
-                const imgUrl = pendingUnfavImgUrl;
-                setPendingUnfavImgUrl(undefined);
-                void doToggleFav(imgUrl ?? null);
+                setPendingUnfav(false);
+                void doToggleFav();
               }}
             >
               {t("specieDetail.unfavTop4Confirm")}

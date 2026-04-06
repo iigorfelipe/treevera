@@ -127,9 +127,13 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     });
   };
 
-  const handleEditSave = (title: string, description: string) => {
+  const handleEditSave = (
+    title: string,
+    description: string,
+    isPublic: boolean,
+  ) => {
     doUpdate(
-      { title, description: description || undefined },
+      { title, description: description || undefined, is_public: isPublic },
       {
         onSuccess: () => {
           setEditOpen(false);
@@ -189,6 +193,9 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
             scrollRef={scrollRef}
             isOwner={isOwner}
             onRemove={(gbifKey) => setRemoveSpeciesGbifKey(gbifKey)}
+            listId={list.id}
+            listUsername={list.user_username}
+            listSlug={list.slug}
           />
         )}
       </div>
@@ -200,6 +207,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
           onOpenChange={setEditOpen}
           initialTitle={list.title}
           initialDescription={list.description || ""}
+          initialIsPublic={list.is_public}
           onSave={handleEditSave}
         />
       )}

@@ -1,4 +1,4 @@
-import { ImageOff } from "lucide-react";
+import { ImageOff, Lock } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { formatActivityDate } from "@/common/utils/date-formats";
@@ -38,9 +38,14 @@ export const ListPreviewCard = ({ list, username }: ListPreviewCardProps) => {
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="group-hover:text-primary truncate text-sm font-semibold transition-colors">
-          {list.title}
-        </h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="group-hover:text-primary truncate text-sm font-semibold transition-colors">
+            {list.title}
+          </h3>
+          {list.is_public === false && (
+            <Lock className="text-muted-foreground size-3 shrink-0" />
+          )}
+        </div>
         {list.description && (
           <p className="text-muted-foreground mt-0.5 truncate text-xs">
             {list.description}

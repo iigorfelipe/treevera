@@ -139,8 +139,11 @@ export function useCreateList() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { title: string; description?: string }) =>
-      createList(params.title, params.description),
+    mutationFn: (params: {
+      title: string;
+      description?: string;
+      is_public?: boolean;
+    }) => createList(params.title, params.description, params.is_public),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.user_lists_key],
@@ -156,8 +159,11 @@ export function useUpdateList(listId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (updates: { title?: string; description?: string }) =>
-      updateList(listId, updates),
+    mutationFn: (updates: {
+      title?: string;
+      description?: string;
+      is_public?: boolean;
+    }) => updateList(listId, updates),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_detail_key, listId],
@@ -192,7 +198,13 @@ export function useAddSpeciesToList(listId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (gbifKey: number) => addSpeciesToList(listId, gbifKey),
+    mutationFn: ({
+      gbifKey,
+      imageUrl,
+    }: {
+      gbifKey: number;
+      imageUrl?: string;
+    }) => addSpeciesToList(listId, gbifKey, imageUrl),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_species_key, listId],
@@ -226,10 +238,7 @@ export function useRemoveSpeciesFromList(listId: string) {
   });
 }
 
-export function useGetListsWithSpecies(
-  gbifKey: number | undefined,
-  limit = 5,
-) {
+export function useGetListsWithSpecies(gbifKey: number | undefined, limit = 5) {
   return useQuery({
     queryKey: [QUERY_KEYS.lists_with_species_key, gbifKey, limit],
     queryFn: () => fetchListsWithSpecies(gbifKey!, limit),

@@ -48,6 +48,9 @@ type ListSpeciesGridProps = {
   scrollRef: React.RefObject<HTMLDivElement | null>;
   isOwner?: boolean;
   onRemove?: (gbifKey: number) => void;
+  listId?: string;
+  listUsername?: string;
+  listSlug?: string;
 };
 
 export const ListSpeciesGrid = ({
@@ -58,6 +61,9 @@ export const ListSpeciesGrid = ({
   scrollRef,
   isOwner = false,
   onRemove,
+  listId,
+  listUsername,
+  listSlug,
 }: ListSpeciesGridProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -119,6 +125,9 @@ export const ListSpeciesGrid = ({
                   <SpeciesCard
                     species={toGalleryRow(s)}
                     onClick={() => handleSelectSpecies(s.gbif_key)}
+                    listId={listId}
+                    listUsername={listUsername}
+                    listSlug={listSlug}
                   />
                   {isOwner && onRemove && (
                     <button

@@ -1,20 +1,37 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Heart, ImageOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { clearBrokenImage } from "@/common/utils/supabase/user-seen-species";
+import { SpeciesCardQuickMenu } from "./species-card-quick-menu";
 
 type SpeciesCardProps = {
   species: GallerySpeciesRow;
   onClick: () => void;
+  listId?: string;
+  listUsername?: string;
+  listSlug?: string;
 };
 
 export const SpeciesCard = ({
   species,
   onClick,
+  listId,
+  listUsername,
+  listSlug,
 }: SpeciesCardProps) => {
   const { t } = useTranslation();
   const [imgBroken, setImgBroken] = useState(false);
+  const dialogCloseTimeRef = useRef(0);
+
+  const handleDialogClose = () => {
+    dialogCloseTimeRef.current = Date.now();
+  };
+
+  const handleCardClick = () => {
+    if (Date.now() - dialogCloseTimeRef.current < 300) return;
+    onClick();
+  };
 
   const specieName = species.canonical_name || "—";
   const familyName = species.family || "—";
@@ -23,7 +40,7 @@ export const SpeciesCard = ({
 
   return (
     <div
-      onClick={onClick}
+      onClick={handleCardClick}
       className="group bg-card relative cursor-pointer overflow-hidden rounded-xl border shadow-md transition-all duration-300 hover:shadow-2xl"
     >
       <div className="bg-muted relative w-full overflow-hidden">
@@ -63,6 +80,14 @@ export const SpeciesCard = ({
           {familyName}
         </p>
       </div>
+
+      <SpeciesCardQuickMenu
+        species={species}
+        listId={listId}
+        listUsername={listUsername}
+        listSlug={listSlug}
+        onDialogClose={handleDialogClose}
+      />
 
       <div className="pointer-events-none absolute inset-0 rounded-xl border-2 border-transparent transition-colors group-hover:border-blue-500" />
     </div>

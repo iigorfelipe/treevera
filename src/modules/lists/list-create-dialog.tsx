@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Loader2 } from "lucide-react";
+import { Globe, Lock, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ export const ListCreateDialog = ({
   const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
 
   const { mutate: create, isPending } = useCreateList();
 
@@ -32,13 +33,18 @@ export const ListCreateDialog = ({
     if (!title.trim()) return;
 
     create(
-      { title: title.trim(), description: description.trim() || undefined },
+      {
+        title: title.trim(),
+        description: description.trim() || undefined,
+        is_public: isPublic,
+      },
       {
         onSuccess: (data) => {
           if (data) {
             const createdTitle = title.trim();
             setTitle("");
             setDescription("");
+            setIsPublic(true);
             onCreated(data.id, createdTitle);
           }
         },
@@ -81,6 +87,43 @@ export const ListCreateDialog = ({
               maxLength={500}
               rows={3}
             />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              {t("lists.visibilityLabel")}
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPublic(true)}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                  isPublic
+                    ? "border-primary bg-primary/10 text-primary font-medium"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted border-transparent"
+                }`}
+              >
+                <Globe className="size-3.5" />
+                {t("lists.visibilityPublic")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsPublic(false)}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                  !isPublic
+                    ? "border-primary bg-primary/10 text-primary font-medium"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted border-transparent"
+                }`}
+              >
+                <Lock className="size-3.5" />
+                {t("lists.visibilityPrivate")}
+              </button>
+            </div>
+            <p className="text-muted-foreground mt-1.5 text-xs">
+              {isPublic
+                ? t("lists.visibilityPublicHint")
+                : t("lists.visibilityPrivateHint")}
+            </p>
           </div>
 
           <div className="flex justify-end gap-2">

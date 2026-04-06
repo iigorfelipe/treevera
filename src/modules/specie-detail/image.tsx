@@ -16,15 +16,15 @@ import { ImageWithZoom } from "@/common/components/image-with-zoom";
 import { cn } from "@/common/utils/cn";
 
 type Props = {
-  favImageUrl: string | null;
+  isFav: boolean;
   showFavButton?: boolean;
-  onToggleFav?: (imgUrl: string | null) => void;
+  onToggleFav?: () => void;
   favCount?: number;
   specieKey?: number;
 };
 
 export const SpecieImageDetail = ({
-  favImageUrl,
+  isFav,
   showFavButton = false,
   onToggleFav,
   favCount = 0,
@@ -67,9 +67,6 @@ export const SpecieImageDetail = ({
   }
 
   const currentImage = gallery[selectedIndex] ?? null;
-  const isFav = favImageUrl !== null;
-  const isFavCurrentImage =
-    favImageUrl !== null && currentImage?.imgUrl === favImageUrl;
 
   const showCounter = optimisticCount > 0;
 
@@ -85,10 +82,10 @@ export const SpecieImageDetail = ({
   const handleFavToggle = () => {
     if (!isFav) {
       setOptimisticCount((c) => c + 1);
-    } else if (isFavCurrentImage) {
+    } else {
       setOptimisticCount((c) => Math.max(c - 1, 0));
     }
-    onToggleFav?.(currentImage?.imgUrl ?? null);
+    onToggleFav?.();
   };
 
   const handleCountClick = (e: React.MouseEvent) => {
@@ -191,7 +188,7 @@ export const SpecieImageDetail = ({
                 showCounter ? "rounded-l-full rounded-r-none" : "rounded-full",
               )}
               aria-label={
-                isFavCurrentImage
+                isFav
                   ? t("specieDetail.removeFavorite")
                   : t("specieDetail.favorite")
               }
@@ -199,7 +196,7 @@ export const SpecieImageDetail = ({
               <Heart
                 className={cn(
                   "size-5 transition-all",
-                  isFavCurrentImage
+                  isFav
                     ? "fill-red-500 text-red-500"
                     : "text-white hover:text-red-400",
                 )}
@@ -255,11 +252,6 @@ export const SpecieImageDetail = ({
                 alt={t("specieDetail.photo", { number: i + 1 })}
                 className="h-full w-full object-cover"
               />
-              {favImageUrl === img.imgUrl && (
-                <div className="absolute top-0.5 right-0.5 rounded-full bg-black/50 p-0.5">
-                  <Heart className="size-2.5 fill-red-500 text-red-500" />
-                </div>
-              )}
             </button>
           ))}
         </div>
