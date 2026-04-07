@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ImageOff } from "lucide-react";
 import { cn } from "@/common/utils/cn";
 
@@ -32,9 +32,11 @@ export const ListCoverCollage = ({
     ? speciesImages.join("|")
     : (coverImageUrl ?? "");
 
-  useEffect(() => {
+  const [prevImageKey, setPrevImageKey] = useState(imageKey);
+  if (prevImageKey !== imageKey) {
+    setPrevImageKey(imageKey);
     setBrokenImages({});
-  }, [imageKey]);
+  }
 
   const markBroken = (index: number) => {
     setBrokenImages((current) => ({ ...current, [index]: true }));

@@ -26,11 +26,15 @@ import type { ListWithCreator } from "@/common/types/lists";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+export type SpeciesFilter = "all" | "known" | "unknown";
+
 type ListDetailHeroProps = {
   list: ListWithCreator;
   isOwner: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  speciesFilter?: SpeciesFilter;
+  onFilterChange?: (filter: SpeciesFilter) => void;
 };
 
 export const ListDetailHero = ({
@@ -38,6 +42,8 @@ export const ListDetailHero = ({
   isOwner,
   onEdit,
   onDelete,
+  speciesFilter = "all",
+  onFilterChange,
 }: ListDetailHeroProps) => {
   const { t } = useTranslation();
 
@@ -188,21 +194,40 @@ export const ListDetailHero = ({
             </div>
           </div>
 
-          <div className="flex flex-col items-end">
-            <div className="min-w-0">
-              <p className="text-muted-foreground mb-1 truncate text-xs">
-                {knownCount}/{totalCount} {t("lists.knownSpecies")}
-              </p>
-              <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                <div
-                  className="bg-primary h-full rounded-full transition-all"
-                  style={{ width: `${pct}%` }}
-                />
+          <div className="flex items-end justify-between gap-4">
+            {onFilterChange && (
+              <div className="flex shrink-0 gap-1">
+                {(["all", "known", "unknown"] as SpeciesFilter[]).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => onFilterChange(f)}
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                      speciesFilter === f
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {t(`lists.filter${f.charAt(0).toUpperCase()}${f.slice(1)}`)}
+                  </button>
+                ))}
               </div>
+            )}
+            <div className="flex flex-col items-end">
+              <div className="min-w-0">
+                <p className="text-muted-foreground mb-1 truncate text-xs">
+                  {knownCount}/{totalCount} {t("lists.knownSpecies")}
+                </p>
+                <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+                  <div
+                    className="bg-primary h-full rounded-full transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+              <span className="shrink-0 text-lg font-bold tabular-nums">
+                {pct.toFixed(1)}%
+              </span>
             </div>
-            <span className="shrink-0 text-lg font-bold tabular-nums">
-              {pct.toFixed(1)}%
-            </span>
           </div>
         </div>
       </div>

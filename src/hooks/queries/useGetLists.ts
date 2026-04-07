@@ -13,6 +13,7 @@ import {
   fetchUserLikedLists,
   fetchListDetail,
   fetchListSpecies,
+  fetchUserSeenInList,
   fetchListsWithSpecies,
   fetchListLikers,
   toggleListLike,
@@ -256,6 +257,17 @@ export function useGetListLikers(
     queryFn: () => fetchListLikers(username!, slug!),
     enabled: !!username && !!slug,
     staleTime: 2 * 60_000,
+  });
+}
+
+export function useGetUserSeenInList(listId: string | undefined) {
+  const userDb = useAtomValue(authStore.userDb);
+
+  return useQuery({
+    queryKey: [QUERY_KEYS.user_seen_in_list_key, listId, userDb?.id],
+    queryFn: () => fetchUserSeenInList(listId!),
+    enabled: !!listId && !!userDb,
+    staleTime: 5 * 60_000,
   });
 }
 

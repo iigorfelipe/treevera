@@ -10,11 +10,12 @@ import { Button } from "@/common/components/ui/button";
 import {
   useGetListDetail,
   useGetListSpecies,
+  useGetUserSeenInList,
   useDeleteList,
   useUpdateList,
   useRemoveSpeciesFromList,
 } from "@/hooks/queries/useGetLists";
-import { ListDetailHero } from "./list-detail-hero";
+import { ListDetailHero, type SpeciesFilter } from "./list-detail-hero";
 import { ListSpeciesGrid } from "./list-species-grid";
 import { ListEditDialog } from "./list-edit-dialog";
 import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
@@ -86,6 +87,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const [removeSpeciesGbifKey, setRemoveSpeciesGbifKey] = useState<
     number | null
   >(null);
+  const [speciesFilter, setSpeciesFilter] = useState<SpeciesFilter>("all");
 
   const { data: list, isLoading: loadingDetail } = useGetListDetail(
     username,
@@ -100,6 +102,8 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     isFetching: fetchingSpecies,
   } = useGetListSpecies(list?.id);
 
+  const { data: seenInList } = useGetUserSeenInList(list?.id);
+
   const { mutate: doDelete, isPending: deleting } = useDeleteList();
   const { mutate: doUpdate } = useUpdateList(list?.id ?? "");
   const { mutate: doRemoveSpecies } = useRemoveSpeciesFromList(list?.id ?? "");
@@ -108,6 +112,12 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     () => speciesData?.pages.flatMap((p) => p.rows) ?? [],
     [speciesData],
   );
+
+  const filteredSpecies = useMemo(() => {
+    if (speciesFilter === "known") return allSpecies.filter((s) => seenInList?.has(s.gbif_key));
+    if (speciesFilter === "unknown") return allSpecies.filter((s) => !seenInList?.has(s.gbif_key));
+    return allSpecies;
+  }, [allSpecies, speciesFilter, seenInList]);
   const isSpeciesInitialLoading =
     !!list && !speciesData && (loadingSpecies || fetchingSpecies);
 
@@ -173,11 +183,13 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
           isOwner={isOwner}
           onEdit={() => setEditOpen(true)}
           onDelete={() => setDeleteConfirmOpen(true)}
+          speciesFilter={speciesFilter}
+          onFilterChange={setSpeciesFilter}
         />
 
         {isSpeciesInitialLoading ? (
           <ListSpeciesGridSkeleton />
-        ) : allSpecies.length === 0 && !isFetchingNextPage ? (
+        ) : filteredSpecies.length === 0 && !isFetchingNextPage ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />
@@ -186,7 +198,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
           </div>
         ) : (
           <ListSpeciesGrid
-            species={allSpecies}
+            species={filteredSpecies}
             hasNextPage={hasNextPage ?? false}
             isFetchingNextPage={isFetchingNextPage}
             fetchNextPage={() => void fetchNextPage()}
