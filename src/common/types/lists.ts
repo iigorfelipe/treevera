@@ -4,6 +4,7 @@ export interface ListRow {
   title: string;
   description: string | null;
   cover_image_url: string | null;
+  cover_species_images?: (string | null)[] | null;
   kingdom_filter: string | null;
   likes_count: number;
   species_count: number;
@@ -27,6 +28,7 @@ export interface ListPreview {
   title: string;
   description: string | null;
   cover_image_url: string | null;
+  cover_species_images?: (string | null)[] | null;
   species_count: number;
   likes_count: number;
   is_public: boolean;

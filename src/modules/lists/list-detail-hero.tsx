@@ -164,44 +164,46 @@ export const ListDetailHero = ({
             </div>
 
             <div className="flex flex-col items-end gap-3">
-              {list.is_public && (
-                <ListLikeButton
-                  listId={list.id}
-                  isLiked={list.is_liked}
-                  likesCount={list.likes_count}
-                  username={list.user_username}
-                  listSlug={list.slug}
-                />
-              )}
-              <div className="flex w-full gap-2">
-                <div className="min-w-0">
-                  <p className="text-muted-foreground mb-1 truncate text-xs">
-                    {knownCount}/{totalCount} {t("lists.knownSpecies")}
-                  </p>
-                  <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                    <div
-                      className="bg-primary h-full rounded-full transition-all"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="shrink-0 text-lg font-bold tabular-nums">
-                  {pct.toFixed(1)}%
-                </span>
+              <div className="flex items-center gap-2">
+                {list.is_public && (
+                  <ListLikeButton
+                    listId={list.id}
+                    isLiked={list.is_liked}
+                    likesCount={list.likes_count}
+                    username={list.user_username}
+                    listSlug={list.slug}
+                  />
+                )}
+                {list.is_public && (
+                  <Button
+                    variant="outline"
+                    className="ml-auto flex gap-2"
+                    onClick={handleShare}
+                  >
+                    <Share2 className="size-4" />
+                    {t("lists.shareLabel")}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
 
-          {list.is_public && (
-            <Button
-              variant="outline"
-              className="w-full gap-2"
-              onClick={handleShare}
-            >
-              <Share2 className="size-4" />
-              {t("lists.shareLabel")}
-            </Button>
-          )}
+          <div className="flex flex-col items-end">
+            <div className="min-w-0">
+              <p className="text-muted-foreground mb-1 truncate text-xs">
+                {knownCount}/{totalCount} {t("lists.knownSpecies")}
+              </p>
+              <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+                <div
+                  className="bg-primary h-full rounded-full transition-all"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+            <span className="shrink-0 text-lg font-bold tabular-nums">
+              {pct.toFixed(1)}%
+            </span>
+          </div>
         </div>
       </div>
     </div>

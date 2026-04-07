@@ -15,7 +15,9 @@ import { authStore } from "@/store/auth/atoms";
 import { useGetPublicLists } from "@/hooks/queries/useGetLists";
 import { slugify } from "@/common/utils/slugify";
 import { ListCard } from "./list-card";
+import { ListCompactCard } from "./list-compact-card";
 import { ListCreateDialog } from "./list-create-dialog";
+import { ListViewToggle, type ListViewMode } from "./list-view-toggle";
 
 type SortMode = "recent" | "popular";
 
@@ -28,6 +30,7 @@ export const ListsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("recent");
+  const [viewMode, setViewMode] = useState<ListViewMode>("grid");
   const [createOpen, setCreateOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -134,6 +137,8 @@ export const ListsPage = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            <ListViewToggle value={viewMode} onChange={setViewMode} />
+
             {isAuthenticated && (
               <Button
                 onClick={() => setCreateOpen(true)}
@@ -153,13 +158,25 @@ export const ListsPage = () => {
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         {isLoading ? (
-          <div className="space-y-3 p-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-muted flex h-22 animate-pulse items-center gap-4 rounded-xl border p-3"
-              />
-            ))}
+          <div className="p-4">
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "space-y-3"
+              }
+            >
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={
+                    viewMode === "grid"
+                      ? "bg-muted h-72 animate-pulse rounded-lg border"
+                      : "bg-muted flex h-22 animate-pulse items-center gap-4 rounded-xl border p-3"
+                  }
+                />
+              ))}
+            </div>
           </div>
         ) : allLists.length === 0 && !isFetchingNextPage ? (
           <div className="flex h-full items-center justify-center">
@@ -173,22 +190,37 @@ export const ListsPage = () => {
           </div>
         ) : (
           <div className="p-4">
-            <div className="space-y-3">
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "space-y-3"
+              }
+            >
               {allLists.map((list, i) => (
                 <motion.div
                   key={list.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.02, duration: 0.25 }}
+                  className={viewMode === "grid" ? "h-full" : undefined}
                 >
-                  <ListCard list={list} />
+                  {viewMode === "grid" ? (
+                    <ListCompactCard list={list} />
+                  ) : (
+                    <ListCard list={list} />
+                  )}
                 </motion.div>
               ))}
 
               {hasNextPage && (
                 <div
                   ref={sentinelRef}
-                  className="flex items-center justify-center py-8"
+                  className={
+                    viewMode === "grid"
+                      ? "col-span-full flex items-center justify-center py-8"
+                      : "flex items-center justify-center py-8"
+                  }
                 >
                   {isFetchingNextPage && (
                     <Loader2 className="text-muted-foreground size-6 animate-spin" />

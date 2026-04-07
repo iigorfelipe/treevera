@@ -1,8 +1,14 @@
+import { useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
 import { useGetUserLists } from "@/hooks/queries/useGetLists";
 import { ListX } from "lucide-react";
 import { ListPreviewCard } from "@/modules/lists/list-preview-card";
+import { ListPreviewCompactCard } from "@/modules/lists/list-preview-compact-card";
+import {
+  ListViewToggle,
+  type ListViewMode,
+} from "@/modules/lists/list-view-toggle";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -17,6 +23,7 @@ export const UserListsPage = () => {
   const { username } = useParams({ strict: false }) as { username: string };
   const userDb = useAtomValue(authStore.userDb);
   const isOwner = userDb?.username === username;
+  const [viewMode, setViewMode] = useState<ListViewMode>("grid");
 
   const { data: profile, isLoading: loadingProfile } =
     useGetPublicProfile(username);
@@ -36,30 +43,48 @@ export const UserListsPage = () => {
         className="relative z-10 border-b"
       >
         <div className="px-4 py-4">
-          <div className="min-w-0">
-            {loadingProfile ? (
-              <Skeleton className="h-5 w-32" />
-            ) : (
-              <h1 className="text-base leading-tight font-bold">{title}</h1>
-            )}
-            <span className="text-muted-foreground text-xs">
-              {lists.length > 0
-                ? `${lists.length} ${t("lists.title").toLowerCase()}`
-                : ""}
-            </span>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              {loadingProfile ? (
+                <Skeleton className="h-5 w-32" />
+              ) : (
+                <h1 className="text-base leading-tight font-bold">{title}</h1>
+              )}
+              <span className="text-muted-foreground text-xs">
+                {lists.length > 0
+                  ? `${lists.length} ${t("lists.title").toLowerCase()}`
+                  : ""}
+              </span>
+            </div>
+
+            <ListViewToggle value={viewMode} onChange={setViewMode} />
           </div>
         </div>
       </motion.div>
 
       <div className="flex-1 overflow-y-auto">
         {loadingLists ? (
-          <div className="space-y-3 p-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-muted h-22 animate-pulse rounded-xl border"
-              />
-            ))}
+          <div className="p-4">
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "space-y-3"
+              }
+            >
+              {Array.from({ length: viewMode === "grid" ? 8 : 4 }).map(
+                (_, i) => (
+                  <div
+                    key={i}
+                    className={
+                      viewMode === "grid"
+                        ? "bg-muted h-64 animate-pulse rounded-lg border"
+                        : "bg-muted h-22 animate-pulse rounded-xl border"
+                    }
+                  />
+                ),
+              )}
+            </div>
           </div>
         ) : lists.length === 0 ? (
           <div className="flex h-full items-center justify-center">
@@ -73,20 +98,43 @@ export const UserListsPage = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-3 p-4">
-            {lists.map((list, i) => (
-              <motion.div
-                key={list.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.02, duration: 0.25 }}
-              >
-                <ListPreviewCard
-                  list={{ ...list, slug: list.slug || slugify(list.title) }}
-                  username={username}
-                />
-              </motion.div>
-            ))}
+          <div className="p-4">
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "space-y-3"
+              }
+            >
+              {lists.map((list, i) => {
+                const normalizedList = {
+                  ...list,
+                  slug: list.slug || slugify(list.title),
+                };
+
+                return (
+                  <motion.div
+                    key={list.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.02, duration: 0.25 }}
+                    className={viewMode === "grid" ? "h-full" : undefined}
+                  >
+                    {viewMode === "grid" ? (
+                      <ListPreviewCompactCard
+                        list={normalizedList}
+                        username={username}
+                      />
+                    ) : (
+                      <ListPreviewCard
+                        list={normalizedList}
+                        username={username}
+                      />
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
