@@ -5,6 +5,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { Menu } from "@/modules/header/menu";
+import { router } from "@/routes";
 
 export const AppHeader = () => {
   const { t } = useTranslation();
@@ -44,7 +45,7 @@ export const AppHeader = () => {
           </button>
 
           <button
-            onClick={() => navigate({ to: "/lists" })}
+            onClick={() => router.history.push(`${router.basepath}/lists`)}
             className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
           >
             {t("lists.title")}
