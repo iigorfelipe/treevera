@@ -29,7 +29,7 @@ export const ListsPage = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [sortMode, setSortMode] = useState<SortMode>("recent");
+  const [sortMode, setSortMode] = useState<SortMode>("popular");
   const [viewMode, setViewMode] = useState<ListViewMode>("grid");
   const [createOpen, setCreateOpen] = useState(false);
 
