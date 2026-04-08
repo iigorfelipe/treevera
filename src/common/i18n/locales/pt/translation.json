@@ -77,26 +77,30 @@
     "loginError": "Erro ao fazer login",
     "signingIn": "Entrando...",
     "continueWithGoogle": "Continuar com Google",
-    "exclusiveFeatures": "Recursos exclusivos ao entrar",
+    "exclusiveFeatures": "Entre para ter acesso a",
     "continueWithoutLogin": "Você pode continuar sem fazer login, mas não terá acesso aos recursos listados acima.",
     "back": "Voltar",
     "backAriaLabel": "Voltar para página anterior",
     "benefits": {
-      "saveShortcuts": {
-        "title": "Salvar atalhos",
-        "description": "Defina nós mais visitados para agilizar sua navegação"
-      },
       "dailyAndRandomChallenges": {
         "title": "Desafios diários e aleatórios",
         "description": "Novos desafios todos os dias para testar seus conhecimentos"
       },
-      "viewHistory": {
-        "title": "Histórico de visualizações",
-        "description": "Acompanhe as espécies que você já explorou"
-      },
       "speciesGallery": {
         "title": "Galeria de espécies",
         "description": "Organize e favorite suas espécies já descobertas"
+      },
+      "lists": {
+        "title": "Listas de espécies",
+        "description": "Crie, organize e compartilhe listas com suas espécies favoritas"
+      },
+      "saveShortcuts": {
+        "title": "Salvar atalhos",
+        "description": "Defina nós mais visitados para agilizar sua navegação"
+      },
+      "viewHistory": {
+        "title": "Histórico de visualizações",
+        "description": "Acompanhe as espécies que você já explorou"
       },
       "activityHistory": {
         "title": "Histórico de atividades",
@@ -518,7 +522,17 @@
     "shareText": "Confira a lista \"{{name}}\" no TreeVera",
     "shareCopied": "Link copiado!",
     "setAsCover": "Definir como capa da lista",
-    "listCoverUpdated": "Capa da lista atualizada!"
+    "listCoverUpdated": "Capa da lista atualizada!",
+    "tagline": "Com as listas você pode reunir e explorar espécies do seu jeito.",
+    "featuredLists": "Listas em Destaque",
+    "allLists": "Todas as listas",
+    "featuredEdit": "Editar",
+    "featuredDone": "Concluído",
+    "featuredPickerTitle": "Selecionar lista em destaque",
+    "featuredPickerEmpty": "Nenhuma lista disponível",
+    "featuredPickerEmptyHint": "Não há mais listas públicas para adicionar.",
+    "featuredRemove": "Remover dos destaques",
+    "featuredAdd": "Adicionar lista em destaque"
   },
   "settings": {
     "title": "Configurações",

@@ -77,26 +77,30 @@
     "loginError": "Login error",
     "signingIn": "Signing in...",
     "continueWithGoogle": "Continue with Google",
-    "exclusiveFeatures": "Exclusive features when signed in",
+    "exclusiveFeatures": "Sign in to access",
     "continueWithoutLogin": "You can continue without signing in, but you won't have access to the features listed above.",
     "back": "Back",
     "backAriaLabel": "Go back to previous page",
     "benefits": {
-      "saveShortcuts": {
-        "title": "Save shortcuts",
-        "description": "Pin your most visited nodes to speed up navigation"
-      },
       "dailyAndRandomChallenges": {
         "title": "Daily and random challenges",
         "description": "Fresh challenges every day to test your knowledge"
       },
-      "viewHistory": {
-        "title": "View history",
-        "description": "Track the species you have already explored"
-      },
       "speciesGallery": {
         "title": "Species gallery",
         "description": "Organize and favorite the species you have discovered"
+      },
+      "lists": {
+        "title": "Species lists",
+        "description": "Create, organize and share lists with your favorite species"
+      },
+      "saveShortcuts": {
+        "title": "Save shortcuts",
+        "description": "Pin your most visited nodes to speed up navigation"
+      },
+      "viewHistory": {
+        "title": "View history",
+        "description": "Track the species you have already explored"
       },
       "activityHistory": {
         "title": "Activity history",
@@ -518,7 +522,17 @@
     "shareText": "Check out the list \"{{name}}\" on TreeVera",
     "shareCopied": "Link copied!",
     "setAsCover": "Set as list cover",
-    "listCoverUpdated": "List cover updated!"
+    "listCoverUpdated": "List cover updated!",
+    "tagline": "With lists you can gather and explore species your way.",
+    "featuredLists": "Featured Lists",
+    "allLists": "All lists",
+    "featuredEdit": "Edit",
+    "featuredDone": "Done",
+    "featuredPickerTitle": "Select featured list",
+    "featuredPickerEmpty": "No lists available",
+    "featuredPickerEmptyHint": "There are no more public lists to add.",
+    "featuredRemove": "Remove from featured",
+    "featuredAdd": "Add featured list"
   },
   "settings": {
     "title": "Settings",

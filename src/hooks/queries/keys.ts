@@ -28,4 +28,5 @@ export const QUERY_KEYS = {
   species_fav_count_key: "species_fav_count",
   species_favoriters_key: "species_favoriters",
   user_seen_in_list_key: "user_seen_in_list",
+  featured_lists_key: "featured_lists",
 };

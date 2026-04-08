@@ -23,6 +23,8 @@ import {
   addSpeciesToList,
   removeSpeciesFromList,
   fetchMyListsForPicker,
+  fetchFeaturedLists,
+  setFeaturedLists,
 } from "@/common/utils/supabase/lists";
 import type { ListWithCreator } from "@/common/types/lists";
 
@@ -279,5 +281,26 @@ export function useGetMyListsForPicker(gbifKey?: number) {
     queryFn: () => fetchMyListsForPicker(gbifKey),
     enabled: !!userDb,
     staleTime: 2 * 60_000,
+  });
+}
+
+export function useGetFeaturedLists() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.featured_lists_key],
+    queryFn: fetchFeaturedLists,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useSetFeaturedLists() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (listIds: string[]) => setFeaturedLists(listIds),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.featured_lists_key],
+      });
+    },
   });
 }

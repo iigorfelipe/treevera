@@ -126,18 +126,14 @@ export const Login = () => {
                   return (
                     <li
                       key={index}
-                      className={`flex items-start space-x-3 rounded-lg px-2 py-3`}
+                      className="flex items-start space-x-3 rounded-lg px-2 py-3"
                     >
-                      <div
-                        className={`flex size-8 shrink-0 items-center justify-center rounded-full ${benefit.bgColor} ${benefit.color}`}
-                      >
+                      <div className="text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full">
                         <IconComponent className="size-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className={`text-sm font-medium ${benefit.color}`}>
-                          {copy.title}
-                        </h4>
-                        <p className="text-xs text-gray-500">
+                        <h4 className="text-sm font-medium">{copy.title}</h4>
+                        <p className="text-muted-foreground text-xs">
                           {copy.description}
                         </p>
                       </div>
