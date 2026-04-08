@@ -21,6 +21,7 @@ import { ListLikesPage } from "@/app/lists/list-likes";
 import { ProfileRouter } from "@/app/profile-router";
 import { SpeciesGalleryPageRouter } from "@/app/user-profile/species-gallery";
 import { UserListsPage } from "@/app/user-lists";
+import { SearchPage } from "@/app/search";
 
 const rootRoute = createRootRoute({
   component: Layout,
@@ -252,7 +253,14 @@ const listLikesRoute = createRoute({
   component: ListLikesPage,
 });
 
+const searchRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/search/$query",
+  component: SearchPage,
+});
+
 const routeTree = rootRoute.addChildren([
+  searchRoute,
   authRoute,
   homeRoute,
   settingsRoute,

@@ -15,7 +15,8 @@
     "logoAlt": "Logo",
     "tagline": "Taxonomia interativa",
     "userAvatarAlt": "Usuário",
-    "userMenu": "Menu do usuário"
+    "userMenu": "Menu do usuário",
+    "searchPlaceholder": "Pesquisar na árvore"
   },
   "dialog": {
     "close": "Fechar"

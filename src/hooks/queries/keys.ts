@@ -29,4 +29,7 @@ export const QUERY_KEYS = {
   species_favoriters_key: "species_favoriters",
   user_seen_in_list_key: "user_seen_in_list",
   featured_lists_key: "featured_lists",
+  search_taxa_key: "search_taxa",
+  search_lists_key: "search_lists",
+  search_users_key: "search_users",
 };
