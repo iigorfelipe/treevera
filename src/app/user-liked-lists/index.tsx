@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
-import { useGetUserLists } from "@/hooks/queries/useGetLists";
-import { ListX } from "lucide-react";
+import { useGetUserLikedLists } from "@/hooks/queries/useGetLists";
+import { Heart } from "lucide-react";
 import { ListCard } from "@/modules/lists/list-card";
 import { ListCompactCard } from "@/modules/lists/list-compact-card";
 import {
@@ -17,7 +17,7 @@ import { authStore } from "@/store/auth/atoms";
 
 const PAGE_LIMIT = 50;
 
-export const UserListsPage = () => {
+export const UserLikedListsPage = () => {
   const { t } = useTranslation();
   const { username } = useParams({ strict: false }) as { username: string };
   const userDb = useAtomValue(authStore.userDb);
@@ -26,20 +26,15 @@ export const UserListsPage = () => {
 
   const { data: profile, isLoading: loadingProfile } =
     useGetPublicProfile(username);
-  const { data: listsData, isLoading: loadingLists } = useGetUserLists(
+  const { data: listsData, isLoading: loadingLists } = useGetUserLikedLists(
     profile?.id,
     PAGE_LIMIT,
   );
 
   const lists = listsData?.rows ?? [];
-  const title = isOwner ? t("lists.myLists") : t("lists.listsOf", { username });
-
-  const enrichedLists = lists.map((list) => ({
-    ...list,
-    user_username: username,
-    user_name: profile?.name ?? username,
-    user_avatar_url: profile?.avatar_url ?? null,
-  }));
+  const title = isOwner
+    ? t("lists.myLikedLists")
+    : t("lists.likedListsOf", { username });
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col">
@@ -95,12 +90,15 @@ export const UserListsPage = () => {
         ) : lists.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground text-center">
-              <ListX className="mx-auto mb-3 size-16 opacity-30" />
+              <Heart className="mx-auto mb-3 size-16 opacity-30" />
               <p className="text-sm">
                 {isOwner
-                  ? t("lists.emptyMyLists")
-                  : t("lists.emptyListsOf", { username })}
+                  ? t("lists.emptyLikedLists")
+                  : t("lists.emptyLikedListsOf", { username })}
               </p>
+              {isOwner && (
+                <p className="mt-1 text-xs">{t("lists.emptyLikedListsHint")}</p>
+              )}
             </div>
           </div>
         ) : (
@@ -112,7 +110,7 @@ export const UserListsPage = () => {
                   : "space-y-3"
               }
             >
-              {enrichedLists.map((list, i) => (
+              {lists.map((list, i) => (
                 <motion.div
                   key={list.id}
                   initial={{ opacity: 0, y: 10 }}

@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useGetListsWithSpecies } from "@/hooks/queries/useGetLists";
-import { ListPreviewCard } from "./list-preview-card";
-import { slugify } from "@/common/utils/slugify";
+import { ListCard } from "./list-card";
 import { Link } from "@tanstack/react-router";
 
 type ListsWithSpeciesProps = {
@@ -31,11 +30,7 @@ export const ListsWithSpecies = ({ gbifKey }: ListsWithSpeciesProps) => {
 
       <div className="space-y-2">
         {lists.map((list) => (
-          <ListPreviewCard
-            key={list.id}
-            list={{ ...list, slug: list.slug || slugify(list.title) }}
-            username={list.user_username}
-          />
+          <ListCard key={list.id} list={list} />
         ))}
       </div>
     </div>

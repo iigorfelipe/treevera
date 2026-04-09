@@ -38,21 +38,21 @@ export const useGetRecentSeenSpecies = (limit: number, userId?: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.user_seen_species_key, "recent", targetUserId, limit],
     queryFn: async () => {
-      if (userId) {
-        const page = await fetchGalleryPage(userId, 0, limit);
-        return page.rows.map((r) => ({
-          user_id: userId,
-          gbif_key: r.gbif_key,
-          seen_at: r.seen_at,
-          is_favorite: r.is_favorite,
-          kingdom: null,
-          iucn_status: null,
-          preferred_image_url: r.image_url,
-          canonical_name: r.canonical_name,
-          family: r.family,
-        }));
-      }
-      return fetchSeenSpecies(sessionUserId!, limit);
+      const page = await fetchGalleryPage(targetUserId!, 0, limit, {
+        sortOrder: "newest",
+        photosFirst: false,
+      });
+      return page.rows.map((r) => ({
+        user_id: targetUserId!,
+        gbif_key: r.gbif_key,
+        seen_at: r.seen_at,
+        is_favorite: r.is_favorite,
+        kingdom: null,
+        iucn_status: null,
+        preferred_image_url: r.image_url,
+        canonical_name: r.canonical_name,
+        family: r.family,
+      }));
     },
     enabled: !!targetUserId,
     staleTime: 1000 * 60 * 5,

@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { List } from "lucide-react";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { useGetListsWithSpecies } from "@/hooks/queries/useGetLists";
-import { ListPreviewCard } from "@/modules/lists/list-preview-card";
-import { slugify } from "@/common/utils/slugify";
+import { ListCard } from "@/modules/lists/list-card";
 
 export const SpecieListsPage = () => {
   const { t } = useTranslation();
@@ -62,10 +61,7 @@ export const SpecieListsPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.02, duration: 0.2 }}
               >
-                <ListPreviewCard
-                  list={{ ...list, slug: list.slug || slugify(list.title) }}
-                  username={list.user_username}
-                />
+                <ListCard list={list} />
               </motion.div>
             ))}
           </div>

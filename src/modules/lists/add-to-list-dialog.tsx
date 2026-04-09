@@ -59,7 +59,10 @@ export const AddToListDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm p-3">
+      <DialogContent
+        className="max-w-sm p-3"
+        onClick={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle>{t("lists.addToList")}</DialogTitle>
         </DialogHeader>

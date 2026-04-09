@@ -1,32 +1,57 @@
 import { Button } from "@/common/components/ui/button";
-import { formatActivityDate } from "@/common/utils/date-formats";
-import { Images, ChevronRight } from "lucide-react";
+import { Image } from "@/common/components/image";
+import { Images, ChevronRight, Leaf } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useTranslation } from "react-i18next";
 import { useGetRecentSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 
-const SpecieItem = ({
-  canonicalName,
+const RecentSpeciesCard = ({
+  gbifKey,
+  imgUrl,
+  name,
   family,
-  date,
 }: {
-  canonicalName: string | null;
+  gbifKey: number;
+  imgUrl: string | null | undefined;
+  name: string | null;
   family: string | null;
-  date: string;
 }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="-mx-2 flex items-center justify-between border-b px-2 py-2 last:border-0">
-      <div className="flex items-center gap-2">
-        <div>
-          <div className="text-xs font-medium italic">{canonicalName}</div>
-          <div className="text-muted-foreground text-xs">{family}</div>
+    <div className="group relative">
+      <figure
+        onClick={() =>
+          navigate({
+            to: "/specie-detail/$specieKey",
+            params: { specieKey: String(gbifKey) },
+            search: { from: "profile" },
+          })
+        }
+        className="relative aspect-3/4 w-full cursor-pointer overflow-hidden rounded-xl shadow-sm group-hover:shadow-lg"
+      >
+        {imgUrl ? (
+          <Image
+            src={imgUrl}
+            alt={name ?? ""}
+            loading="lazy"
+            className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+          />
+        ) : (
+          <div className="bg-muted flex size-full items-center justify-center">
+            <Leaf className="text-muted-foreground/30 size-10" />
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/75 via-black/30 to-transparent px-3 pt-8 pb-3">
+          <p className="truncate text-xs leading-tight font-semibold text-white">
+            {name}
+          </p>
+          <p className="truncate text-xs text-white/70 italic">{family}</p>
         </div>
-      </div>
-      <div className="text-muted-foreground shrink-0 text-xs">
-        {formatActivityDate(date)}
-      </div>
+      </figure>
     </div>
   );
 };
@@ -60,7 +85,7 @@ export const SpeciesGalleryPreview = ({
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between border-b">
+      <div className="flex justify-between border-b pb-1">
         <h2>{t("seenSpecies.title")}</h2>
         <Button
           variant="ghost"
@@ -69,7 +94,7 @@ export const SpeciesGalleryPreview = ({
           disabled={!seenSpecies.length}
           onClick={handleOpenGallery}
         >
-          {t("seenSpecies.openGallery")}{" "}
+          {t("seenSpecies.openGallery")}
           <ChevronRight className="ml-1 size-3" />
         </Button>
       </div>
@@ -87,14 +112,17 @@ export const SpeciesGalleryPreview = ({
           )}
         </div>
       ) : (
-        seenSpecies.map((species) => (
-          <SpecieItem
-            key={species.gbif_key}
-            canonicalName={species.canonical_name}
-            family={species.family}
-            date={species.seen_at}
-          />
-        ))
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+          {seenSpecies.map((species) => (
+            <RecentSpeciesCard
+              key={species.gbif_key}
+              gbifKey={species.gbif_key}
+              imgUrl={species.preferred_image_url}
+              name={species.canonical_name}
+              family={species.family}
+            />
+          ))}
+        </div>
       )}
     </div>
   );

@@ -53,7 +53,6 @@ function ProfileSkeleton() {
   );
 }
 
-
 export function UserProfilePage({ username }: { username: string }) {
   const { t } = useTranslation();
   const { data, isLoading } = useGetPublicProfile(username);
@@ -110,14 +109,6 @@ export function UserProfilePage({ username }: { username: string }) {
               </div>
             )}
             {!isOfficialProfile && (
-              <div className="order-4">
-                <UserAchievements userId={data.id} isOwner={false} />
-              </div>
-            )}
-          </div>
-
-          <div className="contents max-w-1/3 lg:flex lg:flex-1 lg:flex-col lg:gap-14">
-            {!isOfficialProfile && (
               <div className="order-3">
                 <SpeciesGalleryPreview
                   userId={data.id}
@@ -125,7 +116,15 @@ export function UserProfilePage({ username }: { username: string }) {
                 />
               </div>
             )}
-            <div className="order-5">
+            {!isOfficialProfile && (
+              <div className="order-5">
+                <UserAchievements userId={data.id} isOwner={false} />
+              </div>
+            )}
+          </div>
+
+          <div className="contents max-w-1/3 lg:flex lg:flex-1 lg:flex-col lg:gap-14">
+            <div className="order-4">
               <UserListsPreview userId={data.id} username={data.username} />
             </div>
             {!isOfficialProfile && (

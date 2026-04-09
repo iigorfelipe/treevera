@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useGetUserLists } from "@/hooks/queries/useGetLists";
-import { ListPreviewCard } from "@/modules/lists/list-preview-card";
+import { ListCard } from "@/modules/lists/list-card";
 import { useNavigate } from "@tanstack/react-router";
 
 const LIMIT = 2;
@@ -27,6 +27,7 @@ export const UserListsPreview = ({
 
   const lists = (data?.rows ?? []).slice(0, LIMIT);
   const totalCount = data?.totalCount ?? 0;
+
   return (
     <div className="space-y-3">
       <div className="flex justify-between border-b">
@@ -64,10 +65,9 @@ export const UserListsPreview = ({
 
       <div className="space-y-2">
         {lists.map((list) => (
-          <ListPreviewCard
+          <ListCard
             key={list.id}
-            list={list}
-            username={targetUsername}
+            list={{ ...list, user_username: targetUsername }}
           />
         ))}
       </div>

@@ -3,20 +3,40 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { ListLikeButton } from "./list-like-button";
 import { formatActivityDate } from "@/common/utils/date-formats";
-import type { ListWithCreator } from "@/common/types/lists";
+import { slugify } from "@/common/utils/slugify";
+
+export type ListCardData = {
+  id: string;
+  title: string;
+  description?: string | null;
+  cover_image_url?: string | null;
+  species_count: number;
+  likes_count: number;
+  is_public?: boolean;
+  slug?: string | null;
+  created_at: string;
+  user_username: string;
+  user_name?: string | null;
+  user_avatar_url?: string | null;
+  is_liked?: boolean;
+};
 
 type ListCardProps = {
-  list: ListWithCreator;
+  list: ListCardData;
 };
 
 export const ListCard = ({ list }: ListCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const listSlug = list.slug || slugify(list.title);
 
   return (
     <div
       onClick={() =>
-        navigate({ to: "/$username/lists/$listSlug", params: { username: list.user_username, listSlug: list.slug } })
+        navigate({
+          to: "/$username/lists/$listSlug",
+          params: { username: list.user_username, listSlug },
+        })
       }
       className="group bg-card flex cursor-pointer items-center gap-4 rounded-xl border p-3 shadow-sm transition-all duration-300 hover:shadow-md"
     >
@@ -44,18 +64,14 @@ export const ListCard = ({ list }: ListCardProps) => {
         )}
         <p className="text-muted-foreground mt-0.5 text-xs">
           {t("lists.by")}{" "}
-          {list.user_username ? (
-            <Link
-              to="/$username"
-              params={{ username: list.user_username }}
-              onClick={(e) => e.stopPropagation()}
-              className="hover:text-foreground font-medium transition-colors"
-            >
-              @{list.user_username}
-            </Link>
-          ) : (
-            list.user_name || "—"
-          )}
+          <Link
+            to="/$username"
+            params={{ username: list.user_username }}
+            onClick={(e) => e.stopPropagation()}
+            className="hover:text-foreground font-medium transition-colors"
+          >
+            @{list.user_username}
+          </Link>
         </p>
         <p className="text-muted-foreground mt-1 text-xs">
           {list.species_count} {t("lists.species")} ·{" "}
@@ -66,9 +82,11 @@ export const ListCard = ({ list }: ListCardProps) => {
       <div className="shrink-0">
         <ListLikeButton
           listId={list.id}
-          isLiked={list.is_liked}
+          isLiked={list.is_liked ?? false}
           likesCount={list.likes_count}
           size="sm"
+          username={list.user_username}
+          listSlug={listSlug}
         />
       </div>
     </div>

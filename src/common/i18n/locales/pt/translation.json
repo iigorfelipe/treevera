@@ -224,7 +224,7 @@
     "tip": "Navegue pela árvore taxonômica e salve os nós selecionados como atalhos para acesso rápido."
   },
   "seenSpecies": {
-    "title": "ESPÉCIES VISTAS",
+    "title": "ESPÉCIES RECENTES",
     "openGallery": "Abrir galeria",
     "emptyTitle": "Sua galeria está vazia",
     "emptyHint": "Explore espécies para preenchê-la!",
@@ -453,6 +453,8 @@
     "myLists": "Minhas listas",
     "listsOf": "Listas de {{username}}",
     "likedLists": "LISTAS CURTIDAS",
+    "myLikedLists": "Minhas listas curtidas",
+    "likedListsOf": "Listas curtidas por {{username}}",
     "create": "Criar Lista",
     "createTitle": "Nova Lista",
     "editTitle": "Editar Lista",
@@ -477,6 +479,8 @@
     "by": "por",
     "noListsFound": "Nenhuma lista encontrada",
     "noSpeciesInList": "Esta lista ainda não tem espécies",
+    "noKnownSpeciesInList": "Nenhuma espécie conhecida nessa lista",
+    "noUnknownSpeciesInList": "Você já conhece todas as espécies dessa lista!",
     "adjustFilters": "Tente ajustar os filtros",
     "emptyMyLists": "Nenhuma lista criada",
     "emptyMyListsHint": "Crie sua primeira lista de espécies!",

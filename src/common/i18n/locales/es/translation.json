@@ -453,6 +453,8 @@
     "myLists": "Mis listas",
     "listsOf": "Listas de {{username}}",
     "likedLists": "LISTAS QUE ME GUSTAN",
+    "myLikedLists": "Mis listas que me gustan",
+    "likedListsOf": "Listas que le gustan a {{username}}",
     "create": "Crear Lista",
     "createTitle": "Nueva Lista",
     "editTitle": "Editar Lista",

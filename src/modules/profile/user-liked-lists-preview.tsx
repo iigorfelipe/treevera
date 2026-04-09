@@ -1,14 +1,13 @@
-import { useState } from "react";
 import { Button } from "@/common/components/ui/button";
-import { ChevronDown, ChevronUp, Heart } from "lucide-react";
+import { ChevronRight, Heart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useGetUserLikedLists } from "@/hooks/queries/useGetLists";
-import { ListPreviewCard } from "@/modules/lists/list-preview-card";
+import { ListCard } from "@/modules/lists/list-card";
+import { useNavigate } from "@tanstack/react-router";
 
-const DEFAULT_LIMIT = 2;
-const EXPANDED_LIMIT = 10;
+const DEFAULT_LIMIT = 3;
 
 export const UserLikedListsPreview = ({
   userId,
@@ -18,36 +17,42 @@ export const UserLikedListsPreview = ({
   username?: string;
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
-  const [expanded, setExpanded] = useState(false);
 
   const isOwner = !username || username === userDb?.username;
   const targetUserId = userId ?? userDb?.id;
-  const limit = expanded ? EXPANDED_LIMIT : DEFAULT_LIMIT + 1;
-  const { data } = useGetUserLikedLists(targetUserId, limit);
+  const targetUsername = username ?? userDb?.username;
+
+  const { data } = useGetUserLikedLists(targetUserId, DEFAULT_LIMIT + 1);
 
   const lists = data?.rows ?? [];
-  const visibleLists = expanded ? lists : lists.slice(0, DEFAULT_LIMIT);
-  const shouldShowButton = lists.length > DEFAULT_LIMIT;
+  const visibleLists = lists.slice(0, DEFAULT_LIMIT);
+  const hasMore = lists.length > DEFAULT_LIMIT;
+
+  const handleViewAll = () => {
+    if (targetUsername) {
+      navigate({
+        to: "/$username/liked-lists",
+        params: { username: targetUsername },
+      });
+    }
+  };
 
   return (
     <div className="space-y-3">
       <div className="flex justify-between border-b">
         <h2>{t("lists.likedLists")}</h2>
 
-        {shouldShowButton && (
+        {hasMore && (
           <Button
             variant="ghost"
             size="sm"
             className="text-muted-foreground h-7 px-2 text-xs"
-            onClick={() => setExpanded((prev) => !prev)}
+            onClick={handleViewAll}
           >
-            {expanded ? t("lists.collapse") : t("lists.expand")}
-            {expanded ? (
-              <ChevronUp className="ml-1 size-3" />
-            ) : (
-              <ChevronDown className="ml-1 size-3" />
-            )}
+            {t("lists.viewAll")}
+            <ChevronRight className="ml-1 size-3" />
           </Button>
         )}
       </div>
@@ -64,23 +69,13 @@ export const UserLikedListsPreview = ({
             <div className="text-xs">{t("lists.emptyLikedListsHint")}</div>
           )}
         </div>
-      ) : null}
-
-      <div
-        className={`space-y-2 ${
-          expanded && lists.length > DEFAULT_LIMIT
-            ? "max-h-100 overflow-y-auto pr-1"
-            : ""
-        }`}
-      >
-        {visibleLists.map((list) => (
-          <ListPreviewCard
-            key={list.id}
-            list={list}
-            username={list.user_username}
-          />
-        ))}
-      </div>
+      ) : (
+        <div className="space-y-2">
+          {visibleLists.map((list) => (
+            <ListCard key={list.id} list={list} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

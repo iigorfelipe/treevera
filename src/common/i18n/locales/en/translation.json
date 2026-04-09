@@ -453,6 +453,8 @@
     "myLists": "My lists",
     "listsOf": "{{username}}'s lists",
     "likedLists": "LIKED LISTS",
+    "myLikedLists": "My liked lists",
+    "likedListsOf": "{{username}}'s liked lists",
     "create": "Create List",
     "createTitle": "New List",
     "editTitle": "Edit List",

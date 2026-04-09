@@ -114,8 +114,10 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   );
 
   const filteredSpecies = useMemo(() => {
-    if (speciesFilter === "known") return allSpecies.filter((s) => seenInList?.has(s.gbif_key));
-    if (speciesFilter === "unknown") return allSpecies.filter((s) => !seenInList?.has(s.gbif_key));
+    if (speciesFilter === "known")
+      return allSpecies.filter((s) => seenInList?.has(s.gbif_key));
+    if (speciesFilter === "unknown")
+      return allSpecies.filter((s) => !seenInList?.has(s.gbif_key));
     return allSpecies;
   }, [allSpecies, speciesFilter, seenInList]);
   const isSpeciesInitialLoading =
@@ -193,7 +195,13 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
           <div className="flex items-center justify-center py-20">
             <div className="text-muted-foreground text-center">
               <Images className="mx-auto mb-3 size-16 opacity-30" />
-              <p className="text-sm">{t("lists.noSpeciesInList")}</p>
+              <p className="text-sm">
+                {speciesFilter === "known"
+                  ? t("lists.noKnownSpeciesInList")
+                  : speciesFilter === "unknown"
+                    ? t("lists.noUnknownSpeciesInList")
+                    : t("lists.noSpeciesInList")}
+              </p>
             </div>
           </div>
         ) : (
