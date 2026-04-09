@@ -441,6 +441,7 @@
     "leaveToExploreWarning": "You have a challenge in progress. Going to Explore will cancel it. Do you want to continue?",
     "continue": "Continue",
     "noTips": "No tips available for this step.",
+    "genusTip": "First word of the scientific name of the species",
     "moreInfo": "More information",
     "commonNames": "Common names",
     "noCommonNames": "No common names found.",

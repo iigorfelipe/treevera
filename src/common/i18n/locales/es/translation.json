@@ -441,6 +441,7 @@
     "leaveToExploreWarning": "Tienes un desafío en curso. Al ir a Explorar, el desafío se cancelará. ¿Deseas continuar?",
     "continue": "Continuar",
     "noTips": "No hay consejos disponibles para este paso.",
+    "genusTip": "Primera palabra del nombre científico de la especie",
     "moreInfo": "Más información",
     "commonNames": "Nombres comunes",
     "noCommonNames": "No se encontraron nombres comunes.",

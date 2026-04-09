@@ -309,6 +309,13 @@ export const ChallengeTips = ({
                   </div>
                 ))}
               </div>
+            ) : currentNode?.rank === "GENUS" ? (
+              <div className="bg-muted/40 mt-3 rounded-lg border p-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <span>💡</span>
+                  <span className="flex-1">{t("challenge.genusTip")}</span>
+                </div>
+              </div>
             ) : (
               <div className="bg-muted/40 text-muted-foreground mt-3 rounded-lg border p-3 text-sm">
                 {t("challenge.noTips")}

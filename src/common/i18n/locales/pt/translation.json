@@ -441,6 +441,7 @@
     "leaveToExploreWarning": "Você tem um desafio em andamento. Ao acessar Explorar, o desafio será cancelado. Deseja continuar?",
     "continue": "Continuar",
     "noTips": "Sem dicas disponíveis para esta etapa.",
+    "genusTip": "Primeira palavra do nome científico da espécie",
     "moreInfo": "Mais informações",
     "commonNames": "Nomes populares",
     "noCommonNames": "Nenhum nome popular encontrado.",
