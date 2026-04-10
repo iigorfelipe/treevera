@@ -3,7 +3,7 @@ import { supabase } from "@/common/utils/supabase/client";
 type SaveChallengeResultParams = {
   userId: string;
   gbifKey: number;
-  mode: "DAILY" | "RANDOM";
+  mode: "DAILY" | "RANDOM" | "CUSTOM";
   speciesName: string;
   challengeDate: string; // 'YYYY-MM-DD'
 };

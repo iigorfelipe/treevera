@@ -9,6 +9,7 @@ import {
   ImageIcon,
   ImagePlus,
   Loader2,
+  Target,
 } from "lucide-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useQueryClient } from "@tanstack/react-query";
@@ -41,6 +42,7 @@ import {
 } from "@/common/utils/supabase/user-seen-species";
 import { setListCoverImage } from "@/common/utils/supabase/lists";
 import { AddToListDialog } from "@/modules/lists/add-to-list-dialog";
+import { CreateCustomChallengeDialog } from "@/modules/challenge/custom/create-custom-challenge-dialog";
 import { cn } from "@/common/utils/cn";
 
 type SpeciesCardQuickMenuProps = {
@@ -65,6 +67,7 @@ export const SpeciesCardQuickMenu = ({
 
   const [addToListOpen, setAddToListOpen] = useState(false);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
+  const [createChallengeOpen, setCreateChallengeOpen] = useState(false);
   const [isFav, setIsFav] = useState(species.is_favorite);
   const [currentImageUrl, setCurrentImageUrl] = useState(species.image_url);
   const [favPending, setFavPending] = useState(false);
@@ -77,7 +80,10 @@ export const SpeciesCardQuickMenu = ({
       : undefined,
   );
 
-  const { data: parents = [] } = useGetParents(species.gbif_key, viewInTreePending);
+  const { data: parents = [] } = useGetParents(
+    species.gbif_key,
+    viewInTreePending,
+  );
   const injectPathNodes = useSetAtom(injectPathNodesAtom);
   const { navigateToNodes } = useTreeNavigation();
 
@@ -85,7 +91,8 @@ export const SpeciesCardQuickMenu = ({
     if (!viewInTreePending || parents.length === 0) return;
 
     const kingdom =
-      parents.find((p) => p.rank?.toUpperCase() === "KINGDOM")?.canonicalName ?? "";
+      parents.find((p) => p.rank?.toUpperCase() === "KINGDOM")?.canonicalName ??
+      "";
 
     const pathNodes: PathNode[] = [
       ...parents.map((p) => ({
@@ -105,7 +112,8 @@ export const SpeciesCardQuickMenu = ({
       return {
         key: pn.key,
         rank: pn.rank,
-        numDescendants: parent?.numDescendants ?? (pn.rank === "SPECIES" ? 0 : 1),
+        numDescendants:
+          parent?.numDescendants ?? (pn.rank === "SPECIES" ? 0 : 1),
         canonicalName: pn.name || undefined,
         kingdom,
         parentKey: i > 0 ? pathNodes[i - 1].key : undefined,
@@ -235,6 +243,11 @@ export const SpeciesCardQuickMenu = ({
             {t("gallery.viewInTree")}
           </DropdownMenuItem>
 
+          <DropdownMenuItem onClick={() => setCreateChallengeOpen(true)}>
+            <Target className="mr-2 size-4" />
+            {t("challenge.createCustom")}
+          </DropdownMenuItem>
+
           {isOwner && (
             <>
               <DropdownMenuSeparator />
@@ -264,6 +277,15 @@ export const SpeciesCardQuickMenu = ({
         gbifKey={species.gbif_key}
         speciesName={species.canonical_name ?? undefined}
         imageUrl={currentImageUrl ?? undefined}
+      />
+
+      <CreateCustomChallengeDialog
+        open={createChallengeOpen}
+        onOpenChange={(open) => {
+          setCreateChallengeOpen(open);
+          if (!open) onDialogClose?.();
+        }}
+        gbifKey={species.gbif_key}
       />
 
       <Dialog

@@ -223,6 +223,46 @@ const challengesRandom7Route = createRoute({
   path: "/challenges/random/$level1/$level2/$level3/$level4/$level5/$level6/$level7",
   component: Home,
 });
+const challengesCustomRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom",
+  component: Home,
+});
+const challengesCustom1Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom/$level1",
+  component: Home,
+});
+const challengesCustom2Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom/$level1/$level2",
+  component: Home,
+});
+const challengesCustom3Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom/$level1/$level2/$level3",
+  component: Home,
+});
+const challengesCustom4Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom/$level1/$level2/$level3/$level4",
+  component: Home,
+});
+const challengesCustom5Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom/$level1/$level2/$level3/$level4/$level5",
+  component: Home,
+});
+const challengesCustom6Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom/$level1/$level2/$level3/$level4/$level5/$level6",
+  component: Home,
+});
+const challengesCustom7Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/challenges/custom/$level1/$level2/$level3/$level4/$level5/$level6/$level7",
+  component: Home,
+});
 
 const userProfileRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -302,6 +342,14 @@ const routeTree = rootRoute.addChildren([
   challengesRandom5Route,
   challengesRandom6Route,
   challengesRandom7Route,
+  challengesCustomRoute,
+  challengesCustom1Route,
+  challengesCustom2Route,
+  challengesCustom3Route,
+  challengesCustom4Route,
+  challengesCustom5Route,
+  challengesCustom6Route,
+  challengesCustom7Route,
   userProfileRoute,
   userSpeciesGalleryRoute,
   userListsRoute,
@@ -314,6 +362,20 @@ export const router = createRouter({
   routeTree,
   basepath: "/treevera",
 });
+
+const _commitLocation = router.commitLocation.bind(router);
+router.commitLocation = async (opts) => {
+  const basepath = router.basepath;
+  if (
+    opts.publicHref &&
+    basepath !== "/" &&
+    opts.publicHref.startsWith(basepath)
+  ) {
+    const internalHref = opts.publicHref.slice(basepath.length) || "/";
+    return _commitLocation({ ...opts, href: internalHref });
+  }
+  return _commitLocation(opts);
+};
 
 declare module "@tanstack/react-router" {
   interface Register {

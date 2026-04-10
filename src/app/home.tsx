@@ -16,14 +16,14 @@ export const Home = () => {
   });
 
   useEffect(() => {
-    if (challengesMatch) {
-      setChallenge((prev) => {
-        if (prev.status === "IN_PROGRESS" || prev.status === "COMPLETED") {
-          return prev;
-        }
-        return { mode: "UNSET", status: "NOT_STARTED" };
-      });
-    }
+    setChallenge((prev) => {
+      if (prev.status === "IN_PROGRESS" || prev.status === "COMPLETED") {
+        return prev;
+      }
+      return challengesMatch
+        ? { mode: "UNSET", status: "NOT_STARTED" }
+        : { mode: null, status: "NOT_STARTED" };
+    });
   }, [challengesMatch, setChallenge]);
 
   if (isTablet) return <HomeMobile />;

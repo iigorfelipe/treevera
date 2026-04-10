@@ -11,6 +11,7 @@ import { Image } from "@/common/components/image";
 import { useTheme } from "@/context/theme";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { useState } from "react";
+import { CardInfoPopup } from "@/modules/challenge/components/card-info-popup";
 
 export const RandomChallengeCard = () => {
   const { t } = useTranslation();
@@ -55,7 +56,11 @@ export const RandomChallengeCard = () => {
   };
 
   return (
-    <Card className="max-w-3xl rounded-3xl">
+    <Card className="relative max-w-md min-w-0 rounded-3xl">
+      <div className="absolute top-3 right-4">
+        <CardInfoPopup text={t("challenge.infoRandom")} />
+      </div>
+
       <CardContent className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <Image

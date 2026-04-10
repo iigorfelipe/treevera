@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import i18n from "@/common/i18n";
 import { useNavigate } from "@tanstack/react-router";
-import { router } from "@/routes";
 import {
   Avatar,
   AvatarFallback,
@@ -123,7 +122,7 @@ export const Menu = ({
   }, []);
 
   const navigateToAppHome = () => {
-    router.history.push(`${router.basepath}/`);
+    navigate({ to: "/" });
   };
 
   const handleLogout = async () => {
@@ -202,7 +201,7 @@ export const Menu = ({
   };
 
   const navigateLists = () => {
-    router.history.push(`${router.basepath}/lists`);
+    navigate({ to: "/lists" });
   };
 
   const renderTrigger = () => {

@@ -6,6 +6,7 @@ import { SpecieInfos } from "@/modules/specie-detail/infos";
 import { TaxonomyCard } from "@/modules/specie-detail/taxonomy-card";
 import { ShareButton } from "@/modules/specie-detail/share-button";
 import { AddToListButton } from "@/modules/lists/add-to-list-button";
+import { CreateCustomChallengeButton } from "@/modules/challenge/custom/create-custom-challenge-button";
 import { ListsWithSpecies } from "@/modules/lists/lists-with-species";
 import { OccurrenceMap } from "@/modules/specie-detail/occurrences-map";
 import { VulnerabilityBadge } from "@/common/components/vulnerability-badge";
@@ -343,6 +344,13 @@ export const SpecieDetail = ({
                       gbifKey={specieKey}
                       speciesName={specieDetail.canonicalName}
                       imageUrl={gallery[0]?.imgUrl}
+                    />
+                  )}
+
+                  {specieKey && (
+                    <CreateCustomChallengeButton
+                      gbifKey={specieKey}
+                      specieDetail={specieDetail}
                     />
                   )}
 

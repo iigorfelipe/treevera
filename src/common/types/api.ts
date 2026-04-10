@@ -85,3 +85,24 @@ export type SpecieDetail = {
   publishedIn: string;
   title: string;
 };
+
+export type CustomChallengeTaxonomy = {
+  kingdom: string;
+  phylum: string;
+  class: string;
+  order: string;
+  family: string;
+  genus: string;
+  species: string;
+};
+
+export type UserCustomChallenge = {
+  id: string;
+  user_id: string;
+  gbif_key: number;
+  species_name: string;
+  family_name: string;
+  taxonomy: CustomChallengeTaxonomy;
+  active: boolean;
+  created_at: string;
+};

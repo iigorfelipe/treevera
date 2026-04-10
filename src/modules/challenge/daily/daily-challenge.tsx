@@ -15,6 +15,7 @@ import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { useGetChallengeDates } from "@/hooks/queries/useGetChallengeDates";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { CheckCircle2 } from "lucide-react";
+import { CardInfoPopup } from "@/modules/challenge/components/card-info-popup";
 
 const getToday = () => {
   const now = new Date();
@@ -71,12 +72,11 @@ export const DailyChallengeCard = () => {
   const speciesName = data?.scientificName;
 
   return (
-    <Card className="relative max-w-3xl rounded-3xl">
-      {isToday && (
-        <div className="absolute top-3 right-4">
-          <Timer />
-        </div>
-      )}
+    <Card className="relative max-w-md min-w-0 rounded-3xl">
+      <div className="absolute top-3 right-4 flex items-center gap-2">
+        {isToday && <Timer />}
+        <CardInfoPopup text={t("challenge.infoDaily")} />
+      </div>
       <CardContent className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <Image

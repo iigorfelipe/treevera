@@ -6,7 +6,6 @@ import { useIsFetching } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { Menu } from "@/modules/header/menu";
-import { router } from "@/routes";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -114,7 +113,7 @@ export const AppHeader = () => {
           </button>
 
           <button
-            onClick={() => router.history.push(`${router.basepath}/lists`)}
+            onClick={() => navigate({ to: "/lists" })}
             className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
           >
             {t("lists.title")}
