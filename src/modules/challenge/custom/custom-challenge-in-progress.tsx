@@ -1,5 +1,6 @@
 import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
+import { RotateCcw } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/common/components/ui/card";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import Alvo from "@/assets/alvo.gif";
@@ -23,6 +24,8 @@ import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetParents } from "@/hooks/queries/useGetParents";
 import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
 import { saveChallengeResult } from "@/common/utils/supabase/challenge/save-challenge-result";
+import { ChallengeShareButton } from "@/modules/challenge/components/challenge-share-button";
+import { toast } from "sonner";
 import { AudioManager } from "@/lib/audio-manager";
 import { addChallengeActivity } from "@/common/utils/supabase/add-challenge-activity";
 import { authStore } from "@/store/auth/atoms";
@@ -179,6 +182,31 @@ export const CustomChallengeInProgress = () => {
     void navigate({ to: "/challenges" });
   };
 
+  const handleRestart = () => {
+    setExpandedNodes([]);
+    setHighlightedKeys([]);
+    void navigate({ to: "/challenges/custom" });
+    setChallenge((prev) => ({
+      ...prev,
+      status: "IN_PROGRESS",
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
+      replayId: (prev.replayId ?? 0) + 1,
+    }));
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/treevera/challenges/custom?species=${speciesKey}&name=${encodeURIComponent(speciesName)}`;
+    const text = t("challenge.shareText", { speciesName });
+    if (navigator.share) {
+      await navigator.share({ title: "Treevera", url, text }).catch(() => {});
+    } else {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      toast(t("specieDetail.shareCopied"));
+    }
+  };
+
   const lastStepWasError = useMemo(() => {
     const index = expandedNodes.length - 1;
     const node = expandedNodes[index];
@@ -202,8 +230,10 @@ export const CustomChallengeInProgress = () => {
         correctSteps={correctSteps}
         isCompleted={isCompleted}
         onCancel={handleCancel}
+        onRestart={handleRestart}
         onNext={handleCancel}
         nextLoading={false}
+        onShare={handleShare}
         errorIndex={errorIndex}
         correctPath={correctPath}
         errorCount={errorTracking.count}
@@ -273,7 +303,7 @@ export const CustomChallengeInProgress = () => {
                 </>
               )}
 
-              <CardFooter className="-mx-6 flex flex-wrap justify-between border-t px-8 pt-4">
+              <CardFooter className="-mx-6 flex flex-wrap items-center justify-between border-t px-8 pt-4">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -282,6 +312,21 @@ export const CustomChallengeInProgress = () => {
                 >
                   {t("challenge.cancel")}
                 </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground text-xs"
+                    onClick={handleRestart}
+                  >
+                    <RotateCcw className="mr-1 size-3.5" />
+                    {t("challenge.restart")}
+                  </Button>
+                  <ChallengeShareButton
+                    speciesName={speciesName}
+                    onShare={handleShare}
+                  />
+                </div>
               </CardFooter>
             </CardContent>
           </Card>

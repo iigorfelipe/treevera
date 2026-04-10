@@ -36,13 +36,13 @@ const SectionHeader = ({
   title: string;
   children?: React.ReactNode;
 }) => (
-  <div className="flex items-end justify-between border-b pb-1">
+  <div className="flex items-end justify-between border-b pb-1 uppercase">
     <h2>{title}</h2>
     {children}
   </div>
 );
 
-const HowToPlay = () => {
+export const HowToPlay = () => {
   const { t } = useTranslation();
   const steps = [
     t("challenge.howToPlay1"),
@@ -53,13 +53,15 @@ const HowToPlay = () => {
   ];
 
   return (
-    <div className="space-y-3">
-      <SectionHeader title={t("challenge.howToPlay")} />
-      <ol className="flex flex-col gap-2">
+    <div className="rounded-xl p-4">
+      <h2 className="mb-3 font-bold">{t("challenge.howToPlay")}</h2>
+      <ol className="grid grid-cols-2 gap-x-4 gap-y-3">
         {steps.map((step, i) => (
           <li key={i} className="flex gap-2 text-sm">
-            <span className="text-muted-foreground w-4 shrink-0">{i + 1}.</span>
-            <span className="text-muted-foreground">{step}</span>
+            <span className="bg-primary text-primary-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold">
+              {i + 1}
+            </span>
+            <span className="text-muted-foreground max-w-80">{step}</span>
           </li>
         ))}
       </ol>
@@ -171,7 +173,7 @@ const RecentChallenges = () => {
                   }}
                   disabled={!item.gbif_key || !item.species_name}
                   className={cn(
-                    "rounded px-2 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100",
+                    "cursor-pointer rounded px-2 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100",
                     item.mode === "DAILY" &&
                       "bg-emerald-500 hover:bg-emerald-600",
                     item.mode === "RANDOM" &&
@@ -239,7 +241,7 @@ const MyCustomChallengeItem = ({
         <div className="flex shrink-0 items-center gap-2">
           <button
             onClick={handlePlay}
-            className="bg-muted-foreground rounded px-2 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+            className="bg-muted-foreground cursor-pointer rounded px-2 py-0.5 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
           >
             {t("challenge.play")}
           </button>
@@ -361,8 +363,8 @@ const MyCustomChallenges = () => {
 export const ChallengesLobby = ({ dayKey }: { dayKey: string }) => {
   return (
     <div className="p-4 md:p-8">
-      <div className="flex flex-col justify-start gap-18 xl:flex-row">
-        <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:gap-10">
+        <div className="flex shrink-0 flex-col gap-6">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={dayKey}

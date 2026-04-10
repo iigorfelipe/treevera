@@ -15,6 +15,10 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/auth/use-auth-profile";
 import { authStore } from "@/store/auth/atoms";
 import { getDefaultStore } from "jotai";
+import {
+  PENDING_CHALLENGE_KEY,
+  type PendingChallengeShare,
+} from "@/app/challenges";
 
 const GoogleLogo = (
   <svg className="mr-3 size-5" viewBox="0 0 24 24">
@@ -49,12 +53,19 @@ export const Login = () => {
   const getUsername = () =>
     getDefaultStore().get(authStore.userDb)?.username ?? "";
 
+  const navigatePostLogin = () => {
+    const pending = sessionStorage.getItem(PENDING_CHALLENGE_KEY);
+    if (pending) {
+      const { mode } = JSON.parse(pending) as PendingChallengeShare;
+      window.location.href = `/treevera/challenges/${mode.toLowerCase()}`;
+      return;
+    }
+    router.navigate({ to: "/$username", params: { username: getUsername() } });
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
-      router.navigate({
-        to: "/$username",
-        params: { username: getUsername() },
-      });
+      navigatePostLogin();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
@@ -62,10 +73,7 @@ export const Login = () => {
   const handleLogin = async () => {
     const result = await login("google");
     if (result.success) {
-      router.navigate({
-        to: "/$username",
-        params: { username: getUsername() },
-      });
+      navigatePostLogin();
     }
   };
 

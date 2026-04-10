@@ -1,7 +1,7 @@
 import { Image } from "@/common/components/image";
 import Alvo from "@/assets/alvo.gif";
 import { motion } from "framer-motion";
-import { Shuffle, X } from "lucide-react";
+import { Shuffle, X, Share2, RotateCcw } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
 import { ProgressSteps } from "./components/progress-steps";
@@ -19,24 +19,28 @@ export const ChallengeMobile = ({
   correctSteps,
   isCompleted,
   onCancel,
+  onRestart,
   onNext,
   nextLoading,
   errorIndex,
   correctPath,
   errorCount = 0,
   onInteraction,
+  onShare,
 }: {
   speciesName: string;
   speciesKey: number;
   correctSteps: number;
   isCompleted: boolean;
   onCancel: () => void;
+  onRestart?: () => void;
   onNext?: () => void;
   nextLoading?: boolean;
   errorIndex: number | null;
   correctPath: PathNode[];
   errorCount?: number;
   onInteraction?: (step: number, type: StepInteractionType) => void;
+  onShare?: () => void;
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -79,11 +83,31 @@ export const ChallengeMobile = ({
             </button>
           )}
 
+          {onRestart && (
+            <button
+              onClick={onRestart}
+              className="text-muted-foreground/60 hover:bg-muted hover:text-foreground rounded-full p-1"
+              aria-label={t("challenge.restart")}
+            >
+              <RotateCcw className="size-3.5" />
+            </button>
+          )}
+
+          {onShare && (
+            <button
+              onClick={onShare}
+              className="text-muted-foreground/60 hover:bg-muted hover:text-foreground rounded-full p-1"
+              aria-label={t("challenge.share")}
+            >
+              <Share2 className="size-3.5" />
+            </button>
+          )}
+
           <button
             onClick={onCancel}
             className={cn(
               "rounded-full p-1 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950",
-              !onNext && "ml-auto",
+              !onNext && !onShare && !onRestart && "ml-auto",
               "text-muted-foreground/60",
             )}
             aria-label={t("challenge.cancel")}

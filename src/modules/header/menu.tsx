@@ -14,7 +14,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/context/theme";
 import {
-  House,
   List,
   LogIn,
   LogOut,
@@ -134,27 +133,6 @@ export const Menu = ({
     navigateToAppHome();
   };
 
-  const navigateHome = () => {
-    const goHome = () => {
-      setChallenge({ mode: null, status: "NOT_STARTED" });
-      setExpandedNodes([]);
-      navigateToAppHome();
-    };
-
-    if (challenge.status === "IN_PROGRESS") {
-      openConfirm({
-        title: t("challenge.inProgressTitle"),
-        description: t("challenge.leaveToExploreWarning"),
-        confirmLabel: t("challenge.continue"),
-        onConfirm: goHome,
-        variant: "default",
-      });
-      return;
-    }
-
-    goHome();
-  };
-
   const navigateProfile = () => {
     if (!userDb?.username) return;
 
@@ -169,7 +147,7 @@ export const Menu = ({
     if (challenge.status === "IN_PROGRESS") {
       openConfirm({
         title: t("challenge.inProgressTitle"),
-        description: t("challenge.leaveToProfileWarning"),
+        description: t("challenge.leaveWarning"),
         confirmLabel: t("challenge.continue"),
         onConfirm: goProfile,
         variant: "default",
@@ -189,7 +167,7 @@ export const Menu = ({
     if (challenge.status === "IN_PROGRESS") {
       openConfirm({
         title: t("challenge.inProgressTitle"),
-        description: t("challenge.leaveToExploreWarning"),
+        description: t("challenge.leaveWarning"),
         confirmLabel: t("challenge.continue"),
         onConfirm: goChallenges,
         variant: "default",
@@ -201,6 +179,16 @@ export const Menu = ({
   };
 
   const navigateLists = () => {
+    if (challenge.status === "IN_PROGRESS") {
+      openConfirm({
+        title: t("challenge.inProgressTitle"),
+        description: t("challenge.leaveWarning"),
+        confirmLabel: t("challenge.continue"),
+        onConfirm: () => navigate({ to: "/lists" }),
+        variant: "default",
+      });
+      return;
+    }
     navigate({ to: "/lists" });
   };
 
@@ -272,17 +260,6 @@ export const Menu = ({
               </>
             )}
 
-            <DropdownMenuItem
-              onClick={() => {
-                closeMenuImmediately();
-                navigateHome();
-              }}
-            >
-              <House className="mr-2 size-4" />
-              {t("nav.home")}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-
             {isAuthenticated && (
               <>
                 <DropdownMenuItem
@@ -322,7 +299,8 @@ export const Menu = ({
 
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                {t("theme")}: {t(theme)}
+                <Settings className="mr-3.75 size-4" />
+                {t("nav.settings")}
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent
@@ -330,53 +308,81 @@ export const Menu = ({
                   onMouseEnter={hoverOpen ? openMenu : undefined}
                   onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
                 >
-                  <DropdownMenuItem onClick={() => changeTheme("light")}>
-                    {t("light")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeTheme("dark")}>
-                    {t("dark")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeTheme("system")}>
-                    {t("system")}
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      {t("theme")}: {t(theme)}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent
+                        className="m-1"
+                        onMouseEnter={hoverOpen ? openMenu : undefined}
+                        onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
+                      >
+                        <DropdownMenuItem onClick={() => changeTheme("light")}>
+                          {t("light")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeTheme("dark")}>
+                          {t("dark")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeTheme("system")}>
+                          {t("system")}
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      {t("language")}: {t(i18n.language)}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent
+                        className="m-1"
+                        onMouseEnter={hoverOpen ? openMenu : undefined}
+                        onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
+                      >
+                        <DropdownMenuItem
+                          onClick={() => i18n.changeLanguage("pt")}
+                        >
+                          {t("pt")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => i18n.changeLanguage("en")}
+                        >
+                          {t("en")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => i18n.changeLanguage("es")}
+                        >
+                          {t("es")}
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={() => {
+                      closeMenuImmediately();
+                      if (challenge.status === "IN_PROGRESS") {
+                        openConfirm({
+                          title: t("challenge.inProgressTitle"),
+                          description: t("challenge.leaveWarning"),
+                          confirmLabel: t("challenge.continue"),
+                          onConfirm: () => navigate({ to: "/settings" }),
+                          variant: "default",
+                        });
+                        return;
+                      }
+                      navigate({ to: "/settings" });
+                    }}
+                  >
+                    {t("nav.allSettings")}
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-            <DropdownMenuSeparator />
-
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                {t("language")}: {t(i18n.language)}
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent
-                  className="m-1"
-                  onMouseEnter={hoverOpen ? openMenu : undefined}
-                  onMouseLeave={hoverOpen ? scheduleCloseMenu : undefined}
-                >
-                  <DropdownMenuItem onClick={() => i18n.changeLanguage("pt")}>
-                    {t("pt")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => i18n.changeLanguage("en")}>
-                    {t("en")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => i18n.changeLanguage("es")}>
-                    {t("es")}
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem
-              onClick={() => {
-                closeMenuImmediately();
-                navigate({ to: "/settings" });
-              }}
-            >
-              <Settings className="mr-2 size-4" />
-              {t("nav.settings")}
-            </DropdownMenuItem>
 
             {isAuthenticated && (
               <>

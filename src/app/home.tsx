@@ -4,27 +4,24 @@ import { HomeDesktop } from "@/modules/home/desktop";
 import { useSetAtom } from "jotai";
 import { treeAtom } from "@/store/tree";
 import { useEffect } from "react";
-import { useMatch } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 
 export const Home = () => {
   const { isTablet } = useResponsive();
   const setChallenge = useSetAtom(treeAtom.challenge);
-
-  const challengesMatch = useMatch({
-    from: "/challenges",
-    shouldThrow: false,
-  });
+  const location = useLocation();
+  const isOnChallenges = location.pathname.startsWith("/challenges");
 
   useEffect(() => {
     setChallenge((prev) => {
       if (prev.status === "IN_PROGRESS" || prev.status === "COMPLETED") {
         return prev;
       }
-      return challengesMatch
+      return isOnChallenges
         ? { mode: "UNSET", status: "NOT_STARTED" }
         : { mode: null, status: "NOT_STARTED" };
     });
-  }, [challengesMatch, setChallenge]);
+  }, [isOnChallenges, setChallenge]);
 
   if (isTablet) return <HomeMobile />;
 

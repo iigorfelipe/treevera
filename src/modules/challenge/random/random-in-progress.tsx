@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from "@/common/components/ui/card";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import Alvo from "@/assets/alvo.gif";
 import AlvoWhite from "@/assets/alvo-white.gif";
-import { Shuffle } from "lucide-react";
+import { Shuffle, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
 
@@ -38,6 +38,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { validateChallengeParents } from "@/common/utils/game/validate-challenge-species";
 import { deactivateChallengeSpecies } from "@/common/utils/supabase/challenge/deactivate-challenge-species";
+import { ChallengeShareButton } from "@/modules/challenge/components/challenge-share-button";
+import { toast } from "sonner";
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
@@ -244,6 +246,31 @@ export const RandomChallengeInProgress = () => {
     void navigate({ to: "/challenges" });
   };
 
+  const handleRestart = () => {
+    setExpandedNodes([]);
+    setHighlightedKeys([]);
+    void navigate({ to: "/challenges/random" });
+    setChallenge((prev) => ({
+      ...prev,
+      status: "IN_PROGRESS",
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
+      replayId: (prev.replayId ?? 0) + 1,
+    }));
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/treevera/challenges/random?species=${speciesKey}&name=${encodeURIComponent(speciesName)}`;
+    const text = t("challenge.shareText", { speciesName });
+    if (navigator.share) {
+      await navigator.share({ title: "Treevera", url, text }).catch(() => {});
+    } else {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      toast(t("specieDetail.shareCopied"));
+    }
+  };
+
   const handleNext = async () => {
     const userId = session?.user?.id;
     if (!userId) return;
@@ -290,8 +317,10 @@ export const RandomChallengeInProgress = () => {
         correctSteps={correctSteps}
         isCompleted={isCompleted}
         onCancel={handleCancel}
+        onRestart={handleRestart}
         onNext={handleNext}
         nextLoading={nextLoading}
+        onShare={handleShare}
         errorIndex={errorIndex}
         correctPath={correctPath}
         errorCount={errorTracking.count}
@@ -363,7 +392,7 @@ export const RandomChallengeInProgress = () => {
                 </>
               )}
 
-              <CardFooter className="-mx-6 flex flex-wrap justify-between border-t px-8 pt-4">
+              <CardFooter className="-mx-6 flex flex-wrap items-center justify-between border-t px-8 pt-4">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -372,14 +401,29 @@ export const RandomChallengeInProgress = () => {
                 >
                   {t("challenge.cancel")}
                 </Button>
-                <Button
-                  className="gap-2 bg-violet-600 text-white hover:bg-violet-700"
-                  onClick={handleNext}
-                  disabled={nextLoading}
-                >
-                  <Shuffle className="size-4" />
-                  {t("challenge.nextChallenge")}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground text-xs"
+                    onClick={handleRestart}
+                  >
+                    <RotateCcw className="mr-1 size-3.5" />
+                    {t("challenge.restart")}
+                  </Button>
+                  <ChallengeShareButton
+                    speciesName={speciesName}
+                    onShare={handleShare}
+                  />
+                  <Button
+                    className="gap-2 bg-violet-600 text-white hover:bg-violet-700"
+                    onClick={handleNext}
+                    disabled={nextLoading}
+                  >
+                    <Shuffle className="size-4" />
+                    {t("challenge.nextChallenge")}
+                  </Button>
+                </div>
               </CardFooter>
             </CardContent>
           </Card>

@@ -112,27 +112,46 @@ export const ChallengeCompleted = ({
           transition={{ delay: 0.25 }}
           className="mt-4"
         >
-          <div className="flex gap-1">
-            {correctPath.map((_, i) => {
+          <p className="text-muted-foreground mb-2 text-[10px]">
+            {t("challenge.stepsTapHint")}
+          </p>
+          <div className="flex gap-1.5">
+            {correctPath.map((step, i) => {
               const errors = stepErrors[i] ?? 0;
               const isPerfect = errors === 0;
               const isActive = activeStep === i;
+              const rankLabel = step.rank.slice(0, 3).toLowerCase();
 
               return (
-                <button
+                <div
                   key={i}
-                  onClick={() => setActiveStep(isActive ? null : i)}
-                  aria-pressed={isActive}
-                  className={cn(
-                    "h-4 min-w-3 flex-1 rounded-full transition-all",
-                    isPerfect
-                      ? "bg-emerald-500"
-                      : "bg-yellow-400 dark:bg-yellow-500",
-                    isActive
-                      ? "ring-offset-card opacity-80 ring-2 ring-white/60 ring-offset-1"
-                      : "hover:opacity-75",
-                  )}
-                />
+                  className="flex min-w-0 flex-1 flex-col items-center gap-1"
+                >
+                  <button
+                    onClick={() => setActiveStep(isActive ? null : i)}
+                    aria-pressed={isActive}
+                    className={cn(
+                      "h-5 w-full cursor-pointer rounded-full transition-all active:scale-95",
+                      isPerfect
+                        ? "bg-emerald-500 hover:bg-emerald-400"
+                        : "bg-yellow-400 hover:bg-yellow-300 dark:bg-yellow-500 dark:hover:bg-yellow-400",
+                      isActive &&
+                        "ring-offset-card opacity-80 ring-2 ring-white/60 ring-offset-1",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "text-[9px] font-medium tracking-wide transition-colors",
+                      isActive
+                        ? isPerfect
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-yellow-600 dark:text-yellow-400"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {rankLabel}
+                  </span>
+                </div>
               );
             })}
           </div>

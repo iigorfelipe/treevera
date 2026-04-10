@@ -1,5 +1,5 @@
 import { Image } from "@/common/components/image";
-import logoUrl from "@/assets/images/avif-new-logo.avif?url";
+import logoUrl from "@/assets/images/avif-new-fav-icon.avif?url";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useIsFetching } from "@tanstack/react-query";
@@ -78,7 +78,11 @@ export const AppHeader = () => {
     <header className="bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
         <Link to="/" className="flex shrink-0 items-center gap-2.5">
-          <Image alt={t("header.logoAlt")} src={logoUrl} className="h-9" />
+          <Image
+            alt={t("header.logoAlt")}
+            src={logoUrl}
+            className="h-9 rounded-full"
+          />
           <div className="flex flex-col leading-none">
             <span className="text-base font-bold">Treevera</span>
             <span className="text-muted-foreground hidden text-xs sm:block">
@@ -91,7 +95,7 @@ export const AppHeader = () => {
           {!isAuthenticated && (
             <Link
               to="/login"
-              className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
             >
               {t("nav.signIn")}
             </Link>
@@ -107,14 +111,14 @@ export const AppHeader = () => {
 
           <button
             onClick={() => navigate({ to: "/challenges" })}
-            className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
           >
             {t("nav.challenges")}
           </button>
 
           <button
             onClick={() => navigate({ to: "/lists" })}
-            className="text-muted-foreground hover:text-foreground rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
           >
             {t("lists.title")}
           </button>
@@ -140,7 +144,7 @@ export const AppHeader = () => {
               />
               <button
                 onClick={() => closeSearch()}
-                className="text-muted-foreground hover:text-foreground shrink-0 p-1 transition-colors"
+                className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer p-1 transition-colors"
                 aria-label="Fechar"
               >
                 <X className="size-3.5" />
@@ -150,7 +154,7 @@ export const AppHeader = () => {
 
           <motion.button
             onClick={searchOpen ? handleSearch : () => setSearchOpen(true)}
-            className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
+            className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors"
             aria-label="Pesquisar"
             whileTap={{ scale: 0.9 }}
             disabled={loading}

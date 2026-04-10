@@ -36,7 +36,9 @@ import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 import { validateChallengeParents } from "@/common/utils/game/validate-challenge-species";
 import { deactivateChallengeSpecies } from "@/common/utils/supabase/challenge/deactivate-challenge-species";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, RotateCcw } from "lucide-react";
+import { ChallengeShareButton } from "@/modules/challenge/components/challenge-share-button";
+import { toast } from "sonner";
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
@@ -203,6 +205,31 @@ export const DailyChallengeInProgress = () => {
     void navigate({ to: "/challenges" });
   };
 
+  const handleRestart = () => {
+    setExpandedNodes([]);
+    setHighlightedKeys([]);
+    void navigate({ to: "/challenges/daily" });
+    setChallenge((prev) => ({
+      ...prev,
+      status: "IN_PROGRESS",
+      startedAt: Date.now(),
+      errorTracking: { count: 0, perStep: [] },
+      stepInteractions: {},
+      replayId: (prev.replayId ?? 0) + 1,
+    }));
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/treevera/challenges/daily?species=${speciesKey}&name=${encodeURIComponent(speciesName)}`;
+    const text = t("challenge.shareText", { speciesName });
+    if (navigator.share) {
+      await navigator.share({ title: "Treevera", url, text }).catch(() => {});
+    } else {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      toast(t("specieDetail.shareCopied"));
+    }
+  };
+
   const lastStepWasError = useMemo(() => {
     const index = expandedNodes.length - 1;
     const node = expandedNodes[index];
@@ -278,6 +305,8 @@ export const DailyChallengeInProgress = () => {
         correctSteps={correctSteps}
         isCompleted={isCompleted}
         onCancel={handleCancel}
+        onRestart={handleRestart}
+        onShare={handleShare}
         errorIndex={errorIndex}
         correctPath={correctPath}
         errorCount={errorTracking.count}
@@ -344,7 +373,7 @@ export const DailyChallengeInProgress = () => {
             </>
           )}
 
-          <div className="-mx-6 flex justify-end border-t px-8 pt-4">
+          <div className="-mx-6 flex items-center justify-between border-t px-8 pt-4">
             <Button
               variant="ghost"
               size="sm"
@@ -353,6 +382,21 @@ export const DailyChallengeInProgress = () => {
             >
               {t("challenge.cancel")}
             </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground text-xs"
+                onClick={handleRestart}
+              >
+                <RotateCcw className="mr-1 size-3.5" />
+                {t("challenge.restart")}
+              </Button>
+              <ChallengeShareButton
+                speciesName={speciesName}
+                onShare={handleShare}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

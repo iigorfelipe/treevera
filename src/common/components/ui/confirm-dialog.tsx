@@ -13,6 +13,7 @@ type ConfirmDialogProps = {
   title: string;
   description: string;
   confirmLabel?: string;
+  cancelLabel?: string;
   onConfirm: () => void;
   variant?: "default" | "destructive";
 };
@@ -22,7 +23,8 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = "Confirmar",
+  confirmLabel = "OK",
+  cancelLabel = "Cancelar",
   onConfirm,
   variant = "default",
 }: ConfirmDialogProps) {
@@ -35,7 +37,7 @@ export function ConfirmDialog({
         </DialogHeader>
         <div className="flex justify-end gap-2 px-6 pb-6">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancelar
+            {cancelLabel}
           </Button>
           <Button
             variant={variant === "destructive" ? "destructive" : "default"}
