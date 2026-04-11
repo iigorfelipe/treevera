@@ -10,6 +10,7 @@ export type ChallengeCompletionData = {
   correctPath: { rank: string; name: string; key: number }[];
   stepErrors: number[];
   stepInteractions: Record<number, Partial<Record<string, boolean>>>;
+  stepTimes?: number[];
 };
 
 export type ChallengeErrorTracking = {

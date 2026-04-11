@@ -126,6 +126,7 @@ export const ChallengeCompletedOverlay = ({
         correctPath={completionData.correctPath}
         stepErrors={completionData.stepErrors}
         stepInteractions={completionData.stepInteractions}
+        stepTimes={completionData.stepTimes}
         shareUrl={shareUrl}
       >
         {mode === "DAILY" && (
@@ -159,6 +160,7 @@ export const ChallengeCompletedOverlay = ({
         correctPath={completionData.correctPath}
         stepErrors={completionData.stepErrors}
         stepInteractions={completionData.stepInteractions}
+        stepTimes={completionData.stepTimes}
         shareUrl={shareUrl}
       >
         {mode === "DAILY" && (

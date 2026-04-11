@@ -496,7 +496,11 @@
     "statsDailyCompleted": "Daily completed",
     "statsRandomCompleted": "Random completed",
     "statsStreak": "Current streak",
-    "statsDays": "days"
+    "statsDays": "days",
+    "statsAvgAccuracy": "Avg. accuracy",
+    "statsSpeciesDiscovered": "Species discovered",
+    "statsNoData": "Play a challenge to track your progress.",
+    "statsAccuracyMin": "Play at least 5 daily or random challenges to see your average accuracy."
   },
   "lists": {
     "title": "Lists",

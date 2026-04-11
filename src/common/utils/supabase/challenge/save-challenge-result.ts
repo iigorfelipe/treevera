@@ -5,7 +5,11 @@ type SaveChallengeResultParams = {
   gbifKey: number;
   mode: "DAILY" | "RANDOM" | "CUSTOM";
   speciesName: string;
-  challengeDate: string; // 'YYYY-MM-DD'
+  challengeDate: string;
+  elapsedSeconds?: number;
+  errorCount?: number;
+  correctSteps?: number;
+  totalSteps?: number;
 };
 
 export const saveChallengeResult = async ({
@@ -14,6 +18,10 @@ export const saveChallengeResult = async ({
   mode,
   speciesName,
   challengeDate,
+  elapsedSeconds,
+  errorCount,
+  correctSteps,
+  totalSteps,
 }: SaveChallengeResultParams): Promise<{ wasNew: boolean }> => {
   const { data, error } = await supabase
     .from("user_challenge_history")
@@ -24,6 +32,12 @@ export const saveChallengeResult = async ({
         mode,
         species_name: speciesName,
         challenge_date: challengeDate,
+        ...(elapsedSeconds !== undefined && {
+          elapsed_seconds: elapsedSeconds,
+        }),
+        ...(errorCount !== undefined && { error_count: errorCount }),
+        ...(correctSteps !== undefined && { correct_steps: correctSteps }),
+        ...(totalSteps !== undefined && { total_steps: totalSteps }),
       },
       { onConflict: "user_id,gbif_key,mode", ignoreDuplicates: true },
     )

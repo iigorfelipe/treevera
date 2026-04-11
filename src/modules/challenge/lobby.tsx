@@ -17,6 +17,11 @@ import {
   DialogDescription,
 } from "@/common/components/ui/dialog";
 import { Button } from "@/common/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/common/components/ui/tooltip";
 import { Link } from "@tanstack/react-router";
 import { authStore } from "@/store/auth/atoms";
 import { treeAtom } from "@/store/tree";
@@ -63,7 +68,11 @@ export const HowToPlay = () => {
           onClick={() => setOpen((p) => !p)}
           className="text-muted-foreground flex items-center"
         >
-          {open ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+          {open ? (
+            <ChevronUp className="size-4" />
+          ) : (
+            <ChevronDown className="size-4" />
+          )}
         </button>
       </SectionHeader>
       <AnimatePresence initial={false}>
@@ -113,24 +122,69 @@ const ChallengeStatsCards = () => {
 
   if (!isAuthenticated) return null;
 
+  const hasData = (stats?.dailyCount ?? 0) > 0 || (stats?.randomCount ?? 0) > 0;
   const streak = calcStreak(dates);
 
-  const cards = [
-    { label: t("challenge.statsDailyCompleted"), value: stats?.dailyCount ?? 0 },
-    { label: t("challenge.statsRandomCompleted"), value: stats?.randomCount ?? 0 },
-    { label: t("challenge.statsStreak"), value: streak },
+  if (!hasData) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        {t("challenge.statsNoData")}
+      </p>
+    );
+  }
+
+  const accuracyValue =
+    stats?.avgAccuracy != null ? `${stats.avgAccuracy}%` : "—";
+  const showAccuracyTooltip = stats?.avgAccuracy == null;
+
+  const rows: { label: string; value: string; tooltip?: string }[] = [
+    {
+      label: t("challenge.statsDailyCompleted"),
+      value: String(stats?.dailyCount ?? 0),
+    },
+    {
+      label: t("challenge.statsRandomCompleted"),
+      value: String(stats?.randomCount ?? 0),
+    },
+    {
+      label: t("challenge.statsStreak"),
+      value: `${streak} ${t("challenge.statsDays")}`,
+    },
+    {
+      label: t("challenge.statsAvgAccuracy"),
+      value: accuracyValue,
+      tooltip: showAccuracyTooltip
+        ? t("challenge.statsAccuracyMin")
+        : undefined,
+    },
+    {
+      label: t("challenge.statsSpeciesDiscovered"),
+      value: String(stats?.speciesDiscovered ?? 0),
+    },
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-2">
-      {cards.map((card) => (
-        <div key={card.label} className="border rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold tabular-nums">
-            {card.value}
-          </div>
-          <div className="text-muted-foreground mt-0.5 text-xs leading-tight">
-            {card.label}
-          </div>
+    <div className="grid grid-cols-2 gap-x-8 gap-y-2.5">
+      {rows.map(({ label, value, tooltip }) => (
+        <div
+          key={label}
+          className="flex items-baseline justify-between gap-2 border-b pb-2 last:border-0"
+        >
+          <span className="text-muted-foreground text-xs">{label}</span>
+          {tooltip ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-muted-foreground cursor-help text-sm tabular-nums">
+                  {value}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-56 text-xs">
+                {tooltip}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <span className="text-sm tabular-nums">{value}</span>
+          )}
         </div>
       ))}
     </div>
@@ -201,12 +255,14 @@ const RecentChallenges = () => {
                   <Link
                     to="/specie-detail/$specieKey"
                     params={{ specieKey: String(item.gbif_key) }}
-                    className="hover:underline truncate text-sm"
+                    className="truncate text-sm hover:underline"
                   >
                     {item.species_name ?? "—"}
                   </Link>
                 ) : (
-                  <span className="truncate text-sm">{item.species_name ?? "—"}</span>
+                  <span className="truncate text-sm">
+                    {item.species_name ?? "—"}
+                  </span>
                 )}
               </div>
 
@@ -314,7 +370,7 @@ const MyCustomChallengeItem = ({
           <Link
             to="/specie-detail/$specieKey"
             params={{ specieKey: String(challenge.gbif_key) }}
-            className="hover:underline truncate text-sm"
+            className="truncate text-sm hover:underline"
           >
             {challenge.species_name}
           </Link>
@@ -464,7 +520,7 @@ export const ChallengesLobby = ({ dayKey }: { dayKey: string }) => {
           <CustomChallengeCard />
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-8 max-w-[864px]">
+        <div className="flex max-w-216 min-w-0 flex-1 flex-col gap-8">
           <ChallengeStatsCards />
           <HowToPlay />
           <RecentChallenges />

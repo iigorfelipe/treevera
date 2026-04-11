@@ -69,6 +69,7 @@ export const SpecieDetail = ({
   const session = useAtomValue(authStore.session);
   const userId = session?.user?.id;
   const userDb = useAtomValue(authStore.userDb);
+  const challenge = useAtomValue(treeAtom.challenge);
 
   const [pendingUnfav, setPendingUnfav] = useState(false);
 
@@ -110,6 +111,7 @@ export const SpecieDetail = ({
 
   useEffect(() => {
     if (!userId || !specieKey || !specieDetail) return;
+    if (challenge.status === "IN_PROGRESS") return;
     void addSeenSpecie(
       userId,
       specieKey,
@@ -129,6 +131,7 @@ export const SpecieDetail = ({
     canonicalName,
     queryClient,
     checkAchievements,
+    challenge.status,
   ]);
 
   useEffect(() => {

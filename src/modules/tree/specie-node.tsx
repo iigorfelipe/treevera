@@ -1,6 +1,6 @@
 import { capitalizar } from "@/common/utils/string";
 import { useAtomValue, useStore } from "jotai";
-import { memo, useMemo, useCallback, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
 import { cn } from "@/common/utils/cn";
 import { Badge } from "@/common/components/ui/badge";
@@ -43,15 +43,17 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   }, [challengeActive, isInPath, node.key, speciesKey]);
 
   const isSelected =
-    isInPath || expandedNodes.some((expandedNode) => expandedNode.key === node.key);
+    isInPath ||
+    expandedNodes.some((expandedNode) => expandedNode.key === node.key);
 
-  const saveSpeciesIfMissing = useCallback(async () => {
+  const saveSpeciesIfMissing = async () => {
     if (!userId) return;
+    if (challenge.status === "IN_PROGRESS") return;
 
-    const expandedNodes = store.get(treeAtom.expandedNodes);
+    const expandedPath = store.get(treeAtom.expandedNodes);
     const familyName =
       (node as unknown as { family?: string }).family ??
-      expandedNodes.find((n) => n.rank === "FAMILY")?.name;
+      expandedPath.find((n) => n.rank === "FAMILY")?.name;
 
     await addSeenSpecie(
       userId,
@@ -64,7 +66,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
       queryKey: [QUERY_KEYS.user_seen_species_key, userId],
     });
     void checkAchievements();
-  }, [node, userId, store, queryClient, checkAchievements]);
+  };
 
   const displayName = node.canonicalName || node.scientificName;
   const showInfoIcon =

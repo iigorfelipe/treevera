@@ -84,6 +84,7 @@ export const RandomChallengeInProgress = () => {
 
     setExpandedNodes([]);
     setHighlightedKeys([]);
+    void navigate({ to: "/challenges/random" });
     setChallenge({
       mode: "RANDOM",
       status: "IN_PROGRESS",
@@ -160,6 +161,20 @@ export const RandomChallengeInProgress = () => {
   };
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
   const prevLastKeyRef = useRef<number | undefined>(undefined);
+  const prevCorrectStepsRef = useRef(0);
+  const stepStartRef = useRef<number>(challenge.startedAt ?? 0);
+  const stepTimesRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    if (correctSteps > prevCorrectStepsRef.current) {
+      const now = Date.now();
+      stepTimesRef.current[correctSteps - 1] = Math.floor(
+        (now - stepStartRef.current) / 1000,
+      );
+      stepStartRef.current = now;
+      prevCorrectStepsRef.current = correctSteps;
+    }
+  }, [correctSteps]);
 
   useEffect(() => {
     if (finishedAt !== null) return;
@@ -202,6 +217,7 @@ export const RandomChallengeInProgress = () => {
           correctPath,
           stepErrors: et.perStep,
           stepInteractions: si,
+          stepTimes: [...stepTimesRef.current],
         },
       };
     });
@@ -216,11 +232,20 @@ export const RandomChallengeInProgress = () => {
         mode: "RANDOM",
         speciesName,
         challengeDate: getTodayUTC(),
+        elapsedSeconds: Math.floor(
+          (Date.now() - (challenge.startedAt ?? 0)) / 1000,
+        ),
+        errorCount: errorTracking.count,
+        correctSteps: correctPath.length,
+        totalSteps: correctPath.length,
       });
       if (wasNew) {
         await addChallengeActivity({ userId, speciesName, mode: "RANDOM" });
         void queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.user_challenge_history_key, userId],
+        });
+        void queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.challenge_stats_key, userId],
         });
       }
       await checkAchievements();
@@ -283,6 +308,7 @@ export const RandomChallengeInProgress = () => {
 
     setExpandedNodes([]);
     setHighlightedKeys([]);
+    void navigate({ to: "/challenges/random" });
     setChallenge({
       mode: "RANDOM",
       status: "IN_PROGRESS",

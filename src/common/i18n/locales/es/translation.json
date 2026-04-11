@@ -496,7 +496,11 @@
     "statsDailyCompleted": "Diarios completados",
     "statsRandomCompleted": "Aleatorios completados",
     "statsStreak": "Racha actual",
-    "statsDays": "días"
+    "statsDays": "días",
+    "statsAvgAccuracy": "Precisión media",
+    "statsSpeciesDiscovered": "Especies descubiertas",
+    "statsNoData": "Juega un desafío para seguir tu progreso.",
+    "statsAccuracyMin": "Juega al menos 5 desafíos diarios o aleatorios para ver tu precisión media."
   },
   "lists": {
     "title": "Listas",

@@ -48,6 +48,7 @@ interface ChallengeCompletedProps {
   correctPath?: StepEntry[];
   stepErrors?: number[];
   stepInteractions?: StepInteractions;
+  stepTimes?: number[];
   shareUrl?: string;
 }
 
@@ -65,6 +66,7 @@ export const ChallengeCompleted = ({
   correctPath,
   stepErrors = [],
   stepInteractions,
+  stepTimes = [],
   shareUrl,
 }: ChallengeCompletedProps) => {
   const { t } = useTranslation();
@@ -81,10 +83,17 @@ export const ChallengeCompleted = ({
   const handleShare = async () => {
     if (!shareUrl) return;
     const url = `${window.location.origin}/treevera${shareUrl}`;
-    const time = elapsedSeconds !== undefined ? formatTime(elapsedSeconds) : "?";
+    const time =
+      elapsedSeconds !== undefined ? formatTime(elapsedSeconds) : "?";
     const acc = accuracy !== undefined ? accuracy : "?";
     const errors = errorCount ?? 0;
-    const text = t("challenge.shareResult", { speciesName, time, accuracy: acc, errors, url });
+    const text = t("challenge.shareResult", {
+      speciesName,
+      time,
+      accuracy: acc,
+      errors,
+      url,
+    });
     await navigator.clipboard.writeText(text);
     toast(t("challenge.shareResultCopied"));
   };
@@ -202,6 +211,12 @@ export const ChallengeCompleted = ({
                         {t("challenge.stepErrors", {
                           count: stepErrors[activeStep],
                         })}
+                      </span>
+                    )}
+                    {stepTimes[activeStep] !== undefined && (
+                      <span>
+                        {t("challenge.timeTaken")}:{" "}
+                        {formatTime(stepTimes[activeStep])}
                       </span>
                     )}
                   </div>
@@ -322,7 +337,11 @@ export const ChallengeCompleted = ({
           </Button>
 
           {shareUrl && (
-            <Button variant="outline" onClick={handleShare} className="flex-1 gap-2">
+            <Button
+              variant="outline"
+              onClick={handleShare}
+              className="flex-1 gap-2"
+            >
               <Share2 className="size-4" />
               {t("challenge.share")}
             </Button>
