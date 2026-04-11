@@ -296,7 +296,7 @@
     "conservationStatus": "Conservation Status",
     "geographicOccurrence": "Geographic Occurrence",
     "shareLabel": "Share Species",
-    "shareText": "Discover {{name}} on TreeVera",
+    "shareText": "Discover {{name}} on Treevera",
     "shareCopied": "Link copied!",
     "classifiedAs": "Classified as",
     "byIucn": "by the IUCN Red List",
@@ -490,7 +490,13 @@
     "customAlreadyExists": "You already created a challenge with this species.",
     "customLimitReached": "20-challenge limit reached. Remove one before creating another.",
     "customError": "Error creating challenge. Please try again.",
-    "customLoadError": "Could not load species data."
+    "customLoadError": "Could not load species data.",
+    "shareResult": "I classified {{speciesName}} in {{time}} with {{accuracy}}% accuracy and {{errors}} error(s) on Treevera. Try it too!\n{{url}}",
+    "shareResultCopied": "Result copied!",
+    "statsDailyCompleted": "Daily completed",
+    "statsRandomCompleted": "Random completed",
+    "statsStreak": "Current streak",
+    "statsDays": "days"
   },
   "lists": {
     "title": "Lists",
@@ -566,7 +572,7 @@
     "visibilityPublicHint": "Anyone can see and like this list.",
     "visibilityPrivateHint": "Only you can see this list. Make it public to share it.",
     "shareLabel": "Share List",
-    "shareText": "Check out the list \"{{name}}\" on TreeVera",
+    "shareText": "Check out the list \"{{name}}\" on Treevera",
     "shareCopied": "Link copied!",
     "setAsCover": "Set as list cover",
     "listCoverUpdated": "List cover updated!",

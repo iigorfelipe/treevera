@@ -9,8 +9,10 @@ import {
   Globe,
   ImageIcon,
   X,
+  Share2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { Button } from "@/common/components/ui/button";
 import { cn } from "@/common/utils/cn";
 import type { StepInteractionType } from "@/modules/challenge/components/tips";
@@ -46,6 +48,7 @@ interface ChallengeCompletedProps {
   correctPath?: StepEntry[];
   stepErrors?: number[];
   stepInteractions?: StepInteractions;
+  shareUrl?: string;
 }
 
 export const ChallengeCompleted = ({
@@ -62,6 +65,7 @@ export const ChallengeCompleted = ({
   correctPath,
   stepErrors = [],
   stepInteractions,
+  shareUrl,
 }: ChallengeCompletedProps) => {
   const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState<number | null>(null);
@@ -73,6 +77,17 @@ export const ChallengeCompleted = ({
 
   const hasStats = elapsedSeconds !== undefined || errorCount !== undefined;
   const hasStepData = correctPath && correctPath.length > 0;
+
+  const handleShare = async () => {
+    if (!shareUrl) return;
+    const url = `${window.location.origin}/treevera${shareUrl}`;
+    const time = elapsedSeconds !== undefined ? formatTime(elapsedSeconds) : "?";
+    const acc = accuracy !== undefined ? accuracy : "?";
+    const errors = errorCount ?? 0;
+    const text = t("challenge.shareResult", { speciesName, time, accuracy: acc, errors, url });
+    await navigator.clipboard.writeText(text);
+    toast(t("challenge.shareResultCopied"));
+  };
 
   return (
     <motion.div
@@ -298,17 +313,26 @@ export const ChallengeCompleted = ({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center"
+        className="mt-5 flex flex-col gap-2"
       >
-        <Button variant="outline" onClick={onReplay} className="gap-2">
-          <RotateCcw className="size-4" />
-          {t("challenge.replay")}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onReplay} className="flex-1 gap-2">
+            <RotateCcw className="size-4" />
+            {t("challenge.replay")}
+          </Button>
+
+          {shareUrl && (
+            <Button variant="outline" onClick={handleShare} className="flex-1 gap-2">
+              <Share2 className="size-4" />
+              {t("challenge.share")}
+            </Button>
+          )}
+        </div>
 
         <Button
           onClick={onNext}
           disabled={nextLoading}
-          className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+          className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
         >
           {nextLabel}
           <ChevronRight className="size-4" />

@@ -105,6 +105,12 @@ export const ChallengeCompletedOverlay = ({
   const nextLabel =
     mode === "DAILY" ? t("challenge.tryRandom") : t("challenge.nextChallenge");
 
+  const { speciesKey } = challenge;
+  const shareUrl =
+    mode && speciesKey && targetSpecies
+      ? `/challenges/${mode.toLowerCase()}?species=${speciesKey}&name=${encodeURIComponent(targetSpecies)}`
+      : undefined;
+
   if (inline) {
     return (
       <ChallengeCompleted
@@ -120,6 +126,7 @@ export const ChallengeCompletedOverlay = ({
         correctPath={completionData.correctPath}
         stepErrors={completionData.stepErrors}
         stepInteractions={completionData.stepInteractions}
+        shareUrl={shareUrl}
       >
         {mode === "DAILY" && (
           <div className="flex flex-col items-center gap-3">
@@ -152,6 +159,7 @@ export const ChallengeCompletedOverlay = ({
         correctPath={completionData.correctPath}
         stepErrors={completionData.stepErrors}
         stepInteractions={completionData.stepInteractions}
+        shareUrl={shareUrl}
       >
         {mode === "DAILY" && (
           <div className="flex flex-col items-center gap-3">

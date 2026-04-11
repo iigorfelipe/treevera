@@ -17,10 +17,13 @@ import {
   DialogDescription,
 } from "@/common/components/ui/dialog";
 import { Button } from "@/common/components/ui/button";
+import { Link } from "@tanstack/react-router";
 import { authStore } from "@/store/auth/atoms";
 import { treeAtom } from "@/store/tree";
 import { useGetRecentChallenges } from "@/hooks/queries/useGetRecentChallenges";
 import { useGetUserCustomChallenges } from "@/hooks/queries/useGetUserCustomChallenges";
+import { useGetChallengeStats } from "@/hooks/queries/useGetChallengeStats";
+import { useGetChallengeDates } from "@/hooks/queries/useGetChallengeDates";
 import { deleteCustomChallenge } from "@/common/utils/supabase/challenge/custom-challenges";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { formatActivityDate } from "@/common/utils/date-formats";
@@ -44,6 +47,7 @@ const SectionHeader = ({
 
 export const HowToPlay = () => {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(true);
   const steps = [
     t("challenge.howToPlay1"),
     t("challenge.howToPlay2"),
@@ -53,18 +57,82 @@ export const HowToPlay = () => {
   ];
 
   return (
-    <div className="rounded-xl p-4">
-      <h2 className="mb-3 font-bold">{t("challenge.howToPlay")}</h2>
-      <ol className="grid grid-cols-2 gap-x-4 gap-y-3">
-        {steps.map((step, i) => (
-          <li key={i} className="flex gap-2 text-sm">
-            <span className="bg-primary text-primary-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold">
-              {i + 1}
-            </span>
-            <span className="text-muted-foreground max-w-80">{step}</span>
-          </li>
-        ))}
-      </ol>
+    <div className="space-y-3">
+      <SectionHeader title={t("challenge.howToPlay")}>
+        <button
+          onClick={() => setOpen((p) => !p)}
+          className="text-muted-foreground flex items-center"
+        >
+          {open ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+        </button>
+      </SectionHeader>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.ol
+            key="how-to-play"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="flex flex-col gap-3 overflow-hidden"
+          >
+            {steps.map((step, i) => (
+              <li key={i} className="flex gap-2 text-sm">
+                <span className="bg-primary text-primary-foreground mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold">
+                  {i + 1}
+                </span>
+                <span className="text-muted-foreground">{step}</span>
+              </li>
+            ))}
+          </motion.ol>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const calcStreak = (dates: { date: string; completed: boolean }[]): number => {
+  const today = new Date();
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const dateMap = new Map(dates.map((d) => [d.date, d.completed]));
+  let streak = 0;
+  for (let i = 0; i < 60; i++) {
+    const key = fmt(new Date(today.getTime() - i * 86400000));
+    if (!dateMap.get(key)) break;
+    streak++;
+  }
+  return streak;
+};
+
+const ChallengeStatsCards = () => {
+  const { t } = useTranslation();
+  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
+  const { data: stats } = useGetChallengeStats();
+  const { data: dates = [] } = useGetChallengeDates();
+
+  if (!isAuthenticated) return null;
+
+  const streak = calcStreak(dates);
+
+  const cards = [
+    { label: t("challenge.statsDailyCompleted"), value: stats?.dailyCount ?? 0 },
+    { label: t("challenge.statsRandomCompleted"), value: stats?.randomCount ?? 0 },
+    { label: t("challenge.statsStreak"), value: streak },
+  ];
+
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {cards.map((card) => (
+        <div key={card.label} className="border rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold tabular-nums">
+            {card.value}
+          </div>
+          <div className="text-muted-foreground mt-0.5 text-xs leading-tight">
+            {card.label}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
@@ -129,9 +197,17 @@ const RecentChallenges = () => {
                 <span className="text-muted-foreground text-xs font-semibold">
                   {modeLabel[item.mode] ?? item.mode}
                 </span>
-                <span className="truncate text-sm">
-                  {item.species_name ?? "—"}
-                </span>
+                {item.gbif_key ? (
+                  <Link
+                    to="/specie-detail/$specieKey"
+                    params={{ specieKey: String(item.gbif_key) }}
+                    className="hover:underline truncate text-sm"
+                  >
+                    {item.species_name ?? "—"}
+                  </Link>
+                ) : (
+                  <span className="truncate text-sm">{item.species_name ?? "—"}</span>
+                )}
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
@@ -235,7 +311,13 @@ const MyCustomChallengeItem = ({
           <span className="text-muted-foreground text-xs font-semibold">
             {t("challenge.modeCustom")}
           </span>
-          <span className="truncate text-sm">{challenge.species_name}</span>
+          <Link
+            to="/specie-detail/$specieKey"
+            params={{ specieKey: String(challenge.gbif_key) }}
+            className="hover:underline truncate text-sm"
+          >
+            {challenge.species_name}
+          </Link>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
@@ -382,7 +464,8 @@ export const ChallengesLobby = ({ dayKey }: { dayKey: string }) => {
           <CustomChallengeCard />
         </div>
 
-        <div className="flex flex-col gap-8">
+        <div className="flex min-w-0 flex-1 flex-col gap-8 max-w-[864px]">
+          <ChallengeStatsCards />
           <HowToPlay />
           <RecentChallenges />
           <MyCustomChallenges />

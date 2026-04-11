@@ -33,4 +33,5 @@ export const QUERY_KEYS = {
   search_lists_key: "search_lists",
   search_users_key: "search_users",
   user_custom_challenges_key: "user_custom_challenges",
+  challenge_stats_key: "challenge_stats",
 };
