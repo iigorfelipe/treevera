@@ -33,15 +33,40 @@ export type SpeciesCacheResult = {
   genusDetails: WikiDescription | null;
 };
 
-async function fetchDescriptionWithFallback(
-  canonicalName: string,
+const BIOLOGICAL_TERMS = [
+  "genus", "gênero", "género",
+  "species", "espécie", "espécies", "especie", "especies",
+  "família", "familia", "family",
+  "planta", "plant", "vegetal",
+  "animal", "fungo", "fungus",
+  "taxon", "táxon", "taxonom",
+  "phylum", "filo",
+];
+
+const DISAMBIGUATION_SUFFIXES: Record<string, string[]> = {
+  pt: ["(gênero)", "(género)", "(botânica)", "(zoologia)", "(biologia)"],
+  en: ["(genus)", "(biology)", "(botany)"],
+  es: ["(género)", "(botánica)", "(biología)", "(zoología)"],
+};
+
+function isBiologicalArticle(wikiData: {
+  description?: string;
+  extract?: string;
+}): boolean {
+  const text = `${wikiData.description ?? ""} ${(wikiData.extract ?? "").slice(0, 300)}`.toLowerCase();
+  return BIOLOGICAL_TERMS.some((term) => text.includes(term));
+}
+
+async function fetchWikiValidated(
+  name: string,
   lang: string,
+  mustBeTaxon: boolean,
 ): Promise<{ extract: string; description: string } | null> {
   try {
-    const wikiData = await getWikiSpecieDetail(canonicalName, lang);
+    const wikiData = await getWikiSpecieDetail(name, lang);
     const text = wikiData?.extract ?? wikiData?.description ?? "";
-
-    if (text) {
+    if (!text) return null;
+    if (!mustBeTaxon || isBiologicalArticle(wikiData)) {
       return {
         extract: wikiData.extract ?? "",
         description: wikiData.description ?? "",
@@ -50,19 +75,34 @@ async function fetchDescriptionWithFallback(
   } catch {
     //
   }
+  return null;
+}
+
+async function fetchDescriptionWithFallback(
+  canonicalName: string,
+  lang: string,
+  isTaxon = false,
+): Promise<{ extract: string; description: string } | null> {
+  const result = await fetchWikiValidated(canonicalName, lang, isTaxon);
+  if (result) return result;
+
+  if (isTaxon) {
+    const suffixes = DISAMBIGUATION_SUFFIXES[lang] ?? DISAMBIGUATION_SUFFIXES.en;
+    for (const suffix of suffixes) {
+      const disambig = await fetchWikiValidated(`${canonicalName} ${suffix}`, lang, true);
+      if (disambig) return disambig;
+    }
+  }
 
   if (lang !== "en") {
-    try {
-      const enData = await getWikiSpecieDetail(canonicalName, "en");
-      const enText = enData?.extract ?? enData?.description ?? "";
-      if (enText) {
-        return {
-          extract: enData.extract ?? "",
-          description: enData.description ?? "",
-        };
+    const enResult = await fetchWikiValidated(canonicalName, "en", isTaxon);
+    if (enResult) return enResult;
+
+    if (isTaxon) {
+      for (const suffix of DISAMBIGUATION_SUFFIXES.en) {
+        const disambig = await fetchWikiValidated(`${canonicalName} ${suffix}`, "en", true);
+        if (disambig) return disambig;
       }
-    } catch {
-      //
     }
   }
 
@@ -127,9 +167,9 @@ export const useGetSpeciesCache = (
                 extract: cached.description_pt!,
                 description: "",
               })
-            : fetchDescriptionWithFallback(canonicalName, lang),
+            : fetchDescriptionWithFallback(canonicalName, lang, true),
           genusName
-            ? fetchDescriptionWithFallback(genusName, lang)
+            ? fetchDescriptionWithFallback(genusName, lang, true)
             : Promise.resolve(null),
         ]);
 
@@ -165,10 +205,10 @@ export const useGetSpeciesCache = (
       ] = await Promise.allSettled([
         getSpecieImageFromINaturalist({ canonicalName }),
         getSpecieImageFromWikipedia({ canonicalName }),
-        fetchDescriptionWithFallback(canonicalName, lang),
+        fetchDescriptionWithFallback(canonicalName, lang, true),
         getSpeciesStatusFromIUCN(canonicalName),
         genusName
-          ? fetchDescriptionWithFallback(genusName, lang)
+          ? fetchDescriptionWithFallback(genusName, lang, true)
           : Promise.resolve(null),
       ]);
 

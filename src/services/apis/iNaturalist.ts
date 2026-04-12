@@ -16,10 +16,16 @@ export const getSpecieImageFromINaturalist = async ({
 
   const iNatData = await fetch(url).then((res) => res.json());
 
-  if (!iNatData) return null;
-  if (!iNatData.results?.[0]?.record?.id) return null;
+  if (!iNatData?.results?.[0]?.record?.id) return null;
 
-  const iNatPhoto = iNatData.results[0].record.taxon_photos?.[0]?.photo;
+  const match = iNatData.results.find(
+    (r: { record?: { name?: string } }) =>
+      r.record?.name?.toLowerCase() === canonicalName.toLowerCase(),
+  );
+
+  if (!match) return null;
+
+  const iNatPhoto = match.record.taxon_photos?.[0]?.photo;
 
   if (iNatPhoto) {
     return {
@@ -40,13 +46,20 @@ export const getSpecieImagesFromINaturalist = async ({
 
   if (!iNatData?.results?.[0]?.record?.id) return [];
 
+  const match = iNatData.results.find(
+    (r: { record?: { name?: string } }) =>
+      r.record?.name?.toLowerCase() === canonicalName.toLowerCase(),
+  );
+
+  if (!match) return [];
+
   const taxonPhotos: {
     photo?: {
       original_url?: string;
       license_code?: string;
       attribution_name?: string;
     };
-  }[] = iNatData.results[0].record.taxon_photos ?? [];
+  }[] = match.record.taxon_photos ?? [];
 
   return taxonPhotos
     .filter((tp) => !!tp.photo?.original_url)
