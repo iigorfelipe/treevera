@@ -43,7 +43,7 @@ export const ChallengeMobile = ({
   onShare?: () => void;
 }) => {
   const { t } = useTranslation();
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   const activeRank = correctPath[correctSteps]?.rank;
 
@@ -52,7 +52,7 @@ export const ChallengeMobile = ({
       <motion.div className="rounded-2xl border px-3 py-2.5 shadow-sm">
         <div className="flex items-center gap-2.5">
           <Image
-            src={theme === "dark" ? AlvoWhite : Alvo}
+            src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
             className="size-7 shrink-0"
             alt="Alvo gif"
           />

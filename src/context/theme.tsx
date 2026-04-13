@@ -4,6 +4,7 @@ type Theme = "light" | "dark" | "system";
 
 type ThemeContextType = {
   theme: Theme;
+  resolvedTheme: "light" | "dark";
   changeTheme: (theme: Theme) => void;
 };
 
@@ -48,7 +49,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, changeTheme }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        resolvedTheme: theme === "system" ? getSystemTheme() : theme,
+        changeTheme,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

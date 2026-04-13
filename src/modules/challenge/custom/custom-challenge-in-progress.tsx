@@ -53,7 +53,7 @@ export const CustomChallengeInProgress = () => {
   const setHighlightedKeys = useSetAtom(setHighlightedKeysAtom);
 
   const { isTablet } = useResponsive();
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const challenge = useAtomValue(treeAtom.challenge);
   const session = useAtomValue(authStore.session);
 
@@ -281,7 +281,7 @@ export const CustomChallengeInProgress = () => {
             <CardContent className="flex flex-col gap-4 pt-5">
               <div className="flex items-center gap-3">
                 <Image
-                  src={theme === "dark" ? AlvoWhite : Alvo}
+                  src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
                   className="size-12 shrink-0"
                   alt="Alvo gif"
                 />

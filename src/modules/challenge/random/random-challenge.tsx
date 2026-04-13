@@ -16,7 +16,7 @@ import { CardInfoPopup } from "@/modules/challenge/components/card-info-popup";
 export const RandomChallengeCard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const session = useAtomValue(authStore.session);
   const setChallenge = useSetAtom(treeAtom.challenge);
@@ -64,7 +64,7 @@ export const RandomChallengeCard = () => {
       <CardContent className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <Image
-            src={theme === "dark" ? AlvoWhite : Alvo}
+            src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
             className="size-12 shrink-0"
             alt="Alvo gif"
           />
