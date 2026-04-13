@@ -96,6 +96,7 @@ export const FilledFavCard = ({
         <SpeciesCardQuickMenu
           species={galleryRow}
           onDialogClose={handleDialogClose}
+          triggerClassName="bg-black/40 absolute right-2 bottom-2 z-10 rounded-full p-1.5 text-white shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
         />
       )}
 

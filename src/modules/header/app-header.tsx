@@ -22,6 +22,7 @@ export const AppHeader = () => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mobileInputRef = useRef<HTMLInputElement>(null);
   const activeSearchRequests = useIsFetching({
     predicate: (queryState) => {
       const queryKey = queryState.queryKey[0];
@@ -36,7 +37,11 @@ export const AppHeader = () => {
   const isSearchLoading = loading || activeSearchRequests > 0;
 
   useEffect(() => {
-    if (searchOpen) setTimeout(() => inputRef.current?.focus(), 50);
+    if (searchOpen)
+      setTimeout(() => {
+        mobileInputRef.current?.focus();
+        inputRef.current?.focus();
+      }, 50);
   }, [searchOpen]);
 
   const closeSearch = () => {
@@ -76,7 +81,7 @@ export const AppHeader = () => {
 
   return (
     <header className="bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
+      <div className="relative mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
         <Link to="/" className="flex shrink-0 items-center gap-2.5">
           <Image
             alt={t("header.logoAlt")}
@@ -123,10 +128,41 @@ export const AppHeader = () => {
             {t("lists.title")}
           </button>
 
+          {searchOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+              className="absolute right-12 left-4 md:hidden"
+            >
+              <div className="border-border bg-background flex items-center rounded-md border pr-1 shadow-sm">
+                <input
+                  ref={mobileInputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="h-8 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  placeholder="Pesquisar..."
+                  disabled={loading}
+                />
+                <button
+                  onClick={() => closeSearch()}
+                  className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer p-1 transition-colors"
+                  aria-label="Fechar"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           <motion.div
             animate={{ width: searchOpen ? "min(320px, 40vw)" : 0 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="overflow-hidden"
+            className="hidden overflow-hidden md:block"
             style={{ width: 0 }}
           >
             <div className="border-border bg-background flex items-center rounded-md border pr-1">

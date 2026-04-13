@@ -51,6 +51,7 @@ type SpeciesCardQuickMenuProps = {
   listUsername?: string;
   listSlug?: string;
   onDialogClose?: () => void;
+  triggerClassName?: string;
 };
 
 export const SpeciesCardQuickMenu = ({
@@ -59,6 +60,7 @@ export const SpeciesCardQuickMenu = ({
   listUsername,
   listSlug,
   onDialogClose,
+  triggerClassName,
 }: SpeciesCardQuickMenuProps) => {
   const { t } = useTranslation();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
@@ -211,7 +213,7 @@ export const SpeciesCardQuickMenu = ({
           <button
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className="bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
+            className={triggerClassName ?? "bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"}
             aria-label={t("gallery.quickActions")}
           >
             <MoreVertical className="size-3.5" />
