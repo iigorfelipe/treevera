@@ -12,6 +12,7 @@ import { capitalizar } from "@/common/utils/string";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { Image } from "@/common/components/image";
+import { inatImageUrl } from "@/common/utils/image-size";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import {
   Select,
@@ -202,7 +203,7 @@ function ListRow({ list }: { list: ListWithCreator }) {
       <div className="bg-muted flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md">
         {list.cover_image_url ? (
           <Image
-            src={list.cover_image_url}
+            src={inatImageUrl(list.cover_image_url, "small")}
             alt={list.title}
             className="size-full object-cover"
           />

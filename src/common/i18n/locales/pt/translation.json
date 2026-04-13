@@ -494,12 +494,18 @@
     "shareResult": "Classifiquei {{speciesName}} em {{time}} com {{accuracy}}% de precisão e {{errors}} erro(s) no Treevera. Tente você também!\n{{url}}",
     "shareResultCopied": "Resultado copiado!",
     "statsDailyCompleted": "Diários concluídos",
+    "statsDailyCompletedDesc": "Total de desafios diários que você completou.",
     "statsRandomCompleted": "Aleatórios concluídos",
+    "statsRandomCompletedDesc": "Total de desafios aleatórios finalizados.",
     "statsStreak": "Sequência atual",
+    "statsStreakDesc": "Dias consecutivos em que você completou ao menos um desafio diário. A sequência zera se você pular um dia.",
     "statsDays": "dias",
     "statsAvgAccuracy": "Precisão média",
+    "statsAvgAccuracyDesc": "Média de acertos nos seus desafios diários e aleatórios, calculada sobre os últimos desafios concluídos.",
     "statsAccuracyMin": "Jogue ao menos 5 desafios diários ou aleatórios para ver sua precisão média.",
     "statsSpeciesDiscovered": "Espécies descobertas",
+    "statsSpeciesDiscoveredDesc": "Quantidade de espécies únicas que você encontrou pela primeira vez ao jogar desafios.",
+    "statsTitle": "Seu progresso",
     "statsNoData": "Jogue um desafio para acompanhar seu progresso."
   },
   "lists": {

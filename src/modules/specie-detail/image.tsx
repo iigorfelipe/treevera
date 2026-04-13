@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { Image } from "@/common/components/image";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
+import { inatImageUrl } from "@/common/utils/image-size";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
@@ -49,6 +50,7 @@ export const SpecieImageDetail = ({
     useGetSpecieGallery(specieKeyFromStore, canonicalName);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [imageLoading, setImageLoading] = useState(false);
   const [isFallback, setIsFallback] = useState(false);
   const [optimisticCount, setOptimisticCount] = useState(favCount);
 
@@ -71,7 +73,9 @@ export const SpecieImageDetail = ({
   const showCounter = optimisticCount > 0;
 
   const goTo = (index: number) => {
+    if (index === selectedIndex) return;
     setSelectedIndex(index);
+    setImageLoading(true);
     setIsFallback(false);
   };
 
@@ -128,15 +132,27 @@ export const SpecieImageDetail = ({
     <div className="flex flex-col gap-2">
       <div className="group relative aspect-4/3 overflow-hidden rounded-xl bg-black/10">
         <ImageWithZoom
-          src={currentImage?.imgUrl ?? fallbackImage}
+          src={
+            currentImage
+              ? inatImageUrl(currentImage.imgUrl, "large")
+              : fallbackImage
+          }
+          zoomSrc={currentImage?.imgUrl}
           fallbackSrc={fallbackImage}
           alt={t("specieDetail.speciesImageAlt", {
             name: specieDetail.scientificName,
           })}
           onFallbackChange={setIsFallback}
+          onLoad={() => setImageLoading(false)}
           zoom={3}
           contain
         />
+
+        {imageLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+            <Loader2 className="size-6 animate-spin text-white" />
+          </div>
+        )}
 
         {gallery.length > 1 && (
           <>
@@ -248,7 +264,7 @@ export const SpecieImageDetail = ({
               )}
             >
               <img
-                src={img.imgUrl}
+                src={inatImageUrl(img.imgUrl, "small")}
                 alt={t("specieDetail.photo", { number: i + 1 })}
                 className="h-full w-full object-cover"
               />

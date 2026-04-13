@@ -64,16 +64,19 @@ export const HowToPlay = () => {
   return (
     <div className="space-y-3">
       <SectionHeader title={t("challenge.howToPlay")}>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground h-7 px-2 text-xs"
           onClick={() => setOpen((p) => !p)}
-          className="text-muted-foreground flex items-center"
         >
+          {open ? t("lists.collapse") : t("lists.expand")}
           {open ? (
-            <ChevronUp className="size-4" />
+            <ChevronUp className="ml-1 size-3" />
           ) : (
-            <ChevronDown className="size-4" />
+            <ChevronDown className="ml-1 size-3" />
           )}
-        </button>
+        </Button>
       </SectionHeader>
       <AnimatePresence initial={false}>
         {open && (
@@ -135,46 +138,66 @@ const ChallengeStatsCards = () => {
 
   const accuracyValue =
     stats?.avgAccuracy != null ? `${stats.avgAccuracy}%` : "—";
-  const showAccuracyTooltip = stats?.avgAccuracy == null;
+  const noAccuracy = stats?.avgAccuracy == null;
 
-  const rows: { label: string; value: string; tooltip?: string }[] = [
+  const rows: {
+    label: string;
+    value: string;
+    tooltip: string;
+    muted?: boolean;
+  }[] = [
     {
       label: t("challenge.statsDailyCompleted"),
       value: String(stats?.dailyCount ?? 0),
+      tooltip: t("challenge.statsDailyCompletedDesc"),
     },
     {
       label: t("challenge.statsRandomCompleted"),
       value: String(stats?.randomCount ?? 0),
+      tooltip: t("challenge.statsRandomCompletedDesc"),
     },
     {
       label: t("challenge.statsStreak"),
       value: `${streak} ${t("challenge.statsDays")}`,
+      tooltip: t("challenge.statsStreakDesc"),
     },
     {
       label: t("challenge.statsAvgAccuracy"),
       value: accuracyValue,
-      tooltip: showAccuracyTooltip
+      tooltip: noAccuracy
         ? t("challenge.statsAccuracyMin")
-        : undefined,
+        : t("challenge.statsAvgAccuracyDesc"),
+      muted: noAccuracy,
     },
     {
       label: t("challenge.statsSpeciesDiscovered"),
       value: String(stats?.speciesDiscovered ?? 0),
+      tooltip: t("challenge.statsSpeciesDiscoveredDesc"),
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-x-8 gap-y-2.5">
-      {rows.map(({ label, value, tooltip }) => (
-        <div
-          key={label}
-          className="flex items-baseline justify-between gap-2 border-b pb-2 last:border-0"
-        >
-          <span className="text-muted-foreground text-xs">{label}</span>
-          {tooltip ? (
+    <div className="space-y-3">
+      <SectionHeader title={t("challenge.statsTitle")} />
+
+      <div className="flex flex-col">
+        {rows.map(({ label, value, tooltip, muted }, i) => (
+          <div
+            key={label}
+            className={cn(
+              "flex items-baseline justify-between py-1.5",
+              i < rows.length - 1 && "border-b",
+            )}
+          >
+            <span className="text-muted-foreground text-xs">{label}</span>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-muted-foreground cursor-help text-sm tabular-nums">
+                <span
+                  className={cn(
+                    "cursor-help text-sm tabular-nums",
+                    muted && "text-muted-foreground",
+                  )}
+                >
                   {value}
                 </span>
               </TooltipTrigger>
@@ -182,11 +205,9 @@ const ChallengeStatsCards = () => {
                 {tooltip}
               </TooltipContent>
             </Tooltip>
-          ) : (
-            <span className="text-sm tabular-nums">{value}</span>
-          )}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -35,7 +35,9 @@ import {
   addSeenSpecie,
   toggleFavSpecie,
   updateSeenSpeciesIucn,
+  updatePreferredImage,
 } from "@/common/utils/supabase/user-seen-species";
+import { syncCachedImage } from "@/common/utils/supabase/species-cache";
 import { updateFavActivity } from "@/common/utils/supabase/update-fav-activity";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 import {
@@ -141,6 +143,28 @@ export const SpecieDetail = ({
       () => void checkAchievements(),
     );
   }, [userId, specieKey, cache?.iucnCode, specie, checkAchievements]);
+
+  useEffect(() => {
+    if (!specieKey || !gallery.length || isLoadingCache) return;
+    const correctUrl = gallery[0].imgUrl;
+    const cachedUrl = cache?.image?.imgUrl;
+    if (!correctUrl || correctUrl === cachedUrl) return;
+    void syncCachedImage(specieKey, correctUrl, gallery[0].source);
+    if (userId) {
+      void updatePreferredImage(userId, specieKey, correctUrl, {
+        canonicalName,
+        family: specieDetail?.family,
+      });
+    }
+  }, [
+    specieKey,
+    gallery,
+    cache?.image?.imgUrl,
+    isLoadingCache,
+    userId,
+    canonicalName,
+    specieDetail?.family,
+  ]);
 
   const handleBack = useCallback(() => {
     if (onBack) {

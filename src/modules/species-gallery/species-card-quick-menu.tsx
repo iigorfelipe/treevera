@@ -211,7 +211,7 @@ export const SpeciesCardQuickMenu = ({
           <button
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className="bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 opacity-0 shadow backdrop-blur-sm transition-opacity group-hover:opacity-100"
+            className="bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
             aria-label={t("gallery.quickActions")}
           >
             <MoreVertical className="size-3.5" />

@@ -21,6 +21,7 @@ import {
 } from "@/common/components/ui/dropdown-menu";
 import { ListLikeButton } from "./list-like-button";
 import { useTranslation } from "react-i18next";
+import { inatImageUrl } from "@/common/utils/image-size";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import type { ListWithCreator } from "@/common/types/lists";
 import { Link } from "@tanstack/react-router";
@@ -73,7 +74,7 @@ export const ListDetailHero = ({
       <div className="relative h-52 w-full overflow-hidden sm:h-64 md:h-72">
         {list.cover_image_url ? (
           <img
-            src={list.cover_image_url}
+            src={inatImageUrl(list.cover_image_url, "large")}
             alt={list.title}
             className="size-full object-cover"
           />

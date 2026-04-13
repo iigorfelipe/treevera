@@ -26,7 +26,7 @@ export const Profile = () => {
             <div className="order-3">
               <SpeciesGalleryPreview />
             </div>
-            <div className="order-5">
+            <div className="order-6">
               <UserAchievements />
             </div>
           </div>
@@ -35,11 +35,11 @@ export const Profile = () => {
             <div className="order-4">
               <UserListsPreview username={userDb?.username} />
             </div>
-            <div className="order-6">
-              <UserLikedListsPreview />
+            <div className="order-5">
+              <TreeShortcuts />
             </div>
             <div className="order-7">
-              <TreeShortcuts />
+              <UserLikedListsPreview />
             </div>
             <div className="order-8">
               <LatestUserActivities />

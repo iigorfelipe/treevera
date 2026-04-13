@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { clearBrokenImage } from "@/common/utils/supabase/user-seen-species";
 import { SpeciesCardQuickMenu } from "./species-card-quick-menu";
+import { inatImageUrl } from "@/common/utils/image-size";
 
 type SpeciesCardProps = {
   species: GallerySpeciesRow;
@@ -35,7 +36,9 @@ export const SpeciesCard = ({
 
   const specieName = species.canonical_name || "—";
   const familyName = species.family || "—";
-  const imgUrl = species.image_url;
+  const imgUrl = species.image_url
+    ? inatImageUrl(species.image_url, "medium")
+    : null;
   const hasImage = !!imgUrl && !imgBroken;
 
   return (

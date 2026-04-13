@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSpecieImagesFromINaturalist } from "@/services/apis/iNaturalist";
 import { getSpecieImageFromWikipedia } from "@/services/apis/wikipedia";
+import { getSpecieImageFromGBIF } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
 
 export type GalleryImage = {
@@ -17,7 +18,7 @@ export const useGetSpecieGallery = (
   return useQuery<GalleryImage[]>({
     queryKey: [QUERY_KEYS.specie_gallery_key, specieKey],
     queryFn: async (): Promise<GalleryImage[]> => {
-      if (!canonicalName) return [];
+      if (!canonicalName || !specieKey) return [];
 
       const iNatResult = await getSpecieImagesFromINaturalist({
         canonicalName,
@@ -30,6 +31,12 @@ export const useGetSpecieGallery = (
       }).catch(() => null);
 
       if (wikiImage) return [wikiImage];
+
+      const gbifImage = await getSpecieImageFromGBIF({
+        specieKey,
+      }).catch(() => null);
+
+      if (gbifImage) return [gbifImage];
 
       return [];
     },

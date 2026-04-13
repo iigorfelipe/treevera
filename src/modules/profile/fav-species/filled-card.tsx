@@ -1,10 +1,15 @@
+import { useRef } from "react";
 import { Image } from "@/common/components/image";
+import { inatImageUrl } from "@/common/utils/image-size";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Leaf, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { SpeciesCardQuickMenu } from "@/modules/species-gallery/species-card-quick-menu";
+import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 
 export const FilledFavCard = ({
+  specieKey,
   specieName,
   familyName,
   imgUrl,
@@ -24,11 +29,32 @@ export const FilledFavCard = ({
 }) => {
   const { t } = useTranslation();
   const hasImage = !!imgUrl;
+  const cardSrc = imgUrl ? inatImageUrl(imgUrl, "medium") : null;
+  const dialogCloseTimeRef = useRef(0);
+
+  const handleDialogClose = () => {
+    dialogCloseTimeRef.current = Date.now();
+  };
+
+  const handleClick = () => {
+    if (Date.now() - dialogCloseTimeRef.current < 300) return;
+    onClick();
+  };
+
+  const galleryRow: GallerySpeciesRow = {
+    gbif_key: specieKey,
+    canonical_name: specieName,
+    family: familyName,
+    image_url: imgUrl,
+    is_favorite: true,
+    seen_at: "",
+    total_count: 0,
+  };
 
   return (
     <div className="group relative">
       <figure
-        onClick={onClick}
+        onClick={handleClick}
         className={`relative aspect-3/4 w-full cursor-pointer overflow-hidden rounded-xl shadow-sm transition-all duration-300 ease-out ${
           editMode
             ? "ring-primary/40 ring-2 brightness-75 hover:brightness-90"
@@ -37,7 +63,7 @@ export const FilledFavCard = ({
       >
         {hasImage ? (
           <Image
-            src={imgUrl}
+            src={cardSrc!}
             alt={specieName}
             loading="lazy"
             className={`size-full object-cover transition-transform duration-500 ease-out ${
@@ -54,9 +80,7 @@ export const FilledFavCard = ({
           <p className="truncate text-xs leading-tight font-semibold text-white">
             {specieName}
           </p>
-          <p className="truncate text-xs text-white/70 italic">
-            {familyName}
-          </p>
+          <p className="truncate text-xs text-white/70 italic">{familyName}</p>
         </div>
 
         {editMode && (
@@ -67,6 +91,13 @@ export const FilledFavCard = ({
           </div>
         )}
       </figure>
+
+      {!editMode && (
+        <SpeciesCardQuickMenu
+          species={galleryRow}
+          onDialogClose={handleDialogClose}
+        />
+      )}
 
       {editMode && (
         <button
@@ -100,7 +131,7 @@ export const FilledFavCard = ({
         <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-50 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
           <div className="bg-popover ring-border overflow-hidden rounded-xl shadow-2xl ring-1">
             <img
-              src={imgUrl}
+              src={cardSrc!}
               alt={specieName}
               className="block max-h-56 max-w-56 object-contain"
             />

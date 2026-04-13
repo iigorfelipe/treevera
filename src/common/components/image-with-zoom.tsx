@@ -4,13 +4,16 @@ import { Image, type ImageProps } from "./image";
 type Props = {
   zoom?: number;
   contain?: boolean;
+  zoomSrc?: string;
 } & ImageProps;
 
 export const ImageWithZoom = ({
   zoom = 3,
   contain = false,
+  zoomSrc,
   ...imageProps
 }: Props) => {
+  const fullResSrc = zoomSrc ?? imageProps.src;
   const modalRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isHoveringModal, setIsHoveringModal] = useState(false);
@@ -47,6 +50,7 @@ export const ImageWithZoom = ({
           draggable={false}
           fallbackSrc={imageProps.fallbackSrc}
           onFallbackChange={imageProps.onFallbackChange}
+          onLoad={imageProps.onLoad}
         />
       </div>
 
@@ -63,7 +67,7 @@ export const ImageWithZoom = ({
             onMouseMove={handleModalMouseMove}
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundImage: `url(${imageProps.src})`,
+              backgroundImage: `url(${fullResSrc})`,
               backgroundSize: isHoveringModal ? `${zoom * 100}%` : "contain",
               backgroundPosition: `${bgPosition.xPercent}% ${bgPosition.yPercent}%`,
               backgroundRepeat: "no-repeat",
@@ -71,7 +75,7 @@ export const ImageWithZoom = ({
             }}
           >
             <Image
-              src={imageProps.src}
+              src={fullResSrc}
               alt={imageProps.alt}
               className={`max-h-[95vh] max-w-[95vw] rounded-lg object-contain transition-opacity duration-150 ${
                 isHoveringModal ? "opacity-0" : "opacity-100"

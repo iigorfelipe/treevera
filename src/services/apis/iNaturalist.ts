@@ -1,5 +1,37 @@
 const INATURALIST = `https://api.inaturalist.org/v1`;
 
+type TaxonResult = {
+  record?: {
+    name?: string;
+    matched_term?: string;
+    id?: number;
+    taxon_photos?: {
+      photo?: {
+        original_url?: string;
+        license_code?: string;
+        attribution_name?: string;
+      };
+    }[];
+  };
+};
+
+function findTaxonMatch(
+  results: TaxonResult[],
+  canonicalName: string,
+): TaxonResult | undefined {
+  const target = canonicalName.toLowerCase();
+
+  const byName = results.find((r) => r.record?.name?.toLowerCase() === target);
+  if (byName) return byName;
+
+  const byMatchedTerm = results.find(
+    (r) => r.record?.matched_term?.toLowerCase() === target,
+  );
+  if (byMatchedTerm) return byMatchedTerm;
+
+  return undefined;
+}
+
 type Params = { canonicalName: string };
 
 export type INatImageData = {
@@ -18,16 +50,13 @@ export const getSpecieImageFromINaturalist = async ({
 
   if (!iNatData?.results?.[0]?.record?.id) return null;
 
-  const match = iNatData.results.find(
-    (r: { record?: { name?: string } }) =>
-      r.record?.name?.toLowerCase() === canonicalName.toLowerCase(),
-  );
+  const match = findTaxonMatch(iNatData.results, canonicalName);
 
   if (!match) return null;
 
-  const iNatPhoto = match.record.taxon_photos?.[0]?.photo;
+  const iNatPhoto = match.record?.taxon_photos?.[0]?.photo;
 
-  if (iNatPhoto) {
+  if (iNatPhoto?.original_url) {
     return {
       source: "iNaturalist",
       imgUrl: iNatPhoto.original_url,
@@ -46,20 +75,11 @@ export const getSpecieImagesFromINaturalist = async ({
 
   if (!iNatData?.results?.[0]?.record?.id) return [];
 
-  const match = iNatData.results.find(
-    (r: { record?: { name?: string } }) =>
-      r.record?.name?.toLowerCase() === canonicalName.toLowerCase(),
-  );
+  const match = findTaxonMatch(iNatData.results, canonicalName);
 
   if (!match) return [];
 
-  const taxonPhotos: {
-    photo?: {
-      original_url?: string;
-      license_code?: string;
-      attribution_name?: string;
-    };
-  }[] = match.record.taxon_photos ?? [];
+  const taxonPhotos = match.record?.taxon_photos ?? [];
 
   return taxonPhotos
     .filter((tp) => !!tp.photo?.original_url)

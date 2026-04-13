@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ImageOff } from "lucide-react";
 import { cn } from "@/common/utils/cn";
+import { inatImageUrl } from "@/common/utils/image-size";
 
 const COVER_SLOTS = 3;
 
@@ -50,7 +51,7 @@ export const ListCoverCollage = ({
     if (imageUrl && !brokenImages[index]) {
       return (
         <img
-          src={imageUrl}
+          src={inatImageUrl(imageUrl, "small")}
           alt={title}
           className={cn(
             "size-full object-cover transition-transform duration-500 group-hover:scale-105",

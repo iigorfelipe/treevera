@@ -33,6 +33,7 @@ import { useGetVernacularNames } from "@/hooks/queries/useGetVernacularNames";
 import { Image } from "@/common/components/image";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { useResponsive } from "@/hooks/use-responsive";
+import { inatImageUrl } from "@/common/utils/image-size";
 
 type PathNode = { rank: Rank; name: string; key: number };
 
@@ -42,10 +43,7 @@ export type StepInteractionType =
   | "namesExpanded"
   | "imageExpanded";
 
-const getRankLabel = (
-  rank: Rank,
-  t: TFunction,
-): string =>
+const getRankLabel = (rank: Rank, t: TFunction): string =>
   t(`ranksLower.${rank}`, {
     defaultValue: rank.toLowerCase().replace(/_/g, " "),
   });
@@ -428,7 +426,7 @@ export const ChallengeTips = ({
                       <Skeleton className="h-32 w-full" />
                     ) : imageData?.imgUrl ? (
                       <Image
-                        src={imageData.imgUrl}
+                        src={inatImageUrl(imageData.imgUrl, "small")}
                         alt={speciesName}
                         className="h-32 w-full object-cover"
                       />

@@ -1,6 +1,7 @@
 import { ImageOff } from "lucide-react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { inatImageUrl } from "@/common/utils/image-size";
 import { ListLikeButton } from "./list-like-button";
 import { formatActivityDate } from "@/common/utils/date-formats";
 import { slugify } from "@/common/utils/slugify";
@@ -43,7 +44,7 @@ export const ListCard = ({ list }: ListCardProps) => {
       <div className="bg-muted flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg">
         {list.cover_image_url ? (
           <img
-            src={list.cover_image_url}
+            src={inatImageUrl(list.cover_image_url, "small")}
             alt={list.title}
             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"

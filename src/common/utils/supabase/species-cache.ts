@@ -55,3 +55,20 @@ export const upsertSpeciesCache = async (
 
   if (error) console.error("Error upserting species cache:", error);
 };
+
+export const syncCachedImage = async (
+  gbifKey: number,
+  imageUrl: string,
+  source: string,
+): Promise<void> => {
+  const { error } = await supabase
+    .from("species_data_cache")
+    .update({
+      image_url: imageUrl,
+      image_source: source,
+      has_image: true,
+    })
+    .eq("gbif_key", gbifKey);
+
+  if (error) console.error("Error syncing cached image:", error);
+};

@@ -1,4 +1,5 @@
 import type { FavSpecies } from "@/common/types/user";
+import { inatImageUrl } from "@/common/utils/image-size";
 import { Plus } from "lucide-react";
 
 export const PickerItem = ({
@@ -14,13 +15,13 @@ export const PickerItem = ({
   imgUrl: string | null;
   onSelect: (data: FavSpecies) => void;
 }) => {
-  const displayImgUrl = imgUrl ?? "";
+  const displayImgUrl = imgUrl ? inatImageUrl(imgUrl, "small") : "";
 
   const handleClick = () => {
     onSelect({
       key: specieKey,
       name: specieName ?? "",
-      img: displayImgUrl,
+      img: imgUrl ?? "",
       family: familyName ?? "",
     });
   };
