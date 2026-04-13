@@ -2,6 +2,7 @@ const CRAWLERS =
   /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkshare|w3c_validator|whatsapp|telegram|discord/i;
 
 interface Env {
+  ASSETS: { fetch(request: Request): Promise<Response> };
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
   SITE_URL: string;
@@ -48,48 +49,37 @@ function buildMetaHtml(
     url: escapeHtml(meta.url),
   };
 
-  const tags = [
-    `<meta property="og:title" content="${e.title}" />`,
-    `<meta property="og:description" content="${e.description}" />`,
-    `<meta property="og:image" content="${e.image}" />`,
-    `<meta property="og:url" content="${e.url}" />`,
-    `<meta name="twitter:title" content="${e.title}" />`,
-    `<meta name="twitter:description" content="${e.description}" />`,
-    `<meta name="twitter:image" content="${e.image}" />`,
-    `<title>${e.title}</title>`,
-  ];
-
   let result = html;
 
   result = result.replace(
     /<meta property="og:title"[^>]*\/>/,
-    tags[0],
+    `<meta property="og:title" content="${e.title}" />`,
   );
   result = result.replace(
     /<meta property="og:description"[^>]*\/>/,
-    tags[1],
+    `<meta property="og:description" content="${e.description}" />`,
   );
   result = result.replace(
     /<meta property="og:image"[^>]*\/>/,
-    tags[2],
+    `<meta property="og:image" content="${e.image}" />`,
   );
   result = result.replace(
     /<meta property="og:url"[^>]*\/>/,
-    tags[3],
+    `<meta property="og:url" content="${e.url}" />`,
   );
   result = result.replace(
     /<meta name="twitter:title"[^>]*\/>/,
-    tags[4],
+    `<meta name="twitter:title" content="${e.title}" />`,
   );
   result = result.replace(
     /<meta name="twitter:description"[^>]*\/>/,
-    tags[5],
+    `<meta name="twitter:description" content="${e.description}" />`,
   );
   result = result.replace(
     /<meta name="twitter:image"[^>]*\/>/,
-    tags[6],
+    `<meta name="twitter:image" content="${e.image}" />`,
   );
-  result = result.replace(/<title>[^<]*<\/title>/, tags[7]);
+  result = result.replace(/<title>[^<]*<\/title>/, `<title>${e.title}</title>`);
 
   return result;
 }
@@ -210,40 +200,45 @@ async function getMetaForRoute(
   return null;
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
-  const { request, next, env } = context;
-  const userAgent = request.headers.get("user-agent") ?? "";
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const userAgent = request.headers.get("user-agent") ?? "";
 
-  if (!CRAWLERS.test(userAgent)) {
-    return next();
-  }
+    if (!CRAWLERS.test(userAgent)) {
+      return env.ASSETS.fetch(request);
+    }
 
-  const url = new URL(request.url);
-  const pathname = url.pathname;
+    const url = new URL(request.url);
+    const meta = await getMetaForRoute(url.pathname, env);
 
-  const meta = await getMetaForRoute(pathname, env);
+    if (!meta) {
+      return env.ASSETS.fetch(request);
+    }
 
-  if (!meta) {
-    return next();
-  }
+    const assetResponse = await env.ASSETS.fetch(request);
+    const contentType = assetResponse.headers.get("content-type") ?? "";
 
-  const response = await next();
-  const html = await response.text();
-  const siteUrl = env.SITE_URL || url.origin;
-  const fullImage =
-    meta.image && !meta.image.startsWith("http")
-      ? `${siteUrl}${meta.image}`
-      : meta.image;
+    if (!contentType.includes("text/html")) {
+      return assetResponse;
+    }
 
-  const injected = buildMetaHtml(html, {
-    title: meta.title,
-    description: meta.description,
-    image: fullImage || `${siteUrl}/og-image.png`,
-    url: `${siteUrl}${pathname}`,
-  });
+    const html = await assetResponse.text();
+    const siteUrl = env.SITE_URL || url.origin;
+    const fullImage =
+      meta.image && !meta.image.startsWith("http")
+        ? `${siteUrl}${meta.image}`
+        : meta.image;
 
-  return new Response(injected, {
-    status: response.status,
-    headers: response.headers,
-  });
+    const injected = buildMetaHtml(html, {
+      title: meta.title,
+      description: meta.description,
+      image: fullImage || `${siteUrl}/og-image.png`,
+      url: `${siteUrl}${url.pathname}`,
+    });
+
+    return new Response(injected, {
+      status: assetResponse.status,
+      headers: assetResponse.headers,
+    });
+  },
 };
