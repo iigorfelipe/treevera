@@ -37,6 +37,7 @@ import { ProgressSteps } from "@/modules/challenge/components/progress-steps";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { getAppUrl } from "@/common/utils/base-url";
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
@@ -221,7 +222,7 @@ export const CustomChallengeInProgress = () => {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/treevera/challenges/custom?species=${speciesKey}&name=${encodeURIComponent(speciesName)}`;
+    const url = getAppUrl(`/challenges/custom?species=${speciesKey}&name=${encodeURIComponent(speciesName)}`);
     const text = t("challenge.shareText", { speciesName });
     if (navigator.share) {
       await navigator.share({ title: "Treevera", url, text }).catch(() => {});

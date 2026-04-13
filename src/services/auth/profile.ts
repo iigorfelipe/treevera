@@ -2,6 +2,7 @@
 import type { Provider } from "@supabase/supabase-js";
 
 import { supabase } from "@/common/utils/supabase/client";
+import { getAppUrl } from "@/common/utils/base-url";
 
 const POPUP_WIDTH = 500;
 const POPUP_HEIGHT = 700;
@@ -68,7 +69,7 @@ export async function loginWithOAuth(provider: Provider = "google") {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/treevera/auth-callback`,
+        redirectTo: getAppUrl("/auth-callback"),
         skipBrowserRedirect: true,
         queryParams: {
           access_type: "offline",

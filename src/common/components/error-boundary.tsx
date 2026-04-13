@@ -3,6 +3,7 @@ import { RotateCcw, Home } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/common/components/ui/button";
+import { getAppUrl } from "@/common/utils/base-url";
 
 type Props = {
   children: ReactNode;
@@ -52,7 +53,7 @@ const ErrorFallback = ({ onReset }: { onReset: () => void }) => {
         </Button>
         <Button
           onClick={() => {
-            window.location.href = window.location.origin + "/treevera/";
+            window.location.href = getAppUrl("/");
           }}
           variant="default"
           className="gap-2"

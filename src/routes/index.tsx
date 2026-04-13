@@ -358,24 +358,13 @@ const routeTree = rootRoute.addChildren([
   listLikesRoute,
 ]);
 
+const base = import.meta.env.BASE_URL ?? "/";
+const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
+
 export const router = createRouter({
   routeTree,
-  basepath: "/treevera",
+  basepath: normalizedBase || "/",
 });
-
-const _commitLocation = router.commitLocation.bind(router);
-router.commitLocation = async (opts) => {
-  const basepath = router.basepath;
-  if (
-    opts.publicHref &&
-    basepath !== "/" &&
-    opts.publicHref.startsWith(basepath)
-  ) {
-    const internalHref = opts.publicHref.slice(basepath.length) || "/";
-    return _commitLocation({ ...opts, href: internalHref });
-  }
-  return _commitLocation(opts);
-};
 
 declare module "@tanstack/react-router" {
   interface Register {

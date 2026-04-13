@@ -26,6 +26,7 @@ import { formatActivityDate } from "@/common/utils/date-formats";
 import type { ListWithCreator } from "@/common/types/lists";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { getAppUrl } from "@/common/utils/base-url";
 
 export type SpeciesFilter = "all" | "known" | "unknown";
 
@@ -53,7 +54,7 @@ export const ListDetailHero = ({
   const pct = totalCount > 0 ? (knownCount / totalCount) * 100 : 0;
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/treevera/${list.user_username}/lists/${list.slug}`;
+    const url = getAppUrl(`/${list.user_username}/lists/${list.slug}`);
     const title = list.title;
     const text = t("lists.shareText", { name: list.title });
 

@@ -40,6 +40,7 @@ import { validateChallengeParents } from "@/common/utils/game/validate-challenge
 import { deactivateChallengeSpecies } from "@/common/utils/supabase/challenge/deactivate-challenge-species";
 import { ChallengeShareButton } from "@/modules/challenge/components/challenge-share-button";
 import { toast } from "sonner";
+import { getAppUrl } from "@/common/utils/base-url";
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
@@ -286,7 +287,7 @@ export const RandomChallengeInProgress = () => {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/treevera/challenges/random?species=${speciesKey}&name=${encodeURIComponent(speciesName)}`;
+    const url = getAppUrl(`/challenges/random?species=${speciesKey}&name=${encodeURIComponent(speciesName)}`);
     const text = t("challenge.shareText", { speciesName });
     if (navigator.share) {
       await navigator.share({ title: "Treevera", url, text }).catch(() => {});

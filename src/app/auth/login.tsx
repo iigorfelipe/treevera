@@ -19,6 +19,7 @@ import {
   PENDING_CHALLENGE_KEY,
   type PendingChallengeShare,
 } from "@/app/challenges";
+import { getAppUrl } from "@/common/utils/base-url";
 
 const GoogleLogo = (
   <svg className="mr-3 size-5" viewBox="0 0 24 24">
@@ -57,7 +58,7 @@ export const Login = () => {
     const pending = sessionStorage.getItem(PENDING_CHALLENGE_KEY);
     if (pending) {
       const { mode } = JSON.parse(pending) as PendingChallengeShare;
-      window.location.href = `/treevera/challenges/${mode.toLowerCase()}`;
+      window.location.href = getAppUrl(`/challenges/${mode.toLowerCase()}`);
       return;
     }
     router.navigate({ to: "/$username", params: { username: getUsername() } });

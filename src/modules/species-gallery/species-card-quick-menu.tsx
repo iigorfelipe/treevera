@@ -44,6 +44,7 @@ import { setListCoverImage } from "@/common/utils/supabase/lists";
 import { AddToListDialog } from "@/modules/lists/add-to-list-dialog";
 import { CreateCustomChallengeDialog } from "@/modules/challenge/custom/create-custom-challenge-dialog";
 import { cn } from "@/common/utils/cn";
+import { getAppUrl } from "@/common/utils/base-url";
 
 type SpeciesCardQuickMenuProps = {
   species: GallerySpeciesRow;
@@ -156,7 +157,7 @@ export const SpeciesCardQuickMenu = ({
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/treevera/specie-detail/${species.gbif_key}`;
+    const url = getAppUrl(`/specie-detail/${species.gbif_key}`);
     const name = species.canonical_name ?? "";
     if (navigator.share) {
       await navigator

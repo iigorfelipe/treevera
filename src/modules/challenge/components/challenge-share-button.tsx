@@ -2,6 +2,7 @@ import { Share2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/common/components/ui/button";
+import { getAppUrl } from "@/common/utils/base-url";
 
 export const ChallengeShareButton = ({
   speciesName,
@@ -19,7 +20,7 @@ export const ChallengeShareButton = ({
       await onShare();
       return;
     }
-    const url = `${window.location.origin}/treevera/challenges`;
+    const url = getAppUrl("/challenges");
     const text = t("challenge.shareText", { speciesName });
     if (navigator.share) {
       await navigator.share({ title: "Treevera", url, text }).catch(() => {});

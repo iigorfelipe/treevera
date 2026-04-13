@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Button } from "@/common/components/ui/button";
 import { cn } from "@/common/utils/cn";
 import type { StepInteractionType } from "@/modules/challenge/components/tips";
+import { getAppUrl } from "@/common/utils/base-url";
 
 type StepInteractions = Record<
   number,
@@ -82,7 +83,7 @@ export const ChallengeCompleted = ({
 
   const handleShare = async () => {
     if (!shareUrl) return;
-    const url = `${window.location.origin}/treevera${shareUrl}`;
+    const url = getAppUrl(shareUrl);
     const time =
       elapsedSeconds !== undefined ? formatTime(elapsedSeconds) : "?";
     const acc = accuracy !== undefined ? accuracy : "?";
