@@ -1,5 +1,28 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+
+const params = new URLSearchParams(window.location.search);
+if (params.has("code") && window.opener) {
+  setTimeout(() => {
+    try {
+      const bc = new BroadcastChannel("supabase-auth");
+      bc.postMessage("oauth_complete");
+      bc.close();
+    } catch {
+      //
+    }
+    try {
+      window.opener.postMessage(
+        { type: "OAUTH_COMPLETE" },
+        window.location.origin,
+      );
+    } catch {
+      //
+    }
+    setTimeout(() => window.close(), 500);
+  }, 2000);
+}
+
 import { App } from "./app";
 import "@/common/i18n";
 import "./index.css";
