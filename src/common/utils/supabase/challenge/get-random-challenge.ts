@@ -1,7 +1,9 @@
 import { supabase } from "@/common/utils/supabase/client";
 import type { ChallengeData } from "./get-daily-challenge";
 
-export const getRandomChallengeForUser = async (userId: string): Promise<ChallengeData | null> => {
+export const getRandomChallengeForUser = async (
+  userId: string,
+): Promise<ChallengeData | null> => {
   const { data, error } = await supabase.rpc("get_random_challenge_for_user", {
     p_user_id: userId,
   });

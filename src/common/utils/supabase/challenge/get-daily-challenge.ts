@@ -5,7 +5,9 @@ export type ChallengeData = {
   scientificName: string;
 };
 
-export const getDailyChallenge = async (date: string): Promise<ChallengeData | null> => {
+export const getDailyChallenge = async (
+  date: string,
+): Promise<ChallengeData | null> => {
   const { data, error } = await supabase.rpc("get_or_create_daily_challenge", {
     p_date: date,
   });

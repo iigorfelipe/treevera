@@ -12,8 +12,9 @@ dist
 dist-ssr
 *.local
 .env
+.env.local
 
-src/store/auth/atoms.md
+/supabase/
 
 # Editor directories and files
 .vscode/*
