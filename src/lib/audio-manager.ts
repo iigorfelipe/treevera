@@ -1,6 +1,6 @@
-import success from "@/assets/audio/click-success.wav";
-import error from "@/assets/audio/click-error.wav";
-import win from "@/assets/audio/winning.wav";
+import success from "@/assets/audio/click-success.mp3";
+import error from "@/assets/audio/click-error.mp3";
+import win from "@/assets/audio/winning.mp3";
 import { getDefaultStore } from "jotai";
 import { audioSettingsAtom } from "@/store/audio";
 

@@ -6,17 +6,17 @@ import fungiUrl from "@/assets/images/avif-fungi.avif?url";
 import plantaeUrl from "@/assets/images/avif-plantae.avif?url";
 import protozoaUrl from "@/assets/images/avif-protozoa.avif?url";
 
-import animalia1 from "@/assets/images/animalia-1.jpg?url";
-import animalia2 from "@/assets/images/animalia-2.jpg?url";
-import animalia3 from "@/assets/images/animalia-3.jpg?url";
-import animalia4 from "@/assets/images/animalia-4.jpg?url";
-import animalia5 from "@/assets/images/animalia-5.jpg?url";
-import bacteria1 from "@/assets/images/bacteria-1.jpg?url";
-import protozoa1 from "@/assets/images/protozoa-1.png?url";
-import chromista1 from "@/assets/images/chromista-1.jpg?url";
-import archaea1 from "@/assets/images/archaea-1.jpg?url";
-import fungi1 from "@/assets/images/fungi-1.jpg?url";
-import plantae1 from "@/assets/images/plantae-1.jpg?url";
+import animalia1 from "@/assets/images/animalia-1.avif?url";
+import animalia2 from "@/assets/images/animalia-2.avif?url";
+import animalia3 from "@/assets/images/animalia-3.avif?url";
+import animalia4 from "@/assets/images/animalia-4.avif?url";
+import animalia5 from "@/assets/images/animalia-5.avif?url";
+import bacteria1 from "@/assets/images/bacteria-1.avif?url";
+import protozoa1 from "@/assets/images/protozoa-1.avif?url";
+import chromista1 from "@/assets/images/chromista-1.avif?url";
+import archaea1 from "@/assets/images/archaea-1.avif?url";
+import fungi1 from "@/assets/images/fungi-1.avif?url";
+import plantae1 from "@/assets/images/plantae-1.avif?url";
 
 import type { Kingdom, Rank, Taxon } from "../../types/api";
 import { capitalizar } from "../string";

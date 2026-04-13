@@ -158,6 +158,14 @@ const settingsSectionRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/settings/$section",
   component: SettingsPage,
+  beforeLoad: () => {
+    const store = getDefaultStore();
+    const initialized = store.get(authStore.initialized);
+    const isAuthenticated = store.get(authStore.isAuthenticated);
+    if (initialized && !isAuthenticated) {
+      throw redirect({ to: "/login" });
+    }
+  },
 });
 
 const specieDetailRoute = createRoute({
