@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import { Image } from "@/common/components/image";
 import { ErrorBoundary } from "@/common/components/error-boundary";
 import { Outlet, useRouterState } from "@tanstack/react-router";
-import Logo from "@/assets/images/avif-new-logo.avif";
+import Logo from "@/assets/images/avif-logo.avif";
 import { useResponsive } from "@/hooks/use-responsive";
 import { cn } from "@/common/utils/cn";
 import { AppHeader } from "@/modules/header/app-header";
@@ -58,7 +59,9 @@ export const Layout = () => {
           />
         </div>
         <ErrorBoundary key={errorBoundaryKey}>
-          <Outlet />
+          <Suspense>
+            <Outlet />
+          </Suspense>
         </ErrorBoundary>
       </div>
     </div>

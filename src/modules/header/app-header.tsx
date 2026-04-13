@@ -1,5 +1,5 @@
 import { Image } from "@/common/components/image";
-import logoUrl from "@/assets/images/avif-new-fav-icon.avif?url";
+import logoUrl from "@/assets/images/avif-logo-icon.avif?url";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useIsFetching } from "@tanstack/react-query";

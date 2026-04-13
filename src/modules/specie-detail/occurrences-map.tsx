@@ -1,3 +1,4 @@
+import "leaflet/dist/leaflet.css";
 import { FitBounds } from "@/common/utils/map/fit-bounds";
 import {
   useGetOccurrences,

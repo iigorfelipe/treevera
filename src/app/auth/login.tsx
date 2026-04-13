@@ -20,6 +20,7 @@ import {
   type PendingChallengeShare,
 } from "@/app/challenges";
 import { getAppUrl } from "@/common/utils/base-url";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 const GoogleLogo = (
   <svg className="mr-3 size-5" viewBox="0 0 24 24">
@@ -46,6 +47,7 @@ export const Login = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { login } = useAuth();
+  useDocumentTitle("Login");
 
   const isLoggingIn = useAtomValue(authStore.loginStatus) === "loading";
   const authError = useAtomValue(authStore.error);

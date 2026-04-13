@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Image } from "@/common/components/image";
-import logoUrl from "@/assets/images/avif-new-fav-icon.avif?url";
+import logoUrl from "@/assets/images/avif-logo-icon.avif?url";
 
 export function NotFound() {
   const navigate = useNavigate();

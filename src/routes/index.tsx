@@ -1,5 +1,5 @@
+import { lazy } from "react";
 import { Home } from "@/app/home";
-import { Login } from "@/app/auth/login";
 import { Layout } from "@/app/layout";
 import {
   createRootRoute,
@@ -9,20 +9,66 @@ import {
 } from "@tanstack/react-router";
 import { getDefaultStore } from "jotai";
 import { authStore } from "@/store/auth/atoms";
-import { AuthCallback } from "@/app/auth/auth-callback";
 import { NotFound } from "@/app/not-found";
-import { SpecieDetailPage } from "@/app/details/specie-detail-page";
-import { SpecieFavoritersPage } from "@/app/details/specie-favoriters";
-import { SpecieListsPage } from "@/app/details/specie-lists-page";
-import { SettingsPage } from "@/app/settings";
-import { ListsPageRoute } from "@/app/lists";
-import { ListDetailPageRoute } from "@/app/lists/list-detail";
-import { ListLikesPage } from "@/app/lists/list-likes";
-import { ProfileRouter } from "@/app/profile-router";
-import { SpeciesGalleryPageRouter } from "@/app/user-profile/species-gallery";
-import { UserListsPage } from "@/app/user-lists";
-import { UserLikedListsPage } from "@/app/user-liked-lists";
-import { SearchPage } from "@/app/search";
+
+const Login = lazy(() =>
+  import("@/app/auth/login").then((m) => ({ default: m.Login })),
+);
+const AuthCallback = lazy(() =>
+  import("@/app/auth/auth-callback").then((m) => ({ default: m.AuthCallback })),
+);
+const SettingsPage = lazy(() =>
+  import("@/app/settings").then((m) => ({ default: m.SettingsPage })),
+);
+const SpecieDetailPage = lazy(() =>
+  import("@/app/details/specie-detail-page").then((m) => ({
+    default: m.SpecieDetailPage,
+  })),
+);
+const SpecieFavoritersPage = lazy(() =>
+  import("@/app/details/specie-favoriters").then((m) => ({
+    default: m.SpecieFavoritersPage,
+  })),
+);
+const SpecieListsPage = lazy(() =>
+  import("@/app/details/specie-lists-page").then((m) => ({
+    default: m.SpecieListsPage,
+  })),
+);
+const ListsPageRoute = lazy(() =>
+  import("@/app/lists").then((m) => ({ default: m.ListsPageRoute })),
+);
+const ListDetailPageRoute = lazy(() =>
+  import("@/app/lists/list-detail").then((m) => ({
+    default: m.ListDetailPageRoute,
+  })),
+);
+const ListLikesPage = lazy(() =>
+  import("@/app/lists/list-likes").then((m) => ({
+    default: m.ListLikesPage,
+  })),
+);
+const ProfileRouter = lazy(() =>
+  import("@/app/profile-router").then((m) => ({
+    default: m.ProfileRouter,
+  })),
+);
+const SpeciesGalleryPageRouter = lazy(() =>
+  import("@/app/user-profile/species-gallery").then((m) => ({
+    default: m.SpeciesGalleryPageRouter,
+  })),
+);
+const UserListsPage = lazy(() =>
+  import("@/app/user-lists").then((m) => ({ default: m.UserListsPage })),
+);
+const UserLikedListsPage = lazy(() =>
+  import("@/app/user-liked-lists").then((m) => ({
+    default: m.UserLikedListsPage,
+  })),
+);
+const SearchPage = lazy(() =>
+  import("@/app/search").then((m) => ({ default: m.SearchPage })),
+);
 
 const rootRoute = createRootRoute({
   component: Layout,

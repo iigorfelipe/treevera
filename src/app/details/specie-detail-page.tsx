@@ -3,11 +3,14 @@ import { selectedSpecieKeyAtom } from "@/store/tree";
 import { useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { useParams } from "@tanstack/react-router";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 export const SpecieDetailPage = () => {
   const { specieKey } = useParams({ strict: false });
   const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
   const numericKey = Number(specieKey);
+
+  useDocumentTitle(specieKey ? `#${specieKey}` : undefined);
 
   useEffect(() => {
     if (!isNaN(numericKey) && numericKey > 0) {

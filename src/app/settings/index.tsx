@@ -44,6 +44,7 @@ import {
 import { updateName } from "@/common/utils/supabase/update-name";
 import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
 import { AvatarModal } from "@/common/components/avatar-modal";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 const Toggle = ({
   checked,
@@ -831,6 +832,7 @@ const VALID_SECTIONS = new Set<SectionId>([
 
 export const SettingsPage = () => {
   const { t } = useTranslation();
+  useDocumentTitle(t("settings.title"));
   const navItems: { id: SectionId; label: string }[] = [
     { id: "account", label: t("settings.nav.account") },
     { id: "tree", label: t("settings.nav.tree") },
