@@ -202,13 +202,19 @@ async function getMetaForRoute(
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (url.hostname.startsWith("www.")) {
+      url.hostname = url.hostname.slice(4);
+      return Response.redirect(url.toString(), 301);
+    }
+
     const userAgent = request.headers.get("user-agent") ?? "";
 
     if (!CRAWLERS.test(userAgent)) {
       return env.ASSETS.fetch(request);
     }
 
-    const url = new URL(request.url);
     const meta = await getMetaForRoute(url.pathname, env);
 
     if (!meta) {
