@@ -203,7 +203,7 @@ export const ListDetailHero = ({
                   <button
                     key={f}
                     onClick={() => onFilterChange(f)}
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                    className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
                       speciesFilter === f
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
