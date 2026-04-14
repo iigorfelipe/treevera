@@ -84,10 +84,7 @@ function buildMetaHtml(
   return result;
 }
 
-async function supabaseGet<T>(
-  env: Env,
-  path: string,
-): Promise<T | null> {
+async function supabaseGet<T>(env: Env, path: string): Promise<T | null> {
   try {
     const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
       headers: {
@@ -111,19 +108,16 @@ async function supabaseRpc<T>(
   params: Record<string, unknown>,
 ): Promise<T | null> {
   try {
-    const res = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/rpc/${fnName}`,
-      {
-        method: "POST",
-        headers: {
-          apikey: env.SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(params),
+    const res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/${fnName}`, {
+      method: "POST",
+      headers: {
+        apikey: env.SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-    );
+      body: JSON.stringify(params),
+    });
     if (!res.ok) return null;
     const data = await res.json();
     if (Array.isArray(data) && data.length === 0) return null;
@@ -135,10 +129,7 @@ async function supabaseRpc<T>(
 
 type MetaInfo = { title: string; description: string; image: string } | null;
 
-async function getMetaForRoute(
-  pathname: string,
-  env: Env,
-): Promise<MetaInfo> {
+async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
   const specieMatch = pathname.match(/^\/specie-detail\/(\d+)/);
   if (specieMatch) {
     const gbifKey = specieMatch[1];
@@ -161,14 +152,24 @@ async function getMetaForRoute(
   if (profileMatch) {
     const username = profileMatch[1];
     const reserved = [
-      "tree", "lists", "login", "settings", "search",
-      "challenges", "auth-callback", "specie-detail",
+      "tree",
+      "lists",
+      "login",
+      "settings",
+      "search",
+      "challenges",
+      "auth-callback",
+      "specie-detail",
     ];
     if (reserved.includes(username)) return null;
 
-    const profile = await supabaseRpc<PublicProfile>(env, "get_public_profile", {
-      p_username: username,
-    });
+    const profile = await supabaseRpc<PublicProfile>(
+      env,
+      "get_public_profile",
+      {
+        p_username: username,
+      },
+    );
     if (!profile) return null;
     return {
       title: `${profile.name} (@${profile.username}) — Treevera`,
@@ -215,36 +216,43 @@ export default {
       return env.ASSETS.fetch(request);
     }
 
-    const meta = await getMetaForRoute(url.pathname, env);
+    try {
+      const meta = await getMetaForRoute(url.pathname, env);
 
-    if (!meta) {
+      if (!meta) {
+        return env.ASSETS.fetch(request);
+      }
+
+      const assetResponse = await env.ASSETS.fetch(request);
+      const contentType = assetResponse.headers.get("content-type") ?? "";
+
+      if (!contentType.includes("text/html")) {
+        return assetResponse;
+      }
+
+      const html = await assetResponse.text();
+      const siteUrl = env.SITE_URL || url.origin;
+      const fullImage =
+        meta.image && !meta.image.startsWith("http")
+          ? `${siteUrl}${meta.image}`
+          : meta.image;
+
+      const injected = buildMetaHtml(html, {
+        title: meta.title,
+        description: meta.description,
+        image: fullImage || `${siteUrl}/og-image.png`,
+        url: `${siteUrl}${url.pathname}`,
+      });
+
+      const headers = new Headers(assetResponse.headers);
+      headers.delete("content-length");
+
+      return new Response(injected, {
+        status: assetResponse.status,
+        headers,
+      });
+    } catch {
       return env.ASSETS.fetch(request);
     }
-
-    const assetResponse = await env.ASSETS.fetch(request);
-    const contentType = assetResponse.headers.get("content-type") ?? "";
-
-    if (!contentType.includes("text/html")) {
-      return assetResponse;
-    }
-
-    const html = await assetResponse.text();
-    const siteUrl = env.SITE_URL || url.origin;
-    const fullImage =
-      meta.image && !meta.image.startsWith("http")
-        ? `${siteUrl}${meta.image}`
-        : meta.image;
-
-    const injected = buildMetaHtml(html, {
-      title: meta.title,
-      description: meta.description,
-      image: fullImage || `${siteUrl}/og-image.png`,
-      url: `${siteUrl}${url.pathname}`,
-    });
-
-    return new Response(injected, {
-      status: assetResponse.status,
-      headers: assetResponse.headers,
-    });
   },
 };

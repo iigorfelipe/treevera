@@ -19,6 +19,7 @@ import { ListDetailHero, type SpeciesFilter } from "./list-detail-hero";
 import { ListSpeciesGrid } from "./list-species-grid";
 import { ListEditDialog } from "./list-edit-dialog";
 import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
+import { slugify } from "@/common/utils/slugify";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/common/components/ui/dialog";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 type ListDetailProps = {
   username: string;
@@ -93,6 +95,8 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     username,
     listSlug,
   );
+
+  useDocumentTitle(list?.title);
   const {
     data: speciesData,
     fetchNextPage,
@@ -150,6 +154,14 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
         onSuccess: () => {
           setEditOpen(false);
           toast.success(t("lists.listUpdated"));
+          const newSlug = slugify(title);
+          if (newSlug !== listSlug) {
+            navigate({
+              to: "/$username/lists/$listSlug",
+              params: { username, listSlug: newSlug },
+              replace: true,
+            });
+          }
         },
       },
     );

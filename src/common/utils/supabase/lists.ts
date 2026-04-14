@@ -1,4 +1,5 @@
 import { supabase } from "./client";
+import { slugify } from "@/common/utils/slugify";
 import type {
   ListWithCreator,
   ListPreview,
@@ -235,9 +236,18 @@ export async function updateList(
   updates: { title?: string; description?: string; is_public?: boolean },
 ): Promise<boolean> {
   try {
+    const payload: Record<string, unknown> = {
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (updates.title) {
+      payload.slug = slugify(updates.title);
+    }
+
     const { error } = await supabase
       .from("lists")
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(payload)
       .eq("id", listId);
 
     if (error) throw error;

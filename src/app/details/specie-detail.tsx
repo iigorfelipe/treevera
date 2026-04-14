@@ -37,6 +37,7 @@ import {
   updateSeenSpeciesIucn,
   updatePreferredImage,
 } from "@/common/utils/supabase/user-seen-species";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { syncCachedImage } from "@/common/utils/supabase/species-cache";
 import { updateFavActivity } from "@/common/utils/supabase/update-fav-activity";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
@@ -93,6 +94,8 @@ export const SpecieDetail = ({
 
   const canonicalName =
     specieDetail?.canonicalName || specieDetail?.scientificName;
+
+  useDocumentTitle(canonicalName);
 
   const { data: gallery = [] } = useGetSpecieGallery(specieKey, canonicalName);
 
