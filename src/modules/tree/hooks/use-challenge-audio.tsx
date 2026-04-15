@@ -12,26 +12,30 @@ export const useChallengeAudio = () => {
 
   const correctPath = useAtomValue(treeAtom.challengeCorrectPath);
 
-  const prevNodeKeysRef = useRef<Set<number>>(
-    new Set(expandedNodes.map((n) => n.key)),
-  );
+  const prevExpandedNodesRef = useRef(expandedNodes);
 
   useEffect(() => {
     if (challengeStatus !== "IN_PROGRESS") return;
 
     if (expandedNodes.length === 0) {
-      prevNodeKeysRef.current = new Set();
+      prevExpandedNodesRef.current = [];
       return;
     }
 
+    const previousExpandedNodes = prevExpandedNodesRef.current;
     const lastNode = expandedNodes[expandedNodes.length - 1];
     if (!lastNode) return;
 
-    const isNewNode = !prevNodeKeysRef.current.has(lastNode.key);
+    const previousLastNode =
+      previousExpandedNodes[previousExpandedNodes.length - 1];
+    const selectedNewStep = expandedNodes.length > previousExpandedNodes.length;
+    const changedNodeAtSameStep =
+      expandedNodes.length === previousExpandedNodes.length &&
+      previousLastNode?.key !== lastNode.key;
 
-    expandedNodes.forEach((n) => prevNodeKeysRef.current.add(n.key));
+    prevExpandedNodesRef.current = expandedNodes;
 
-    if (!isNewNode) return;
+    if (!selectedNewStep && !changedNodeAtSameStep) return;
 
     const stepIndex = expandedNodes.length - 1;
     const expected = correctPath[stepIndex];
@@ -48,6 +52,6 @@ export const useChallengeAudio = () => {
   }, [expandedNodes, challengeStatus, correctPath]);
 
   useEffect(() => {
-    prevNodeKeysRef.current = new Set();
+    prevExpandedNodesRef.current = [];
   }, [speciesKey]);
 };
