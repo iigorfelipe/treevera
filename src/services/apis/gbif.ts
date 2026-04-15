@@ -24,20 +24,34 @@ export const getSpecieDetail = async (key: number) => {
   return data as SpecieDetail;
 };
 
+function normalizeGbifLicense(url: string): string {
+  const match = url.match(/creativecommons\.org\/licenses\/([^/]+)/);
+  if (match) return `cc-${match[1]}`;
+  if (url.includes("publicdomain/zero")) return "cc0";
+  if (url.includes("publicdomain/mark")) return "pd";
+  return url;
+}
+
 type Params = { specieKey: number };
 export const getSpecieImageFromGBIF = async ({ specieKey }: Params) => {
   const url = `https://api.gbif.org/v1/occurrence/search?mediaType=StillImage&taxon_key=${specieKey}&limit=1`;
 
   const data = await fetch(url).then((res) => res.json());
-  const gbifImage = data.results?.[0]?.media?.[0]?.identifier;
+  const occurrence = data.results?.[0];
+  const media = occurrence?.media?.[0];
+  const gbifImage = media?.identifier;
 
   if (!gbifImage) return null;
+
+  const rawLicense = media?.license ?? occurrence?.license ?? "";
+  const licenseCode = rawLicense ? normalizeGbifLicense(rawLicense) : "";
+  const author = media?.rightsHolder ?? occurrence?.rightsHolder ?? "";
 
   return {
     source: "GBIF",
     imgUrl: gbifImage,
-    licenseCode: "",
-    author: "",
+    licenseCode,
+    author,
   };
 };
 

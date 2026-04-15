@@ -222,13 +222,19 @@ export const SpecieImageDetail = ({
         )}
 
         {currentImage?.source && (
-          <div className="absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/60 to-transparent px-3 py-2">
-            <p className="text-right text-xs text-white/80">
+          <div className="absolute right-2 bottom-2">
+            <p className="rounded bg-black/55 px-1.5 py-0.5 text-xs text-white backdrop-blur-sm">
               {t("specieDetail.imageSource")}: {currentImage.source}
               {currentImage.author && ` · @${currentImage.author.trim()}`}
               {currentImage.licenseCode && ` · ${currentImage.licenseCode}`}
             </p>
           </div>
+        )}
+
+        {gallery.length > 1 && (
+          <>
+            <div className="pointer-events-none absolute right-0 bottom-0 left-0 h-12 bg-linear-to-t from-black/40 to-transparent" />
+          </>
         )}
 
         {gallery.length > 1 && (
@@ -256,6 +262,13 @@ export const SpecieImageDetail = ({
             <button
               key={i}
               onClick={() => goTo(i)}
+              title={[
+                img.source,
+                img.author ? `@${img.author.trim()}` : null,
+                img.licenseCode || null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
               className={cn(
                 "relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 transition-all",
                 i === selectedIndex

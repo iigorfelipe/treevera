@@ -116,6 +116,9 @@ export type GallerySpeciesRow = {
   canonical_name: string | null;
   family: string | null;
   image_url: string | null;
+  image_source: string | null;
+  image_attribution: string | null;
+  image_license: string | null;
   is_favorite: boolean;
   seen_at: string;
   total_count: number;
@@ -162,6 +165,7 @@ export const fetchGalleryPage = async (
   }
 
   const rows = (data as GallerySpeciesRow[]) ?? [];
+
   return {
     rows,
     totalCount: rows[0]?.total_count ?? 0,

@@ -40,6 +40,7 @@ import {
   toggleFavSpecie,
   updatePreferredImage,
 } from "@/common/utils/supabase/user-seen-species";
+import { syncCachedImageAttribution } from "@/common/utils/supabase/species-cache";
 import { setListCoverImage } from "@/common/utils/supabase/lists";
 import { AddToListDialog } from "@/modules/lists/add-to-list-dialog";
 import { CreateCustomChallengeDialog } from "@/modules/challenge/custom/create-custom-challenge-dialog";
@@ -177,14 +178,24 @@ export const SpeciesCardQuickMenu = ({
     setViewInTreePending(true);
   };
 
-  const handlePickImage = async (imgUrl: string) => {
-    await updatePreferredImage(userDb.id, species.gbif_key, imgUrl, {
+  const handlePickImage = async (img: { imgUrl: string; source: string; author: string; licenseCode: string }) => {
+    await updatePreferredImage(userDb.id, species.gbif_key, img.imgUrl, {
       canonicalName: species.canonical_name,
       family: species.family,
     });
-    setCurrentImageUrl(imgUrl);
+    await syncCachedImageAttribution(
+      species.gbif_key,
+      img.imgUrl,
+      img.source,
+      img.author,
+      img.licenseCode,
+    );
+    setCurrentImageUrl(img.imgUrl);
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.user_seen_species_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.species_attribution_key],
     });
     if (listId) {
       void queryClient.invalidateQueries({
@@ -319,7 +330,7 @@ export const SpeciesCardQuickMenu = ({
                 {gallery.map((img, i) => (
                   <button
                     key={i}
-                    onClick={() => void handlePickImage(img.imgUrl)}
+                    onClick={() => void handlePickImage(img)}
                     className={cn(
                       "hover:border-primary overflow-hidden rounded-lg border-2 transition-all",
                       currentImageUrl === img.imgUrl

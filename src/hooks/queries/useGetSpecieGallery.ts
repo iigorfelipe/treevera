@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSpecieImagesFromINaturalist } from "@/services/apis/iNaturalist";
-import { getSpecieImageFromWikipedia } from "@/services/apis/wikipedia";
+import { getSpecieImagesFromWikimediaCommons } from "@/services/apis/wikipedia";
 import { getSpecieImageFromGBIF } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
 
@@ -20,25 +20,36 @@ export const useGetSpecieGallery = (
     queryFn: async (): Promise<GalleryImage[]> => {
       if (!canonicalName || !specieKey) return [];
 
+      const MAX_IMAGES = 7;
+      const seen = new Set<string>();
+      const images: GalleryImage[] = [];
+
+      function add(img: GalleryImage | null | undefined) {
+        if (!img || seen.has(img.imgUrl)) return;
+        seen.add(img.imgUrl);
+        images.push(img);
+      }
+
       const iNatResult = await getSpecieImagesFromINaturalist({
         canonicalName,
       }).catch(() => []);
+      iNatResult.forEach(add);
 
-      if (iNatResult.length > 0) return iNatResult;
+      if (images.length < MAX_IMAGES) {
+        const commonsResult = await getSpecieImagesFromWikimediaCommons({
+          canonicalName,
+        }).catch(() => []);
+        commonsResult.forEach(add);
+      }
 
-      const wikiImage = await getSpecieImageFromWikipedia({
-        canonicalName,
-      }).catch(() => null);
+      if (images.length < MAX_IMAGES) {
+        const gbifImage = await getSpecieImageFromGBIF({
+          specieKey,
+        }).catch(() => null);
+        add(gbifImage);
+      }
 
-      if (wikiImage) return [wikiImage];
-
-      const gbifImage = await getSpecieImageFromGBIF({
-        specieKey,
-      }).catch(() => null);
-
-      if (gbifImage) return [gbifImage];
-
-      return [];
+      return images.slice(0, MAX_IMAGES);
     },
     enabled: !!specieKey && !!canonicalName,
     staleTime: 1000 * 60 * 60 * 24,

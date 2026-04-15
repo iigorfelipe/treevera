@@ -27,6 +27,7 @@ export const QUERY_KEYS = {
   list_likers_key: "list_likers",
   species_fav_count_key: "species_fav_count",
   species_favoriters_key: "species_favoriters",
+  species_attribution_key: "species_attribution",
   user_seen_in_list_key: "user_seen_in_list",
   featured_lists_key: "featured_lists",
   search_taxa_key: "search_taxa",

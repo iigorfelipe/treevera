@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Image } from "@/common/components/image";
-import { inatImageUrl } from "@/common/utils/image-size";
+import { inatImageUrl, buildAttributionText } from "@/common/utils/image-size";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Leaf, X } from "lucide-react";
@@ -13,6 +13,9 @@ export const FilledFavCard = ({
   specieName,
   familyName,
   imgUrl,
+  imgSource,
+  imgAttribution,
+  imgLicense,
   editMode,
   onClick,
   onRemove,
@@ -22,6 +25,9 @@ export const FilledFavCard = ({
   specieName: string;
   familyName: string;
   imgUrl: string | null;
+  imgSource?: string | null;
+  imgAttribution?: string | null;
+  imgLicense?: string | null;
   editMode: boolean;
   onClick: () => void;
   onRemove: () => void;
@@ -136,6 +142,11 @@ export const FilledFavCard = ({
               alt={specieName}
               className="block max-h-56 max-w-56 object-contain"
             />
+            {buildAttributionText(imgSource, imgAttribution, imgLicense, imgUrl) && (
+              <p className="text-muted-foreground px-2 py-1 text-right text-xs">
+                {buildAttributionText(imgSource, imgAttribution, imgLicense, imgUrl)}
+              </p>
+            )}
           </div>
           <div className="border-t-popover mx-auto h-0 w-0 border-x-[7px] border-t-[7px] border-x-transparent" />
         </div>
