@@ -20,36 +20,59 @@ export const useGetSpecieGallery = (
     queryFn: async (): Promise<GalleryImage[]> => {
       if (!canonicalName || !specieKey) return [];
 
-      const MAX_IMAGES = 7;
+      const MAX_IMAGES = 10;
+      const INAT_SLOTS = 7;
+      const RESERVED_SLOTS = 3; // reserved for Wikimedia → GBIF → iNat leftover
       const seen = new Set<string>();
-      const images: GalleryImage[] = [];
 
-      function add(img: GalleryImage | null | undefined) {
-        if (!img || seen.has(img.imgUrl)) return;
+      function dedup(
+        img: GalleryImage | null | undefined,
+      ): GalleryImage | null {
+        if (!img || seen.has(img.imgUrl)) return null;
         seen.add(img.imgUrl);
-        images.push(img);
+        return img;
       }
 
-      const iNatResult = await getSpecieImagesFromINaturalist({
+      // 1. Fetch iNaturalist (up to 10 so we have leftovers if needed)
+      const inatAll = await getSpecieImagesFromINaturalist({
         canonicalName,
       }).catch(() => []);
-      iNatResult.forEach(add);
-
-      if (images.length < MAX_IMAGES) {
-        const commonsResult = await getSpecieImagesFromWikimediaCommons({
-          canonicalName,
-        }).catch(() => []);
-        commonsResult.forEach(add);
+      const inatMain: GalleryImage[] = [];
+      const inatExtra: GalleryImage[] = [];
+      for (const img of inatAll) {
+        const d = dedup(img);
+        if (!d) continue;
+        if (inatMain.length < INAT_SLOTS) inatMain.push(d);
+        else if (inatExtra.length < RESERVED_SLOTS) inatExtra.push(d);
       }
 
-      if (images.length < MAX_IMAGES) {
-        const gbifImage = await getSpecieImageFromGBIF({
-          specieKey,
-        }).catch(() => null);
-        add(gbifImage);
+      // 2. Fill reserved slots: Wikimedia Commons first
+      const reserved: GalleryImage[] = [];
+      const commonsAll = await getSpecieImagesFromWikimediaCommons({
+        canonicalName,
+      }).catch(() => []);
+      for (const img of commonsAll) {
+        if (reserved.length >= RESERVED_SLOTS) break;
+        const d = dedup(img);
+        if (d) reserved.push(d);
       }
 
-      return images.slice(0, MAX_IMAGES);
+      // 3. If Wikimedia didn't fill the reserved slots, try GBIF
+      if (reserved.length < RESERVED_SLOTS) {
+        const gbifImage = await getSpecieImageFromGBIF({ specieKey }).catch(
+          () => null,
+        );
+        const d = dedup(gbifImage);
+        if (d) reserved.push(d);
+      }
+
+      // 4. Still short? Fill with leftover iNat images
+      for (const img of inatExtra) {
+        if (reserved.length >= RESERVED_SLOTS) break;
+        reserved.push(img);
+      }
+
+      return [...inatMain, ...reserved].slice(0, MAX_IMAGES);
     },
     enabled: !!specieKey && !!canonicalName,
     staleTime: 1000 * 60 * 60 * 24,

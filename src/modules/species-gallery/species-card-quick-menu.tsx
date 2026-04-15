@@ -52,6 +52,7 @@ type SpeciesCardQuickMenuProps = {
   listId?: string;
   listUsername?: string;
   listSlug?: string;
+  ownerUsername?: string;
   onDialogClose?: () => void;
   triggerClassName?: string;
 };
@@ -61,6 +62,7 @@ export const SpeciesCardQuickMenu = ({
   listId,
   listUsername,
   listSlug,
+  ownerUsername,
   onDialogClose,
   triggerClassName,
 }: SpeciesCardQuickMenuProps) => {
@@ -131,7 +133,11 @@ export const SpeciesCardQuickMenu = ({
 
   if (!isAuthenticated || !userDb) return null;
 
-  const isOwner = !listId || listUsername === userDb.username;
+  const isOwner = listId
+    ? listUsername === userDb.username
+    : ownerUsername !== undefined
+      ? ownerUsername === userDb.username
+      : true;
 
   const handleFavToggle = async () => {
     if (favPending) return;
@@ -178,7 +184,12 @@ export const SpeciesCardQuickMenu = ({
     setViewInTreePending(true);
   };
 
-  const handlePickImage = async (img: { imgUrl: string; source: string; author: string; licenseCode: string }) => {
+  const handlePickImage = async (img: {
+    imgUrl: string;
+    source: string;
+    author: string;
+    licenseCode: string;
+  }) => {
     await updatePreferredImage(userDb.id, species.gbif_key, img.imgUrl, {
       canonicalName: species.canonical_name,
       family: species.family,
@@ -225,7 +236,10 @@ export const SpeciesCardQuickMenu = ({
           <button
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className={triggerClassName ?? "bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"}
+            className={
+              triggerClassName ??
+              "bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
+            }
             aria-label={t("gallery.quickActions")}
           >
             <MoreVertical className="size-3.5" />

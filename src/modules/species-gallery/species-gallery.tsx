@@ -278,6 +278,7 @@ export const SpeciesGallery = ({
                       <SpeciesCard
                         species={species}
                         onClick={() => handleSelectSpecies(species)}
+                        ownerUsername={backUsername}
                       />
                     </motion.div>
                   ))}

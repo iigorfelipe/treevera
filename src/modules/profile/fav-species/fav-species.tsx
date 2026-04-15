@@ -40,9 +40,11 @@ import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 export const FavoriteSpecies = ({
   favSpecies,
   isOwner = true,
+  profileOwnerUsername,
 }: {
   favSpecies?: FavSpecies[];
   isOwner?: boolean;
+  profileOwnerUsername?: string;
 }) => {
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
@@ -130,6 +132,7 @@ export const FavoriteSpecies = ({
               imgSource={attributionMap?.get(f.key)?.source}
               imgAttribution={attributionMap?.get(f.key)?.author}
               imgLicense={attributionMap?.get(f.key)?.license}
+              ownerUsername={profileOwnerUsername}
               editMode={false}
               onClick={() =>
                 navigate({

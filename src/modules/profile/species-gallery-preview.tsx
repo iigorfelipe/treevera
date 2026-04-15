@@ -21,6 +21,7 @@ const RecentSpeciesCard = ({
   name,
   family,
   isFavorite,
+  ownerUsername,
 }: {
   gbifKey: number;
   imgUrl: string | null | undefined;
@@ -30,6 +31,7 @@ const RecentSpeciesCard = ({
   name: string | null;
   family: string | null;
   isFavorite: boolean;
+  ownerUsername?: string;
 }) => {
   const navigate = useNavigate();
   const dialogCloseTimeRef = useRef(0);
@@ -52,6 +54,9 @@ const RecentSpeciesCard = ({
     canonical_name: name,
     family,
     image_url: imgUrl ?? null,
+    image_source: imgSource ?? null,
+    image_attribution: imgAttribution ?? null,
+    image_license: imgLicense ?? null,
     is_favorite: isFavorite,
     seen_at: "",
     total_count: 0,
@@ -86,6 +91,7 @@ const RecentSpeciesCard = ({
 
       <SpeciesCardQuickMenu
         species={galleryRow}
+        ownerUsername={ownerUsername}
         onDialogClose={handleDialogClose}
         triggerClassName="bg-black/40 absolute right-2 bottom-2 z-10 rounded-full p-1.5 text-white shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
       />
@@ -183,6 +189,7 @@ export const SpeciesGalleryPreview = ({
               name={species.canonical_name}
               family={species.family}
               isFavorite={species.is_favorite}
+              ownerUsername={profileUsername}
             />
           ))}
         </div>

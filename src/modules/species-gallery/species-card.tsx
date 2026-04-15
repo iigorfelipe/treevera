@@ -12,6 +12,7 @@ type SpeciesCardProps = {
   listId?: string;
   listUsername?: string;
   listSlug?: string;
+  ownerUsername?: string;
 };
 
 export const SpeciesCard = ({
@@ -20,6 +21,7 @@ export const SpeciesCard = ({
   listId,
   listUsername,
   listSlug,
+  ownerUsername,
 }: SpeciesCardProps) => {
   const { t } = useTranslation();
   const [imgBroken, setImgBroken] = useState(false);
@@ -60,9 +62,19 @@ export const SpeciesCard = ({
               }}
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            {buildAttributionText(species.image_source, species.image_attribution, species.image_license, species.image_url) && (
+            {buildAttributionText(
+              species.image_source,
+              species.image_attribution,
+              species.image_license,
+              species.image_url,
+            ) && (
               <p className="absolute right-2 bottom-2 rounded bg-black/55 px-1.5 py-0.5 text-xs text-white opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
-                {buildAttributionText(species.image_source, species.image_attribution, species.image_license, species.image_url)}
+                {buildAttributionText(
+                  species.image_source,
+                  species.image_attribution,
+                  species.image_license,
+                  species.image_url,
+                )}
               </p>
             )}
           </>
@@ -94,6 +106,7 @@ export const SpeciesCard = ({
         listId={listId}
         listUsername={listUsername}
         listSlug={listSlug}
+        ownerUsername={ownerUsername}
         onDialogClose={handleDialogClose}
       />
 

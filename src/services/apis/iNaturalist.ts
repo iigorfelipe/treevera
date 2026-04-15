@@ -1,6 +1,15 @@
 const INATURALIST = `https://api.inaturalist.org/v1`;
 
-const OPEN_LICENSES = ["cc-by", "cc-by-nc", "cc-by-sa", "cc-by-nc-sa", "cc-by-nd", "cc-by-nc-nd", "cc0", "pd"];
+const OPEN_LICENSES = [
+  "cc-by",
+  "cc-by-nc",
+  "cc-by-sa",
+  "cc-by-nc-sa",
+  "cc-by-nd",
+  "cc-by-nc-nd",
+  "cc0",
+  "pd",
+];
 
 type TaxonResult = {
   record?: {
@@ -91,7 +100,7 @@ export const getSpecieImagesFromINaturalist = async ({
         !!tp.photo?.original_url &&
         OPEN_LICENSES.includes(tp.photo?.license_code ?? ""),
     )
-    .slice(0, 7)
+    .slice(0, 10)
     .map((tp) => ({
       source: "iNaturalist",
       imgUrl: tp.photo!.original_url!,
