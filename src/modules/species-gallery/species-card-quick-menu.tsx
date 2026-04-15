@@ -251,15 +251,17 @@ export const SpeciesCardQuickMenu = ({
             {t("lists.addToList")}
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={handleFavToggle} disabled={favPending}>
-            <Heart
-              className={cn(
-                "mr-2 size-4",
-                isFav ? "fill-red-500 text-red-500" : "",
-              )}
-            />
-            {isFav ? t("gallery.unfavorite") : t("gallery.favorite")}
-          </DropdownMenuItem>
+          {isOwner && (
+            <DropdownMenuItem onClick={handleFavToggle} disabled={favPending}>
+              <Heart
+                className={cn(
+                  "mr-2 size-4",
+                  isFav ? "fill-red-500 text-red-500" : "",
+                )}
+              />
+              {isFav ? t("gallery.unfavorite") : t("gallery.favorite")}
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuItem onClick={handleShare}>
             <Share2 className="mr-2 size-4" />
@@ -325,12 +327,12 @@ export const SpeciesCardQuickMenu = ({
       >
         <DialogContent
           onClick={(e) => e.stopPropagation()}
-          className="max-w-sm"
+          className="flex max-h-[85dvh] w-[min(92vw,42rem)] max-w-2xl flex-col"
         >
-          <DialogHeader>
+          <DialogHeader className="pb-3">
             <DialogTitle>{t("gallery.chooseImage")}</DialogTitle>
           </DialogHeader>
-          <div className="p-1">
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
             {galleryLoading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="text-muted-foreground size-6 animate-spin" />
@@ -340,7 +342,7 @@ export const SpeciesCardQuickMenu = ({
                 {t("gallery.noImages")}
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {gallery.map((img, i) => (
                   <button
                     key={i}
@@ -358,7 +360,7 @@ export const SpeciesCardQuickMenu = ({
                       className="aspect-4/3 w-full object-cover"
                     />
                     {img.source && (
-                      <p className="text-muted-foreground truncate px-1 py-0.5 text-left text-xs">
+                      <p className="text-muted-foreground truncate px-2 py-1 text-left text-xs">
                         {img.source}
                         {img.author ? ` · @${img.author.trim()}` : ""}
                       </p>
