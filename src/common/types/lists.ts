@@ -52,6 +52,9 @@ export interface ListSpeciesRow {
   canonical_name: string | null;
   family: string | null;
   image_url: string | null;
+  image_source: string | null;
+  image_attribution: string | null;
+  image_license: string | null;
   is_favorite: boolean;
   sort_position: number;
   total_count: number;

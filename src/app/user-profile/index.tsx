@@ -105,6 +105,7 @@ export function UserProfilePage({ username }: { username: string }) {
                 <FavoriteSpecies
                   favSpecies={data.public_info?.top_fav_species}
                   isOwner={false}
+                  profileOwnerUsername={data.username}
                 />
               </div>
             )}

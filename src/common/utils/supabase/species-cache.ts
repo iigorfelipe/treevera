@@ -56,6 +56,37 @@ export const upsertSpeciesCache = async (
   if (error) console.error("Error upserting species cache:", error);
 };
 
+export type ImageAttribution = {
+  source: string | null;
+  author: string | null;
+  license: string | null;
+};
+
+export const batchGetImageAttribution = async (
+  gbifKeys: number[],
+): Promise<Map<number, ImageAttribution>> => {
+  if (gbifKeys.length === 0) return new Map();
+
+  const { data } = await supabase
+    .from("species_data_cache")
+    .select("gbif_key, image_source, image_attribution, image_license")
+    .in("gbif_key", gbifKeys);
+
+  type Row = {
+    gbif_key: number;
+    image_source: string | null;
+    image_attribution: string | null;
+    image_license: string | null;
+  };
+
+  return new Map(
+    ((data as Row[]) ?? []).map((r) => [
+      r.gbif_key,
+      { source: r.image_source, author: r.image_attribution, license: r.image_license },
+    ]),
+  );
+};
+
 export const syncCachedImage = async (
   gbifKey: number,
   imageUrl: string,
@@ -71,4 +102,25 @@ export const syncCachedImage = async (
     .eq("gbif_key", gbifKey);
 
   if (error) console.error("Error syncing cached image:", error);
+};
+
+export const syncCachedImageAttribution = async (
+  gbifKey: number,
+  imageUrl: string,
+  source: string,
+  author: string,
+  license: string,
+): Promise<void> => {
+  const { error } = await supabase
+    .from("species_data_cache")
+    .update({
+      image_url: imageUrl,
+      image_source: source || null,
+      image_attribution: author || null,
+      image_license: license || null,
+      has_image: true,
+    })
+    .eq("gbif_key", gbifKey);
+
+  if (error) console.error("Error syncing cached image attribution:", error);
 };

@@ -140,9 +140,11 @@ export async function fetchListSpecies(
     if (error) throw error;
     if (!data || data.length === 0) return { rows: [], totalCount: 0 };
 
+    const rows = data as ListSpeciesRow[];
+
     return {
-      rows: data as ListSpeciesRow[],
-      totalCount: (data[0] as ListSpeciesRow).total_count,
+      rows,
+      totalCount: rows[0].total_count,
     };
   } catch (err) {
     console.error("fetchListSpecies:", err);

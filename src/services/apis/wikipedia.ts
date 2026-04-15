@@ -91,3 +91,69 @@ export const getSpecieImageFromWikipedia = async ({
     author: "",
   };
 };
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, "").trim();
+}
+
+function isOpenCommonsLicense(license: string): boolean {
+  const l = license.toLowerCase().trim();
+  return (
+    l.startsWith("cc") ||
+    l === "pd" ||
+    l === "cc0" ||
+    l.includes("public domain")
+  );
+}
+
+export const getSpecieImagesFromWikimediaCommons = async ({
+  canonicalName,
+}: Params): Promise<
+  Array<{ source: string; imgUrl: string; licenseCode: string; author: string }>
+> => {
+  const url =
+    `https://commons.wikimedia.org/w/api.php?action=query` +
+    `&generator=search&gsrnamespace=6` +
+    `&gsrsearch=${encodeURIComponent(canonicalName)}` +
+    `&prop=imageinfo&iiprop=url%7Cextmetadata&iilimit=1` +
+    `&format=json&gsrlimit=10&origin=*`;
+
+  const data = await fetch(url).then((res) => res.json());
+  const pages = data.query?.pages;
+  if (!pages) return [];
+
+  const imageExtensions = /\.(jpe?g|png|gif|webp|tiff?)$/i;
+
+  return (Object.values(pages) as Record<string, unknown>[])
+    .map((page) => {
+      const info = (
+        page as { imageinfo?: { url: string; extmetadata?: Record<string, { value: string }> }[] }
+      ).imageinfo?.[0];
+      if (!info) return null;
+      if (!imageExtensions.test(info.url)) return null;
+
+      const meta = info.extmetadata ?? {};
+      const licenseCode =
+        meta.LicenseShortName?.value ?? meta.License?.value ?? "";
+      const rawAuthor = meta.Artist?.value ?? meta.Credit?.value ?? "";
+
+      if (!isOpenCommonsLicense(licenseCode)) return null;
+
+      return {
+        source: "Wikimedia Commons",
+        imgUrl: info.url,
+        licenseCode,
+        author: stripHtml(rawAuthor),
+      };
+    })
+    .filter(
+      (
+        img,
+      ): img is {
+        source: string;
+        imgUrl: string;
+        licenseCode: string;
+        author: string;
+      } => img !== null,
+    );
+};

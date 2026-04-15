@@ -1,5 +1,16 @@
 const INATURALIST = `https://api.inaturalist.org/v1`;
 
+const OPEN_LICENSES = [
+  "cc-by",
+  "cc-by-nc",
+  "cc-by-sa",
+  "cc-by-nc-sa",
+  "cc-by-nd",
+  "cc-by-nc-nd",
+  "cc0",
+  "pd",
+];
+
 type TaxonResult = {
   record?: {
     name?: string;
@@ -57,10 +68,12 @@ export const getSpecieImageFromINaturalist = async ({
   const iNatPhoto = match.record?.taxon_photos?.[0]?.photo;
 
   if (iNatPhoto?.original_url) {
+    const licenseCode = iNatPhoto.license_code ?? "";
+    if (!OPEN_LICENSES.includes(licenseCode)) return null;
     return {
       source: "iNaturalist",
       imgUrl: iNatPhoto.original_url,
-      licenseCode: iNatPhoto.license_code ?? "",
+      licenseCode,
       author: iNatPhoto.attribution_name ?? "",
     };
   }
@@ -82,12 +95,16 @@ export const getSpecieImagesFromINaturalist = async ({
   const taxonPhotos = match.record?.taxon_photos ?? [];
 
   return taxonPhotos
-    .filter((tp) => !!tp.photo?.original_url)
-    .slice(0, 5)
+    .filter(
+      (tp) =>
+        !!tp.photo?.original_url &&
+        OPEN_LICENSES.includes(tp.photo?.license_code ?? ""),
+    )
+    .slice(0, 10)
     .map((tp) => ({
       source: "iNaturalist",
       imgUrl: tp.photo!.original_url!,
-      licenseCode: tp.photo?.license_code ?? "",
+      licenseCode: tp.photo!.license_code!,
       author: tp.photo?.attribution_name ?? "",
     }));
 };

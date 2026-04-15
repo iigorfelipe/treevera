@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Button } from "@/common/components/ui/button";
 import { Image } from "@/common/components/image";
 import { Skeleton } from "@/common/components/ui/skeleton";
-import { inatImageUrl } from "@/common/utils/image-size";
+import { inatImageUrl, buildAttributionText } from "@/common/utils/image-size";
 import { Images, ChevronRight, Leaf } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
@@ -15,15 +15,23 @@ import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-specie
 const RecentSpeciesCard = ({
   gbifKey,
   imgUrl,
+  imgSource,
+  imgAttribution,
+  imgLicense,
   name,
   family,
   isFavorite,
+  ownerUsername,
 }: {
   gbifKey: number;
   imgUrl: string | null | undefined;
+  imgSource?: string | null;
+  imgAttribution?: string | null;
+  imgLicense?: string | null;
   name: string | null;
   family: string | null;
   isFavorite: boolean;
+  ownerUsername?: string;
 }) => {
   const navigate = useNavigate();
   const dialogCloseTimeRef = useRef(0);
@@ -46,6 +54,9 @@ const RecentSpeciesCard = ({
     canonical_name: name,
     family,
     image_url: imgUrl ?? null,
+    image_source: imgSource ?? null,
+    image_attribution: imgAttribution ?? null,
+    image_license: imgLicense ?? null,
     is_favorite: isFavorite,
     seen_at: "",
     total_count: 0,
@@ -80,6 +91,7 @@ const RecentSpeciesCard = ({
 
       <SpeciesCardQuickMenu
         species={galleryRow}
+        ownerUsername={ownerUsername}
         onDialogClose={handleDialogClose}
         triggerClassName="bg-black/40 absolute right-2 bottom-2 z-10 rounded-full p-1.5 text-white shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
       />
@@ -92,6 +104,11 @@ const RecentSpeciesCard = ({
               alt={name ?? ""}
               className="block max-h-56 max-w-56 object-contain"
             />
+            {buildAttributionText(imgSource, imgAttribution, imgLicense, imgUrl) && (
+              <p className="text-muted-foreground px-2 py-1 text-right text-xs">
+                {buildAttributionText(imgSource, imgAttribution, imgLicense, imgUrl)}
+              </p>
+            )}
           </div>
           <div className="border-t-popover mx-auto h-0 w-0 border-x-[7px] border-t-[7px] border-x-transparent" />
         </div>
@@ -166,9 +183,13 @@ export const SpeciesGalleryPreview = ({
               key={species.gbif_key}
               gbifKey={species.gbif_key}
               imgUrl={species.preferred_image_url}
+              imgSource={species.preferred_image_source}
+              imgAttribution={species.preferred_image_attribution}
+              imgLicense={species.preferred_image_license}
               name={species.canonical_name}
               family={species.family}
               isFavorite={species.is_favorite}
+              ownerUsername={profileUsername}
             />
           ))}
         </div>

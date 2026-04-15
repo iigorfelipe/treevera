@@ -31,15 +31,20 @@ import { EmptyFavCard } from "./empty-card";
 import { FilledFavCard, SortableFilledCard } from "./filled-card";
 import { PickerItem } from "./picker-item";
 import { materializeSlots } from "./utils";
-import { useGetFavoriteSpeciesPages } from "@/hooks/queries/useGetUserSeenSpecies";
+import {
+  useGetFavoriteSpeciesPages,
+  useGetBatchAttribution,
+} from "@/hooks/queries/useGetUserSeenSpecies";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
 export const FavoriteSpecies = ({
   favSpecies,
   isOwner = true,
+  profileOwnerUsername,
 }: {
   favSpecies?: FavSpecies[];
   isOwner?: boolean;
+  profileOwnerUsername?: string;
 }) => {
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
@@ -68,6 +73,14 @@ export const FavoriteSpecies = ({
     if (!topFav) return [];
     return topFav.map((n) => n.key);
   }, [userDb]);
+
+  const favSpeciesKeys = useMemo(
+    () => (favSpecies ?? []).map((f) => f.key),
+    [favSpecies],
+  );
+  const { data: attributionMap } = useGetBatchAttribution(
+    isOwner ? topFavKeys : favSpeciesKeys,
+  );
 
   const availableFavSpecies = useMemo(() => {
     const topKeys = new Set(topFavKeys);
@@ -116,6 +129,10 @@ export const FavoriteSpecies = ({
               specieName={f.name}
               familyName={f.family ?? ""}
               imgUrl={f.img ?? null}
+              imgSource={attributionMap?.get(f.key)?.source}
+              imgAttribution={attributionMap?.get(f.key)?.author}
+              imgLicense={attributionMap?.get(f.key)?.license}
+              ownerUsername={profileOwnerUsername}
               editMode={false}
               onClick={() =>
                 navigate({
@@ -243,6 +260,9 @@ export const FavoriteSpecies = ({
                   specieName={favData?.name ?? ""}
                   familyName={favData?.family ?? ""}
                   imgUrl={favData?.img ?? null}
+                  imgSource={attributionMap?.get(key)?.source}
+                  imgAttribution={attributionMap?.get(key)?.author}
+                  imgLicense={attributionMap?.get(key)?.license}
                   editMode={editMode}
                   onClick={() =>
                     editMode

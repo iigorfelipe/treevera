@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Image } from "@/common/components/image";
-import { inatImageUrl } from "@/common/utils/image-size";
+import { inatImageUrl, buildAttributionText } from "@/common/utils/image-size";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Leaf, X } from "lucide-react";
@@ -13,6 +13,10 @@ export const FilledFavCard = ({
   specieName,
   familyName,
   imgUrl,
+  imgSource,
+  imgAttribution,
+  imgLicense,
+  ownerUsername,
   editMode,
   onClick,
   onRemove,
@@ -22,6 +26,10 @@ export const FilledFavCard = ({
   specieName: string;
   familyName: string;
   imgUrl: string | null;
+  imgSource?: string | null;
+  imgAttribution?: string | null;
+  imgLicense?: string | null;
+  ownerUsername?: string;
   editMode: boolean;
   onClick: () => void;
   onRemove: () => void;
@@ -46,6 +54,9 @@ export const FilledFavCard = ({
     canonical_name: specieName,
     family: familyName,
     image_url: imgUrl,
+    image_source: imgSource ?? null,
+    image_attribution: imgAttribution ?? null,
+    image_license: imgLicense ?? null,
     is_favorite: true,
     seen_at: "",
     total_count: 0,
@@ -95,6 +106,7 @@ export const FilledFavCard = ({
       {!editMode && (
         <SpeciesCardQuickMenu
           species={galleryRow}
+          ownerUsername={ownerUsername}
           onDialogClose={handleDialogClose}
           triggerClassName="bg-black/40 absolute right-2 bottom-2 z-10 rounded-full p-1.5 text-white shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
         />
@@ -136,6 +148,21 @@ export const FilledFavCard = ({
               alt={specieName}
               className="block max-h-56 max-w-56 object-contain"
             />
+            {buildAttributionText(
+              imgSource,
+              imgAttribution,
+              imgLicense,
+              imgUrl,
+            ) && (
+              <p className="text-muted-foreground px-2 py-1 text-right text-xs">
+                {buildAttributionText(
+                  imgSource,
+                  imgAttribution,
+                  imgLicense,
+                  imgUrl,
+                )}
+              </p>
+            )}
           </div>
           <div className="border-t-popover mx-auto h-0 w-0 border-x-[7px] border-t-[7px] border-x-transparent" />
         </div>

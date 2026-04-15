@@ -14,6 +14,7 @@ import {
   fetchSpeciesFavoriters,
 } from "@/common/utils/supabase/user-seen-species";
 import type { FetchSeenSpeciesPageOptions } from "@/common/utils/supabase/user-seen-species";
+import { batchGetImageAttribution } from "@/common/utils/supabase/species-cache";
 import { QUERY_KEYS } from "./keys";
 
 export const useGetUserSeenSpecies = (options?: { enabled?: boolean }) => {
@@ -50,6 +51,9 @@ export const useGetRecentSeenSpecies = (limit: number, userId?: string) => {
         kingdom: null,
         iucn_status: null,
         preferred_image_url: r.image_url,
+        preferred_image_source: r.image_source ?? null,
+        preferred_image_attribution: r.image_attribution ?? null,
+        preferred_image_license: r.image_license ?? null,
         canonical_name: r.canonical_name,
         family: r.family,
       }));
@@ -123,6 +127,17 @@ export const useGetGallerySpecies = (
     enabled: !!targetUserId,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 60 * 24,
+  });
+};
+
+export const useGetBatchAttribution = (gbifKeys: number[]) => {
+  const sortedKeys = [...gbifKeys].sort((a, b) => a - b);
+  return useQuery({
+    queryKey: [QUERY_KEYS.species_attribution_key, sortedKeys.join(",")],
+    queryFn: () => batchGetImageAttribution(sortedKeys),
+    enabled: sortedKeys.length > 0,
+    staleTime: 1000 * 60 * 60 * 24,
+    gcTime: 1000 * 60 * 60 * 24 * 7,
   });
 };
 

@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Loader, SearchIcon, X } from "lucide-react";
 
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
-import { cn } from "@/common/utils/cn";
 import { capitalizar } from "@/common/utils/string";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { Image } from "@/common/components/image";
@@ -60,12 +59,17 @@ export function SearchForm({
   const suggestions = useMemo(() => {
     if (q) return [];
     const key = kingdom.toLowerCase();
+    if (!key) {
+      return [
+        t("search.animatedPlaceholderCanonicalOrScientific"),
+        t("search.animatedPlaceholderCommonNames"),
+        t("search.animatedPlaceholderSpeciesCode"),
+      ];
+    }
     return SUGGESTIONS_BY_KINGDOM[key] ?? SUGGESTIONS_BY_KINGDOM[""];
-  }, [q, kingdom]);
+  }, [q, kingdom, t]);
 
   const animatedText = useAnimatedPlaceholder(suggestions);
-
-  const staticPlaceholder = t("search.searchByNameOrKey");
 
   const showClear = q.length > 0 || hasResults;
 
@@ -149,14 +153,6 @@ export function SearchForm({
           >
             <span className="text-muted-foreground absolute inset-y-0 left-3 flex items-center text-sm">
               {animatedText}
-            </span>
-            <span
-              className={cn(
-                "text-muted-foreground absolute inset-y-0 left-3 flex items-center text-sm transition-opacity duration-200",
-                animatedText ? "opacity-0" : "opacity-100",
-              )}
-            >
-              {staticPlaceholder}
             </span>
           </div>
         )}

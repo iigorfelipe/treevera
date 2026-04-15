@@ -40,6 +40,7 @@ import {
   toggleFavSpecie,
   updatePreferredImage,
 } from "@/common/utils/supabase/user-seen-species";
+import { syncCachedImageAttribution } from "@/common/utils/supabase/species-cache";
 import { setListCoverImage } from "@/common/utils/supabase/lists";
 import { AddToListDialog } from "@/modules/lists/add-to-list-dialog";
 import { CreateCustomChallengeDialog } from "@/modules/challenge/custom/create-custom-challenge-dialog";
@@ -51,6 +52,7 @@ type SpeciesCardQuickMenuProps = {
   listId?: string;
   listUsername?: string;
   listSlug?: string;
+  ownerUsername?: string;
   onDialogClose?: () => void;
   triggerClassName?: string;
 };
@@ -60,6 +62,7 @@ export const SpeciesCardQuickMenu = ({
   listId,
   listUsername,
   listSlug,
+  ownerUsername,
   onDialogClose,
   triggerClassName,
 }: SpeciesCardQuickMenuProps) => {
@@ -130,7 +133,11 @@ export const SpeciesCardQuickMenu = ({
 
   if (!isAuthenticated || !userDb) return null;
 
-  const isOwner = !listId || listUsername === userDb.username;
+  const isOwner = listId
+    ? listUsername === userDb.username
+    : ownerUsername !== undefined
+      ? ownerUsername === userDb.username
+      : true;
 
   const handleFavToggle = async () => {
     if (favPending) return;
@@ -177,14 +184,29 @@ export const SpeciesCardQuickMenu = ({
     setViewInTreePending(true);
   };
 
-  const handlePickImage = async (imgUrl: string) => {
-    await updatePreferredImage(userDb.id, species.gbif_key, imgUrl, {
+  const handlePickImage = async (img: {
+    imgUrl: string;
+    source: string;
+    author: string;
+    licenseCode: string;
+  }) => {
+    await updatePreferredImage(userDb.id, species.gbif_key, img.imgUrl, {
       canonicalName: species.canonical_name,
       family: species.family,
     });
-    setCurrentImageUrl(imgUrl);
+    await syncCachedImageAttribution(
+      species.gbif_key,
+      img.imgUrl,
+      img.source,
+      img.author,
+      img.licenseCode,
+    );
+    setCurrentImageUrl(img.imgUrl);
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.user_seen_species_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.species_attribution_key],
     });
     if (listId) {
       void queryClient.invalidateQueries({
@@ -214,7 +236,10 @@ export const SpeciesCardQuickMenu = ({
           <button
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className={triggerClassName ?? "bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"}
+            className={
+              triggerClassName ??
+              "bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
+            }
             aria-label={t("gallery.quickActions")}
           >
             <MoreVertical className="size-3.5" />
@@ -319,7 +344,7 @@ export const SpeciesCardQuickMenu = ({
                 {gallery.map((img, i) => (
                   <button
                     key={i}
-                    onClick={() => void handlePickImage(img.imgUrl)}
+                    onClick={() => void handlePickImage(img)}
                     className={cn(
                       "hover:border-primary overflow-hidden rounded-lg border-2 transition-all",
                       currentImageUrl === img.imgUrl

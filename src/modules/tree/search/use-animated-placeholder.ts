@@ -73,9 +73,7 @@ export function useAnimatedPlaceholder(suggestions: string[]): string {
 }
 
 export const SUGGESTIONS_BY_KINGDOM: Record<string, string[]> = {
-  "": [
-    // "Nome científico ou chave GBIF...",
-  ],
+  "": [],
   animalia: [
     "Canis lupus",
     "Ursus maritimus",
