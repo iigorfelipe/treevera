@@ -119,13 +119,53 @@ export const getVernacularNames = async (key: number) => {
 // Tem language (ex: "pt", "es", "en")
 // Tem source (ex: "ITIS", "COL", etc.)
 
-export const getOccurrence = async (key: number) => {
-  const url = `${OCCURRENCE_URL}/search?taxonKey=${key}&hasCoordinate=true&limit=20`;
+type GetOccurrenceParams = {
+  country?: string;
+  limit?: number;
+};
+
+export const getOccurrence = async (
+  key: number,
+  { country, limit = 20 }: GetOccurrenceParams = {},
+) => {
+  const params = new URLSearchParams({
+    taxonKey: String(key),
+    hasCoordinate: "true",
+    limit: String(limit),
+  });
+
+  if (country) params.set("country", country);
+
+  const url = `${OCCURRENCE_URL}/search?${params.toString()}`;
   const data = await fetch(url).then((res) => res.json());
   return data;
 };
-// Resposta tem country, decimalLatitude, decimalLongitude
-// Mesmo taxonKey do species
+
+export type OccurrenceStatsFacetCount = { name: string; count: number };
+export type OccurrenceStats = {
+  total: number;
+  countries: OccurrenceStatsFacetCount[];
+  basisOfRecord: OccurrenceStatsFacetCount[];
+  years: OccurrenceStatsFacetCount[];
+};
+
+export const getOccurrenceStats = async (
+  key: number,
+): Promise<OccurrenceStats> => {
+  const url = `${OCCURRENCE_URL}/search?taxonKey=${key}&limit=0&facet=COUNTRY&facet=BASIS_OF_RECORD&facet=YEAR&facetLimit=10&facetMincount=1`;
+  const data = await fetch(url).then((res) => res.json());
+
+  const getFacet = (field: string): OccurrenceStatsFacetCount[] =>
+    data.facets?.find((f: { field: string }) => f.field === field)?.counts ??
+    [];
+
+  return {
+    total: data.count ?? 0,
+    countries: getFacet("COUNTRY"),
+    basisOfRecord: getFacet("BASIS_OF_RECORD"),
+    years: getFacet("YEAR"),
+  };
+};
 
 // export type IucnRedListCategory = {
 //   category: string; // "ENDANGERED",
