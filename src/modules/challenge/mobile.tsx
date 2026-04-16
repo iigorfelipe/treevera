@@ -9,7 +9,6 @@ import { ChallengeTips, type StepInteractionType } from "./components/tips";
 import type { Rank } from "@/common/types/api";
 import { useTheme } from "@/context/theme";
 import AlvoWhite from "@/assets/alvo-white.gif";
-import { cn } from "@/common/utils/cn";
 
 type PathNode = { rank: Rank; name: string; key: number };
 
@@ -50,21 +49,22 @@ export const ChallengeMobile = ({
   return (
     <div className="px-2">
       <motion.div className="rounded-2xl border px-3 py-2.5 shadow-sm">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5">
           <Image
             src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
-            className="size-7 shrink-0"
+            className="size-5 shrink-0"
             alt="Alvo gif"
           />
-          <p className="min-w-0 flex-1 truncate text-sm">
-            <span className="font-bold text-emerald-600 dark:text-green-400">
-              {speciesName}
-            </span>
-          </p>
 
           <span className="text-muted-foreground text-xs font-semibold tabular-nums">
             {correctSteps}/{correctPath.length}
           </span>
+
+          {activeRank && (
+            <span className="text-muted-foreground text-[10px] font-medium">
+              {activeRank.toLowerCase().replace(/_/g, " ")}
+            </span>
+          )}
 
           {errorCount > 0 && (
             <span className="rounded-full bg-orange-100 px-1.5 py-0.5 text-[10px] font-bold text-orange-600 dark:bg-orange-950/50 dark:text-orange-400">
@@ -72,73 +72,73 @@ export const ChallengeMobile = ({
             </span>
           )}
 
-          {onNext && (
-            <button
-              onClick={onNext}
-              disabled={nextLoading}
-              className="text-muted-foreground/60 ml-1 rounded-full p-1 hover:bg-violet-100 hover:text-violet-600 disabled:opacity-50 dark:hover:bg-violet-950"
-              aria-label={t("challenge.nextChallenge")}
-            >
-              <Shuffle className="size-3.5" />
-            </button>
-          )}
-
-          {onRestart && (
-            <button
-              onClick={onRestart}
-              className="text-muted-foreground/60 hover:bg-muted hover:text-foreground rounded-full p-1"
-              aria-label={t("challenge.restart")}
-            >
-              <RotateCcw className="size-3.5" />
-            </button>
-          )}
-
-          {onShare && (
-            <button
-              onClick={onShare}
-              className="text-muted-foreground/60 hover:bg-muted hover:text-foreground rounded-full p-1"
-              aria-label={t("challenge.share")}
-            >
-              <Share2 className="size-3.5" />
-            </button>
-          )}
-
-          <button
-            onClick={onCancel}
-            className={cn(
-              "rounded-full p-1 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950",
-              !onNext && !onShare && !onRestart && "ml-auto",
-              "text-muted-foreground/60",
+          <div className="ml-auto flex items-center gap-0.5">
+            {onNext && (
+              <button
+                onClick={onNext}
+                disabled={nextLoading}
+                className="text-muted-foreground/60 rounded-full p-1 hover:bg-violet-100 hover:text-violet-600 disabled:opacity-50 dark:hover:bg-violet-950"
+                aria-label={t("challenge.nextChallenge")}
+              >
+                <Shuffle className="size-3.5" />
+              </button>
             )}
-            aria-label={t("challenge.cancel")}
-          >
-            <X className="size-3.5" />
-          </button>
+
+            {onRestart && (
+              <button
+                onClick={onRestart}
+                className="text-muted-foreground/60 hover:bg-muted hover:text-foreground rounded-full p-1"
+                aria-label={t("challenge.restart")}
+              >
+                <RotateCcw className="size-3.5" />
+              </button>
+            )}
+
+            {onShare && (
+              <button
+                onClick={onShare}
+                className="text-muted-foreground/60 hover:bg-muted hover:text-foreground rounded-full p-1"
+                aria-label={t("challenge.share")}
+              >
+                <Share2 className="size-3.5" />
+              </button>
+            )}
+
+            <button
+              onClick={onCancel}
+              className="text-muted-foreground/60 rounded-full p-1 hover:bg-red-100 hover:text-red-500 dark:hover:bg-red-950"
+              aria-label={t("challenge.cancel")}
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
         </div>
 
         {!isCompleted && correctPath.length > 0 && (
-          <div className="space-y-1.5">
-            <ProgressSteps
-              correctSteps={correctSteps}
-              errorIndex={errorIndex}
-              totalSteps={correctPath.length}
-            />
+          <>
+            <div className="mt-1.5">
+              <ProgressSteps
+                correctSteps={correctSteps}
+                errorIndex={errorIndex}
+                totalSteps={correctPath.length}
+              />
+            </div>
 
-            {activeRank && (
-              <p className="text-muted-foreground text-[10px] font-medium">
-                → {activeRank.toLowerCase().replace(/_/g, " ")}
-              </p>
-            )}
+            <p className="mt-1.5 text-sm font-bold text-emerald-600 dark:text-green-400">
+              {speciesName}
+            </p>
 
-            <ChallengeTips
-              speciesName={speciesName}
-              speciesKey={speciesKey}
-              currentStep={correctSteps}
-              errorIndex={errorIndex}
-              correctPath={correctPath}
-              onInteraction={onInteraction}
-            />
-          </div>
+            <div className="mt-1">
+              <ChallengeTips
+                speciesName={speciesName}
+                speciesKey={speciesKey}
+                currentStep={correctSteps}
+                errorIndex={errorIndex}
+                correctPath={correctPath}
+                onInteraction={onInteraction}
+              />
+            </div>
+          </>
         )}
       </motion.div>
     </div>
