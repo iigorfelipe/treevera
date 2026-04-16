@@ -661,7 +661,7 @@
       "checking": "Checking...",
       "available": "Available",
       "unavailable": "Already in use",
-      "usernameHint": "3–30 characters: lowercase letters, numbers, and _",
+      "usernameHint": "3–16 characters: lowercase letters, numbers, and _",
       "nameMin": "Minimum of 3 characters",
       "notAuthenticated": "You are not authenticated.",
       "login": "Sign in",

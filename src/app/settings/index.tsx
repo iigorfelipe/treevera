@@ -164,7 +164,7 @@ type UsernameStatus =
   | "unavailable"
   | "invalid";
 
-const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
+const USERNAME_REGEX = /^[a-z0-9_]{3,16}$/;
 
 function AccountSection({ flat }: { flat?: boolean }) {
   const { t } = useTranslation();
@@ -369,7 +369,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
           <button
             onClick={handleAvatarClick}
             disabled={uploadingAvatar}
-            className="absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full bg-green-600 text-white shadow transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="absolute right-0 bottom-0 flex size-6 cursor-pointer items-center justify-center rounded-full bg-green-600 text-white shadow transition-opacity hover:opacity-90 disabled:opacity-60"
             title={t("settings.account.changePhoto")}
           >
             {uploadingAvatar ? (
@@ -383,7 +383,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
           <button
             onClick={() => setRemoveAvatarConfirmOpen(true)}
             disabled={uploadingAvatar}
-            className="text-muted-foreground hover:text-destructive text-xs transition-colors disabled:opacity-60"
+            className="text-muted-foreground hover:text-destructive mt-2 cursor-pointer text-xs transition-colors disabled:opacity-60"
           >
             {t("settings.account.removePhoto")}
           </button>
@@ -453,7 +453,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
         className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
         title={t("settings.account.editName")}
       >
-        <Pencil className="size-4" />
+        <Pencil className="size-4 cursor-pointer" />
       </button>
     </div>
   );
@@ -466,7 +466,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
           value={usernameInput}
           onChange={(e) => handleUsernameChange(e.target.value)}
           placeholder="your_username"
-          maxLength={30}
+          maxLength={16}
           autoFocus
           className="border-input bg-background min-w-0 flex-1 rounded-md border px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-green-600"
         />
@@ -505,7 +505,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
         className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
         title={t("settings.account.editUsername")}
       >
-        <Pencil className="size-4" />
+        <Pencil className="size-4 cursor-pointer" />
       </button>
     </div>
   );
@@ -558,7 +558,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
             <button
               onClick={() => setLogoutConfirmOpen(true)}
               disabled={isLoggingOut}
-              className="text-destructive hover:bg-destructive/5 flex w-full items-center gap-3 px-5 py-3.5 text-sm transition-colors disabled:opacity-60"
+              className="text-destructive hover:bg-destructive/5 flex w-full cursor-pointer items-center gap-3 px-5 py-3.5 text-sm transition-colors disabled:opacity-60"
             >
               {isLoggingOut ? (
                 <Loader className="size-4 animate-spin" />

@@ -663,7 +663,7 @@
       "checking": "Verificando...",
       "available": "Disponível",
       "unavailable": "Já em uso",
-      "usernameHint": "3–30 caracteres: letras minúsculas, números e _",
+      "usernameHint": "3–16 caracteres: letras minúsculas, números e _",
       "nameMin": "Mínimo de 3 caracteres",
       "notAuthenticated": "Você não está autenticado.",
       "login": "Fazer login",

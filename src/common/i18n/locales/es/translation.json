@@ -661,7 +661,7 @@
       "checking": "Verificando...",
       "available": "Disponible",
       "unavailable": "Ya está en uso",
-      "usernameHint": "3–30 caracteres: letras minúsculas, números y _",
+      "usernameHint": "3–16 caracteres: letras minúsculas, números y _",
       "nameMin": "Mínimo de 3 caracteres",
       "notAuthenticated": "No has iniciado sesión.",
       "login": "Iniciar sesión",
