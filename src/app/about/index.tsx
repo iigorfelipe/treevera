@@ -19,8 +19,26 @@ export const AboutPage = () => {
             </p>
           </div>
 
-          <div className="space-y-7 leading-7 tracking-[-0.01em]">
-            <p>{t("aboutPage.description")}</p>
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold tracking-tight">
+              {t("aboutPage.whatCanYouDo")}
+            </h2>
+            <ul className="space-y-3 leading-7 tracking-[-0.01em]">
+              <li>{t("aboutPage.features.tree")}</li>
+              <li>{t("aboutPage.features.species")}</li>
+              <li>{t("aboutPage.features.challenges")}</li>
+              <li>{t("aboutPage.features.lists")}</li>
+              <li>{t("aboutPage.features.profile")}</li>
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold tracking-tight">
+              {t("aboutPage.whoIsItFor")}
+            </h2>
+            <p className="leading-7 tracking-[-0.01em]">
+              {t("aboutPage.audience")}
+            </p>
           </div>
         </section>
 
@@ -28,9 +46,9 @@ export const AboutPage = () => {
 
         <section className="mt-12 max-w-3xl space-y-8">
           <div className="space-y-3">
-            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            <h2 className="text-xl font-semibold tracking-tight">
               {t("aboutPage.sourcesTitle")}
-            </h1>
+            </h2>
             <p className="text-muted-foreground text-[15px] leading-7 md:text-base">
               {t("aboutPage.sourcesHint")}
             </p>

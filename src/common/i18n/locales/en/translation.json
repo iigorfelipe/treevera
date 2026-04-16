@@ -135,15 +135,24 @@
   },
   "aboutPage": {
     "title": "About Treevera",
-    "hint": "Treevera is an interactive platform for exploring the tree of life, the taxonomic classification of all living organisms known to science.",
-    "description": "The project was born from the desire to make taxonomy more accessible and engaging, for those curious about the natural world as well as students and researchers. It is developed independently and is constantly evolving.",
-    "sourcesTitle": "Source information",
+    "hint": "Treevera is a website for exploring the taxonomic classification of living organisms. It organizes species into an interactive tree that goes from kingdoms down to species, with photos, descriptions, occurrence maps, and conservation status.",
+    "whatCanYouDo": "What you can do",
+    "features": {
+      "tree": "Browse the full taxonomic tree, from kingdom to species, expanding each classification level.",
+      "species": "View details for each species: photos, description, taxonomy, global occurrence map, and IUCN conservation status.",
+      "challenges": "Play taxonomy challenges (daily, random, or custom) where you need to find a species by navigating the tree.",
+      "lists": "Create and explore public species lists organized by theme, such as birds of Brazil, wild cats, or endangered species.",
+      "profile": "Track your progress: species explored, challenges completed, accuracy, medals, and global ranking."
+    },
+    "whoIsItFor": "Who is it for",
+    "audience": "Treevera is for anyone interested in biodiversity: biology students, teachers, researchers, or anyone curious about how living organisms are classified. It is developed independently and is constantly evolving.",
+    "sourcesTitle": "Data sources",
     "sourcesHint": "Click a source name to view its complete metadata.",
     "paragraphs": {
       "occurrence": "Occurrence data, maps, geographic statistics, and much of the taxonomic structure shown in Treevera are obtained from <gbif>GBIF</gbif>, which aggregates biodiversity records from institutions around the world.",
       "conservation": "For conservation status, Treevera consults the <iucn>IUCN Red List</iucn>, the main global reference for assessing species extinction risk.",
       "photos": "Species photographs are obtained from <inat>iNaturalist</inat>, a citizen science platform with millions of verified photographic records, and <commons>Wikimedia Commons</commons>, the Wikimedia Foundation's free media repository.",
-      "descriptions": "Species and genus descriptions are obtained from <wikipedia>Wikipedia</wikipedia>. In addition, it, together with <gbif>GBIF</gbif>, can serve as an image fallback when other sources do not return a photo for the requested species."
+      "descriptions": "Species and genus descriptions are obtained from <wikipedia>Wikipedia</wikipedia>. Additionally, Wikipedia and <gbif>GBIF</gbif> serve as alternative image sources when other sources do not return a photo for the requested species."
     }
   },
   "profilePage": {

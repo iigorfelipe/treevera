@@ -135,15 +135,24 @@
   },
   "aboutPage": {
     "title": "Sobre Treevera",
-    "hint": "Treevera es una plataforma interactiva para explorar el árbol de la vida, la clasificación taxonómica de todos los seres vivos conocidos por la ciencia.",
-    "description": "El proyecto nació del deseo de hacer la taxonomía más accesible y atractiva, tanto para quienes sienten curiosidad por el mundo natural como para estudiantes e investigadores. Se desarrolla de forma independiente y está en constante evolución.",
-    "sourcesTitle": "Información de las fuentes",
+    "hint": "Treevera es un sitio web para explorar la clasificación taxonómica de los seres vivos. Organiza las especies en un árbol interactivo que va desde reinos hasta especies, con fotos, descripciones, mapas de ocurrencia y estado de conservación.",
+    "whatCanYouDo": "Qué puedes hacer",
+    "features": {
+      "tree": "Navegar por el árbol taxonómico completo, desde el reino hasta la especie, expandiendo cada nivel de clasificación.",
+      "species": "Ver detalles de cada especie: fotos, descripción, taxonomía, mapa de ocurrencia global y estado de conservación de la UICN.",
+      "challenges": "Jugar desafíos taxonómicos (diario, aleatorio o personalizado) donde necesitas encontrar una especie navegando por el árbol.",
+      "lists": "Crear y explorar listas públicas de especies organizadas por tema, como aves de Brasil, felinos salvajes o especies amenazadas.",
+      "profile": "Seguir tu progreso: especies exploradas, desafíos completados, precisión, medallas y ranking global."
+    },
+    "whoIsItFor": "Para quién es",
+    "audience": "Treevera está dirigido a cualquier persona interesada en la biodiversidad: estudiantes de biología, profesores, investigadores o curiosos que quieren entender cómo se clasifican los seres vivos. Se desarrolla de forma independiente y está en constante evolución.",
+    "sourcesTitle": "Fuentes de datos",
     "sourcesHint": "Haz clic en el nombre de una fuente para ver sus metadatos completos.",
     "paragraphs": {
       "occurrence": "Los datos de ocurrencia, mapas, estadísticas geográficas y gran parte de la estructura taxonómica mostrada en Treevera se obtienen de <gbif>GBIF</gbif>, que reúne registros de biodiversidad de instituciones de todo el mundo.",
       "conservation": "Para el estado de conservación, Treevera consulta la <iucn>IUCN Red List</iucn>, la principal referencia global para evaluar el riesgo de extinción de especies.",
       "photos": "Las fotografías de especies se obtienen de <inat>iNaturalist</inat>, una plataforma de ciencia ciudadana con millones de registros fotográficos verificados, y de <commons>Wikimedia Commons</commons>, el repositorio de medios libres de la Wikimedia Foundation.",
-      "descriptions": "Las descripciones de especies y géneros se obtienen de <wikipedia>Wikipedia</wikipedia>. Además, esta, junto con <gbif>GBIF</gbif>, puede servir como fuente de imagen de respaldo cuando otras fuentes no devuelven una foto para la especie consultada."
+      "descriptions": "Las descripciones de especies y géneros se obtienen de <wikipedia>Wikipedia</wikipedia>. Además, Wikipedia y <gbif>GBIF</gbif> sirven como fuentes alternativas de imagen cuando otras fuentes no devuelven una foto para la especie consultada."
     }
   },
   "profilePage": {

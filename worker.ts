@@ -90,7 +90,7 @@ function getSiteText(locale: Locale) {
         listWithCount: (count: number) => `List with ${count} species`,
         aboutTitle: "About | Treevera",
         aboutDescription:
-          "Learn more about Treevera, an interactive platform for exploring biodiversity and taxonomy.",
+          "Treevera organizes species into an interactive taxonomic tree with photos, descriptions, occurrence maps, conservation status, challenges, and lists.",
         listsTitle: "Lists | Treevera",
         listsDescription:
           "Explore public species lists created by the Treevera community.",
@@ -115,7 +115,7 @@ function getSiteText(locale: Locale) {
         listWithCount: (count: number) => `Lista con ${count} especies`,
         aboutTitle: "Acerca de | Treevera",
         aboutDescription:
-          "Conoce más sobre Treevera, una plataforma interactiva para explorar biodiversidad y taxonomía.",
+          "Treevera organiza las especies en un árbol taxonómico interactivo con fotos, descripciones, mapas de ocurrencia, estado de conservación, desafíos y listas.",
         listsTitle: "Listas | Treevera",
         listsDescription:
           "Explora listas públicas de especies creadas por la comunidad de Treevera.",
@@ -140,7 +140,7 @@ function getSiteText(locale: Locale) {
         listWithCount: (count: number) => `Lista com ${count} espécies`,
         aboutTitle: "Sobre | Treevera",
         aboutDescription:
-          "Saiba mais sobre o Treevera, uma plataforma interativa para explorar biodiversidade e taxonomia.",
+          "O Treevera organiza espécies em uma árvore taxonômica interativa com fotos, descrições, mapas de ocorrência, status de conservação, desafios e listas.",
         listsTitle: "Listas | Treevera",
         listsDescription:
           "Explore listas públicas de espécies criadas pela comunidade do Treevera.",
