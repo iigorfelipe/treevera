@@ -3,15 +3,6 @@ import { formatUserSinceDate } from "@/common/utils/date-formats";
 import { authStore } from "@/store/auth/atoms";
 import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
-import { Info } from "lucide-react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/common/components/ui/dialog";
 import {
   Avatar,
   AvatarFallback,
@@ -33,7 +24,6 @@ export const HeaderProfile = ({
 }) => {
   const { t } = useTranslation();
   const userDb = useAtomValue(authStore.userDb);
-  const isOwner = !publicProfile;
   const data = publicProfile ?? userDb;
   const [photoOpen, setPhotoOpen] = useState(false);
 
@@ -75,23 +65,6 @@ export const HeaderProfile = ({
           </span>
         </div>
 
-        {isOwner && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="text-muted-foreground hover:text-foreground transition-colors">
-                <Info className="size-5" />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm">
-              <DialogHeader>
-                <DialogTitle>{t("profilePage.devNoticeTitle")}</DialogTitle>
-                <DialogDescription>
-                  {t("profilePage.devNoticeDescription")}
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-        )}
       </div>
     </header>
   );

@@ -12,6 +12,23 @@ export const AboutPage = () => {
         <section className="max-w-3xl space-y-8">
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              {t("aboutPage.title")}
+            </h1>
+            <p className="text-muted-foreground text-[15px] leading-7 md:text-base">
+              {t("aboutPage.hint")}
+            </p>
+          </div>
+
+          <div className="space-y-7 leading-7 tracking-[-0.01em]">
+            <p>{t("aboutPage.description")}</p>
+          </div>
+        </section>
+
+        <hr className="mt-12 max-w-3xl border-border" />
+
+        <section className="mt-12 max-w-3xl space-y-8">
+          <div className="space-y-3">
+            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
               {t("aboutPage.sourcesTitle")}
             </h1>
             <p className="text-muted-foreground text-[15px] leading-7 md:text-base">

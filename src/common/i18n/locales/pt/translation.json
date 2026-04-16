@@ -134,6 +134,9 @@
     "logoutAnyway": "Sair mesmo assim"
   },
   "aboutPage": {
+    "title": "Sobre o Treevera",
+    "hint": "Treevera é uma plataforma interativa para explorar a árvore da vida, a classificação taxonômica de todos os seres vivos conhecidos pela ciência.",
+    "description": "O projeto nasceu da vontade de tornar a taxonomia mais acessível e envolvente, tanto para quem tem curiosidade sobre o mundo natural quanto para estudantes e pesquisadores. É desenvolvido de forma independente e está em constante evolução.",
     "sourcesTitle": "Informações das fontes",
     "sourcesHint": "Clique no nome de uma fonte para ver seus metadados completos.",
     "paragraphs": {
@@ -147,9 +150,7 @@
     "memberSince": "Usuário desde",
     "globalRanking": "Ranking Global",
     "rankingHint": "Pontue em espécies exploradas, precisão de acerto e velocidade para continuar subindo.",
-    "devNoticeTitle": "Projeto em desenvolvimento",
-    "devNoticeDescription": "O Treevera ainda está em fase inicial. Durante esse período, atualizações e melhorias podem afetar seu progresso (espécies vistas, desafios, conquistas). Faz parte da evolução do projeto!",
-    "notFoundTitle": "Perfil não encontrado",
+"notFoundTitle": "Perfil não encontrado",
     "notFoundDescription": "O usuário @{{username}} não existe."
   },
   "progress": {

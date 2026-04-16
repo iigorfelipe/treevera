@@ -134,6 +134,9 @@
     "logoutAnyway": "Sign out anyway"
   },
   "aboutPage": {
+    "title": "About Treevera",
+    "hint": "Treevera is an interactive platform for exploring the tree of life, the taxonomic classification of all living organisms known to science.",
+    "description": "The project was born from the desire to make taxonomy more accessible and engaging, for those curious about the natural world as well as students and researchers. It is developed independently and is constantly evolving.",
     "sourcesTitle": "Source information",
     "sourcesHint": "Click a source name to view its complete metadata.",
     "paragraphs": {
@@ -147,9 +150,7 @@
     "memberSince": "Member since",
     "globalRanking": "Global Ranking",
     "rankingHint": "Score on explored species, hit accuracy and speed to keep climbing.",
-    "devNoticeTitle": "Project in development",
-    "devNoticeDescription": "Treevera is still in its early stages. During this period, updates and improvements may affect your progress (species seen, challenges, achievements). It's part of the project's evolution!",
-    "notFoundTitle": "Profile not found",
+"notFoundTitle": "Profile not found",
     "notFoundDescription": "The user @{{username}} does not exist."
   },
   "progress": {
