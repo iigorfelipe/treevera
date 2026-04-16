@@ -4,7 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <meta
+      name="robots"
+      content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    />
+    <link rel="canonical" href="https://treevera.org/" />
+
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Treevera" />
+    <meta property="og:locale" content="pt_BR" />
     <meta
       property="og:title"
       content="Treevera | Explore a Árvore da Vida com Taxonomia Interativa"
@@ -13,8 +21,8 @@
       property="og:description"
       content="Descubra milhares de espécies através de uma Árvore Taxonômica Interativa. Visualize detalhes, curiosidades, status de conservação e desafios sobre os reinos da vida."
     />
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:url" content="https://treevera.org" />
+    <meta property="og:image" content="https://treevera.org/og-image.png" />
+    <meta property="og:url" content="https://treevera.org/" />
     <meta name="author" content="Igor Soares" />
 
     <meta name="twitter:card" content="summary_large_image" />
@@ -26,7 +34,28 @@
       name="twitter:description"
       content="Descubra milhares de espécies através de uma Árvore Taxonômica Interativa. Visualize detalhes, curiosidades, status de conservação e desafios sobre os reinos da vida."
     />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content="https://treevera.org/og-image.png" />
+
+    <script id="structured-data" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "name": "Treevera",
+            "url": "https://treevera.org/",
+            "inLanguage": "pt-BR",
+            "description": "Plataforma interativa para explorar a árvore da vida e a classificação taxonômica das espécies."
+          },
+          {
+            "@type": "Organization",
+            "name": "Treevera",
+            "url": "https://treevera.org/",
+            "logo": "https://treevera.org/og-image.png"
+          }
+        ]
+      }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -52,10 +52,7 @@ export const HeaderProfile = ({
           disabled={!data?.avatar_url}
         >
           <Avatar className="size-14">
-            <AvatarImage
-              src={data?.avatar_url ?? undefined}
-              alt={data?.name}
-            />
+            <AvatarImage src={data?.avatar_url ?? undefined} alt={data?.name} />
             <AvatarFallback className="bg-green-600 text-white">
               {data?.name?.[0] ?? "?"}
             </AvatarFallback>
@@ -71,7 +68,7 @@ export const HeaderProfile = ({
         )}
 
         <div className="min-w-0 flex-1">
-          <h1 className="text-lg font-bold leading-tight">{data?.name}</h1>
+          <h1 className="text-lg leading-tight font-bold">{data?.name}</h1>
           {data?.username && (
             <p className="text-muted-foreground text-xs">@{data.username}</p>
           )}
@@ -86,12 +83,12 @@ export const HeaderProfile = ({
         {totalSpeciesSeen > 0 && (
           <button
             onClick={handleGalleryClick}
-            className="text-muted-foreground hover:text-foreground shrink-0 flex flex-col items-center gap-0.5 pt-0.5 transition-colors"
+            className="text-muted-foreground hover:text-foreground flex shrink-0 flex-col items-center gap-0.5 pt-0.5 transition-colors"
           >
-            <span className="text-foreground text-xl font-bold leading-none">
+            <span className="text-foreground text-xl leading-none font-bold">
               {totalSpeciesSeen}
             </span>
-            <span className="text-muted-foreground max-w-[64px] text-center text-[10px] leading-tight">
+            <span className="text-muted-foreground max-w-16 text-center text-[10px] leading-tight">
               {t("progress.speciesExplored")}
             </span>
           </button>

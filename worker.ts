@@ -30,6 +30,16 @@ interface ListDetail {
   species_count: number;
 }
 
+type Locale = "pt" | "en" | "es";
+type StructuredData = Record<string, unknown> | Record<string, unknown>[];
+
+type MetaInfo = {
+  title: string;
+  description: string;
+  image: string;
+  structuredData?: StructuredData;
+} | null;
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -38,15 +48,134 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;");
 }
 
+function escapeJsonForHtml(data: StructuredData): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+function absoluteUrl(siteUrl: string, pathname: string): string {
+  return `${siteUrl}${pathname}`;
+}
+
+function detectLocale(header: string | null): Locale {
+  const value = (header ?? "").toLowerCase();
+  if (value.includes("es")) return "es";
+  if (value.includes("en")) return "en";
+  return "pt";
+}
+
+function getOgLocale(locale: Locale): string {
+  switch (locale) {
+    case "en":
+      return "en_US";
+    case "es":
+      return "es_ES";
+    default:
+      return "pt_BR";
+  }
+}
+
+function getSiteText(locale: Locale) {
+  switch (locale) {
+    case "en":
+      return {
+        homeTitle:
+          "Treevera | Explore the Tree of Life with Interactive Taxonomy",
+        homeDescription:
+          "Discover thousands of species through an Interactive Taxonomic Tree. Explore details, curiosities, conservation status, and challenges across the kingdoms of life.",
+        websiteDescription:
+          "Interactive platform for exploring the tree of life and the taxonomic classification of species.",
+        speciesFallback: "Species on Treevera",
+        familyLabel: "Family",
+        profilePrefix: "Profile of",
+        listWithCount: (count: number) => `List with ${count} species`,
+        aboutTitle: "About | Treevera",
+        aboutDescription:
+          "Learn more about Treevera, an interactive platform for exploring biodiversity and taxonomy.",
+        listsTitle: "Lists | Treevera",
+        listsDescription:
+          "Explore public species lists created by the Treevera community.",
+        challengesTitle: "Challenges | Treevera",
+        challengesDescription:
+          "Play Treevera taxonomy challenges and test your knowledge of species classification.",
+        treeTitle: "Taxonomic Tree | Treevera",
+        treeDescription:
+          "Browse the interactive taxonomic tree and discover species across the kingdoms of life.",
+      };
+    case "es":
+      return {
+        homeTitle:
+          "Treevera | Explora el Árbol de la Vida con Taxonomía Interactiva",
+        homeDescription:
+          "Descubre miles de especies a través de un Árbol Taxonómico Interactivo. Explora detalles, curiosidades, estado de conservación y desafíos sobre los reinos de la vida.",
+        websiteDescription:
+          "Plataforma interactiva para explorar el árbol de la vida y la clasificación taxonómica de las especies.",
+        speciesFallback: "Especie en Treevera",
+        familyLabel: "Familia",
+        profilePrefix: "Perfil de",
+        listWithCount: (count: number) => `Lista con ${count} especies`,
+        aboutTitle: "Acerca de | Treevera",
+        aboutDescription:
+          "Conoce más sobre Treevera, una plataforma interactiva para explorar biodiversidad y taxonomía.",
+        listsTitle: "Listas | Treevera",
+        listsDescription:
+          "Explora listas públicas de especies creadas por la comunidad de Treevera.",
+        challengesTitle: "Desafíos | Treevera",
+        challengesDescription:
+          "Juega los desafíos taxonómicos de Treevera y pon a prueba tu conocimiento sobre clasificación de especies.",
+        treeTitle: "Árbol Taxonómico | Treevera",
+        treeDescription:
+          "Explora el árbol taxonómico interactivo y descubre especies de los reinos de la vida.",
+      };
+    default:
+      return {
+        homeTitle:
+          "Treevera | Explore a Árvore da Vida com Taxonomia Interativa",
+        homeDescription:
+          "Descubra milhares de espécies através de uma Árvore Taxonômica Interativa. Visualize detalhes, curiosidades, status de conservação e desafios sobre os reinos da vida.",
+        websiteDescription:
+          "Plataforma interativa para explorar a árvore da vida e a classificação taxonômica das espécies.",
+        speciesFallback: "Espécie na Treevera",
+        familyLabel: "Família",
+        profilePrefix: "Perfil de",
+        listWithCount: (count: number) => `Lista com ${count} espécies`,
+        aboutTitle: "Sobre | Treevera",
+        aboutDescription:
+          "Saiba mais sobre o Treevera, uma plataforma interativa para explorar biodiversidade e taxonomia.",
+        listsTitle: "Listas | Treevera",
+        listsDescription:
+          "Explore listas públicas de espécies criadas pela comunidade do Treevera.",
+        challengesTitle: "Desafios | Treevera",
+        challengesDescription:
+          "Jogue os desafios taxonômicos do Treevera e teste seus conhecimentos sobre classificação das espécies.",
+        treeTitle: "Árvore Taxonômica | Treevera",
+        treeDescription:
+          "Explore a árvore taxonômica interativa e descubra espécies dos reinos da vida.",
+      };
+  }
+}
+
 function buildMetaHtml(
   html: string,
-  meta: { title: string; description: string; image: string; url: string },
+  meta: {
+    title: string;
+    description: string;
+    image: string;
+    url: string;
+    locale?: string;
+    robots?: string;
+    structuredData?: StructuredData;
+  },
 ): string {
   const e = {
     title: escapeHtml(meta.title),
     description: escapeHtml(meta.description),
     image: escapeHtml(meta.image),
     url: escapeHtml(meta.url),
+    locale: escapeHtml(meta.locale ?? "pt_BR"),
+    robots: escapeHtml(
+      meta.robots ??
+        "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+    ),
   };
 
   let result = html;
@@ -68,6 +197,14 @@ function buildMetaHtml(
     `<meta property="og:url" content="${e.url}" />`,
   );
   result = result.replace(
+    /<meta property="og:locale"[^>]*\/>/,
+    `<meta property="og:locale" content="${e.locale}" />`,
+  );
+  result = result.replace(
+    /<meta name="robots"[^>]*\/>/,
+    `<meta name="robots" content="${e.robots}" />`,
+  );
+  result = result.replace(
     /<meta name="twitter:title"[^>]*\/>/,
     `<meta name="twitter:title" content="${e.title}" />`,
   );
@@ -79,7 +216,18 @@ function buildMetaHtml(
     /<meta name="twitter:image"[^>]*\/>/,
     `<meta name="twitter:image" content="${e.image}" />`,
   );
+  result = result.replace(
+    /<link rel="canonical"[^>]*>/,
+    `<link rel="canonical" href="${e.url}" />`,
+  );
   result = result.replace(/<title>[^<]*<\/title>/, `<title>${e.title}</title>`);
+
+  if (meta.structuredData) {
+    result = result.replace(
+      /<script id="structured-data" type="application\/ld\+json">[\s\S]*?<\/script>/,
+      `<script id="structured-data" type="application/ld+json">${escapeJsonForHtml(meta.structuredData)}</script>`,
+    );
+  }
 
   return result;
 }
@@ -127,9 +275,77 @@ async function supabaseRpc<T>(
   }
 }
 
-type MetaInfo = { title: string; description: string; image: string } | null;
+async function getMetaForRoute(
+  pathname: string,
+  env: Env,
+  locale: Locale,
+): Promise<MetaInfo> {
+  const siteUrl = env.SITE_URL || "https://treevera.org";
+  const text = getSiteText(locale);
 
-async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
+  if (pathname === "/") {
+    return {
+      title: text.homeTitle,
+      description: text.homeDescription,
+      image: `${siteUrl}/og-image.png`,
+      structuredData: {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            name: "Treevera",
+            url: `${siteUrl}/`,
+            inLanguage: locale,
+            description: text.websiteDescription,
+          },
+          {
+            "@type": "Organization",
+            name: "Treevera",
+            url: `${siteUrl}/`,
+            logo: `${siteUrl}/og-image.png`,
+          },
+        ],
+      },
+    };
+  }
+
+  if (pathname === "/about") {
+    return {
+      title: text.aboutTitle,
+      description: text.aboutDescription,
+      image: `${siteUrl}/og-image.png`,
+    };
+  }
+
+  if (pathname === "/lists") {
+    return {
+      title: text.listsTitle,
+      description: text.listsDescription,
+      image: `${siteUrl}/og-image.png`,
+    };
+  }
+
+  if (
+    pathname === "/challenges" ||
+    pathname === "/challenges/daily" ||
+    pathname === "/challenges/random" ||
+    pathname === "/challenges/custom"
+  ) {
+    return {
+      title: text.challengesTitle,
+      description: text.challengesDescription,
+      image: `${siteUrl}/og-image.png`,
+    };
+  }
+
+  if (pathname === "/tree" || pathname.startsWith("/tree/")) {
+    return {
+      title: text.treeTitle,
+      description: text.treeDescription,
+      image: `${siteUrl}/og-image.png`,
+    };
+  }
+
   const specieMatch = pathname.match(/^\/specie-detail\/(\d+)/);
   if (specieMatch) {
     const gbifKey = specieMatch[1];
@@ -138,13 +354,28 @@ async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
       `species_data_cache?gbif_key=eq.${gbifKey}&select=scientific_name,image_url,has_image,description_pt,family`,
     );
     if (!row) return null;
-    const desc =
+    const description =
       row.description_pt?.slice(0, 160) ??
-      (row.family ? `Família: ${row.family}` : "Espécie na Treevera");
+      (row.family
+        ? `${text.familyLabel}: ${row.family}`
+        : text.speciesFallback);
+    const url = absoluteUrl(siteUrl, pathname);
+
     return {
       title: `${row.scientific_name} | Treevera`,
-      description: desc,
+      description,
       image: row.has_image && row.image_url ? row.image_url : "",
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: row.scientific_name,
+        url,
+        description,
+        about: {
+          "@type": "Thing",
+          name: row.scientific_name,
+        },
+      },
     };
   }
 
@@ -160,21 +391,35 @@ async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
       "challenges",
       "auth-callback",
       "specie-detail",
+      "about",
     ];
     if (reserved.includes(username)) return null;
 
     const profile = await supabaseRpc<PublicProfile>(
       env,
       "get_public_profile",
-      {
-        p_username: username,
-      },
+      { p_username: username },
     );
     if (!profile) return null;
+    const url = absoluteUrl(siteUrl, pathname);
+
     return {
       title: `${profile.name} (@${profile.username}) | Treevera`,
-      description: `Perfil de ${profile.name} na Treevera`,
+      description: `${text.profilePrefix} ${profile.name} na Treevera`,
       image: profile.avatar_url ?? "",
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        name: `${profile.name} (@${profile.username})`,
+        url,
+        mainEntity: {
+          "@type": "Person",
+          name: profile.name,
+          identifier: profile.username,
+          image: profile.avatar_url ?? undefined,
+          url,
+        },
+      },
     };
   }
 
@@ -188,13 +433,26 @@ async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
       p_slug: slug,
     });
     if (!list) return null;
-    const desc =
-      list.description?.slice(0, 160) ??
-      `Lista com ${list.species_count} espécies`;
+    const description =
+      list.description?.slice(0, 160) ?? text.listWithCount(list.species_count);
+    const url = absoluteUrl(siteUrl, pathname);
+
     return {
       title: `${list.title} | Treevera`,
-      description: desc,
+      description,
       image: list.cover_image_url ?? "",
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: list.title,
+        url,
+        description,
+        mainEntity: {
+          "@type": "ItemList",
+          name: list.title,
+          numberOfItems: list.species_count,
+        },
+      },
     };
   }
 
@@ -205,6 +463,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try {
       const url = new URL(request.url);
+      const locale = detectLocale(request.headers.get("accept-language"));
 
       if (url.hostname.startsWith("www.")) {
         url.hostname = url.hostname.slice(4);
@@ -212,7 +471,6 @@ export default {
       }
 
       const userAgent = request.headers.get("user-agent") ?? "";
-
       if (!CRAWLERS.test(userAgent)) {
         return env.ASSETS.fetch(request);
       }
@@ -221,15 +479,13 @@ export default {
         return env.ASSETS.fetch(request);
       }
 
-      const meta = await getMetaForRoute(url.pathname, env);
-
+      const meta = await getMetaForRoute(url.pathname, env, locale);
       if (!meta) {
         return env.ASSETS.fetch(request);
       }
 
       const assetResponse = await env.ASSETS.fetch(request);
       const contentType = assetResponse.headers.get("content-type") ?? "";
-
       if (!contentType.includes("text/html")) {
         return assetResponse;
       }
@@ -246,6 +502,8 @@ export default {
         description: meta.description,
         image: fullImage || `${siteUrl}/og-image.png`,
         url: `${siteUrl}${url.pathname}`,
+        locale: getOgLocale(locale),
+        structuredData: meta.structuredData,
       });
 
       const headers = new Headers(assetResponse.headers);
