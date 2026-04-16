@@ -43,20 +43,23 @@ export const useGetRecentSeenSpecies = (limit: number, userId?: string) => {
         sortOrder: "newest",
         photosFirst: false,
       });
-      return page.rows.map((r) => ({
-        user_id: targetUserId!,
-        gbif_key: r.gbif_key,
-        seen_at: r.seen_at,
-        is_favorite: r.is_favorite,
-        kingdom: null,
-        iucn_status: null,
-        preferred_image_url: r.image_url,
-        preferred_image_source: r.image_source ?? null,
-        preferred_image_attribution: r.image_attribution ?? null,
-        preferred_image_license: r.image_license ?? null,
-        canonical_name: r.canonical_name,
-        family: r.family,
-      }));
+      return {
+        totalCount: page.totalCount,
+        species: page.rows.map((r) => ({
+          user_id: targetUserId!,
+          gbif_key: r.gbif_key,
+          seen_at: r.seen_at,
+          is_favorite: r.is_favorite,
+          kingdom: null,
+          iucn_status: null,
+          preferred_image_url: r.image_url,
+          preferred_image_source: r.image_source ?? null,
+          preferred_image_attribution: r.image_attribution ?? null,
+          preferred_image_license: r.image_license ?? null,
+          canonical_name: r.canonical_name,
+          family: r.family,
+        })),
+      };
     },
     enabled: !!targetUserId,
     staleTime: 1000 * 60 * 5,

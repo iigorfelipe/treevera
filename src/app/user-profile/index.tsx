@@ -98,7 +98,7 @@ export function UserProfilePage({ username }: { username: string }) {
         <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
           <div className="contents lg:flex lg:flex-2 lg:flex-col lg:gap-14">
             <div className="order-1">
-              <HeaderProfile publicProfile={publicProfileHeader} />
+              <HeaderProfile publicProfile={publicProfileHeader} userId={data.id} />
             </div>
             {!isOfficialProfile && (
               <div className="order-2">

@@ -127,10 +127,8 @@ export const SpeciesGalleryPreview = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
-  const { data: seenSpecies = [], isLoading } = useGetRecentSeenSpecies(
-    4,
-    userId,
-  );
+  const { data, isLoading } = useGetRecentSeenSpecies(4, userId);
+  const seenSpecies = data?.species ?? [];
 
   const handleOpenGallery = () => {
     const target = profileUsername ?? userDb?.username;
