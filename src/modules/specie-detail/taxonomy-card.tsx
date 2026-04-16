@@ -132,7 +132,14 @@ export const TaxonomyCard = ({
     ];
     injectPathNodes(buildEntities(pathNodes));
     navigateToNodes(pathNodes, true);
-  }, [parents, specieKey, specieDetail, buildEntities, injectPathNodes, navigateToNodes]);
+  }, [
+    parents,
+    specieKey,
+    specieDetail,
+    buildEntities,
+    injectPathNodes,
+    navigateToNodes,
+  ]);
 
   return (
     <div className="bg-card rounded-xl border p-4 shadow-sm">
@@ -153,12 +160,12 @@ export const TaxonomyCard = ({
               {isClickable ? (
                 <button
                   onClick={() => navigateToTaxon(parentKey!)}
-                  className="text-primary mt-0.5 text-sm font-semibold hover:underline focus:outline-none"
+                  className="text-primary mt-0.5 text-left text-sm leading-tight font-semibold wrap-break-word hover:underline focus:outline-none"
                 >
                   {value}
                 </button>
               ) : (
-                <dd className="text-foreground mt-0.5 text-sm font-semibold">
+                <dd className="text-foreground mt-0.5 text-sm leading-tight font-semibold wrap-break-word">
                   {value}
                 </dd>
               )}

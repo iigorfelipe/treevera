@@ -273,7 +273,7 @@ export const SpecieDetail = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={embedded ? undefined : "h-full overflow-auto"}
+        className={embedded ? "@container/specie-detail" : "h-full overflow-auto @container/specie-detail"}
         style={{ containerType: "inline-size" }}
       >
         {showContextualHeader && (
@@ -297,8 +297,8 @@ export const SpecieDetail = ({
           className={`p-4 ${showContextualHeader ? "pt-6" : embedded ? "pt-2" : "md:mt-4"}`}
         >
           <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
-              <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 gap-6 @[720px]/specie-detail:grid-cols-[minmax(0,1.45fr)_minmax(16rem,1fr)] @[1180px]/specie-detail:grid-cols-[minmax(0,1.9fr)_minmax(18rem,1fr)]">
+              <div className="flex min-w-0 flex-col gap-6">
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
