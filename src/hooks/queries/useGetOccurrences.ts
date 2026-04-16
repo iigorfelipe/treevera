@@ -121,6 +121,7 @@ const getOccurrenceKey = (occurrence: Occurrences) =>
 export const useGetOccurrences = (
   specieKey: number,
   priorityCountries: string[] = [],
+  enabled = true,
 ) => {
   return useQuery({
     queryKey: ["occurrences", specieKey, priorityCountries],
@@ -163,6 +164,7 @@ export const useGetOccurrences = (
         occurrences,
       };
     },
+    enabled: enabled && !!specieKey,
     staleTime: 1000 * 60 * 60 * 24 * 7, // 7 dias
   });
 };

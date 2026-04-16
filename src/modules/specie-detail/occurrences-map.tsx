@@ -3,10 +3,11 @@ import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
-import { memo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Expand, Loader, Shrink } from "lucide-react";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useTranslation } from "react-i18next";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import { cn } from "@/common/utils/cn";
 import { inatImageUrl } from "@/common/utils/image-size";
 import { FitBounds } from "@/common/utils/map/fit-bounds";
@@ -32,6 +33,18 @@ const HEADER_HEIGHT_VALUE = "3.5rem";
 const HEXAGON_CLIP_PATH =
   "polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%)";
 const DENSITY_COLORS = ["#f6dd4e", "#f59a45", "#e65a4f"];
+const DEFAULT_MAP_CENTER: [number, number] = [20, 0];
+const EMPTY_OCCURRENCES: Occurrences[] = [];
+
+const InvalidateMapSize = ({ trigger }: { trigger: string }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    map.invalidateSize();
+  }, [map, trigger]);
+
+  return null;
+};
 
 const SampleMarkerIcon = ({ active }: { active: boolean }) => (
   <svg viewBox="0 0 16 16" aria-hidden="true" className="h-4 w-4 shrink-0">
@@ -96,27 +109,35 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
   const [showSamples, setShowSamples] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { data: stats } = useGetOccurrenceStats(specieKey);
+  const { data: stats, isLoading: isStatsLoading } =
+    useGetOccurrenceStats(specieKey);
+  const total = stats?.total ?? 0;
   const priorityCountries =
     stats?.topCountries.slice(0, 7).map((country) => country.code) ?? [];
+  const shouldPrefetchSamples = !isStatsLoading && total > 0;
   const { data: occurrenceData, isFetching } = useGetOccurrences(
     specieKey,
     priorityCountries,
+    shouldPrefetchSamples,
   );
 
-  const occurrences = occurrenceData?.occurrences ?? [];
-  const total = stats?.total ?? 0;
+  const occurrences = occurrenceData?.occurrences ?? EMPTY_OCCURRENCES;
+  const occurrenceBounds = useMemo(
+    () =>
+      occurrences.map(
+        (occurrence) =>
+          [occurrence.decimalLatitude, occurrence.decimalLongitude] as [
+            number,
+            number,
+          ],
+      ),
+    [occurrences],
+  );
   const gbifTileUrl = `https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}@2x.png?taxonKey=${specieKey}&bin=hex&hexPerTile=30&style=classic.poly`;
+  const hasAnyResults =
+    isStatsLoading || total > 0 || occurrenceData?.hasResults;
 
-  if (isFetching) {
-    return (
-      <div className="bg-card rounded-xl border p-4 shadow-sm">
-        <Loader className="m-auto size-4 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!occurrenceData?.hasResults) return null;
+  if (!hasAnyResults) return null;
 
   const mapViewportHeight = isExpanded
     ? `calc(100dvh - ${HEADER_HEIGHT_VALUE} - 9rem)`
@@ -160,11 +181,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
           </button>
 
           <MapContainer
-            key={`map-${specieKey}-${isExpanded ? "expanded" : "default"}`}
-            center={[
-              occurrences[0].decimalLatitude,
-              occurrences[0].decimalLongitude,
-            ]}
+            center={DEFAULT_MAP_CENTER}
             zoom={2}
             style={{
               height: mapViewportHeight,
@@ -177,6 +194,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             />
             <TileLayer url={gbifTileUrl} opacity={0.75} />
+            <InvalidateMapSize trigger={isExpanded ? "expanded" : "default"} />
 
             {showSamples &&
               occurrences.map((occurrence: Occurrences, index: number) => (
@@ -376,12 +394,9 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
                 </Marker>
               ))}
 
-            <FitBounds
-              bounds={occurrences.map((occurrence) => [
-                occurrence.decimalLatitude,
-                occurrence.decimalLongitude,
-              ])}
-            />
+            {occurrenceBounds.length > 0 && (
+              <FitBounds bounds={occurrenceBounds} />
+            )}
           </MapContainer>
         </div>
 
@@ -418,7 +433,11 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
                 : "border-border text-muted-foreground hover:border-blue-400 hover:text-blue-600",
             )}
           >
-            <SampleMarkerIcon active={showSamples} />
+            {isFetching ? (
+              <Loader className="size-4 animate-spin" />
+            ) : (
+              <SampleMarkerIcon active={showSamples} />
+            )}
             <span>{t("occurrenceMap.showSamples")}</span>
           </button>
         </div>
@@ -433,11 +452,13 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
           <h3 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             {t("occurrenceMap.title")}
           </h3>
-          {total > 0 && (
+          {isStatsLoading ? (
+            <Skeleton className="h-5 w-28 rounded-full" />
+          ) : total > 0 ? (
             <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs tabular-nums">
               {total.toLocaleString(lang)}&nbsp;{t("occurrenceMap.records")}
             </span>
-          )}
+          ) : null}
         </div>
 
         <div className="bg-muted mt-3 flex gap-1 rounded-lg p-1">
