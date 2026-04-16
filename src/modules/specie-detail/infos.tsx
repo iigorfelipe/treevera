@@ -9,6 +9,7 @@ import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { SourceReference } from "@/common/components/source-info/source-reference";
 
 const DESCRIPTION_LIMIT = 300;
 
@@ -206,7 +207,8 @@ export const SpecieInfos = () => {
               <strong className="text-foreground">
                 {t("specieDetail.sources")}:{" "}
               </strong>
-              GBIF, Wikipedia
+              <SourceReference sourceId="gbif">GBIF</SourceReference>,{" "}
+              <SourceReference sourceId="wikipedia">Wikipedia</SourceReference>
             </p>
           </div>
         </motion.div>

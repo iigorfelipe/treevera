@@ -133,6 +133,16 @@
     "logoutWarning": "When you sign out, your features and progress will only be available when you sign in again.",
     "logoutAnyway": "Sign out anyway"
   },
+  "aboutPage": {
+    "sourcesTitle": "Source information",
+    "sourcesHint": "Click a source name to view its complete metadata.",
+    "paragraphs": {
+      "occurrence": "Occurrence data, maps, geographic statistics, and much of the taxonomic structure shown in Treevera are obtained from <gbif>GBIF</gbif>, which aggregates biodiversity records from institutions around the world.",
+      "conservation": "For conservation status, Treevera consults the <iucn>IUCN Red List</iucn>, the main global reference for assessing species extinction risk.",
+      "photos": "Species photographs are obtained from <inat>iNaturalist</inat>, a citizen science platform with millions of verified photographic records, and <commons>Wikimedia Commons</commons>, the Wikimedia Foundation's free media repository.",
+      "descriptions": "Species and genus descriptions are obtained from <wikipedia>Wikipedia</wikipedia>. In addition, it, together with <gbif>GBIF</gbif>, can serve as an image fallback when other sources do not return a photo for the requested species."
+    }
+  },
   "profilePage": {
     "memberSince": "Member since",
     "globalRanking": "Global Ranking",
@@ -299,8 +309,7 @@
     "shareText": "Discover {{name}} on Treevera",
     "shareCopied": "Link copied!",
     "classifiedAs": "Classified as",
-    "byIucn": "by the IUCN Red List",
-    "dataProvidedBy": "Data provided by the Global Biodiversity Information Facility (GBIF).",
+    "by": "by",
     "unfavTop4Title": "Remove from favorites?",
     "unfavTop4Body": "This species is among your top 4 favorites highlighted on your profile. Unfavoriting it will remove it from your Top 4.",
     "unfavTop4Confirm": "Remove anyway",
@@ -317,16 +326,43 @@
     "photo": "Photo {{number}}"
   },
   "occurrenceMap": {
+    "title": "Global Distribution",
+    "tabMap": "Map",
+    "tabStats": "Statistics",
+    "records": "records",
     "locality": "Locality",
     "country": "Country",
+    "stateProvince": "State/Province",
     "date": "Date",
     "recordedBy": "Recorded by",
     "unknown": "Unknown",
     "noDate": "No date",
     "notInformed": "Not provided",
     "viewReference": "View reference",
-    "dataProvidedBy": "Occurrence data provided by",
-    "dataNote": ". The points represent global records from various databases, which may differ from the image source above."
+    "showRange": "Native range",
+    "showSamples": "Samples",
+    "densityLayer": "Record density",
+    "enterFullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
+    "expandMap": "Expand",
+    "collapseMap": "Collapse",
+    "rangeLayer": "Distribution range",
+    "rangeNotAvailable": "Native range not available for this species",
+    "topCountries": "Top countries",
+    "topCountriesMostRecords": "Countries with the most records",
+    "recordTypes": "Record types",
+    "latestObservation": "Latest observation",
+    "basisHumanObs": "Human Obs.",
+    "basisSpecimen": "Specimen",
+    "basisMachineObs": "Machine Obs.",
+    "basisLiterature": "Literature",
+    "basisMaterial": "Material Sample",
+    "basisOccurrence": "Occurrence",
+    "basisOther": "Other",
+    "viewOnGbif": "View on GBIF →",
+    "individuals": "individuals",
+    "dataProvidedBy": "Data provided by",
+    "dataNote": " · global records from multiple databases"
   },
   "tree": {
     "loadError": "Failed to load",
@@ -657,6 +693,60 @@
       "clearCacheDescription": "Removes cached data such as species information you have already viewed. The data will be reloaded on the next request."
     },
     "loginToSavePreference": "Sign in to save this preference."
+  },
+  "sources": {
+    "viewFullDetails": "View full details",
+    "close": "Close source details",
+    "fields": {
+      "title": "TITLE",
+      "description": "DESCRIPTION",
+      "type": "SOURCE TYPE",
+      "citation": "CITATION",
+      "provider": "PROVIDER",
+      "url": "URL"
+    },
+    "items": {
+      "gbif": {
+        "label": "GBIF",
+        "title": "Global Biodiversity Information Facility",
+        "sourceType": "Global biodiversity data infrastructure",
+        "citation": "GBIF. Global Biodiversity Information Facility. https://www.gbif.org/",
+        "description": "Global open-data platform for biodiversity, bringing together species and occurrence records from around the world for research, conservation, and science.",
+        "provider": "Global Biodiversity Information Facility"
+      },
+      "iucn-red-list": {
+        "label": "IUCN Red List",
+        "title": "The IUCN Red List of Threatened Species",
+        "sourceType": "Conservation assessment database",
+        "citation": "IUCN. The IUCN Red List of Threatened Species. https://www.iucnredlist.org/",
+        "description": "Global reference database on species extinction risk, with scientific assessments of the conservation status of fauna and flora.",
+        "provider": "International Union for Conservation of Nature"
+      },
+      "inaturalist": {
+        "label": "iNaturalist",
+        "title": "iNaturalist",
+        "sourceType": "Citizen science platform",
+        "citation": "iNaturalist. https://www.inaturalist.org/",
+        "description": "Collaborative citizen science network where people record nature observations, identify species, and contribute to biodiversity monitoring.",
+        "provider": "iNaturalist"
+      },
+      "wikimedia-commons": {
+        "label": "Wikimedia Commons",
+        "title": "Wikimedia Commons",
+        "sourceType": "Free media repository",
+        "citation": "Wikimedia Commons. https://commons.wikimedia.org/",
+        "description": "Free media repository maintained by the Wikimedia Foundation, with reusable images, audio, and video.",
+        "provider": "Wikimedia Foundation"
+      },
+      "wikipedia": {
+        "label": "Wikipedia",
+        "title": "Wikipedia",
+        "sourceType": "Collaborative encyclopedia",
+        "citation": "Wikipedia. https://www.wikipedia.org/",
+        "description": "Free collaborative online encyclopedia, created and edited by volunteers, with articles in hundreds of languages on millions of topics.",
+        "provider": "Wikimedia Foundation"
+      }
+    }
   },
   "vulnerability": {
     "unknown": "Not in the IUCN Red List",

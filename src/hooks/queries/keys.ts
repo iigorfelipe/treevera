@@ -35,4 +35,5 @@ export const QUERY_KEYS = {
   search_users_key: "search_users",
   user_custom_challenges_key: "user_custom_challenges",
   challenge_stats_key: "challenge_stats",
+  occurrence_stats_key: "occurrence_stats",
 };

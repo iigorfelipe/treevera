@@ -133,6 +133,16 @@
     "logoutWarning": "Al salir, tus funciones y progreso solo estarán disponibles cuando vuelvas a iniciar sesión.",
     "logoutAnyway": "Salir de todas formas"
   },
+  "aboutPage": {
+    "sourcesTitle": "Información de las fuentes",
+    "sourcesHint": "Haz clic en el nombre de una fuente para ver sus metadatos completos.",
+    "paragraphs": {
+      "occurrence": "Los datos de ocurrencia, mapas, estadísticas geográficas y gran parte de la estructura taxonómica mostrada en Treevera se obtienen de <gbif>GBIF</gbif>, que reúne registros de biodiversidad de instituciones de todo el mundo.",
+      "conservation": "Para el estado de conservación, Treevera consulta la <iucn>IUCN Red List</iucn>, la principal referencia global para evaluar el riesgo de extinción de especies.",
+      "photos": "Las fotografías de especies se obtienen de <inat>iNaturalist</inat>, una plataforma de ciencia ciudadana con millones de registros fotográficos verificados, y de <commons>Wikimedia Commons</commons>, el repositorio de medios libres de la Wikimedia Foundation.",
+      "descriptions": "Las descripciones de especies y géneros se obtienen de <wikipedia>Wikipedia</wikipedia>. Además, esta, junto con <gbif>GBIF</gbif>, puede servir como fuente de imagen de respaldo cuando otras fuentes no devuelven una foto para la especie consultada."
+    }
+  },
   "profilePage": {
     "memberSince": "Usuario desde",
     "globalRanking": "Clasificación Global",
@@ -299,8 +309,7 @@
     "shareText": "Descubre {{name}} en Treevera",
     "shareCopied": "¡Enlace copiado!",
     "classifiedAs": "Clasificada como",
-    "byIucn": "por la Lista Roja de la UICN",
-    "dataProvidedBy": "Datos proporcionados por la Red Mundial de Información sobre Biodiversidad (GBIF).",
+    "by": "por",
     "unfavTop4Title": "¿Eliminar de favoritos?",
     "unfavTop4Body": "Esta especie está entre tus 4 favoritas destacadas en tu perfil. Al desfavoritarla, será eliminada de tu Top 4.",
     "unfavTop4Confirm": "Eliminar de todos modos",
@@ -317,16 +326,43 @@
     "photo": "Foto {{number}}"
   },
   "occurrenceMap": {
+    "title": "Distribución Global",
+    "tabMap": "Mapa",
+    "tabStats": "Estadísticas",
+    "records": "registros",
     "locality": "Localidad",
     "country": "País",
+    "stateProvince": "Estado/Provincia",
     "date": "Fecha",
     "recordedBy": "Registrado por",
     "unknown": "Desconocido",
     "noDate": "Sin fecha",
     "notInformed": "No informado",
     "viewReference": "Ver referencia",
-    "dataProvidedBy": "Datos de ocurrencia proporcionados por",
-    "dataNote": ". Los puntos representan registros globales de diversas bases de datos, que pueden ser diferentes a la fuente de la imagen de arriba."
+    "showRange": "Área nativa",
+    "showSamples": "Muestras",
+    "densityLayer": "Densidad de registros",
+    "enterFullscreen": "Pantalla completa",
+    "exitFullscreen": "Salir de pantalla completa",
+    "expandMap": "Expandir",
+    "collapseMap": "Contraer",
+    "rangeLayer": "Área de distribución",
+    "rangeNotAvailable": "Área nativa no disponible para esta especie",
+    "topCountries": "Principales países",
+    "topCountriesMostRecords": "Países con más registros",
+    "recordTypes": "Tipo de registro",
+    "latestObservation": "Última observación",
+    "basisHumanObs": "Obs. Humana",
+    "basisSpecimen": "Espécimen",
+    "basisMachineObs": "Obs. Máquina",
+    "basisLiterature": "Literatura",
+    "basisMaterial": "Muestra",
+    "basisOccurrence": "Ocurrencia",
+    "basisOther": "Otro",
+    "viewOnGbif": "Ver en GBIF →",
+    "individuals": "individuos",
+    "dataProvidedBy": "Datos proporcionados por",
+    "dataNote": " · registros globales de múltiples bases de datos"
   },
   "tree": {
     "loadError": "Error al cargar",
@@ -657,6 +693,60 @@
       "clearCacheDescription": "Elimina datos en caché, como información de especies ya consultadas. Los datos se recargarán en la próxima consulta."
     },
     "loginToSavePreference": "Inicia sesión para guardar esta preferencia."
+  },
+  "sources": {
+    "viewFullDetails": "Ver detalles completos",
+    "close": "Cerrar detalles de la fuente",
+    "fields": {
+      "title": "TÍTULO",
+      "description": "DESCRIPCIÓN",
+      "type": "TIPO DE FUENTE",
+      "citation": "CITACIÓN",
+      "provider": "PROVEEDOR",
+      "url": "URL"
+    },
+    "items": {
+      "gbif": {
+        "label": "GBIF",
+        "title": "Global Biodiversity Information Facility",
+        "sourceType": "Infraestructura global de datos de biodiversidad",
+        "citation": "GBIF. Global Biodiversity Information Facility. https://www.gbif.org/",
+        "description": "Plataforma global de datos abiertos sobre biodiversidad que reúne registros de especies y ocurrencias de todo el mundo para investigación, conservación y ciencia.",
+        "provider": "Global Biodiversity Information Facility"
+      },
+      "iucn-red-list": {
+        "label": "IUCN Red List",
+        "title": "The IUCN Red List of Threatened Species",
+        "sourceType": "Base de evaluaciones de conservación",
+        "citation": "IUCN. The IUCN Red List of Threatened Species. https://www.iucnredlist.org/",
+        "description": "Base de referencia mundial sobre el riesgo de extinción de especies, con evaluaciones científicas del estado de conservación de la fauna y la flora.",
+        "provider": "International Union for Conservation of Nature"
+      },
+      "inaturalist": {
+        "label": "iNaturalist",
+        "title": "iNaturalist",
+        "sourceType": "Plataforma de ciencia ciudadana",
+        "citation": "iNaturalist. https://www.inaturalist.org/",
+        "description": "Red colaborativa de ciencia ciudadana donde las personas registran observaciones de la naturaleza, identifican especies y contribuyen al monitoreo de la biodiversidad.",
+        "provider": "iNaturalist"
+      },
+      "wikimedia-commons": {
+        "label": "Wikimedia Commons",
+        "title": "Wikimedia Commons",
+        "sourceType": "Repositorio de medios libres",
+        "citation": "Wikimedia Commons. https://commons.wikimedia.org/",
+        "description": "Repositorio de medios libres mantenido por la Wikimedia Foundation, con imágenes, audios y videos reutilizables.",
+        "provider": "Wikimedia Foundation"
+      },
+      "wikipedia": {
+        "label": "Wikipedia",
+        "title": "Wikipedia",
+        "sourceType": "Enciclopedia colaborativa",
+        "citation": "Wikipedia. https://www.wikipedia.org/",
+        "description": "Enciclopedia en línea libre y colaborativa, creada y editada por voluntarios, con artículos en cientos de idiomas sobre millones de temas.",
+        "provider": "Wikimedia Foundation"
+      }
+    }
   },
   "vulnerability": {
     "unknown": "Sin registro en la Lista Roja de la UICN",
