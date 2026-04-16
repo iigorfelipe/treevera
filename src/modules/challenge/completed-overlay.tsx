@@ -50,6 +50,13 @@ export const ChallengeCompletedOverlay = ({
   const handleReplay = () => {
     setExpandedNodes([]);
     setHighlightedKeys([]);
+    const replayPath =
+      mode === "DAILY"
+        ? "/challenges/daily"
+        : mode === "RANDOM"
+          ? "/challenges/random"
+          : "/challenges";
+    void navigate({ to: replayPath, resetScroll: false });
     setChallenge((prev) => ({
       ...prev,
       status: "IN_PROGRESS",
@@ -73,6 +80,7 @@ export const ChallengeCompletedOverlay = ({
 
     setExpandedNodes([]);
     setHighlightedKeys([]);
+    void navigate({ to: "/challenges/random", resetScroll: false });
     setChallenge({
       mode: "RANDOM",
       status: "IN_PROGRESS",
@@ -88,6 +96,7 @@ export const ChallengeCompletedOverlay = ({
     if (!navDayData) return;
     setExpandedNodes([]);
     setHighlightedKeys([]);
+    void navigate({ to: "/challenges/daily", resetScroll: false });
     setChallenge({
       mode: "DAILY",
       status: "IN_PROGRESS",
