@@ -142,7 +142,7 @@ async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
       row.description_pt?.slice(0, 160) ??
       (row.family ? `Família: ${row.family}` : "Espécie na Treevera");
     return {
-      title: `${row.scientific_name} — Treevera`,
+      title: `${row.scientific_name} | Treevera`,
       description: desc,
       image: row.has_image && row.image_url ? row.image_url : "",
     };
@@ -172,7 +172,7 @@ async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
     );
     if (!profile) return null;
     return {
-      title: `${profile.name} (@${profile.username}) — Treevera`,
+      title: `${profile.name} (@${profile.username}) | Treevera`,
       description: `Perfil de ${profile.name} na Treevera`,
       image: profile.avatar_url ?? "",
     };
@@ -192,7 +192,7 @@ async function getMetaForRoute(pathname: string, env: Env): Promise<MetaInfo> {
       list.description?.slice(0, 160) ??
       `Lista com ${list.species_count} espécies`;
     return {
-      title: `${list.title} — Treevera`,
+      title: `${list.title} | Treevera`,
       description: desc,
       image: list.cover_image_url ?? "",
     };
