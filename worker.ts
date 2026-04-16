@@ -86,7 +86,7 @@ function getSiteText(locale: Locale) {
           "Interactive platform for exploring the tree of life and the taxonomic classification of species.",
         speciesFallback: "Species on Treevera",
         familyLabel: "Family",
-        profilePrefix: "Profile of",
+        profileDescription: (name: string) => `${name}'s profile on Treevera`,
         listWithCount: (count: number) => `List with ${count} species`,
         aboutTitle: "About | Treevera",
         aboutDescription:
@@ -111,7 +111,7 @@ function getSiteText(locale: Locale) {
           "Plataforma interactiva para explorar el árbol de la vida y la clasificación taxonómica de las especies.",
         speciesFallback: "Especie en Treevera",
         familyLabel: "Familia",
-        profilePrefix: "Perfil de",
+        profileDescription: (name: string) => `Perfil de ${name} en Treevera`,
         listWithCount: (count: number) => `Lista con ${count} especies`,
         aboutTitle: "Acerca de | Treevera",
         aboutDescription:
@@ -136,7 +136,7 @@ function getSiteText(locale: Locale) {
           "Plataforma interativa para explorar a árvore da vida e a classificação taxonômica das espécies.",
         speciesFallback: "Espécie na Treevera",
         familyLabel: "Família",
-        profilePrefix: "Perfil de",
+        profileDescription: (name: string) => `Perfil de ${name} na Treevera`,
         listWithCount: (count: number) => `Lista com ${count} espécies`,
         aboutTitle: "Sobre | Treevera",
         aboutDescription:
@@ -154,6 +154,132 @@ function getSiteText(locale: Locale) {
   }
 }
 
+function buildSitemapXml(urls: { loc: string; priority: string }[]): string {
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+  for (const u of urls) {
+    xml += `  <url>\n    <loc>${escapeHtml(u.loc)}</loc>\n    <priority>${u.priority}</priority>\n  </url>\n`;
+  }
+  xml += `</urlset>`;
+  return xml;
+}
+
+async function generateDynamicSitemap(env: Env): Promise<string> {
+  const siteUrl = env.SITE_URL || "https://treevera.org";
+
+  const staticUrls = [
+    { loc: `${siteUrl}/`, priority: "1.0" },
+    { loc: `${siteUrl}/tree`, priority: "0.9" },
+    { loc: `${siteUrl}/lists`, priority: "0.8" },
+    { loc: `${siteUrl}/challenges`, priority: "0.8" },
+    { loc: `${siteUrl}/challenges/daily`, priority: "0.7" },
+    { loc: `${siteUrl}/challenges/random`, priority: "0.7" },
+    { loc: `${siteUrl}/challenges/custom`, priority: "0.6" },
+    { loc: `${siteUrl}/about`, priority: "0.6" },
+  ];
+
+  const dynamicUrls: { loc: string; priority: string }[] = [];
+
+  try {
+    const speciesRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/species_data_cache?select=gbif_key&has_image=eq.true&order=gbif_key&limit=5000`,
+      {
+        headers: {
+          apikey: env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+          Accept: "application/json",
+        },
+      },
+    );
+    if (speciesRes.ok) {
+      const species = (await speciesRes.json()) as { gbif_key: number }[];
+      for (const s of species) {
+        dynamicUrls.push({
+          loc: `${siteUrl}/specie-detail/${s.gbif_key}`,
+          priority: "0.7",
+        });
+      }
+    }
+  } catch {
+    //
+  }
+
+  try {
+    const listsRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/rpc/get_public_lists`,
+      {
+        method: "POST",
+        headers: {
+          apikey: env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          p_limit: 1000,
+          p_offset: 0,
+          p_sort: "popular",
+          p_search: null,
+        }),
+      },
+    );
+    if (listsRes.ok) {
+      const lists = (await listsRes.json()) as {
+        user_username: string;
+        slug: string;
+      }[];
+      for (const l of lists) {
+        dynamicUrls.push({
+          loc: `${siteUrl}/${l.user_username}/lists/${l.slug}`,
+          priority: "0.6",
+        });
+      }
+    }
+  } catch {
+    //
+  }
+
+  try {
+    const profilesRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/profiles?select=username&username=not.is.null&limit=5000`,
+      {
+        headers: {
+          apikey: env.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+          Accept: "application/json",
+        },
+      },
+    );
+    if (profilesRes.ok) {
+      const profiles = (await profilesRes.json()) as { username: string }[];
+      for (const p of profiles) {
+        dynamicUrls.push({
+          loc: `${siteUrl}/${p.username}`,
+          priority: "0.5",
+        });
+      }
+    }
+  } catch {
+    //
+  }
+
+  return buildSitemapXml([...staticUrls, ...dynamicUrls]);
+}
+
+const NOINDEX_PATTERNS = [
+  /^\/login$/,
+  /^\/auth-callback$/,
+  /^\/settings(\/|$)/,
+  /^\/search\//,
+  /^\/[a-z0-9_]+\/species-gallery$/,
+  /^\/[a-z0-9_]+\/liked-lists$/,
+  /^\/specie-detail\/\d+\/likes$/,
+  /^\/specie-detail\/\d+\/lists$/,
+];
+
+function shouldNoindex(pathname: string): boolean {
+  return NOINDEX_PATTERNS.some((re) => re.test(pathname));
+}
+
 function buildMetaHtml(
   html: string,
   meta: {
@@ -162,6 +288,7 @@ function buildMetaHtml(
     image: string;
     url: string;
     locale?: string;
+    lang?: string;
     robots?: string;
     structuredData?: StructuredData;
   },
@@ -179,6 +306,13 @@ function buildMetaHtml(
   };
 
   let result = html;
+
+  if (meta.lang) {
+    result = result.replace(
+      /<html lang="[^"]*">/,
+      `<html lang="${escapeHtml(meta.lang)}">`,
+    );
+  }
 
   result = result.replace(
     /<meta property="og:title"[^>]*\/>/,
@@ -297,6 +431,14 @@ async function getMetaForRoute(
             url: `${siteUrl}/`,
             inLanguage: locale,
             description: text.websiteDescription,
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: `${siteUrl}/search/{search_term_string}`,
+              },
+              "query-input": "required name=search_term_string",
+            },
           },
           {
             "@type": "Organization",
@@ -405,7 +547,7 @@ async function getMetaForRoute(
 
     return {
       title: `${profile.name} (@${profile.username}) | Treevera`,
-      description: `${text.profilePrefix} ${profile.name} na Treevera`,
+      description: text.profileDescription(profile.name),
       image: profile.avatar_url ?? "",
       structuredData: {
         "@context": "https://schema.org",
@@ -470,6 +612,20 @@ export default {
         return Response.redirect(url.toString(), 301);
       }
 
+      if (
+        url.pathname === "/sitemap.xml" &&
+        env.SUPABASE_URL &&
+        env.SUPABASE_ANON_KEY
+      ) {
+        const xml = await generateDynamicSitemap(env);
+        return new Response(xml, {
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+            "Cache-Control": "public, max-age=3600, s-maxage=3600",
+          },
+        });
+      }
+
       const userAgent = request.headers.get("user-agent") ?? "";
       if (!CRAWLERS.test(userAgent)) {
         return env.ASSETS.fetch(request);
@@ -484,6 +640,8 @@ export default {
         return env.ASSETS.fetch(request);
       }
 
+      const robots = shouldNoindex(url.pathname) ? "noindex,follow" : undefined;
+
       const assetResponse = await env.ASSETS.fetch(request);
       const contentType = assetResponse.headers.get("content-type") ?? "";
       if (!contentType.includes("text/html")) {
@@ -497,12 +655,20 @@ export default {
           ? `${siteUrl}${meta.image}`
           : meta.image;
 
+      const langMap: Record<Locale, string> = {
+        pt: "pt-BR",
+        en: "en",
+        es: "es",
+      };
+
       const injected = buildMetaHtml(html, {
         title: meta.title,
         description: meta.description,
         image: fullImage || `${siteUrl}/og-image.png`,
         url: `${siteUrl}${url.pathname}`,
         locale: getOgLocale(locale),
+        lang: langMap[locale],
+        robots,
         structuredData: meta.structuredData,
       });
 

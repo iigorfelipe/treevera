@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
+Disallow: /login
+Disallow: /auth-callback
+Disallow: /settings
+Disallow: /search/
+
 Sitemap: https://treevera.org/sitemap.xml

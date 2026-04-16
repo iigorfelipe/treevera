@@ -5,12 +5,24 @@ import { useSetAtom } from "jotai";
 import { treeAtom } from "@/store/tree";
 import { useEffect } from "react";
 import { useLocation } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 export const Home = () => {
+  const { t } = useTranslation();
   const { isTablet } = useResponsive();
   const setChallenge = useSetAtom(treeAtom.challenge);
   const location = useLocation();
   const isOnChallenges = location.pathname.startsWith("/challenges");
+  const isOnTree = location.pathname.startsWith("/tree");
+
+  useDocumentTitle(
+    isOnChallenges
+      ? t("nav.challenges")
+      : isOnTree
+        ? t("settings.nav.tree")
+        : undefined,
+  );
 
   useEffect(() => {
     setChallenge((prev) => {

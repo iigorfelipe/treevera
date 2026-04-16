@@ -38,6 +38,7 @@ import { ListCoverCollage } from "./list-cover-collage";
 import { ListCreateDialog } from "./list-create-dialog";
 import { ListViewToggle, type ListViewMode } from "./list-view-toggle";
 import type { ListWithCreator } from "@/common/types/lists";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 
 const ADMIN_USERNAME = "treevera";
 const MAX_FEATURED = 3;
@@ -103,6 +104,7 @@ type SortMode = "recent" | "popular";
 
 export const ListsPage = () => {
   const { t } = useTranslation();
+  useDocumentTitle(t("lists.title"));
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
