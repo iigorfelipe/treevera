@@ -642,7 +642,7 @@
     "nav": {
       "account": "Cuenta",
       "tree": "Árbol taxonómico",
-      "challenges": "Desafíos",
+      "audio": "Audio",
       "theme": "Tema",
       "language": "Idioma",
       "advanced": "Avanzado"
@@ -676,8 +676,8 @@
       "showRankBadge": "Mostrar insignia de rango",
       "showRankBadgeDescription": "Mostrar siempre la insignia de rango (por ejemplo: Order, Family) al lado de cada nodo. Cuando está desactivado, la insignia solo aparece al pasar el cursor."
     },
-    "challenges": {
-      "title": "Desafíos",
+    "audio": {
+      "title": "Audio",
       "description": "Configuración de audio durante los desafíos.",
       "audio": "Sonido",
       "audioDescription": "Activa o desactiva los efectos de sonido durante los desafíos.",

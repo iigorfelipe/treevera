@@ -644,7 +644,7 @@
     "nav": {
       "account": "Conta",
       "tree": "Árvore Taxonômica",
-      "challenges": "Desafios",
+      "audio": "Audio",
       "theme": "Tema",
       "language": "Idioma",
       "advanced": "Avançado"
@@ -678,8 +678,8 @@
       "showRankBadge": "Exibir badge de rank",
       "showRankBadgeDescription": "Sempre exibir o badge de rank (ex: Order, Family) ao lado de cada nó. Quando desativado, o badge aparece apenas ao passar o mouse."
     },
-    "challenges": {
-      "title": "Desafios",
+    "audio": {
+      "title": "Audio",
       "description": "Configurações de áudio durante os desafios.",
       "audio": "Som",
       "audioDescription": "Ativar ou desativar os efeitos sonoros durante os desafios.",

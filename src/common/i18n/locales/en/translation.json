@@ -642,7 +642,7 @@
     "nav": {
       "account": "Account",
       "tree": "Taxonomic Tree",
-      "challenges": "Challenges",
+      "audio": "Audio",
       "theme": "Theme",
       "language": "Language",
       "advanced": "Advanced"
@@ -676,8 +676,8 @@
       "showRankBadge": "Show rank badge",
       "showRankBadgeDescription": "Always show the rank badge (for example: Order, Family) next to each node. When disabled, the badge only appears on hover."
     },
-    "challenges": {
-      "title": "Challenges",
+    "audio": {
+      "title": "Audio",
       "description": "Audio settings during challenges.",
       "audio": "Sound",
       "audioDescription": "Enable or disable sound effects during challenges.",

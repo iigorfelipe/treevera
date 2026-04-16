@@ -74,7 +74,7 @@ const Toggle = ({
 export type SectionId =
   | "account"
   | "tree"
-  | "challenges"
+  | "audio"
   | "theme"
   | "language"
   | "advanced";
@@ -662,7 +662,7 @@ function TreeSection({
   );
 }
 
-function ChallengesSection({
+function AudioSection({
   audio,
   setAudio,
   flat,
@@ -680,8 +680,8 @@ function ChallengesSection({
 
   const volumeRow = (
     <SettingRow
-      title={t("settings.challenges.volume")}
-      description={t("settings.challenges.description")}
+      title={t("settings.audio.volume")}
+      description={t("settings.audio.description")}
     >
       <div className="flex items-center gap-2.5">
         <VolumeX className="text-muted-foreground size-4 shrink-0" />
@@ -708,8 +708,8 @@ function ChallengesSection({
   return (
     <div className="space-y-4">
       <SectionHeading
-        title={t("settings.challenges.title")}
-        description={t("settings.challenges.description")}
+        title={t("settings.audio.title")}
+        description={t("settings.audio.description")}
       />
       {flat ? (
         volumeRow
@@ -824,7 +824,7 @@ function AdvancedSection({
 const VALID_SECTIONS = new Set<SectionId>([
   "account",
   "tree",
-  "challenges",
+  "audio",
   "theme",
   "language",
   "advanced",
@@ -836,7 +836,7 @@ export const SettingsPage = () => {
   const navItems: { id: SectionId; label: string }[] = [
     { id: "account", label: t("settings.nav.account") },
     { id: "tree", label: t("settings.nav.tree") },
-    { id: "challenges", label: t("settings.nav.challenges") },
+    { id: "audio", label: t("settings.nav.audio") },
     { id: "theme", label: t("settings.nav.theme") },
     { id: "language", label: t("settings.nav.language") },
     { id: "advanced", label: t("settings.nav.advanced") },
@@ -892,9 +892,9 @@ export const SettingsPage = () => {
             flat={flat}
           />
         );
-      case "challenges":
+      case "audio":
         return (
-          <ChallengesSection
+          <AudioSection
             audio={sharedProps.audio}
             setAudio={sharedProps.setAudio}
             flat={flat}

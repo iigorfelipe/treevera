@@ -118,7 +118,7 @@ export function UserProfilePage({ username }: { username: string }) {
               </div>
             )}
             {!isOfficialProfile && (
-              <div className="order-6">
+              <div className="order-8">
                 <UserAchievements userId={data.id} isOwner={false} />
               </div>
             )}
@@ -128,7 +128,15 @@ export function UserProfilePage({ username }: { username: string }) {
             <div className="order-4">
               <UserListsPreview userId={data.id} username={data.username} />
             </div>
-            <div className="order-5">
+            {!isOfficialProfile && (
+              <div className="order-5">
+                <UserLikedListsPreview
+                  userId={data.id}
+                  username={data.username}
+                />
+              </div>
+            )}
+            <div className="order-6">
               <TreeShortcuts
                 shortcuts={data.public_info?.shortcuts}
                 isOwner={false}
@@ -136,14 +144,6 @@ export function UserProfilePage({ username }: { username: string }) {
             </div>
             {!isOfficialProfile && (
               <div className="order-7">
-                <UserLikedListsPreview
-                  userId={data.id}
-                  username={data.username}
-                />
-              </div>
-            )}
-            {!isOfficialProfile && (
-              <div className="order-8">
                 <LatestUserActivities userId={data.id} />
               </div>
             )}
