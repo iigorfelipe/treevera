@@ -83,7 +83,7 @@ export const HeaderProfile = ({
         {totalSpeciesSeen > 0 && (
           <button
             onClick={handleGalleryClick}
-            className="text-muted-foreground hover:text-foreground flex shrink-0 flex-col items-center gap-0.5 pt-0.5 transition-colors"
+            className="text-muted-foreground hover:text-foreground flex shrink-0 cursor-pointer flex-col items-center gap-0.5 pt-0.5 transition-colors"
           >
             <span className="text-foreground text-xl leading-none font-bold">
               {totalSpeciesSeen}

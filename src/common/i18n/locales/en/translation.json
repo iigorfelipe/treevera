@@ -72,14 +72,17 @@
     "initializing": "Initializing..."
   },
   "auth": {
+    "pageTitle": "Sign in",
+    "title": "Save your progress on Treevera",
+    "subtitle": "Sign in with Google to save explored species, play challenges, and create lists.",
     "finalizingAuth": "Finalizing authentication...",
     "waitSeconds": "Please wait a few seconds.",
-    "descriptionGoogle": "Sign in with your Google account to unlock all features and save your progress",
     "loginError": "Login error",
     "signingIn": "Signing in...",
     "continueWithGoogle": "Continue with Google",
-    "exclusiveFeatures": "Sign in to access",
-    "continueWithoutLogin": "You can continue without signing in, but you won't have access to the features listed above.",
+    "mainFeatures": "When you sign in, you can:",
+    "continueWithoutLogin": "You can keep exploring without signing in.",
+    "continueWithoutLoginButton": "Continue without signing in",
     "back": "Back",
     "backAriaLabel": "Go back to previous page",
     "benefits": {

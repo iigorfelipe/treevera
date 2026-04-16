@@ -47,7 +47,7 @@ export const Login = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { login } = useAuth();
-  useDocumentTitle("Login");
+  useDocumentTitle(t("auth.pageTitle"));
 
   const isLoggingIn = useAtomValue(authStore.loginStatus) === "loading";
   const authError = useAtomValue(authStore.error);
@@ -91,11 +91,11 @@ export const Login = () => {
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <section className="relative z-10 mx-auto w-full max-w-lg">
-        <Card className="border-0 shadow-xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">{t("welcome")}</CardTitle>
-            <CardDescription className="text-sm leading-relaxed">
-              {t("auth.descriptionGoogle")}
+        <Card className="shadow-xl">
+          <CardHeader className="space-y-2 text-center">
+            <CardTitle className="text-2xl">{t("auth.title")}</CardTitle>
+            <CardDescription className="text-muted-foreground text-sm leading-relaxed">
+              {t("auth.subtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -108,7 +108,7 @@ export const Login = () => {
             <Button
               onClick={handleLogin}
               disabled={isLoggingIn}
-              className="h-12 w-full border border-gray-300 text-base font-medium shadow-sm hover:bg-gray-50"
+              className="h-12 w-full text-base font-medium"
               variant="outline"
             >
               {isLoggingIn ? (
@@ -125,19 +125,17 @@ export const Login = () => {
             </Button>
 
             <div className="space-y-4 border-t pt-4">
-              <div className="text-center">
-                <p className="text-sm text-gray-500">
-                  {t("auth.exclusiveFeatures")}
-                </p>
-              </div>
-              <ul className="grid h-48 grid-cols-1 overflow-auto 2xl:h-full">
-                {benefits.map((benefit, index) => {
+              <p className="text-muted-foreground text-center text-sm">
+                {t("auth.mainFeatures")}
+              </p>
+              <ul className="grid grid-cols-1 gap-1">
+                {benefits.slice(0, 4).map((benefit, index) => {
                   const IconComponent = benefit.icon;
                   const copy = getBenefitCopy(t, benefit.key);
                   return (
                     <li
                       key={index}
-                      className="flex items-start space-x-3 rounded-lg px-2 py-3"
+                      className="flex items-start space-x-3 rounded-lg px-2 py-2.5"
                     >
                       <div className="text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-full">
                         <IconComponent className="size-4" />
@@ -155,19 +153,19 @@ export const Login = () => {
             </div>
           </CardContent>
 
-          <div className="border-border text-muted-foreground space-y-4 border-t p-6 pb-1">
+          <div className="text-muted-foreground space-y-4 border-t p-6 pt-5">
             <p className="text-center text-sm leading-relaxed">
               {t("auth.continueWithoutLogin")}
             </p>
 
             <Button
-              className="border-border h-11 w-full border font-medium transition-all duration-200"
+              className="h-11 w-full font-medium"
               variant="outline"
               aria-label={t("auth.backAriaLabel")}
               onClick={handleBack}
             >
               <ArrowLeft className="mr-2 size-4" aria-hidden="true" />
-              {t("auth.back")}
+              {t("auth.continueWithoutLoginButton")}
             </Button>
           </div>
         </Card>

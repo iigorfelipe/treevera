@@ -72,14 +72,17 @@
     "initializing": "Inicializando..."
   },
   "auth": {
+    "pageTitle": "Entrar",
+    "title": "Salve seu progresso no Treevera",
+    "subtitle": "Entre com Google para guardar espécies exploradas, jogar desafios e criar listas.",
     "finalizingAuth": "Finalizando autenticação...",
     "waitSeconds": "Aguarde alguns segundos.",
-    "descriptionGoogle": "Entre com sua conta Google para desbloquear todos os recursos e salvar seu progresso",
     "loginError": "Erro ao fazer login",
     "signingIn": "Entrando...",
     "continueWithGoogle": "Continuar com Google",
-    "exclusiveFeatures": "Entre para ter acesso a",
-    "continueWithoutLogin": "Você pode continuar sem fazer login, mas não terá acesso aos recursos listados acima.",
+    "mainFeatures": "Ao entrar, você poderá:",
+    "continueWithoutLogin": "Você pode continuar explorando sem login.",
+    "continueWithoutLoginButton": "Continuar sem login",
     "back": "Voltar",
     "backAriaLabel": "Voltar para página anterior",
     "benefits": {
