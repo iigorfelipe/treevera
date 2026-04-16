@@ -18,6 +18,7 @@ import {
   LogIn,
   LogOut,
   MenuIcon,
+  CircleHelp,
   Settings,
   Target,
   UserCircle,
@@ -294,6 +295,27 @@ export const Menu = ({
             >
               <List className="mr-2 size-4" />
               {t("lists.title")}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={() => {
+                closeMenuImmediately();
+                if (challenge.status === "IN_PROGRESS") {
+                  openConfirm({
+                    title: t("challenge.inProgressTitle"),
+                    description: t("challenge.leaveWarning"),
+                    confirmLabel: t("challenge.continue"),
+                    onConfirm: () => navigate({ to: "/about" }),
+                    variant: "default",
+                  });
+                  return;
+                }
+                navigate({ to: "/about" });
+              }}
+            >
+              <CircleHelp className="mr-2 size-4" />
+              {t("nav.about")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 

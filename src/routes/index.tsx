@@ -20,6 +20,9 @@ const AuthCallback = lazy(() =>
 const SettingsPage = lazy(() =>
   import("@/app/settings").then((m) => ({ default: m.SettingsPage })),
 );
+const AboutPage = lazy(() =>
+  import("@/app/about").then((m) => ({ default: m.AboutPage })),
+);
 const SpecieDetailPage = lazy(() =>
   import("@/app/details/specie-detail-page").then((m) => ({
     default: m.SpecieDetailPage,
@@ -166,6 +169,12 @@ const settingsSectionRoute = createRoute({
       throw redirect({ to: "/login" });
     }
   },
+});
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/about",
+  component: AboutPage,
 });
 
 const specieDetailRoute = createRoute({
@@ -364,6 +373,7 @@ const routeTree = rootRoute.addChildren([
   searchRoute,
   authRoute,
   homeRoute,
+  aboutRoute,
   settingsRoute,
   settingsSectionRoute,
   treeRoute,

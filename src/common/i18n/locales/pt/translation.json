@@ -133,6 +133,16 @@
     "logoutWarning": "Ao sair, seus recursos e progresso só ficarão disponíveis quando entrar novamente.",
     "logoutAnyway": "Sair mesmo assim"
   },
+  "aboutPage": {
+    "sourcesTitle": "Informações das fontes",
+    "sourcesHint": "Clique no nome de uma fonte para ver seus metadados completos.",
+    "paragraphs": {
+      "occurrence": "Dados de ocorrência, mapas, estatísticas geográficas e boa parte da estrutura taxonômica exibida no Treevera são obtidos a partir do <gbif>GBIF</gbif>, que agrega registros de biodiversidade de instituições ao redor do mundo.",
+      "conservation": "Para status de conservação, o Treevera consulta a <iucn>IUCN Red List</iucn>, a principal referência global para avaliação de risco de extinção de espécies.",
+      "photos": "Fotografias de espécies foram obtidas do <inat>iNaturalist</inat>, uma plataforma de ciência cidadã com milhões de registros fotográficos verificados, e <commons>Wikimedia Commons</commons>, repositório de mídia livre da Wikimedia Foundation.",
+      "descriptions": "As descrições das espécies e gêneros são obtidas da <wikipedia>Wikipedia</wikipedia>. Além disso, ela juntamente com o <gbif>GBIF</gbif> podem servir como fallback de imagem quando outras fontes não retornam uma foto para a espécie consultada."
+    }
+  },
   "profilePage": {
     "memberSince": "Usuário desde",
     "globalRanking": "Ranking Global",
@@ -299,8 +309,7 @@
     "shareText": "Descubra {{name}} no Treevera",
     "shareCopied": "Link copiado!",
     "classifiedAs": "Classificada como",
-    "byIucn": "pela IUCN Red List",
-    "dataProvidedBy": "Dados fornecidos pela Rede Global de Biodiversidade (GBIF).",
+    "by": "pela",
     "unfavTop4Title": "Remover dos favoritos?",
     "unfavTop4Body": "Esta espécie está entre as suas 4 favoritas destacadas no perfil. Ao desfavoritar, ela será removida do seu Top 4.",
     "unfavTop4Confirm": "Remover mesmo assim",
@@ -341,8 +350,6 @@
     "rangeNotAvailable": "Área nativa indisponível para esta espécie",
     "topCountries": "Principais países",
     "topCountriesMostRecords": "Países com mais registros",
-    "topCountriesInGbif": "Países com mais registros no GBIF",
-    "recordsInGbif": "registros no GBIF",
     "recordTypes": "Tipo de registro",
     "latestObservation": "Última observação",
     "basisHumanObs": "Obs. Humana",
@@ -688,6 +695,60 @@
       "clearCacheDescription": "Remove dados em cache como informações de espécies já consultadas. Os dados serão recarregados na próxima consulta."
     },
     "loginToSavePreference": "Faça login para salvar esta preferência."
+  },
+  "sources": {
+    "viewFullDetails": "Ver detalhes completos",
+    "close": "Fechar detalhes da fonte",
+    "fields": {
+      "title": "TÍTULO",
+      "description": "DESCRIÇÃO",
+      "type": "TIPO DE FONTE",
+      "citation": "CITAÇÃO",
+      "provider": "PROVEDOR",
+      "url": "URL"
+    },
+    "items": {
+      "gbif": {
+        "label": "GBIF",
+        "title": "Global Biodiversity Information Facility",
+        "sourceType": "Infraestrutura global de dados de biodiversidade",
+        "citation": "GBIF. Global Biodiversity Information Facility. https://www.gbif.org/",
+        "description": "Plataforma global de dados abertos sobre biodiversidade, reunindo registros de espécies e ocorrências do mundo todo para pesquisa, conservação e ciência.",
+        "provider": "Global Biodiversity Information Facility"
+      },
+      "iucn-red-list": {
+        "label": "IUCN Red List",
+        "title": "The IUCN Red List of Threatened Species",
+        "sourceType": "Base de avaliações de conservação",
+        "citation": "IUCN. The IUCN Red List of Threatened Species. https://www.iucnredlist.org/",
+        "description": "Base de referência mundial sobre o risco de extinção de espécies, com avaliações científicas do estado de conservação da fauna e flora.",
+        "provider": "International Union for Conservation of Nature"
+      },
+      "inaturalist": {
+        "label": "iNaturalist",
+        "title": "iNaturalist",
+        "sourceType": "Plataforma de ciência cidadã",
+        "citation": "iNaturalist. https://www.inaturalist.org/",
+        "description": "Rede colaborativa de ciência cidadã onde pessoas registram observações da natureza, identificam espécies e contribuem para o monitoramento da biodiversidade.",
+        "provider": "iNaturalist"
+      },
+      "wikimedia-commons": {
+        "label": "Wikimedia Commons",
+        "title": "Wikimedia Commons",
+        "sourceType": "Repositório de mídia livre",
+        "citation": "Wikimedia Commons. https://commons.wikimedia.org/",
+        "description": "Repositório de mídia livre mantido pela Wikimedia Foundation, com imagens, áudios e vídeos reutilizáveis.",
+        "provider": "Wikimedia Foundation"
+      },
+      "wikipedia": {
+        "label": "Wikipedia",
+        "title": "Wikipedia",
+        "sourceType": "Enciclopédia colaborativa",
+        "citation": "Wikipedia. https://www.wikipedia.org/",
+        "description": "Enciclopédia online livre e colaborativa, criada e editada por voluntários, com artigos em centenas de idiomas sobre milhões de temas.",
+        "provider": "Wikimedia Foundation"
+      }
+    }
   },
   "vulnerability": {
     "unknown": "Sem registro na IUCN Red List",

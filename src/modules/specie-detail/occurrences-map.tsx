@@ -15,6 +15,7 @@ import {
   type Occurrences,
 } from "@/hooks/queries/useGetOccurrences";
 import { useGetOccurrenceStats } from "@/hooks/queries/useGetOccurrenceStats";
+import { SourceReference } from "@/common/components/source-info/source-reference";
 
 L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
@@ -513,14 +514,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
       <div className="border-t px-4 pt-1 pb-3">
         <p className="text-muted-foreground flex flex-wrap items-center gap-1 pt-2 text-xs">
           {t("occurrenceMap.dataProvidedBy")}
-          <a
-            href={`https://www.gbif.org/species/${specieKey}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            GBIF.org
-          </a>
+          <SourceReference sourceId="gbif">GBIF</SourceReference>
           {t("occurrenceMap.dataNote")}
         </p>
       </div>

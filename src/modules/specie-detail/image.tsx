@@ -15,6 +15,7 @@ import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { ImageWithZoom } from "@/common/components/image-with-zoom";
 import { cn } from "@/common/utils/cn";
+import { SourceReference } from "@/common/components/source-info/source-reference";
 
 type Props = {
   isFav: boolean;
@@ -23,6 +24,15 @@ type Props = {
   favCount?: number;
   specieKey?: number;
 };
+
+function getSourceIdFromName(source?: string) {
+  if (!source) return null;
+  if (source === "GBIF") return "gbif" as const;
+  if (source === "iNaturalist") return "inaturalist" as const;
+  if (source === "Wikipedia") return "wikipedia" as const;
+  if (source === "Wikimedia Commons") return "wikimedia-commons" as const;
+  return null;
+}
 
 export const SpecieImageDetail = ({
   isFav,
@@ -111,7 +121,15 @@ export const SpecieImageDetail = ({
         />
         <span>{t("specieDetail.imageNotFound")}</span>
         <div className="rounded-md border p-3 text-xs">
-          <p>{t("specieDetail.imageNote")}</p>
+          <p>
+            As imagens são obtidas através da{" "}
+            <SourceReference sourceId="wikipedia">Wikipedia</SourceReference>,{" "}
+            <SourceReference sourceId="inaturalist">
+              iNaturalist
+            </SourceReference>{" "}
+            e <SourceReference sourceId="gbif">GBIF</SourceReference>, e podem
+            estar ausentes para espécies com pouca documentação visual.
+          </p>
         </div>
 
         <a
@@ -224,7 +242,20 @@ export const SpecieImageDetail = ({
         {currentImage?.source && (
           <div className="absolute right-2 bottom-2">
             <p className="rounded bg-black/55 px-1.5 py-0.5 text-xs text-white backdrop-blur-sm">
-              {t("specieDetail.imageSource")}: {currentImage.source}
+              {t("specieDetail.imageSource")}:{" "}
+              {(() => {
+                const sourceId = getSourceIdFromName(currentImage.source);
+                if (!sourceId) return currentImage.source;
+
+                return (
+                  <SourceReference
+                    sourceId={sourceId}
+                    className="text-white hover:text-white/80"
+                  >
+                    {currentImage.source}
+                  </SourceReference>
+                );
+              })()}
               {currentImage.author && ` · @${currentImage.author.trim()}`}
               {currentImage.licenseCode && ` · ${currentImage.licenseCode}`}
             </p>
