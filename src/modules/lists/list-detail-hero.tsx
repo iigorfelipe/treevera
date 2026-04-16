@@ -95,36 +95,60 @@ export const ListDetailHero = ({
       </div>
 
       <div className="px-4 pb-4 sm:px-6">
-        <div className="mx-auto max-w-7xl space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Avatar className="border-border size-7 border">
-                <AvatarImage src={list.user_avatar_url || undefined} />
-                <AvatarFallback className="text-xs">
-                  {(list.user_name || "?")[0].toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-muted-foreground text-sm">
-                {t("lists.by")}{" "}
-                {list.user_username ? (
-                  <Link
-                    to="/$username"
-                    params={{ username: list.user_username }}
-                    className="hover:text-foreground font-medium transition-colors"
-                  >
-                    @{list.user_username}
-                  </Link>
-                ) : (
-                  list.user_name || "—"
-                )}
-              </span>
-            </div>
+        <div className="mx-auto max-w-7xl space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 space-y-1.5">
+              <div className="flex min-w-0 items-center gap-2">
+                <Avatar className="border-border size-7 shrink-0 border">
+                  <AvatarImage src={list.user_avatar_url || undefined} />
+                  <AvatarFallback className="text-xs">
+                    {(list.user_name || "?")[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-muted-foreground min-w-0 truncate text-sm">
+                  {t("lists.by")}{" "}
+                  {list.user_username ? (
+                    <Link
+                      to="/$username"
+                      params={{ username: list.user_username }}
+                      className="hover:text-foreground inline-block max-w-full truncate align-bottom font-medium transition-colors"
+                    >
+                      @{list.user_username}
+                    </Link>
+                  ) : (
+                    list.user_name || "-"
+                  )}
+                </span>
+              </div>
 
-            <div className="flex items-center">
-              <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                Atualizada ·{" "}
+              <div className="text-muted-foreground pl-0.5 text-xs">
+                Atualizada {"\u00b7"}{" "}
                 {formatActivityDate(list.updated_at || list.created_at)}
               </div>
+            </div>
+
+            <div className="flex shrink-0 items-start gap-1.5">
+              {list.is_public && (
+                <>
+                  <ListLikeButton
+                    listId={list.id}
+                    isLiked={list.is_liked}
+                    likesCount={list.likes_count}
+                    size="sm"
+                    username={list.user_username}
+                    listSlug={list.slug}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex h-8 min-w-0 gap-2 px-2.5"
+                    onClick={handleShare}
+                    aria-label={t("lists.shareLabel")}
+                  >
+                    <Share2 className="size-4" />
+                  </Button>
+                </>
+              )}
 
               {isOwner && (onEdit || onDelete) && (
                 <DropdownMenu>
@@ -160,45 +184,23 @@ export const ListDetailHero = ({
             </div>
           </div>
 
-          <div className="flex justify-between gap-5 border-t py-5">
-            <div className="flex w-full flex-col gap-px">
-              <h1 className="text-xl font-bold sm:text-2xl">{list.title}</h1>
+          <div className="flex flex-col gap-4 border-t py-5">
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <h1 className="min-w-0 text-xl font-bold sm:text-2xl">
+                {list.title}
+              </h1>
 
               {list.description && (
-                <p className="text-muted-foreground line-clamp-2 text-sm">
+                <p className="text-muted-foreground line-clamp-3 text-sm sm:line-clamp-2">
                   {list.description}
                 </p>
               )}
             </div>
-
-            <div className="flex flex-col items-end gap-3">
-              <div className="flex items-center gap-2">
-                {list.is_public && (
-                  <ListLikeButton
-                    listId={list.id}
-                    isLiked={list.is_liked}
-                    likesCount={list.likes_count}
-                    username={list.user_username}
-                    listSlug={list.slug}
-                  />
-                )}
-                {list.is_public && (
-                  <Button
-                    variant="outline"
-                    className="ml-auto flex gap-2"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="size-4" />
-                    {t("lists.shareLabel")}
-                  </Button>
-                )}
-              </div>
-            </div>
           </div>
 
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-3">
             {onFilterChange && (
-              <div className="flex shrink-0 gap-1">
+              <div className="flex flex-wrap gap-1">
                 {(["all", "known", "unknown"] as SpeciesFilter[]).map((f) => (
                   <button
                     key={f}
@@ -214,21 +216,21 @@ export const ListDetailHero = ({
                 ))}
               </div>
             )}
-            <div className="flex flex-col items-end">
-              <div className="min-w-0">
-                <p className="text-muted-foreground mb-1 truncate text-xs">
+            <div className="w-full">
+              <div className="mb-1 flex items-baseline justify-between gap-3">
+                <p className="text-muted-foreground min-w-0 text-xs">
                   {knownCount}/{totalCount} {t("lists.knownSpecies")}
                 </p>
-                <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
-                  <div
-                    className="bg-primary h-full rounded-full transition-all"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
+                <span className="shrink-0 text-lg font-bold tabular-nums">
+                  {pct.toFixed(1)}%
+                </span>
               </div>
-              <span className="shrink-0 text-lg font-bold tabular-nums">
-                {pct.toFixed(1)}%
-              </span>
+              <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+                <div
+                  className="bg-primary h-full rounded-full transition-all"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>

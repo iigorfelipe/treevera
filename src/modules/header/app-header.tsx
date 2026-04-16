@@ -81,59 +81,77 @@ export const AppHeader = () => {
 
   return (
     <header className="bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur-sm">
-      <div className="relative mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
-        <Link to="/" className="flex shrink-0 items-center gap-2.5">
+      <div className="relative mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 sm:gap-4 sm:px-4">
+        <Link to="/" className="flex min-w-0 shrink items-center gap-2 sm:shrink-0 sm:gap-2.5">
           <Image
             alt={t("header.logoAlt")}
             src={logoUrl}
-            className="h-9 rounded-full"
+            className="h-8 rounded-full sm:h-9"
           />
-          <div className="flex flex-col leading-none">
-            <span className="text-base font-bold">Treevera</span>
+          <div className="min-w-0 leading-none">
+            <span className="block truncate text-sm font-bold sm:text-base">
+              Treevera
+            </span>
             <span className="text-muted-foreground hidden text-xs sm:block">
               {t("header.tagline")}
             </span>
           </div>
         </Link>
 
-        <div className="flex flex-1 items-center justify-end gap-0.5">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-0.5 sm:gap-1">
           {!isAuthenticated && (
             <Link
               to="/login"
-              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground hidden cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors sm:inline-flex"
             >
               {t("nav.signIn")}
             </Link>
           )}
 
           {isAuthenticated && userDb && (
-            <Menu
-              trigger="label"
-              label={userDb.username.toLowerCase()}
-              hoverOpen
-            />
+            <>
+              <div className="hidden sm:block">
+                <Menu
+                  trigger="label"
+                  label={userDb.username.toLowerCase()}
+                  hoverOpen
+                />
+              </div>
+              <div className="min-w-0 sm:hidden">
+                <Menu
+                  trigger="label"
+                  label={userDb.username.toLowerCase()}
+                />
+              </div>
+            </>
           )}
 
           <button
             onClick={() => navigate({ to: "/challenges" })}
-            className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            className="text-muted-foreground hover:text-foreground hidden cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors md:inline-flex"
           >
             {t("nav.challenges")}
           </button>
 
           <button
             onClick={() => navigate({ to: "/lists" })}
-            className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            className="text-muted-foreground hover:text-foreground hidden cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors md:inline-flex"
           >
             {t("lists.title")}
           </button>
+
+          {!isAuthenticated && (
+            <div className="sm:hidden">
+              <Menu trigger="avatar" />
+            </div>
+          )}
 
           {searchOpen && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              className="absolute right-12 left-4 md:hidden"
+              className="absolute inset-y-2 left-3 right-14 md:hidden"
             >
               <div className="border-border bg-background flex items-center rounded-md border pr-1 shadow-sm">
                 <input
