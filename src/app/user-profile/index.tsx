@@ -93,61 +93,62 @@ export function UserProfilePage({ username }: { username: string }) {
   };
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="mx-auto max-w-7xl p-4">
-        <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
-          <div className="contents lg:flex lg:flex-2 lg:flex-col lg:gap-14">
-            <div className="order-1">
-              <HeaderProfile publicProfile={publicProfileHeader} userId={data.id} />
-            </div>
-            {!isOfficialProfile && (
-              <div className="order-2">
-                <FavoriteSpecies
-                  favSpecies={data.public_info?.top_fav_species}
-                  isOwner={false}
-                  profileOwnerUsername={data.username}
-                />
-              </div>
-            )}
-            {!isOfficialProfile && (
-              <div className="order-3">
-                <SpeciesGalleryPreview
-                  userId={data.id}
-                  profileUsername={data.username}
-                />
-              </div>
-            )}
-            {!isOfficialProfile && (
-              <div className="order-8">
-                <UserAchievements userId={data.id} isOwner={false} />
-              </div>
-            )}
+    <div className="mx-auto max-w-7xl py-4">
+      <div className="flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-start lg:gap-20">
+        <div className="contents lg:flex lg:flex-2 lg:flex-col lg:gap-14">
+          <div className="order-1">
+            <HeaderProfile
+              publicProfile={publicProfileHeader}
+              userId={data.id}
+            />
           </div>
-
-          <div className="contents max-w-1/3 lg:flex lg:flex-1 lg:flex-col lg:gap-14">
-            <div className="order-4">
-              <UserListsPreview userId={data.id} username={data.username} />
-            </div>
-            {!isOfficialProfile && (
-              <div className="order-5">
-                <UserLikedListsPreview
-                  userId={data.id}
-                  username={data.username}
-                />
-              </div>
-            )}
-            <div className="order-6">
-              <TreeShortcuts
-                shortcuts={data.public_info?.shortcuts}
+          {!isOfficialProfile && (
+            <div className="order-2">
+              <FavoriteSpecies
+                favSpecies={data.public_info?.top_fav_species}
                 isOwner={false}
+                profileOwnerUsername={data.username}
               />
             </div>
-            {!isOfficialProfile && (
-              <div className="order-7">
-                <LatestUserActivities userId={data.id} />
-              </div>
-            )}
+          )}
+          {!isOfficialProfile && (
+            <div className="order-3">
+              <SpeciesGalleryPreview
+                userId={data.id}
+                profileUsername={data.username}
+              />
+            </div>
+          )}
+          {!isOfficialProfile && (
+            <div className="order-8">
+              <UserAchievements userId={data.id} isOwner={false} />
+            </div>
+          )}
+        </div>
+
+        <div className="contents max-w-1/3 lg:flex lg:flex-1 lg:flex-col lg:gap-14">
+          <div className="order-4">
+            <UserListsPreview userId={data.id} username={data.username} />
           </div>
+          {!isOfficialProfile && (
+            <div className="order-5">
+              <UserLikedListsPreview
+                userId={data.id}
+                username={data.username}
+              />
+            </div>
+          )}
+          <div className="order-6">
+            <TreeShortcuts
+              shortcuts={data.public_info?.shortcuts}
+              isOwner={false}
+            />
+          </div>
+          {!isOfficialProfile && (
+            <div className="order-7">
+              <LatestUserActivities userId={data.id} />
+            </div>
+          )}
         </div>
       </div>
     </div>

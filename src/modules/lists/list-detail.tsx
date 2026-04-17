@@ -191,7 +191,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
 
   return (
     <div className="flex h-full flex-col">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <div ref={scrollRef}>
         <ListDetailHero
           list={list}
           isOwner={isOwner}

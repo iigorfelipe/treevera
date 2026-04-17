@@ -24,7 +24,7 @@ export const SpecieListsPage = () => {
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="px-4 py-4">
+        <div className="py-4">
           <div className="min-w-0">
             <h1 className="text-base leading-tight font-bold">
               {t("specieDetail.listsPageTitle")}
@@ -40,7 +40,7 @@ export const SpecieListsPage = () => {
 
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
-          <div className="space-y-2 p-4">
+          <div className="space-y-2 py-4">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-16 w-full rounded-lg" />
             ))}
@@ -53,7 +53,7 @@ export const SpecieListsPage = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-2 p-4">
+          <div className="space-y-2 py-4">
             {lists.map((list, i) => (
               <motion.div
                 key={list.id}

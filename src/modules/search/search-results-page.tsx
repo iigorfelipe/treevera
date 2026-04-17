@@ -374,7 +374,7 @@ export function SearchResultsPage({ query }: { query: string }) {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl py-4">
       <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-baseline gap-2">
           <p className="text-muted-foreground shrink-0 text-sm">

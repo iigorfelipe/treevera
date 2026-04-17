@@ -37,11 +37,17 @@ export const Header = () => {
           className="flex cursor-pointer items-center gap-3"
           onClick={handleLogoClick}
         >
-          <Image alt={t("header.logoAlt")} src={logoUrl} className="h-12" />
+          <Image
+            alt={t("header.logoAlt")}
+            src={logoUrl}
+            className="h-9 sm:h-12"
+          />
 
           <div className="flex w-full flex-col">
-            <h1 className="text-2xl font-bold">Treevera</h1>
-            <p className="line-clamp-1 text-base/4">{t("header.tagline")}</p>
+            <h1 className="text-lg font-bold sm:text-2xl">Treevera</h1>
+            <p className="line-clamp-1 text-sm sm:text-base/4">
+              {t("header.tagline")}
+            </p>
           </div>
         </Link>
 

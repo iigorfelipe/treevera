@@ -131,26 +131,24 @@ export const SpeciesGallery = ({
   }, []);
 
   return (
-    <div className="bg-background mx-auto flex h-full max-w-7xl flex-col">
+    <div className="mx-auto flex h-full max-w-7xl flex-col">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-background relative z-10 border-b"
+        className="relative z-10 mb-4 border-b"
       >
-        <div className="px-4 pt-4 pb-2">
-          <div className="min-w-0">
-            <h1 className="text-base leading-tight font-bold">
-              {t("gallery.title")}
-            </h1>
-            <span className="text-muted-foreground text-xs">
-              {allSpecies.length === totalCount
-                ? `${totalCount} ${t("gallery.species")}`
-                : `${allSpecies.length} ${t("gallery.of")} ${totalCount}`}
-            </span>
-          </div>
+        <div className="min-w-0 py-4">
+          <h1 className="text-base leading-tight font-bold">
+            {t("gallery.title")}
+          </h1>
+          <span className="text-muted-foreground text-xs">
+            {allSpecies.length === totalCount
+              ? `${totalCount} ${t("gallery.species")}`
+              : `${allSpecies.length} ${t("gallery.of")} ${totalCount}`}
+          </span>
         </div>
 
-        <div className="flex items-center gap-2 px-4 pb-4">
+        <div className="flex items-center gap-2 pb-4">
           <div className="relative min-w-0 flex-1">
             <Search className="text-muted-foreground absolute top-1/2 left-3 size-3.5 -translate-y-1/2" />
             <input
@@ -224,80 +222,78 @@ export const SpeciesGallery = ({
         </div>
       </motion.div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="p-4 md:p-6 lg:p-8">
-            <div className="flex gap-4">
-              {Array.from({ length: numColumns }).map((_, col) => (
-                <div key={col} className="flex min-w-0 flex-1 flex-col gap-4">
-                  {Array.from({ length: 4 }).map((_, row) => (
-                    <div
-                      key={row}
-                      className="bg-muted animate-pulse rounded-xl"
-                      style={{ height: `${180 + (row % 3) * 40}px` }}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : allSpecies.length === 0 && !isFetchingNextPage ? (
-          <div className="flex h-full items-center justify-center px-4">
-            <div className="text-muted-foreground text-center">
-              <Images className="mx-auto mb-3 size-16 opacity-30" />
-              <p className="mb-1 text-lg font-medium">
-                {t("gallery.noSpeciesFound")}
-              </p>
-              <p className="text-sm">
-                {showOnlyFavorites
-                  ? backUsername
-                    ? t("gallery.noFavoritesOf", { username: backUsername })
-                    : t("gallery.noFavorites")
-                  : t("gallery.adjustFilters")}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="p-4 md:p-6 lg:p-8">
-            <div className="flex gap-4">
-              {columns.map((column, colIndex) => (
-                <div
-                  key={colIndex}
-                  className="flex min-w-0 flex-1 flex-col gap-4"
-                >
-                  {column.map(({ species, globalIndex }) => (
-                    <motion.div
-                      key={species.gbif_key}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{
-                        delay: globalIndex * 0.02,
-                        duration: 0.25,
-                      }}
-                    >
-                      <SpeciesCard
-                        species={species}
-                        onClick={() => handleSelectSpecies(species)}
-                        ownerUsername={backUsername}
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              ))}
-            </div>
-            {hasNextPage && (
-              <div
-                ref={sentinelRef}
-                className="flex items-center justify-center py-8"
-              >
-                {isFetchingNextPage && (
-                  <Loader2 className="text-muted-foreground size-6 animate-spin" />
-                )}
+      {isLoading ? (
+        <div className="p-4 md:p-6 lg:p-8">
+          <div className="flex gap-4">
+            {Array.from({ length: numColumns }).map((_, col) => (
+              <div key={col} className="flex min-w-0 flex-1 flex-col gap-4">
+                {Array.from({ length: 4 }).map((_, row) => (
+                  <div
+                    key={row}
+                    className="bg-muted animate-pulse rounded-xl"
+                    style={{ height: `${180 + (row % 3) * 40}px` }}
+                  />
+                ))}
               </div>
-            )}
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      ) : allSpecies.length === 0 && !isFetchingNextPage ? (
+        <div className="flex h-full items-center justify-center px-4">
+          <div className="text-muted-foreground text-center">
+            <Images className="mx-auto mb-3 size-16 opacity-30" />
+            <p className="mb-1 text-lg font-medium">
+              {t("gallery.noSpeciesFound")}
+            </p>
+            <p className="text-sm">
+              {showOnlyFavorites
+                ? backUsername
+                  ? t("gallery.noFavoritesOf", { username: backUsername })
+                  : t("gallery.noFavorites")
+                : t("gallery.adjustFilters")}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex gap-4">
+            {columns.map((column, colIndex) => (
+              <div
+                key={colIndex}
+                className="flex min-w-0 flex-1 flex-col gap-4"
+              >
+                {column.map(({ species, globalIndex }) => (
+                  <motion.div
+                    key={species.gbif_key}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{
+                      delay: globalIndex * 0.02,
+                      duration: 0.25,
+                    }}
+                  >
+                    <SpeciesCard
+                      species={species}
+                      onClick={() => handleSelectSpecies(species)}
+                      ownerUsername={backUsername}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            ))}
+          </div>
+          {hasNextPage && (
+            <div
+              ref={sentinelRef}
+              className="flex items-center justify-center py-8"
+            >
+              {isFetchingNextPage && (
+                <Loader2 className="text-muted-foreground size-6 animate-spin" />
+              )}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

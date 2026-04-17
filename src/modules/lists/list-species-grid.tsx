@@ -109,58 +109,56 @@ export const ListSpeciesGrid = ({
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex gap-4">
-          {columns.map((column, colIndex) => (
-            <div key={colIndex} className="flex min-w-0 flex-1 flex-col gap-4">
-              {column.map(({ species: s, globalIndex }) => (
-                <motion.div
-                  key={s.gbif_key}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{
-                    delay: globalIndex * 0.02,
-                    duration: 0.25,
-                  }}
-                  className="relative"
-                >
-                  <SpeciesCard
-                    species={toGalleryRow(s)}
-                    onClick={() => handleSelectSpecies(s.gbif_key)}
-                    listId={listId}
-                    listUsername={listUsername}
-                    listSlug={listSlug}
-                  />
-                  {isOwner && onRemove && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemove(s.gbif_key);
-                      }}
-                      className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80"
-                      title={t("lists.removeFromList")}
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        {hasNextPage && (
-          <div
-            ref={sentinelRef}
-            className="flex items-center justify-center py-8"
-          >
-            {isFetchingNextPage && (
-              <Loader2 className="text-muted-foreground size-6 animate-spin" />
-            )}
+    <div className="mx-auto max-w-7xl py-6">
+      <div className="flex gap-4">
+        {columns.map((column, colIndex) => (
+          <div key={colIndex} className="flex min-w-0 flex-1 flex-col gap-4">
+            {column.map(({ species: s, globalIndex }) => (
+              <motion.div
+                key={s.gbif_key}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  delay: globalIndex * 0.02,
+                  duration: 0.25,
+                }}
+                className="relative"
+              >
+                <SpeciesCard
+                  species={toGalleryRow(s)}
+                  onClick={() => handleSelectSpecies(s.gbif_key)}
+                  listId={listId}
+                  listUsername={listUsername}
+                  listSlug={listSlug}
+                />
+                {isOwner && onRemove && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove(s.gbif_key);
+                    }}
+                    className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80"
+                    title={t("lists.removeFromList")}
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                )}
+              </motion.div>
+            ))}
           </div>
-        )}
+        ))}
       </div>
+
+      {hasNextPage && (
+        <div
+          ref={sentinelRef}
+          className="flex items-center justify-center py-8"
+        >
+          {isFetchingNextPage && (
+            <Loader2 className="text-muted-foreground size-6 animate-spin" />
+          )}
+        </div>
+      )}
     </div>
   );
 };

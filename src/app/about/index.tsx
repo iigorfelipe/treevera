@@ -42,7 +42,7 @@ export const AboutPage = () => {
           </div>
         </section>
 
-        <hr className="mt-12 max-w-3xl border-border" />
+        <hr className="border-border mt-12 max-w-3xl" />
 
         <section className="mt-12 max-w-3xl space-y-8">
           <div className="space-y-3">

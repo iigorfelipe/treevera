@@ -59,9 +59,16 @@ export const Layout = () => {
           />
         </div>
         <ErrorBoundary key={errorBoundaryKey}>
-          <Suspense>
-            <Outlet />
-          </Suspense>
+          <div
+            className={cn(
+              "h-full overflow-auto",
+              !isHomeRoute && "px-4 md:px-20",
+            )}
+          >
+            <Suspense>
+              <Outlet />
+            </Suspense>
+          </div>
         </ErrorBoundary>
       </div>
     </div>

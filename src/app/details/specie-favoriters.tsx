@@ -27,7 +27,7 @@ export const SpecieFavoritersPage = () => {
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="px-4 py-4">
+        <div className="py-4">
           <div className="min-w-0">
             <h1 className="text-base leading-tight font-bold">
               {t("specieDetail.favoritersTitle")}
@@ -43,7 +43,7 @@ export const SpecieFavoritersPage = () => {
 
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
-          <div className="space-y-2 p-4">
+          <div className="bg space-y-2 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex items-center gap-3 p-2">
                 <Skeleton className="size-10 rounded-full" />
@@ -73,7 +73,7 @@ export const SpecieFavoritersPage = () => {
                 <Link
                   to="/$username"
                   params={{ username: user.user_username }}
-                  className="hover:bg-muted/50 flex items-center gap-3 px-4 py-3 transition-colors"
+                  className="hover:bg-muted/50 flex items-center gap-3 py-3 transition-colors"
                 >
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage

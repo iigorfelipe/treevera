@@ -27,7 +27,7 @@ export const ListLikesPage = () => {
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="px-4 py-4">
+        <div className="py-4">
           <div className="min-w-0">
             <h1 className="text-base leading-tight font-bold">
               {t("lists.likesTitle")}
@@ -73,7 +73,7 @@ export const ListLikesPage = () => {
                 <Link
                   to="/$username"
                   params={{ username: liker.user_username }}
-                  className="hover:bg-muted/50 flex items-center gap-3 px-4 py-3 transition-colors"
+                  className="hover:bg-muted/50 flex items-center gap-3 py-3 transition-colors"
                 >
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage

@@ -264,13 +264,13 @@ export const ListsPage = () => {
     "grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))]";
 
   return (
-    <div ref={scrollRef} className="h-full overflow-y-auto">
-      <div className="mx-auto flex max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+    <div ref={scrollRef}>
+      <div className="mx-auto flex max-w-7xl flex-col py-4">
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex flex-col items-center gap-3 pt-8 pb-4 text-center"
+          className="flex flex-col items-center gap-3 py-4 text-center"
         >
           <p className="text-muted-foreground max-w-md text-sm leading-relaxed">
             {t("lists.tagline")}

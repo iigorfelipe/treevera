@@ -48,7 +48,7 @@ export const UserListsPage = () => {
         animate={{ y: 0, opacity: 1 }}
         className="relative z-10 border-b"
       >
-        <div className="px-4 py-4">
+        <div className="py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               {loadingProfile ? (
@@ -68,7 +68,7 @@ export const UserListsPage = () => {
         </div>
       </motion.div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1">
         {loadingLists ? (
           <div className="p-4">
             <div
@@ -104,7 +104,7 @@ export const UserListsPage = () => {
             </div>
           </div>
         ) : (
-          <div className="p-4">
+          <div className="py-4">
             <div
               className={
                 viewMode === "grid"
