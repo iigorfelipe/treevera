@@ -6,7 +6,6 @@ import { useIsFetching } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { Menu } from "@/modules/header/menu";
-import { Breadcrumb } from "@/modules/header/breadcrumb";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useState, useRef, useEffect } from "react";
 import { Search, X, Loader } from "lucide-react";
@@ -102,9 +101,7 @@ export const AppHeader = () => {
           </div>
         </Link>
 
-        <Breadcrumb />
-
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-0.5 sm:gap-1 md:flex-none md:shrink-0">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-0.5 sm:gap-1">
           {!isAuthenticated && (
             <Link
               to="/login"

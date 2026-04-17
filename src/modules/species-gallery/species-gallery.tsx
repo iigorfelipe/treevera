@@ -117,16 +117,13 @@ export const SpeciesGallery = ({
 
   const handleSelectSpecies = useCallback(
     (species: GallerySpeciesRow) => {
-      const from = backUsername
-        ? `/${backUsername}/species-gallery`
-        : undefined;
       navigate({
         to: "/specie-detail/$specieKey",
         params: { specieKey: String(species.gbif_key) },
-        search: from ? { from } : {},
+        search: { from: "gallery" },
       });
     },
-    [navigate, backUsername],
+    [navigate],
   );
 
   const toggleFavoritesFilter = useCallback(() => {

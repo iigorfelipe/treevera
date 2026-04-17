@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useGetListsWithSpecies } from "@/hooks/queries/useGetLists";
 import { ListCard } from "./list-card";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 type ListsWithSpeciesProps = {
   gbifKey: number;
@@ -10,10 +10,6 @@ type ListsWithSpeciesProps = {
 export const ListsWithSpecies = ({ gbifKey }: ListsWithSpeciesProps) => {
   const { t } = useTranslation();
   const { data } = useGetListsWithSpecies(gbifKey);
-  const currentFrom = useRouterState({
-    select: (s) => (s.location.search as { from?: unknown } | undefined)?.from,
-  });
-  const fromSearch = typeof currentFrom === "string" ? currentFrom : undefined;
 
   const lists = data?.rows ?? [];
 
@@ -26,7 +22,6 @@ export const ListsWithSpecies = ({ gbifKey }: ListsWithSpeciesProps) => {
         <Link
           to="/specie-detail/$specieKey/lists"
           params={{ specieKey: String(gbifKey) }}
-          search={fromSearch ? { from: fromSearch } : {}}
           className="text-primary text-xs font-medium hover:underline"
         >
           {t("lists.viewAll")}

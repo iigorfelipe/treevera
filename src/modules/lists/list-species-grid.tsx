@@ -101,14 +101,10 @@ export const ListSpeciesGrid = ({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollRef]);
 
   const handleSelectSpecies = (gbifKey: number) => {
-    const from =
-      listUsername && listSlug
-        ? `/${listUsername}/lists/${listSlug}`
-        : undefined;
     navigate({
       to: "/specie-detail/$specieKey",
       params: { specieKey: String(gbifKey) },
-      search: from ? { from } : {},
+      search: { from: "list" },
     });
   };
 

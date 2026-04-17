@@ -136,20 +136,6 @@
     "logoutWarning": "Ao sair, seus recursos e progresso só ficarão disponíveis quando entrar novamente.",
     "logoutAnyway": "Sair mesmo assim"
   },
-  "breadcrumb": {
-    "publicLists": "Listas públicas",
-    "userLists": "Listas",
-    "likedLists": "Listas curtidas",
-    "speciesGallery": "Galeria",
-    "species": "Espécie",
-    "search": "Busca",
-    "daily": "Diário",
-    "random": "Aleatório",
-    "custom": "Personalizado",
-    "tree": "Árvore",
-    "likes": "Curtidas",
-    "listsWith": "Listas"
-  },
   "aboutPage": {
     "title": "Sobre o Treevera",
     "hint": "O Treevera é um site para explorar a classificação taxonômica dos seres vivos. Ele organiza espécies em uma árvore interativa que vai de reinos até espécies, com fotos, descrições, mapas de ocorrência e status de conservação.",

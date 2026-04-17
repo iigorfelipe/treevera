@@ -53,8 +53,6 @@ export const FavoriteSpecies = ({
   const [editMode, setEditMode] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
-  const fromOwner = profileOwnerUsername ?? userDb?.username;
-  const fromPath = fromOwner ? `/${fromOwner}` : undefined;
 
   const {
     data: favPages,
@@ -140,7 +138,7 @@ export const FavoriteSpecies = ({
                 navigate({
                   to: "/specie-detail/$specieKey",
                   params: { specieKey: String(f.key) },
-                  search: fromPath ? { from: fromPath } : {},
+                  search: { from: "profile" },
                 })
               }
               onRemove={() => {}}
@@ -272,7 +270,7 @@ export const FavoriteSpecies = ({
                       : navigate({
                           to: "/specie-detail/$specieKey",
                           params: { specieKey: String(key) },
-                          search: fromPath ? { from: fromPath } : {},
+                          search: { from: "profile" },
                         })
                   }
                   onRemove={() => handleRemove(idx)}

@@ -276,7 +276,6 @@ const RecentChallenges = () => {
                   <Link
                     to="/specie-detail/$specieKey"
                     params={{ specieKey: String(item.gbif_key) }}
-                    search={{ from: "/challenges" }}
                     className="truncate text-sm hover:underline"
                   >
                     {item.species_name ?? "—"}
@@ -392,7 +391,6 @@ const MyCustomChallengeItem = ({
           <Link
             to="/specie-detail/$specieKey"
             params={{ specieKey: String(challenge.gbif_key) }}
-            search={{ from: "/challenges" }}
             className="truncate text-sm hover:underline"
           >
             {challenge.species_name}
