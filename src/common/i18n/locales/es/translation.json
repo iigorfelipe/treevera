@@ -136,6 +136,20 @@
     "logoutWarning": "Al salir, tus funciones y progreso solo estarán disponibles cuando vuelvas a iniciar sesión.",
     "logoutAnyway": "Salir de todas formas"
   },
+  "breadcrumb": {
+    "publicLists": "Listas públicas",
+    "userLists": "Listas",
+    "likedLists": "Listas guardadas",
+    "speciesGallery": "Galería",
+    "species": "Especie",
+    "search": "Búsqueda",
+    "daily": "Diario",
+    "random": "Aleatorio",
+    "custom": "Personalizado",
+    "tree": "Árbol",
+    "likes": "Me gusta",
+    "listsWith": "Listas"
+  },
   "aboutPage": {
     "title": "Sobre Treevera",
     "hint": "Treevera es un sitio web para explorar la clasificación taxonómica de los seres vivos. Organiza las especies en un árbol interactivo que va desde reinos hasta especies, con fotos, descripciones, mapas de ocurrencia y estado de conservación.",

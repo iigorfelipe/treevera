@@ -177,22 +177,31 @@ const aboutRoute = createRoute({
   component: AboutPage,
 });
 
+const validateFromSearch = (
+  search: Record<string, unknown>,
+): { from?: string } => ({
+  from: typeof search.from === "string" ? search.from : undefined,
+});
+
 const specieDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/specie-detail/$specieKey",
   component: SpecieDetailPage,
+  validateSearch: validateFromSearch,
 });
 
 const specieFavoritersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/specie-detail/$specieKey/likes",
   component: SpecieFavoritersPage,
+  validateSearch: validateFromSearch,
 });
 
 const specieListsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/specie-detail/$specieKey/lists",
   component: SpecieListsPage,
+  validateSearch: validateFromSearch,
 });
 
 const listsRoute = createRoute({
@@ -422,12 +431,9 @@ const routeTree = rootRoute.addChildren([
   listLikesRoute,
 ]);
 
-const base = import.meta.env.BASE_URL ?? "/";
-const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
-
 export const router = createRouter({
   routeTree,
-  basepath: normalizedBase || "/",
+  basepath: "/",
 });
 
 declare module "@tanstack/react-router" {

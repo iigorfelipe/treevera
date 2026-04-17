@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,6 +64,11 @@ export const SpecieImageDetail = ({
   const [isFallback, setIsFallback] = useState(false);
   const [optimisticCount, setOptimisticCount] = useState(favCount);
 
+  const currentFrom = useRouterState({
+    select: (s) => (s.location.search as { from?: unknown } | undefined)?.from,
+  });
+  const fromSearch = typeof currentFrom === "string" ? currentFrom : undefined;
+
   useEffect(() => {
     setOptimisticCount(favCount);
   }, [favCount]);
@@ -108,6 +113,7 @@ export const SpecieImageDetail = ({
     void navigate({
       to: "/specie-detail/$specieKey/likes",
       params: { specieKey: String(specieKey) },
+      search: fromSearch ? { from: fromSearch } : {},
     });
   };
 

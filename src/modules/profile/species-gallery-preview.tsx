@@ -22,6 +22,7 @@ const RecentSpeciesCard = ({
   family,
   isFavorite,
   ownerUsername,
+  fromPath,
 }: {
   gbifKey: number;
   imgUrl: string | null | undefined;
@@ -32,6 +33,7 @@ const RecentSpeciesCard = ({
   family: string | null;
   isFavorite: boolean;
   ownerUsername?: string;
+  fromPath?: string;
 }) => {
   const navigate = useNavigate();
   const dialogCloseTimeRef = useRef(0);
@@ -45,7 +47,7 @@ const RecentSpeciesCard = ({
     navigate({
       to: "/specie-detail/$specieKey",
       params: { specieKey: String(gbifKey) },
-      search: { from: "profile" },
+      search: fromPath ? { from: fromPath } : {},
     });
   };
 
@@ -129,6 +131,8 @@ export const SpeciesGalleryPreview = ({
   const userDb = useAtomValue(authStore.userDb);
   const { data, isLoading } = useGetRecentSeenSpecies(4, userId);
   const seenSpecies = data?.species ?? [];
+  const fromOwner = profileUsername ?? userDb?.username;
+  const fromPath = fromOwner ? `/${fromOwner}` : undefined;
 
   const handleOpenGallery = () => {
     const target = profileUsername ?? userDb?.username;
@@ -188,6 +192,7 @@ export const SpeciesGalleryPreview = ({
               family={species.family}
               isFavorite={species.is_favorite}
               ownerUsername={profileUsername}
+              fromPath={fromPath}
             />
           ))}
         </div>

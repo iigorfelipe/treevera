@@ -136,6 +136,20 @@
     "logoutWarning": "When you sign out, your features and progress will only be available when you sign in again.",
     "logoutAnyway": "Sign out anyway"
   },
+  "breadcrumb": {
+    "publicLists": "Public lists",
+    "userLists": "Lists",
+    "likedLists": "Liked lists",
+    "speciesGallery": "Gallery",
+    "species": "Species",
+    "search": "Search",
+    "daily": "Daily",
+    "random": "Random",
+    "custom": "Custom",
+    "tree": "Tree",
+    "likes": "Likes",
+    "listsWith": "Lists"
+  },
   "aboutPage": {
     "title": "About Treevera",
     "hint": "Treevera is a website for exploring the taxonomic classification of living organisms. It organizes species into an interactive tree that goes from kingdoms down to species, with photos, descriptions, occurrence maps, and conservation status.",

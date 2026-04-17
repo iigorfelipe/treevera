@@ -2,7 +2,7 @@ import { Heart } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Tooltip,
@@ -52,12 +52,18 @@ export const SpecieFavButton = ({
     onToggle();
   };
 
+  const currentFrom = useRouterState({
+    select: (s) => (s.location.search as { from?: unknown } | undefined)?.from,
+  });
+  const fromSearch = typeof currentFrom === "string" ? currentFrom : undefined;
+
   const handleCountClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!specieKey) return;
     void navigate({
       to: "/specie-detail/$specieKey/likes",
       params: { specieKey: String(specieKey) },
+      search: fromSearch ? { from: fromSearch } : {},
     });
   };
 
