@@ -291,13 +291,21 @@ export async function deleteList(listId: string): Promise<boolean> {
 export async function addSpeciesToList(
   listId: string,
   gbifKey: number,
-  imageUrl?: string,
+  image?: {
+    url?: string | null;
+    source?: string | null;
+    author?: string | null;
+    license?: string | null;
+  },
 ): Promise<{ species_count: number } | null> {
   try {
     const { data, error } = await supabase.rpc("add_species_to_list", {
       p_list_id: listId,
       p_gbif_key: gbifKey,
-      p_image_url: imageUrl ?? null,
+      p_image_url: image?.url ?? null,
+      p_image_source: image?.source ?? null,
+      p_image_attribution: image?.author ?? null,
+      p_image_license: image?.license ?? null,
     });
 
     if (error) throw error;
@@ -305,6 +313,33 @@ export async function addSpeciesToList(
   } catch (err) {
     console.error("addSpeciesToList:", err);
     return null;
+  }
+}
+
+export async function updateListSpeciesImage(
+  listId: string,
+  gbifKey: number,
+  imageUrl: string,
+  image?: {
+    source?: string | null;
+    author?: string | null;
+    license?: string | null;
+  },
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.rpc("update_list_species_image", {
+      p_list_id: listId,
+      p_gbif_key: gbifKey,
+      p_image_url: imageUrl,
+      p_image_source: image?.source ?? null,
+      p_image_attribution: image?.author ?? null,
+      p_image_license: image?.license ?? null,
+    });
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error("updateListSpeciesImage:", err);
+    return false;
   }
 }
 

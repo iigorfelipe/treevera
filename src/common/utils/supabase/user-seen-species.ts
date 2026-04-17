@@ -261,7 +261,13 @@ export const updatePreferredImage = async (
   userId: string,
   gbifKey: number,
   imageUrl: string,
-  metadata?: { canonicalName?: string | null; family?: string | null },
+  metadata?: {
+    canonicalName?: string | null;
+    family?: string | null;
+    source?: string | null;
+    author?: string | null;
+    license?: string | null;
+  },
 ): Promise<void> => {
   const { error } = await supabase.from("user_seen_species").upsert(
     {
@@ -269,6 +275,9 @@ export const updatePreferredImage = async (
       gbif_key: gbifKey,
       seen_at: new Date().toISOString(),
       preferred_image_url: imageUrl,
+      preferred_image_source: metadata?.source ?? null,
+      preferred_image_attribution: metadata?.author ?? null,
+      preferred_image_license: metadata?.license ?? null,
       ...(metadata?.canonicalName
         ? { canonical_name: metadata.canonicalName }
         : {}),

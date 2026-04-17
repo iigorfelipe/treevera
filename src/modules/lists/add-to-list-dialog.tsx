@@ -16,12 +16,19 @@ import {
   useCreateList,
 } from "@/hooks/queries/useGetLists";
 
+type AddToListImage = {
+  url?: string | null;
+  source?: string | null;
+  author?: string | null;
+  license?: string | null;
+};
+
 type AddToListDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   gbifKey: number;
   speciesName?: string;
-  imageUrl?: string;
+  image?: AddToListImage;
 };
 
 export const AddToListDialog = ({
@@ -29,7 +36,7 @@ export const AddToListDialog = ({
   onOpenChange,
   gbifKey,
   speciesName,
-  imageUrl,
+  image,
 }: AddToListDialogProps) => {
   const { t } = useTranslation();
   const [creatingNew, setCreatingNew] = useState(false);
@@ -77,7 +84,7 @@ export const AddToListDialog = ({
               alreadyAdded={list.already_added}
               gbifKey={gbifKey}
               speciesName={speciesName}
-              imageUrl={imageUrl}
+              image={image}
               onAdded={() => void refetch()}
             />
           ))}
@@ -139,7 +146,7 @@ const ListPickerRow = ({
   alreadyAdded,
   gbifKey,
   speciesName,
-  imageUrl,
+  image,
   onAdded,
 }: {
   listId: string;
@@ -148,7 +155,7 @@ const ListPickerRow = ({
   alreadyAdded: boolean;
   gbifKey: number;
   speciesName?: string;
-  imageUrl?: string;
+  image?: AddToListImage;
   onAdded: () => void;
 }) => {
   const { t } = useTranslation();
@@ -157,7 +164,7 @@ const ListPickerRow = ({
   const handleClick = () => {
     if (alreadyAdded) return;
     addToList(
-      { gbifKey, imageUrl },
+      { gbifKey, image },
       {
         onSuccess: () => {
           toast.success(

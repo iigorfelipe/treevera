@@ -203,11 +203,16 @@ export function useAddSpeciesToList(listId: string) {
   return useMutation({
     mutationFn: ({
       gbifKey,
-      imageUrl,
+      image,
     }: {
       gbifKey: number;
-      imageUrl?: string;
-    }) => addSpeciesToList(listId, gbifKey, imageUrl),
+      image?: {
+        url?: string | null;
+        source?: string | null;
+        author?: string | null;
+        license?: string | null;
+      };
+    }) => addSpeciesToList(listId, gbifKey, image),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_species_key, listId],

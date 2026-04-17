@@ -40,8 +40,10 @@ import {
   toggleFavSpecie,
   updatePreferredImage,
 } from "@/common/utils/supabase/user-seen-species";
-import { syncCachedImageAttribution } from "@/common/utils/supabase/species-cache";
-import { setListCoverImage } from "@/common/utils/supabase/lists";
+import {
+  setListCoverImage,
+  updateListSpeciesImage,
+} from "@/common/utils/supabase/lists";
 import { AddToListDialog } from "@/modules/lists/add-to-list-dialog";
 import { CreateCustomChallengeDialog } from "@/modules/challenge/custom/create-custom-challenge-dialog";
 import { cn } from "@/common/utils/cn";
@@ -190,29 +192,28 @@ export const SpeciesCardQuickMenu = ({
     author: string;
     licenseCode: string;
   }) => {
-    await updatePreferredImage(userDb.id, species.gbif_key, img.imgUrl, {
-      canonicalName: species.canonical_name,
-      family: species.family,
-    });
-    await syncCachedImageAttribution(
-      species.gbif_key,
-      img.imgUrl,
-      img.source,
-      img.author,
-      img.licenseCode,
-    );
-    setCurrentImageUrl(img.imgUrl);
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_seen_species_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.species_attribution_key],
-    });
-    if (listId) {
+    if (listId && isOwner) {
+      await updateListSpeciesImage(listId, species.gbif_key, img.imgUrl, {
+        source: img.source,
+        author: img.author,
+        license: img.licenseCode,
+      });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_species_key],
       });
+    } else {
+      await updatePreferredImage(userDb.id, species.gbif_key, img.imgUrl, {
+        canonicalName: species.canonical_name,
+        family: species.family,
+        source: img.source,
+        author: img.author,
+        license: img.licenseCode,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.user_seen_species_key],
+      });
     }
+    setCurrentImageUrl(img.imgUrl);
     setImagePickerOpen(false);
     toast.success(t("gallery.imageUpdated"));
   };
@@ -306,7 +307,16 @@ export const SpeciesCardQuickMenu = ({
         }}
         gbifKey={species.gbif_key}
         speciesName={species.canonical_name ?? undefined}
-        imageUrl={currentImageUrl ?? undefined}
+        image={
+          currentImageUrl
+            ? {
+                url: currentImageUrl,
+                source: species.image_source,
+                author: species.image_attribution,
+                license: species.image_license,
+              }
+            : undefined
+        }
       />
 
       <CreateCustomChallengeDialog

@@ -10,13 +10,18 @@ import { AddToListDialog } from "./add-to-list-dialog";
 type AddToListButtonProps = {
   gbifKey: number;
   speciesName?: string;
-  imageUrl?: string;
+  image?: {
+    url?: string | null;
+    source?: string | null;
+    author?: string | null;
+    license?: string | null;
+  };
 };
 
 export const AddToListButton = ({
   gbifKey,
   speciesName,
-  imageUrl,
+  image,
 }: AddToListButtonProps) => {
   const { t } = useTranslation();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
@@ -41,7 +46,7 @@ export const AddToListButton = ({
         onOpenChange={setOpen}
         gbifKey={gbifKey}
         speciesName={speciesName}
-        imageUrl={imageUrl}
+        image={image}
       />
     </>
   );
