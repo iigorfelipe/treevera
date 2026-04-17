@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, startTransition } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
@@ -39,6 +39,7 @@ import { ListCreateDialog } from "./list-create-dialog";
 import { ListViewToggle, type ListViewMode } from "./list-view-toggle";
 import type { ListWithCreator } from "@/common/types/lists";
 import { useDocumentTitle } from "@/hooks/use-document-title";
+import { useResponsive } from "@/hooks/use-responsive";
 
 const ADMIN_USERNAME = "treevera";
 const MAX_FEATURED = 3;
@@ -64,7 +65,7 @@ const FeaturedListCard = ({
           params: { username: list.user_username, listSlug },
         });
       }}
-      className="group bg-card relative flex cursor-pointer items-center gap-3 rounded-lg border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      className="group bg-card relative flex h-full cursor-pointer items-start gap-3 rounded-lg border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
       <ListCoverCollage
         title={list.title}
@@ -76,11 +77,13 @@ const FeaturedListCard = ({
         <h3 className="text-primary line-clamp-1 text-sm font-semibold group-hover:underline">
           {list.title}
         </h3>
-        {list.description && (
-          <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs leading-4">
-            {list.description}
-          </p>
-        )}
+        <div className="mt-0.5 min-h-8">
+          {list.description && (
+            <p className="text-muted-foreground line-clamp-2 text-xs leading-4">
+              {list.description}
+            </p>
+          )}
+        </div>
         <span className="text-muted-foreground mt-1 block text-xs">
           {list.species_count} espécies
         </span>
@@ -106,6 +109,7 @@ export const ListsPage = () => {
   const { t } = useTranslation();
   useDocumentTitle(t("lists.title"));
   const navigate = useNavigate();
+  const { isMobile } = useResponsive();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
   const isAdmin = userDb?.username === ADMIN_USERNAME;
@@ -113,7 +117,9 @@ export const ListsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("popular");
-  const [viewMode, setViewMode] = useState<ListViewMode>("grid");
+  const [viewMode, setViewMode] = useState<ListViewMode>(() =>
+    isMobile ? "list" : "grid",
+  );
   const [createOpen, setCreateOpen] = useState(false);
   const [editFeatured, setEditFeatured] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -124,6 +130,7 @@ export const ListsPage = () => {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const pickerScrollRef = useRef<HTMLDivElement>(null);
   const pickerSentinelRef = useRef<HTMLDivElement>(null);
+  const wasMobileRef = useRef(isMobile);
 
   useEffect(() => {
     const trimmed = searchQuery.trim();
@@ -138,6 +145,16 @@ export const ListsPage = () => {
     const id = setTimeout(() => setPickerDebouncedSearch(trimmed), 400);
     return () => clearTimeout(id);
   }, [pickerSearch]);
+
+  useEffect(() => {
+    if (!wasMobileRef.current && isMobile) {
+      startTransition(() => {
+        setViewMode("list");
+      });
+    }
+
+    wasMobileRef.current = isMobile;
+  }, [isMobile]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useGetPublicLists({
@@ -241,15 +258,19 @@ export const ListsPage = () => {
 
   const sectionTitleClass =
     "text-muted-foreground text-xs font-semibold tracking-widest uppercase";
+  const featuredGridClass =
+    "grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))]";
+  const listGridClass =
+    "grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))]";
 
   return (
     <div ref={scrollRef} className="h-full overflow-y-auto">
-      <div className="mx-auto flex max-w-7xl flex-col">
+      <div className="mx-auto flex max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="flex flex-col items-center gap-3 px-4 pt-8 pb-4 text-center"
+          className="flex flex-col items-center gap-3 pt-8 pb-4 text-center"
         >
           <p className="text-muted-foreground max-w-md text-sm leading-relaxed">
             {t("lists.tagline")}
@@ -272,7 +293,7 @@ export const ListsPage = () => {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="px-4 pb-4"
+            className="pb-4"
           >
             <div className="mb-3 flex items-center justify-between">
               <div className="flex-1">
@@ -301,7 +322,7 @@ export const ListsPage = () => {
               )}
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={featuredGridClass}>
               {featuredLoading
                 ? Array.from({ length: 3 }).map((_, i) => (
                     <div
@@ -315,6 +336,7 @@ export const ListsPage = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.15 + i * 0.06, duration: 0.3 }}
+                      className="h-full"
                     >
                       <FeaturedListCard
                         list={list}
@@ -339,12 +361,12 @@ export const ListsPage = () => {
           </motion.div>
         )}
 
-        <div className="px-4 pb-2">
+        <div className="pb-2">
           <span className={sectionTitleClass}>{t("lists.allLists")}</span>
           <div className="bg-border mt-1.5 h-px w-full" />
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2">
+        <div className="flex items-center gap-2 py-2">
           <div className="relative min-w-0 flex-1">
             <Search className="text-muted-foreground absolute top-1/2 left-3 size-3.5 -translate-y-1/2" />
             <input
@@ -388,13 +410,9 @@ export const ListsPage = () => {
 
         <div>
           {isLoading ? (
-            <div className="p-4">
+            <div className="py-4">
               <div
-                className={
-                  viewMode === "grid"
-                    ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    : "space-y-3"
-                }
+                className={viewMode === "grid" ? listGridClass : "space-y-3"}
               >
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div
@@ -419,13 +437,9 @@ export const ListsPage = () => {
               </div>
             </div>
           ) : (
-            <div className="p-4">
+            <div className="py-4">
               <div
-                className={
-                  viewMode === "grid"
-                    ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    : "space-y-3"
-                }
+                className={viewMode === "grid" ? listGridClass : "space-y-3"}
               >
                 {allLists.map((list, i) => (
                   <motion.div

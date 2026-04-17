@@ -33,7 +33,7 @@ export const ListCompactCard = ({ list }: ListCompactCardProps) => {
   return (
     <div
       onClick={handleOpenList}
-      className="group bg-card h-full cursor-pointer overflow-hidden rounded-lg border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+      className="group bg-card flex h-full cursor-pointer flex-col overflow-hidden rounded-lg border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
     >
       <ListCoverCollage
         title={list.title}
@@ -42,16 +42,18 @@ export const ListCompactCard = ({ list }: ListCompactCardProps) => {
         className="aspect-5/3 w-full"
       />
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <h3 className="text-primary line-clamp-2 text-sm font-semibold transition-colors group-hover:underline">
           {list.title}
         </h3>
 
-        {list.description && (
-          <p className="text-muted-foreground mt-1 line-clamp-2 min-h-10 text-sm leading-5">
-            {list.description}
-          </p>
-        )}
+        <div className="mt-1 min-h-10">
+          {list.description && (
+            <p className="text-muted-foreground line-clamp-2 text-sm leading-5">
+              {list.description}
+            </p>
+          )}
+        </div>
 
         <div className="mt-3 flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -82,7 +84,7 @@ export const ListCompactCard = ({ list }: ListCompactCardProps) => {
           />
         </div>
 
-        <p className="text-muted-foreground mt-3 text-xs">
+        <p className="text-muted-foreground mt-auto pt-3 text-xs">
           {list.species_count} {t("lists.species")} ·{" "}
           {formatActivityDate(list.created_at)}
         </p>
