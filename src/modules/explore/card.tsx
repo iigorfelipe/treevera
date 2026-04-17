@@ -3,13 +3,14 @@ import { Route } from "lucide-react";
 import { useAtomValue } from "jotai";
 import { useTranslation } from "react-i18next";
 
+import { loadCuriosidadesByKingdom } from "@/common/content/curiosidades";
+import type { Curiosidades } from "@/common/content/curiosidades/types";
 import { capitalizar } from "@/common/utils/string";
 import { getKingdomImages } from "@/common/utils/tree/ranks";
 import { treeAtom } from "@/store/tree";
 import { authStore } from "@/store/auth/atoms";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import type { Kingdom, Rank } from "@/common/types/api";
-import { curiosidades } from "@/common/utils/dataFake";
 import { useScrollThenNavigate } from "@/hooks/use-scroll-then-navigate";
 import { Explorer } from "./explorer";
 
@@ -21,14 +22,28 @@ export const CardInfo = () => {
   const { navigateToNodes } = useTreeNavigation();
   const scrollThenNavigate = useScrollThenNavigate();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [curiosidadesState, setCuriosidadesState] = useState<{
+    kingdomKey: number | null;
+    data: Curiosidades | null;
+  }>({
+    kingdomKey: null,
+    data: null,
+  });
+  const [slideState, setSlideState] = useState<{
+    scopeKey: string;
+    index: number;
+  }>({
+    scopeKey: "",
+    index: 0,
+  });
 
   const selectedData = exploreInfos.find(
     (item) => item.kingdomKey === expandedNodes[0]?.key,
   );
 
   const currentRank = expandedNodes[expandedNodes.length - 1]?.rank as Rank;
+  const kingdomKey = expandedNodes[0]?.key ?? null;
 
   const currentName = useMemo(() => {
     if (!selectedData) return "";
@@ -38,23 +53,57 @@ export const CardInfo = () => {
     );
   }, [expandedNodes, selectedData, currentRank]);
 
+  useEffect(() => {
+    if (!kingdomKey) {
+      return;
+    }
+
+    let cancelled = false;
+
+    loadCuriosidadesByKingdom(kingdomKey).then((data) => {
+      if (!cancelled) {
+        setCuriosidadesState({ kingdomKey, data });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [kingdomKey]);
+
+  const curiosidades =
+    curiosidadesState.kingdomKey === kingdomKey ? curiosidadesState.data : null;
+
   const slides = useMemo(() => {
-    if (!selectedData) return [];
-    const kingdomKey = expandedNodes[0].key;
+    if (!selectedData || !curiosidades || !kingdomKey) return [];
+
     if (expandedNodes.length === 1) {
       return curiosidades.KINGDOM[kingdomKey] ?? [];
     }
+
     const entry = curiosidades[currentRank as keyof typeof curiosidades];
     return entry?.[kingdomKey] ?? [];
-  }, [expandedNodes, selectedData, currentRank]);
+  }, [curiosidades, expandedNodes, selectedData, currentRank, kingdomKey]);
 
   const total = slides.length;
+  const slideScopeKey = `${selectedData?.kingdomKey ?? "none"}:${currentRank}`;
+  const currentIndex =
+    slideState.scopeKey === slideScopeKey ? slideState.index : 0;
+  const normalizedIndex = total ? currentIndex % total : 0;
 
   useEffect(() => {
     if (!total || isPaused) return;
-    const id = setTimeout(() => setCurrentIndex((i) => (i + 1) % total), 8000);
+    const id = setTimeout(() => {
+      setSlideState((prev) => {
+        const prevIndex = prev.scopeKey === slideScopeKey ? prev.index : 0;
+        return {
+          scopeKey: slideScopeKey,
+          index: (prevIndex + 1) % total,
+        };
+      });
+    }, 8000);
     return () => clearTimeout(id);
-  }, [currentIndex, total, isPaused]);
+  }, [currentIndex, isPaused, slideScopeKey, total]);
 
   const kingdomImages = useMemo(
     () =>
@@ -72,7 +121,7 @@ export const CardInfo = () => {
 
   if (!selectedData || !slides.length) return null;
 
-  const currentBgImg = kingdomImages[currentIndex % kingdomImages.length];
+  const currentBgImg = kingdomImages[normalizedIndex % kingdomImages.length];
   const rankLabel = t(`ranks.${currentRank}`, {
     defaultValue: capitalizar(currentRank),
   });
@@ -108,10 +157,10 @@ export const CardInfo = () => {
       kingdomLabel={t("explore.kingdom")}
       kingdomName={selectedData.kingdomName}
       primaryColor={selectedData.primaryColor}
-      slideKey={currentIndex}
+      slideKey={normalizedIndex}
       badge={rankLabel}
       title={currentName}
-      description={slides[currentIndex]}
+      description={slides[normalizedIndex]}
       mainGroupsLabel={t("explore.mainGroups")}
       mainGroups={selectedData.mainGroups.slice(0, 3).map((g) => ({
         groupName: g.groupName,
@@ -119,11 +168,32 @@ export const CardInfo = () => {
       }))}
       extra={shortcutsSection}
       total={total}
-      currentIndex={currentIndex}
+      currentIndex={normalizedIndex}
       isPaused={isPaused}
-      onPrev={() => setCurrentIndex((i) => (i - 1 + total) % total)}
-      onNext={() => setCurrentIndex((i) => (i + 1) % total)}
-      onDotClick={setCurrentIndex}
+      onPrev={() =>
+        setSlideState((prev) => {
+          const prevIndex = prev.scopeKey === slideScopeKey ? prev.index : 0;
+          return {
+            scopeKey: slideScopeKey,
+            index: (prevIndex - 1 + total) % total,
+          };
+        })
+      }
+      onNext={() =>
+        setSlideState((prev) => {
+          const prevIndex = prev.scopeKey === slideScopeKey ? prev.index : 0;
+          return {
+            scopeKey: slideScopeKey,
+            index: (prevIndex + 1) % total,
+          };
+        })
+      }
+      onDotClick={(index) =>
+        setSlideState({
+          scopeKey: slideScopeKey,
+          index,
+        })
+      }
       onTogglePause={() => setIsPaused((p) => !p)}
     />
   );
