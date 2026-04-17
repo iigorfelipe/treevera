@@ -1,21 +1,18 @@
 import { useState } from "react";
-import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
 import { Card, CardContent } from "@/common/components/ui/card";
-import Alvo from "@/assets/alvo.gif";
-import AlvoWhite from "@/assets/alvo-white.gif";
 import { useTranslation } from "react-i18next";
 import { Timer } from "@/modules/challenge/components/timer";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { authStore } from "@/store/auth/atoms";
-import { useTheme } from "@/context/theme";
 import { treeAtom } from "@/store/tree";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { useGetChallengeDates } from "@/hooks/queries/useGetChallengeDates";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { CheckCircle2 } from "lucide-react";
 import { CardInfoPopup } from "@/modules/challenge/components/card-info-popup";
+import { TargetVideo } from "@/modules/challenge/components/target-video";
 
 const getToday = () => {
   const now = new Date();
@@ -28,7 +25,6 @@ const getToday = () => {
 export const DailyChallengeCard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { resolvedTheme } = useTheme();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const challenge = useAtomValue(treeAtom.challenge);
   const setChallenge = useSetAtom(treeAtom.challenge);
@@ -79,11 +75,7 @@ export const DailyChallengeCard = () => {
       </div>
       <CardContent className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <Image
-            src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
-            className="size-12 shrink-0"
-            alt="Alvo gif"
-          />
+          <TargetVideo className="size-12 shrink-0" />
           <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold">{t("challenge.title")}</h2>
             <p className="text-sm">

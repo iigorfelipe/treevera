@@ -1,5 +1,3 @@
-import { Image } from "@/common/components/image";
-import Alvo from "@/assets/alvo.gif";
 import { motion } from "framer-motion";
 import { Shuffle, X, Share2, RotateCcw } from "lucide-react";
 
@@ -7,8 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ProgressSteps } from "./components/progress-steps";
 import { ChallengeTips, type StepInteractionType } from "./components/tips";
 import type { Rank } from "@/common/types/api";
-import { useTheme } from "@/context/theme";
-import AlvoWhite from "@/assets/alvo-white.gif";
+import { TargetVideo } from "./components/target-video";
 
 type PathNode = { rank: Rank; name: string; key: number };
 
@@ -42,7 +39,6 @@ export const ChallengeMobile = ({
   onShare?: () => void;
 }) => {
   const { t } = useTranslation();
-  const { resolvedTheme } = useTheme();
 
   const activeRank = correctPath[correctSteps]?.rank;
 
@@ -50,11 +46,7 @@ export const ChallengeMobile = ({
     <div className="px-2">
       <motion.div className="rounded-2xl border px-3 py-2.5 shadow-sm">
         <div className="flex items-center gap-1.5">
-          <Image
-            src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
-            className="size-5 shrink-0"
-            alt="Alvo gif"
-          />
+          <TargetVideo className="size-5 shrink-0" />
 
           <span className="text-muted-foreground text-xs font-semibold tabular-nums">
             {correctSteps}/{correctPath.length}

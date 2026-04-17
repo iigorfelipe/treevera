@@ -1,9 +1,6 @@
-import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/common/components/ui/card";
 import { Skeleton } from "@/common/components/ui/skeleton";
-import Alvo from "@/assets/alvo.gif";
-import AlvoWhite from "@/assets/alvo-white.gif";
 import { Shuffle, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TaxonomicPath } from "@/modules/challenge/components/taxonomic-path";
@@ -20,7 +17,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import { useResponsive } from "@/hooks/use-responsive";
 import { ChallengeMobile } from "@/modules/challenge/mobile";
-import { useTheme } from "@/context/theme";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetParents } from "@/hooks/queries/useGetParents";
 import { buildChallengePathFromParents } from "@/common/utils/game/challenge-path";
@@ -41,6 +37,7 @@ import { deactivateChallengeSpecies } from "@/common/utils/supabase/challenge/de
 import { ChallengeShareButton } from "@/modules/challenge/components/challenge-share-button";
 import { toast } from "sonner";
 import { getAppUrl } from "@/common/utils/base-url";
+import { TargetVideo } from "@/modules/challenge/components/target-video";
 
 const getTodayUTC = () => new Date().toISOString().slice(0, 10);
 
@@ -56,7 +53,6 @@ export const RandomChallengeInProgress = () => {
   const setHighlightedKeys = useSetAtom(setHighlightedKeysAtom);
 
   const { isTablet } = useResponsive();
-  const { resolvedTheme } = useTheme();
   const challenge = useAtomValue(treeAtom.challenge);
   const session = useAtomValue(authStore.session);
 
@@ -369,11 +365,7 @@ export const RandomChallengeInProgress = () => {
           <Card className="mx-auto rounded-3xl">
             <CardContent className="flex flex-col gap-4 pt-5">
               <div className="flex items-center gap-3">
-                <Image
-                  src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
-                  className="size-12 shrink-0"
-                  alt="Alvo gif"
-                />
+                <TargetVideo className="size-12 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <h2 className="text-xl font-bold">
                     {t("challenge.randomTitle")}

@@ -4,19 +4,15 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { authStore } from "@/store/auth/atoms";
-import Alvo from "@/assets/alvo.gif";
-import AlvoWhite from "@/assets/alvo-white.gif";
 import { treeAtom } from "@/store/tree";
-import { Image } from "@/common/components/image";
-import { useTheme } from "@/context/theme";
 import { getRandomChallengeForUser } from "@/common/utils/supabase/challenge/get-random-challenge";
 import { useState } from "react";
 import { CardInfoPopup } from "@/modules/challenge/components/card-info-popup";
+import { TargetVideo } from "@/modules/challenge/components/target-video";
 
 export const RandomChallengeCard = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { resolvedTheme } = useTheme();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const session = useAtomValue(authStore.session);
   const setChallenge = useSetAtom(treeAtom.challenge);
@@ -63,11 +59,7 @@ export const RandomChallengeCard = () => {
 
       <CardContent className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <Image
-            src={resolvedTheme === "dark" ? AlvoWhite : Alvo}
-            className="size-12 shrink-0"
-            alt="Alvo gif"
-          />
+          <TargetVideo className="size-12 shrink-0" />
           <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold">{t("challenge.randomTitle")}</h2>
             <p className="text-sm">
