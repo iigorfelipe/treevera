@@ -8,7 +8,6 @@ import { ShareButton } from "@/modules/specie-detail/share-button";
 import { AddToListButton } from "@/modules/lists/add-to-list-button";
 import { CreateCustomChallengeButton } from "@/modules/challenge/custom/create-custom-challenge-button";
 import { ListsWithSpecies } from "@/modules/lists/lists-with-species";
-import { OccurrenceMap } from "@/modules/specie-detail/occurrences-map";
 import { VulnerabilityBadge } from "@/common/components/vulnerability-badge";
 import {
   SkeletonTaxonomy,
@@ -16,7 +15,7 @@ import {
 } from "@/modules/specie-detail/skeletons";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { useResponsive } from "@/hooks/use-responsive";
 import { useNavigate } from "@tanstack/react-router";
@@ -29,6 +28,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/common/components/ui/dialog";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
@@ -49,6 +49,26 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { authStore } from "@/store/auth/atoms";
+
+const OccurrenceMap = lazy(() =>
+  import("@/modules/specie-detail/occurrences-map").then((module) => ({
+    default: module.OccurrenceMap,
+  })),
+);
+
+const OccurrenceMapFallback = () => (
+  <div className="bg-card overflow-hidden rounded-xl border shadow-sm">
+    <div className="space-y-3 px-4 pt-4 pb-4">
+      <Skeleton className="h-4 w-28" />
+      <Skeleton className="h-8 w-full rounded-lg" />
+      <Skeleton className="h-70 w-full rounded-xl" />
+      <div className="flex items-center justify-between gap-3">
+        <Skeleton className="h-8 w-28 rounded-full" />
+        <Skeleton className="h-8 w-36 rounded-full" />
+      </div>
+    </div>
+  </div>
+);
 
 export const SpecieDetail = ({
   embedded = false,
@@ -273,7 +293,11 @@ export const SpecieDetail = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className={embedded ? "@container/specie-detail" : "h-full overflow-auto @container/specie-detail"}
+        className={
+          embedded
+            ? "@container/specie-detail"
+            : "@container/specie-detail h-full overflow-auto"
+        }
         style={{ containerType: "inline-size" }}
       >
         {showContextualHeader && (
@@ -355,7 +379,9 @@ export const SpecieDetail = ({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.25 }}
                   >
-                    <OccurrenceMap specieKey={specieKey} />
+                    <Suspense fallback={<OccurrenceMapFallback />}>
+                      <OccurrenceMap specieKey={specieKey} />
+                    </Suspense>
                   </motion.div>
                 )}
 

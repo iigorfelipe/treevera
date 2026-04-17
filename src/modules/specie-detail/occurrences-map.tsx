@@ -4,6 +4,7 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { memo, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Expand, Loader, Shrink } from "lucide-react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useTranslation } from "react-i18next";
@@ -29,7 +30,6 @@ type Props = {
 };
 
 const HEADER_HEIGHT_CLASS = "top-14";
-const HEADER_HEIGHT_VALUE = "3.5rem";
 const HEXAGON_CLIP_PATH =
   "polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%)";
 const DENSITY_COLORS = ["#f6dd4e", "#f59a45", "#e65a4f"];
@@ -137,43 +137,53 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
   const hasAnyResults =
     isStatsLoading || total > 0 || occurrenceData?.hasResults;
 
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isExpanded]);
+
   if (!hasAnyResults) return null;
 
-  const mapViewportHeight = isExpanded
-    ? `calc(100dvh - ${HEADER_HEIGHT_VALUE} - 9rem)`
-    : "280px";
-
-  const mapPanel = (
+  const mapPanel = (expanded: boolean) => (
     <div
       className={cn(
-        activeTab === "map" &&
-          isExpanded &&
-          `bg-background/98 fixed inset-x-0 ${HEADER_HEIGHT_CLASS} bottom-0 z-40 border-t shadow-2xl backdrop-blur-sm`,
+        expanded
+          ? `bg-background/98 fixed inset-x-0 ${HEADER_HEIGHT_CLASS} bottom-0 z-50 border-t shadow-2xl backdrop-blur-sm`
+          : "",
       )}
     >
       <div
         className={cn(
           "px-4 pb-4",
-          isExpanded && "flex h-full flex-col p-4 sm:p-5",
+          expanded && "flex h-full flex-col p-4 sm:p-5",
         )}
       >
-        <div className="relative" style={{ isolation: "isolate" }}>
+        <div
+          className={cn("relative", expanded && "min-h-0 flex-1")}
+          style={{ isolation: "isolate" }}
+        >
           <button
             type="button"
             onClick={() => setIsExpanded((value) => !value)}
             className="border-border/80 bg-background/95 text-foreground absolute top-3 right-3 z-1000 flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs font-medium shadow-sm backdrop-blur transition hover:border-blue-400 hover:text-blue-600"
             aria-label={t(
-              isExpanded
+              expanded
                 ? "occurrenceMap.collapseMap"
                 : "occurrenceMap.expandMap",
             )}
             title={t(
-              isExpanded
+              expanded
                 ? "occurrenceMap.collapseMap"
                 : "occurrenceMap.expandMap",
             )}
           >
-            {isExpanded ? (
+            {expanded ? (
               <Shrink className="size-3.5 shrink-0" />
             ) : (
               <Expand className="size-3.5 shrink-0" />
@@ -184,7 +194,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
             center={DEFAULT_MAP_CENTER}
             zoom={2}
             style={{
-              height: mapViewportHeight,
+              height: expanded ? "100%" : "280px",
               width: "100%",
               borderRadius: "12px",
             }}
@@ -194,7 +204,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             />
             <TileLayer url={gbifTileUrl} opacity={0.75} />
-            <InvalidateMapSize trigger={isExpanded ? "expanded" : "default"} />
+            <InvalidateMapSize trigger={expanded ? "expanded" : "default"} />
 
             {showSamples &&
               occurrences.map((occurrence: Occurrences, index: number) => (
@@ -403,7 +413,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
         <div
           className={cn(
             "mt-3 flex items-start justify-between gap-3",
-            isExpanded && "mt-4",
+            expanded && "mt-4",
           )}
         >
           <div className="text-muted-foreground flex min-w-0 items-start gap-3 text-xs">
@@ -445,6 +455,11 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
     </div>
   );
 
+  const expandedMapPanel =
+    isExpanded && activeTab === "map" && typeof document !== "undefined"
+      ? createPortal(mapPanel(true), document.body)
+      : null;
+
   return (
     <div className="bg-card overflow-hidden rounded-xl border shadow-sm">
       <div className="px-4 pt-4 pb-3">
@@ -483,7 +498,7 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
         </div>
       </div>
 
-      {activeTab === "map" && mapPanel}
+      {activeTab === "map" && !isExpanded && mapPanel(false)}
 
       {activeTab === "stats" && (
         <div className="space-y-4 px-4 pb-4">
@@ -539,6 +554,8 @@ export const OccurrenceMap = memo(({ specieKey }: Props) => {
           {t("occurrenceMap.dataNote")}
         </p>
       </div>
+
+      {expandedMapPanel}
     </div>
   );
 });
