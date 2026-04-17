@@ -17,8 +17,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
-import { motion } from "framer-motion";
 import { Dna, DnaOff, Info } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const session = useAtomValue(authStore.session);
@@ -82,13 +82,16 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
         isSelected && "item-active",
       )}
       animate={
-        feedback === "success"
-          ? { scale: [1, 1.08, 1] }
-          : feedback === "error"
-            ? { x: [-4, 4, -2, 2, 0] }
-            : {}
+        feedback === "error"
+          ? { x: [0, -4, 4, -2, 2, 0] }
+          : feedback === "success"
+            ? { scale: [1, 1.05, 1] }
+            : { x: 0, scale: 1 }
       }
-      transition={{ duration: 0.3 }}
+      transition={{
+        duration: feedback === "error" ? 0.3 : 0.5,
+        ease: "easeInOut",
+      }}
       onClick={saveSpeciesIfMissing}
     >
       <div className="flex items-center gap-2">

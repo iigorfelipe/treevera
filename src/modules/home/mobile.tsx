@@ -1,12 +1,23 @@
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 import { Header } from "@/modules/header";
 import { treeAtom, selectedSpecieKeyAtom } from "@/store/tree";
-import { SpecieDetail } from "@/app/details/specie-detail";
 import { Tree } from "@/app/tree";
 import { ExploreInfo } from "@/app/details/explore-info";
-import { ChallengeCompletedOverlay } from "@/modules/challenge/completed-overlay";
+
+const SpecieDetail = lazy(() =>
+  import("@/app/details/specie-detail").then((m) => ({
+    default: m.SpecieDetail,
+  })),
+);
+const ChallengeCompletedOverlay = lazy(() =>
+  import("@/modules/challenge/completed-overlay").then((m) => ({
+    default: m.ChallengeCompletedOverlay,
+  })),
+);
+
+const SectionFallback = () => <div className="min-h-48 w-full" />;
 
 export const HomeMobile = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
@@ -28,8 +39,12 @@ export const HomeMobile = () => {
       <div className="flex flex-col">
         <Header />
         <div className="flex flex-col gap-4 px-2 pt-2 pb-10">
-          <ChallengeCompletedOverlay inline />
-          <SpecieDetail embedded />
+          <Suspense fallback={<SectionFallback />}>
+            <ChallengeCompletedOverlay inline />
+          </Suspense>
+          <Suspense fallback={<SectionFallback />}>
+            <SpecieDetail embedded />
+          </Suspense>
         </div>
       </div>
     );
@@ -39,7 +54,9 @@ export const HomeMobile = () => {
     <div className="flex flex-col">
       <Header />
       {!challenge.mode && isSpecie ? (
-        <SpecieDetail />
+        <Suspense fallback={<SectionFallback />}>
+          <SpecieDetail />
+        </Suspense>
       ) : (
         <>
           <Tree />

@@ -16,9 +16,9 @@ import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom, removeHighlightedKeyAtom } from "@/store/tree";
 import { showRankBadgeAtom } from "@/store/user-settings";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
-import { motion } from "framer-motion";
 import { authStore } from "@/store/auth/atoms";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const { i18n } = useTranslation();
@@ -109,15 +109,16 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
       key={node.key}
       className="item group flex h-full w-full flex-row items-center gap-2"
       animate={
-        isHighlighted
-          ? { scale: [1, 1.03, 1] }
-          : feedback === "success"
+        feedback === "error"
+          ? { x: [0, -4, 4, -2, 2, 0] }
+          : isHighlighted || feedback === "success"
             ? { scale: [1, 1.05, 1] }
-            : feedback === "error"
-              ? { x: [-4, 4, -2, 2, 0] }
-              : {}
+            : { x: 0, scale: 1 }
       }
-      transition={{ duration: 0.5 }}
+      transition={{
+        duration: feedback === "error" ? 0.3 : 0.5,
+        ease: "easeInOut",
+      }}
     >
       <div className="flex w-full items-center justify-between gap-2">
         <div className="mr-auto flex items-center gap-2">

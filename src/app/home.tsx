@@ -1,12 +1,19 @@
+import { lazy, Suspense, useEffect } from "react";
 import { useResponsive } from "@/hooks/use-responsive";
-import { HomeMobile } from "@/modules/home/mobile";
-import { HomeDesktop } from "@/modules/home/desktop";
 import { useSetAtom } from "jotai";
 import { treeAtom } from "@/store/tree";
-import { useEffect } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useDocumentTitle } from "@/hooks/use-document-title";
+
+const HomeMobile = lazy(() =>
+  import("@/modules/home/mobile").then((m) => ({ default: m.HomeMobile })),
+);
+const HomeDesktop = lazy(() =>
+  import("@/modules/home/desktop").then((m) => ({ default: m.HomeDesktop })),
+);
+
+const HomeFallback = () => <div className="min-h-screen bg-background" />;
 
 export const Home = () => {
   const { t } = useTranslation();
@@ -35,7 +42,17 @@ export const Home = () => {
     });
   }, [isOnChallenges, setChallenge]);
 
-  if (isTablet) return <HomeMobile />;
+  if (isTablet) {
+    return (
+      <Suspense fallback={<HomeFallback />}>
+        <HomeMobile />
+      </Suspense>
+    );
+  }
 
-  return <HomeDesktop />;
+  return (
+    <Suspense fallback={<HomeFallback />}>
+      <HomeDesktop />
+    </Suspense>
+  );
 };
