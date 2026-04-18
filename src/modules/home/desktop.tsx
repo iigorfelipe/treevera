@@ -25,9 +25,11 @@ const ChallengeCompletedOverlay = lazy(() =>
   })),
 );
 
-const PanelFallback = ({ className = "h-screen w-full" }: { className?: string }) => (
-  <div className={className} />
-);
+const PanelFallback = ({
+  className = "h-screen w-full",
+}: {
+  className?: string;
+}) => <div className={className} />;
 
 export const HomeDesktop = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
@@ -70,7 +72,7 @@ export const HomeDesktop = () => {
 
       <ResizableHandle />
 
-      <ResizablePanel className="flex w-full flex-col gap-4">
+      <ResizablePanel className="flex w-full flex-col gap-4 pl-6">
         <div className="h-screen w-full overflow-auto">
           {isCompleted && (
             <Suspense fallback={<PanelFallback />}>

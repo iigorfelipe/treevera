@@ -121,3 +121,31 @@
     font-family: Inter;
   }
 }
+
+@layer utilities {
+  .specie-gallery-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 30%, transparent)
+      transparent;
+  }
+
+  .specie-gallery-scrollbar::-webkit-scrollbar {
+    height: 0.875rem;
+  }
+
+  .specie-gallery-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .specie-gallery-scrollbar::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--foreground) 28%, transparent);
+    background-clip: content-box;
+  }
+
+  .specie-gallery-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--foreground) 42%, transparent);
+    background-clip: content-box;
+  }
+}

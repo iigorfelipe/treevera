@@ -288,7 +288,7 @@ export const SpecieImageDetail = ({
       </div>
 
       {gallery.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="specie-gallery-scrollbar flex gap-2 overflow-x-auto pb-1">
           {gallery.map((img, i) => (
             <button
               key={i}

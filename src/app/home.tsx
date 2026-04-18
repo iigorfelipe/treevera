@@ -13,7 +13,7 @@ const HomeDesktop = lazy(() =>
   import("@/modules/home/desktop").then((m) => ({ default: m.HomeDesktop })),
 );
 
-const HomeFallback = () => <div className="min-h-screen bg-background" />;
+const HomeFallback = () => <div className="bg-background min-h-screen" />;
 
 export const Home = () => {
   const { t } = useTranslation();
