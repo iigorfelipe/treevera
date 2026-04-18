@@ -72,7 +72,7 @@ export const ListDetailHero = ({
 
   return (
     <div>
-      <div className="relative left-1/2 mr-[-50vw] ml-[-50vw] w-screen max-w-none overflow-x-clip 2xl:left-auto 2xl:mr-0 2xl:ml-0 2xl:w-auto">
+      <div className="relative left-1/2 w-screen max-w-none -translate-x-1/2 overflow-x-clip 2xl:left-auto 2xl:w-auto 2xl:translate-x-0">
         <div className="bg-background relative h-76 w-full overflow-hidden sm:h-88 md:h-100 2xl:left-1/2 2xl:w-[calc(100%+228px)] 2xl:max-w-381 2xl:-translate-x-1/2">
           {list.cover_image_url ? (
             <>

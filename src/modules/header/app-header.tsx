@@ -134,7 +134,7 @@ export const AppHeader = () => {
 
         <Button
           onClick={handleBack}
-          className="absolute top-1/2 left-3 z-10 -translate-y-1/2 opacity-100 md:left-4 md:opacity-0 md:group-hover/header:opacity-100 md:focus-visible:opacity-100"
+          className="absolute top-1/2 left-3 z-10 hidden -translate-y-1/2 md:left-4 md:inline-flex md:opacity-0 md:group-hover/header:opacity-100 md:focus-visible:opacity-100"
           aria-label={t("nav.back")}
           title={t("nav.back")}
           variant="ghost"
