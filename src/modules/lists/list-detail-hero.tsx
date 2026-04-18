@@ -72,30 +72,79 @@ export const ListDetailHero = ({
 
   return (
     <div>
-      <div className="relative h-52 w-full overflow-hidden sm:h-64 md:h-72">
-        {list.cover_image_url ? (
-          <img
-            src={inatImageUrl(list.cover_image_url, "large")}
-            alt={list.title}
-            className="size-full object-cover"
-          />
-        ) : (
-          <div className="bg-muted flex size-full items-center justify-center">
-            <ImageOff className="text-muted-foreground size-16 opacity-30" />
-          </div>
-        )}
-        {/* <div className="from-background absolute inset-x-0 bottom-0 h-20 bg-linear-to-t to-transparent" /> */}
+      <div className="relative left-1/2 mr-[-50vw] ml-[-50vw] w-screen max-w-none overflow-x-clip 2xl:left-auto 2xl:mr-0 2xl:ml-0 2xl:w-auto">
+        <div className="bg-background relative h-76 w-full overflow-hidden sm:h-88 md:h-100 2xl:left-1/2 2xl:w-[calc(100%+228px)] 2xl:max-w-381 2xl:-translate-x-1/2">
+          {list.cover_image_url ? (
+            <>
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${inatImageUrl(list.cover_image_url, "large")})`,
+                }}
+              />
 
-        {!list.is_public && (
-          <div className="bg-background/80 absolute top-3 left-3 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium backdrop-blur-sm">
-            <Lock className="size-3" />
-            {t("lists.visibilityPrivate")}
-          </div>
-        )}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 95% 110% at 50% 45%, transparent 0%, transparent 15%, color-mix(in oklab, var(--background) 15%, transparent) 35%, color-mix(in oklab, var(--background) 45%, transparent) 55%, color-mix(in oklab, var(--background) 80%, transparent) 75%, var(--background) 95%)",
+                }}
+              />
+
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-32"
+                style={{
+                  background:
+                    "linear-gradient(to bottom, var(--background) 0%, color-mix(in oklab, var(--background) 85%, transparent) 25%, color-mix(in oklab, var(--background) 50%, transparent) 55%, color-mix(in oklab, var(--background) 20%, transparent) 80%, transparent 100%)",
+                }}
+              />
+
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-44"
+                style={{
+                  background:
+                    "linear-gradient(to top, var(--background) 0%, color-mix(in oklab, var(--background) 90%, transparent) 20%, color-mix(in oklab, var(--background) 60%, transparent) 50%, color-mix(in oklab, var(--background) 25%, transparent) 75%, transparent 100%)",
+                }}
+              />
+
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 left-0 w-24"
+                style={{
+                  background:
+                    "linear-gradient(to right, var(--background) 0%, color-mix(in oklab, var(--background) 60%, transparent) 50%, transparent 100%)",
+                }}
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 right-0 w-24"
+                style={{
+                  background:
+                    "linear-gradient(to left, var(--background) 0%, color-mix(in oklab, var(--background) 60%, transparent) 50%, transparent 100%)",
+                }}
+              />
+            </>
+          ) : (
+            <div className="bg-muted flex size-full items-center justify-center">
+              <ImageOff className="text-muted-foreground size-16 opacity-30" />
+            </div>
+          )}
+
+          {!list.is_public && (
+            <div className="bg-background/80 absolute top-18 left-3 z-10 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium backdrop-blur-sm sm:top-20 sm:left-4">
+              <Lock className="size-3" />
+              {t("lists.visibilityPrivate")}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="mx-auto mt-2 max-w-7xl space-y-4">
-        <div className="flex items-start justify-between gap-3">
+      <div className="mx-auto -mt-10 max-w-7xl space-y-4 sm:-mt-12 md:-mt-14">
+        <div className="relative z-10 flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1.5">
             <div className="flex min-w-0 items-center gap-2">
               <Avatar className="border-border size-7 shrink-0 border">

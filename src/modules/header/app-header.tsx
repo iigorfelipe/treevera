@@ -1,7 +1,7 @@
 import { Image } from "@/common/components/image";
 import logoUrl from "@/assets/images/avif-logo-icon.avif?url";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useIsFetching } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
@@ -15,6 +15,9 @@ import { Button } from "@/common/components/ui/button";
 export const AppHeader = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const currentRoutePath = useRouterState({
+    select: (s) => s.matches[s.matches.length - 1]?.fullPath ?? "/",
+  });
 
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
@@ -90,12 +93,48 @@ export const AppHeader = () => {
     void navigate({ to: "/" });
   };
 
+  const isListDetailRoute = currentRoutePath === "/$username/lists/$listSlug";
+
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!isListDetailRoute) {
+      setIsScrolled(false);
+      return;
+    }
+    const scroller = document.querySelector<HTMLElement>("[data-scroll-root]");
+    if (!scroller) return;
+
+    const handle = () => setIsScrolled(scroller.scrollTop > 8);
+    handle();
+    scroller.addEventListener("scroll", handle, { passive: true });
+    return () => scroller.removeEventListener("scroll", handle);
+  }, [isListDetailRoute]);
+
+  const useTransparentHeader = isListDetailRoute && !isScrolled;
+
   return (
-    <header className="group/header bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur-sm">
+    <header
+      className={
+        isListDetailRoute
+          ? useTransparentHeader
+            ? "group/header fixed inset-x-0 top-0 z-50 w-full border-b border-transparent bg-transparent transition-colors duration-200"
+            : "group/header bg-background/95 fixed inset-x-0 top-0 z-50 w-full border-b backdrop-blur-sm transition-colors duration-200"
+          : "group/header bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur-sm"
+      }
+    >
       <div className="relative">
+        {useTransparentHeader && (
+          <div className="pointer-events-none absolute inset-0">
+            <div className="from-background/45 absolute inset-x-0 top-0 h-16 bg-linear-to-b to-transparent" />
+            <div className="from-background/85 via-background/45 absolute inset-y-0 left-0 w-36 bg-linear-to-r to-transparent md:w-48" />
+            <div className="from-background/85 via-background/45 absolute inset-y-0 right-0 w-32 bg-linear-to-l to-transparent md:w-44" />
+          </div>
+        )}
+
         <Button
           onClick={handleBack}
-          className="absolute top-1/2 left-3 z-10 hidden -translate-y-1/2 opacity-0 md:block md:group-hover/header:opacity-100 md:focus-visible:opacity-100"
+          className="absolute top-1/2 left-3 z-10 -translate-y-1/2 opacity-100 md:left-4 md:opacity-0 md:group-hover/header:opacity-100 md:focus-visible:opacity-100"
           aria-label={t("nav.back")}
           title={t("nav.back")}
           variant="ghost"

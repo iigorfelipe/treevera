@@ -60,6 +60,7 @@ export const Layout = () => {
         </div>
         <ErrorBoundary key={errorBoundaryKey}>
           <div
+            data-scroll-root
             className={cn(
               "h-full overflow-auto",
               !isHomeRoute && "px-4 md:px-20",
