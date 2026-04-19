@@ -261,7 +261,7 @@ export const ListsPage = () => {
   const featuredGridClass =
     "grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))]";
   const listGridClass =
-    "grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))]";
+    "grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4";
 
   return (
     <div ref={scrollRef}>
