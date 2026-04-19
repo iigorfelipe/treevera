@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
@@ -23,6 +23,7 @@ type Props = {
   onToggleFav?: () => void;
   favCount?: number;
   specieKey?: number;
+  quickActions?: ReactNode;
 };
 
 function getSourceIdFromName(source?: string) {
@@ -40,6 +41,7 @@ export const SpecieImageDetail = ({
   onToggleFav,
   favCount = 0,
   specieKey,
+  quickActions,
 }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -191,51 +193,59 @@ export const SpecieImageDetail = ({
           </>
         )}
 
-        {showFavButton && (
-          <div className="absolute top-2 right-2 flex flex-row-reverse items-center">
-            <AnimatePresence>
-              {showCounter && (
-                <motion.div
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: "auto", opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="overflow-hidden"
-                >
-                  <button
-                    onClick={handleCountClick}
-                    className="h-9 rounded-l-none rounded-r-full bg-black/40 px-2.5 text-xs font-medium whitespace-nowrap text-white tabular-nums backdrop-blur-sm"
-                    aria-label={t("specieDetail.viewFavoriters")}
-                  >
-                    {optimisticCount}
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {(showFavButton || quickActions) && (
+          <div className="absolute top-2 right-2 flex items-center gap-2">
+            {showFavButton && (
+              <div className="flex flex-row-reverse items-center">
+                <AnimatePresence>
+                  {showCounter && (
+                    <motion.div
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: "auto", opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className="overflow-hidden"
+                    >
+                      <button
+                        onClick={handleCountClick}
+                        className="h-8 cursor-pointer rounded-l-none rounded-r-full bg-black/40 px-2.5 text-xs font-medium whitespace-nowrap text-white tabular-nums backdrop-blur-sm"
+                        aria-label={t("specieDetail.viewFavoriters")}
+                        title={t("specieDetail.whoLiked")}
+                      >
+                        {optimisticCount}
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleFavToggle}
-              className={cn(
-                "bg-black/40 p-2 backdrop-blur-sm transition-all",
-                showCounter ? "rounded-l-full rounded-r-none" : "rounded-full",
-              )}
-              aria-label={
-                isFav
-                  ? t("specieDetail.removeFavorite")
-                  : t("specieDetail.favorite")
-              }
-            >
-              <Heart
-                className={cn(
-                  "size-5 transition-all",
-                  isFav
-                    ? "fill-red-500 text-red-500"
-                    : "text-white hover:text-red-400",
-                )}
-              />
-            </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleFavToggle}
+                  className={cn(
+                    "size-8 cursor-pointer bg-black/40 p-0 backdrop-blur-sm transition-all",
+                    showCounter
+                      ? "rounded-l-full rounded-r-none"
+                      : "rounded-full",
+                  )}
+                  aria-label={
+                    isFav
+                      ? t("specieDetail.removeFavorite")
+                      : t("specieDetail.favorite")
+                  }
+                >
+                  <Heart
+                    className={cn(
+                      "mx-auto size-4 transition-all",
+                      isFav
+                        ? "fill-red-500 text-red-500"
+                        : "text-white hover:text-red-400",
+                    )}
+                  />
+                </motion.button>
+              </div>
+            )}
+            {quickActions}
           </div>
         )}
 

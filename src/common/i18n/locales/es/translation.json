@@ -335,6 +335,7 @@
     "previousImage": "Imagen anterior",
     "nextImage": "Siguiente imagen",
     "viewFavoriters": "Ver quién la marcó como favorita",
+    "whoLiked": "Quién le dio me gusta",
     "removeFavorite": "Quitar de favoritos",
     "favorite": "Marcar como favorita",
     "photo": "Foto {{number}}"

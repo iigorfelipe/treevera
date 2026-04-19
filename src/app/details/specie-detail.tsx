@@ -1,12 +1,11 @@
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpeciesCache } from "@/hooks/queries/useGetSpeciesCache";
 import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
+import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { SpecieImageDetail } from "@/modules/specie-detail/image";
 import { SpecieInfos } from "@/modules/specie-detail/infos";
 import { TaxonomyCard } from "@/modules/specie-detail/taxonomy-card";
-import { ShareButton } from "@/modules/specie-detail/share-button";
-import { AddToListButton } from "@/modules/lists/add-to-list-button";
-import { CreateCustomChallengeButton } from "@/modules/challenge/custom/create-custom-challenge-button";
+import { SpeciesCardQuickMenu } from "@/modules/species-gallery/species-card-quick-menu";
 import { ListsWithSpecies } from "@/modules/lists/lists-with-species";
 import { VulnerabilityBadge } from "@/common/components/vulnerability-badge";
 import {
@@ -262,6 +261,22 @@ export const SpecieDetail = ({
 
   const showContextualHeader =
     showBackHeader && (isFromGallery || isFromTree) && !embedded;
+  const detailQuickMenuSpecies: GallerySpeciesRow | null =
+    specieKey == null
+      ? null
+      : {
+          gbif_key: specieKey,
+          canonical_name:
+            specieDetail.canonicalName ?? specieDetail.scientificName ?? null,
+          family: specieDetail.family ?? null,
+          image_url: gallery[0]?.imgUrl ?? null,
+          image_source: gallery[0]?.source ?? null,
+          image_attribution: gallery[0]?.author ?? null,
+          image_license: gallery[0]?.licenseCode ?? null,
+          is_favorite: isFav,
+          seen_at: specie?.seen_at ?? "",
+          total_count: 0,
+        };
 
   return (
     <>
@@ -310,6 +325,15 @@ export const SpecieDetail = ({
                     onToggleFav={toggleFav}
                     favCount={favCount}
                     specieKey={specieKey}
+                    quickActions={
+                      detailQuickMenuSpecies ? (
+                        <SpeciesCardQuickMenu
+                          species={detailQuickMenuSpecies}
+                          triggerClassName="rounded-full bg-black/40 p-2 text-white shadow-sm backdrop-blur-sm transition hover:bg-black/50"
+                          hideImageActions
+                        />
+                      ) : null
+                    }
                   />
                 </motion.div>
 
@@ -361,46 +385,16 @@ export const SpecieDetail = ({
                   </motion.div>
                 )}
 
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="flex flex-col gap-2"
-                >
-                  <ShareButton
-                    specieKey={specieKey!}
-                    canonicalName={specieDetail.canonicalName}
-                  />
-                  {specieKey && (
-                    <AddToListButton
-                      gbifKey={specieKey}
-                      speciesName={specieDetail.canonicalName}
-                      image={
-                        gallery[0]
-                          ? {
-                              url: gallery[0].imgUrl,
-                              source: gallery[0].source,
-                              author: gallery[0].author,
-                              license: gallery[0].licenseCode,
-                            }
-                          : undefined
-                      }
-                    />
-                  )}
-
-                  {specieKey && (
-                    <CreateCustomChallengeButton
-                      gbifKey={specieKey}
-                      specieDetail={specieDetail}
-                    />
-                  )}
-
-                  {specieKey && (
-                    <div className="pt-4">
-                      <ListsWithSpecies gbifKey={specieKey} />
-                    </div>
-                  )}
-                </motion.div>
+                {specieKey && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="pt-2"
+                  >
+                    <ListsWithSpecies gbifKey={specieKey} />
+                  </motion.div>
+                )}
               </div>
             </div>
           </div>

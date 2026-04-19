@@ -57,6 +57,7 @@ type SpeciesCardQuickMenuProps = {
   ownerUsername?: string;
   onDialogClose?: () => void;
   triggerClassName?: string;
+  hideImageActions?: boolean;
 };
 
 export const SpeciesCardQuickMenu = ({
@@ -67,10 +68,12 @@ export const SpeciesCardQuickMenu = ({
   ownerUsername,
   onDialogClose,
   triggerClassName,
+  hideImageActions = false,
 }: SpeciesCardQuickMenuProps) => {
   const { t } = useTranslation();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
+  const canUseAuthenticatedActions = isAuthenticated && !!userDb;
   const queryClient = useQueryClient();
 
   const [addToListOpen, setAddToListOpen] = useState(false);
@@ -133,12 +136,18 @@ export const SpeciesCardQuickMenu = ({
     setViewInTreePending(false);
   }, [viewInTreePending, parents, species, injectPathNodes, navigateToNodes]);
 
-  if (!isAuthenticated || !userDb) return null;
+  useEffect(() => {
+    setIsFav(species.is_favorite);
+  }, [species.is_favorite]);
+
+  useEffect(() => {
+    setCurrentImageUrl(species.image_url);
+  }, [species.image_url]);
 
   const isOwner = listId
-    ? listUsername === userDb.username
+    ? listUsername === userDb?.username
     : ownerUsername !== undefined
-      ? ownerUsername === userDb.username
+      ? ownerUsername === userDb?.username
       : true;
 
   const handleFavToggle = async () => {
@@ -148,7 +157,7 @@ export const SpeciesCardQuickMenu = ({
     setFavPending(true);
     try {
       await toggleFavSpecie(
-        userDb.id,
+        userDb!.id,
         species.gbif_key,
         newFav,
         currentImageUrl,
@@ -159,6 +168,15 @@ export const SpeciesCardQuickMenu = ({
       );
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.user_seen_species_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.seen_specie_by_key_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.favorite_species_page_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.species_fav_count_key, species.gbif_key],
       });
     } finally {
       setFavPending(false);
@@ -202,7 +220,7 @@ export const SpeciesCardQuickMenu = ({
         queryKey: [QUERY_KEYS.list_species_key],
       });
     } else {
-      await updatePreferredImage(userDb.id, species.gbif_key, img.imgUrl, {
+      await updatePreferredImage(userDb!.id, species.gbif_key, img.imgUrl, {
         canonicalName: species.canonical_name,
         family: species.family,
         source: img.source,
@@ -211,6 +229,9 @@ export const SpeciesCardQuickMenu = ({
       });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.user_seen_species_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.seen_specie_by_key_key],
       });
     }
     setCurrentImageUrl(img.imgUrl);
@@ -237,22 +258,25 @@ export const SpeciesCardQuickMenu = ({
           <button
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
-            className={
+            className={cn(
+              "z-10 cursor-pointer rounded-full shadow backdrop-blur-sm",
               triggerClassName ??
-              "bg-card/80 absolute right-2 bottom-13 z-10 rounded-full p-1.5 shadow backdrop-blur-sm transition-opacity md:opacity-0 md:group-hover:opacity-100"
-            }
+                "bg-card/80 absolute right-2 bottom-13 p-1.5 transition-opacity md:opacity-0 md:group-hover:opacity-100",
+            )}
             aria-label={t("gallery.quickActions")}
           >
             <MoreVertical className="size-3.5" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-          <DropdownMenuItem onClick={() => setAddToListOpen(true)}>
-            <ListPlus className="mr-2 size-4" />
-            {t("lists.addToList")}
-          </DropdownMenuItem>
+          {canUseAuthenticatedActions && (
+            <DropdownMenuItem onClick={() => setAddToListOpen(true)}>
+              <ListPlus className="mr-2 size-4" />
+              {t("lists.addToList")}
+            </DropdownMenuItem>
+          )}
 
-          {isOwner && (
+          {canUseAuthenticatedActions && isOwner && (
             <DropdownMenuItem onClick={handleFavToggle} disabled={favPending}>
               <Heart
                 className={cn(
@@ -274,12 +298,14 @@ export const SpeciesCardQuickMenu = ({
             {t("gallery.viewInTree")}
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => setCreateChallengeOpen(true)}>
-            <Target className="mr-2 size-4" />
-            {t("challenge.createCustom")}
-          </DropdownMenuItem>
+          {canUseAuthenticatedActions && (
+            <DropdownMenuItem onClick={() => setCreateChallengeOpen(true)}>
+              <Target className="mr-2 size-4" />
+              {t("challenge.createCustom")}
+            </DropdownMenuItem>
+          )}
 
-          {isOwner && (
+          {canUseAuthenticatedActions && isOwner && !hideImageActions && (
             <>
               <DropdownMenuSeparator />
 
