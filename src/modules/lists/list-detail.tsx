@@ -190,7 +190,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-x-clip">
+    <div className="flex h-full flex-col">
       <div ref={scrollRef}>
         <ListDetailHero
           list={list}
