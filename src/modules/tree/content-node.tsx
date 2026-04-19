@@ -15,16 +15,19 @@ import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom, removeHighlightedKeyAtom } from "@/store/tree";
 import { showRankBadgeAtom } from "@/store/user-settings";
+import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { authStore } from "@/store/auth/atoms";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { COLOR_KINGDOM_BY_NAME } from "@/common/constants/tree";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
   const showRankBadge = useAtomValue(showRankBadgeAtom);
+  const { isCompactMenu } = useTreePanelLayout();
   const store = useStore();
 
   const isExpanded = node.expanded;
@@ -103,6 +106,63 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
     node.scientificName &&
     node.canonicalName &&
     node.scientificName !== node.canonicalName;
+  const compactLabel = displayName || capitalizar(node.rank);
+  const compactInitial = compactLabel.charAt(0).toUpperCase();
+  const compactColor =
+    node.color ??
+    COLOR_KINGDOM_BY_NAME[
+      node.kingdom?.toLowerCase() as keyof typeof COLOR_KINGDOM_BY_NAME
+    ];
+
+  if (isCompactMenu) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <motion.div
+            key={node.key}
+            className={cn(
+              "bg-card/90 group flex size-9 cursor-pointer items-center justify-center rounded-xl border shadow-sm transition-all hover:scale-105 hover:shadow-md",
+              isExpanded && "bg-accent border-accent-foreground/10",
+            )}
+            animate={
+              feedback === "error"
+                ? { x: [0, -4, 4, -2, 2, 0] }
+                : isHighlighted || feedback === "success"
+                  ? { scale: [1, 1.06, 1] }
+                  : { x: 0, scale: 1 }
+            }
+            transition={{
+              duration: feedback === "error" ? 0.3 : 0.5,
+              ease: "easeInOut",
+            }}
+          >
+            <span
+              className={cn(
+                "flex size-5 items-center justify-center rounded-lg text-[10px] font-semibold text-white transition-transform duration-150 group-hover:scale-110",
+                feedback === "success" && "ring-2 ring-emerald-500/50",
+                feedback === "error" && "ring-2 ring-red-500/50",
+              )}
+              style={{ backgroundColor: compactColor }}
+            >
+              {compactInitial}
+            </span>
+          </motion.div>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={12}>
+          <div className="font-medium">{compactLabel}</div>
+          <div className="opacity-80">{capitalizar(node.rank)}</div>
+          {node.numDescendants ? (
+            <div className="opacity-80">
+              {new Intl.NumberFormat(
+                i18n.resolvedLanguage ?? i18n.language,
+              ).format(node.numDescendants)}{" "}
+              {t("tree.descendants")}
+            </div>
+          ) : null}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
 
   return (
     <motion.div

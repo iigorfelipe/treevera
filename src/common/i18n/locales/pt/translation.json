@@ -123,6 +123,7 @@
     }
   },
   "nav": {
+    "open": "Abrir",
     "back": "Voltar",
     "home": "Início",
     "signIn": "Entrar",

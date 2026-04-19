@@ -29,6 +29,7 @@ export const useVirtualTree = (
   nodes: Record<number, NodeEntity>,
   roots: number[],
   parentRef: RefObject<HTMLDivElement | null>,
+  isCompactMenu = false,
 ) => {
   const flattenTree = useCallback(
     (
@@ -48,7 +49,7 @@ export const useVirtualTree = (
           const children = flattenTree(nodes, node.childrenKeys, level + 1);
           for (let i = 0; i < children.length; i++) result.push(children[i]);
 
-          if (node.rank !== "KINGDOM") {
+          if (!isCompactMenu && node.rank !== "KINGDOM") {
             result.push({
               key: -(node.key + 3_000_000_000),
               level: level + 1,
@@ -57,6 +58,7 @@ export const useVirtualTree = (
             });
           }
         } else if (
+          !isCompactMenu &&
           node.expanded &&
           node.rank !== "KINGDOM" &&
           node.rank !== "SPECIES" &&
@@ -73,7 +75,7 @@ export const useVirtualTree = (
 
       return result;
     },
-    [],
+    [isCompactMenu],
   );
 
   const flattened = useMemo(() => {
@@ -97,9 +99,10 @@ export const useVirtualTree = (
       const item = flattened[index];
       if (item.isSearchBanner) return 40;
       if (item.isEmptyInfo) return 192;
+      if (isCompactMenu) return nodes[item.key]?.rank === "KINGDOM" ? 52 : 44;
       return nodes[item.key]?.rank === "KINGDOM" ? 72 : 34;
     },
-    [flattened, nodes],
+    [flattened, isCompactMenu, nodes],
   );
 
   const positions = useMemo(() => {
@@ -128,6 +131,8 @@ export const useVirtualTree = (
   });
 
   const connectors: Connector[] = useMemo(() => {
+    if (isCompactMenu) return [];
+
     const indexByKey = new Map<number, number>();
     flattened.forEach((item, index) => indexByKey.set(item.key, index));
 
@@ -184,7 +189,7 @@ export const useVirtualTree = (
     }
 
     return result;
-  }, [flattened, nodes, positions, getRowSize]);
+  }, [flattened, getRowSize, isCompactMenu, nodes, positions]);
 
   return {
     flattened,

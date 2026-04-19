@@ -18,6 +18,7 @@ import { useChallengeAudio } from "./hooks/use-challenge-audio";
 import { useShortcutScroll } from "./hooks/use-shortcut-scroll";
 import { usePrefetchExpandedChildren } from "./hooks/usePrefetchExpandedChildren";
 import { Challenges } from "@/app/challenges";
+import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 import {
   COLOR_KINGDOM_BY_NAME,
   TREE_CONNECTOR_HORIZONTAL_LENGTH_PX,
@@ -45,6 +46,7 @@ export const VirtualTree = () => {
   const lastScrolledRank = useRef<Rank | null>(null);
   const scrollToNodeKey = useAtomValue(treeAtom.scrollToNodeKey);
   const lastScrolledNodeKey = useRef<number | null>(null);
+  const { isCompactMenu } = useTreePanelLayout();
 
   const { isTablet } = useResponsive();
 
@@ -52,6 +54,7 @@ export const VirtualTree = () => {
     nodes,
     roots,
     parentRef,
+    isCompactMenu,
   );
 
   useEffect(() => {
@@ -101,18 +104,22 @@ export const VirtualTree = () => {
   useShortcutScroll(flattened, rowVirtualizer);
 
   return (
-    <>
-      <div className="mb-4 px-4">
-        {challengeMode && isTablet && <Challenges />}
+    <div className="flex min-h-0 flex-1 flex-col">
+      {!isCompactMenu && (
+        <div className="mb-4 px-4 pt-2">
+          {challengeMode && isTablet && <Challenges />}
 
-        {!challengeMode && <Search />}
-      </div>
+          {!challengeMode && <Search />}
+        </div>
+      )}
 
       <div
         ref={parentRef}
         className={cn(
-          "h-[calc(100dvh-144px)] w-full overflow-auto px-4 pb-28 transition-[padding-top] duration-200",
-          challengeMode && !isTablet && "h-[calc(100dvh-130px)]",
+          "w-full overflow-x-hidden overflow-y-auto transition-[padding-top,padding] duration-200",
+          isCompactMenu
+            ? "h-[calc(100dvh-96px)] px-2 pr-1 pb-4"
+            : "h-[calc(100dvh-144px)] px-4 pb-28",
           challengeMode === "UNSET" && "pointer-events-none opacity-40",
         )}
         style={{
@@ -127,10 +134,12 @@ export const VirtualTree = () => {
           style={{ height: rowVirtualizer.getTotalSize() }}
           className="relative w-full"
         >
-          <Overlay
-            connectors={connectors}
-            totalHeight={rowVirtualizer.getTotalSize()}
-          />
+          {!isCompactMenu && (
+            <Overlay
+              connectors={connectors}
+              totalHeight={rowVirtualizer.getTotalSize()}
+            />
+          )}
 
           {rowVirtualizer.getVirtualItems().map((virtualItem) => {
             const item = flattened[virtualItem.index];
@@ -164,7 +173,7 @@ export const VirtualTree = () => {
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                {showHConnector && (
+                {showHConnector && !isCompactMenu && (
                   <div
                     aria-hidden
                     style={{
@@ -201,6 +210,6 @@ export const VirtualTree = () => {
           })}
         </ul>
       </div>
-    </>
+    </div>
   );
 };

@@ -13,12 +13,14 @@ import { authStore } from "@/store/auth/atoms";
 import { addSeenSpecie } from "@/common/utils/supabase/user-seen-species";
 import type { NodeEntity } from "@/common/types/tree-atoms";
 import { treeAtom } from "@/store/tree";
+import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
 import { Dna, DnaOff, Info } from "lucide-react";
 import { motion } from "framer-motion";
+import { COLOR_KINGDOM_BY_NAME } from "@/common/constants/tree";
 
 export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const session = useAtomValue(authStore.session);
@@ -26,6 +28,7 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
   const queryClient = useQueryClient();
   const store = useStore();
+  const { isCompactMenu } = useTreePanelLayout();
 
   const checkAchievements = useCheckAchievements();
   const challenge = useAtomValue(treeAtom.challenge);
@@ -68,11 +71,59 @@ export const SpecieNode = memo(({ node }: { node: NodeEntity }) => {
     void checkAchievements();
   };
 
-  const displayName = node.canonicalName || node.scientificName;
+  const displayName =
+    node.canonicalName || node.scientificName || capitalizar(node.rank);
   const showInfoIcon =
     node.scientificName &&
     node.canonicalName &&
     node.scientificName !== node.canonicalName;
+  const compactInitial = displayName.charAt(0).toUpperCase();
+  const compactColor =
+    COLOR_KINGDOM_BY_NAME[
+      node.kingdom?.toLowerCase() as keyof typeof COLOR_KINGDOM_BY_NAME
+    ];
+
+  if (isCompactMenu) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <motion.div
+            key={node.key}
+            className={cn(
+              "bg-card/90 group flex size-9 cursor-pointer items-center justify-center rounded-xl border shadow-sm transition-all hover:scale-105 hover:shadow-md",
+              isSelected && "bg-accent border-accent-foreground/10",
+            )}
+            animate={
+              feedback === "error"
+                ? { x: [0, -4, 4, -2, 2, 0] }
+                : feedback === "success"
+                  ? { scale: [1, 1.06, 1] }
+                  : { x: 0, scale: 1 }
+            }
+            transition={{
+              duration: feedback === "error" ? 0.3 : 0.5,
+              ease: "easeInOut",
+            }}
+          >
+            <span
+              className={cn(
+                "flex size-5 items-center justify-center rounded-lg text-[10px] font-semibold text-white transition-transform duration-150 group-hover:scale-110",
+                feedback === "success" && "ring-2 ring-emerald-500/50",
+                feedback === "error" && "ring-2 ring-red-500/50",
+              )}
+              style={{ backgroundColor: compactColor }}
+            >
+              {compactInitial}
+            </span>
+          </motion.div>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={12}>
+          <div className="font-medium italic">{displayName}</div>
+          <div className="opacity-80">{capitalizar(node.rank)}</div>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
 
   return (
     <motion.div

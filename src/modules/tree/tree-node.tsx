@@ -12,6 +12,7 @@ import { useGetChildren } from "@/hooks/queries/useGetChildren";
 import { useAtom, useSetAtom } from "jotai";
 import { nodeAtomFamily, setNodeChildrenAtom } from "@/store/tree";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
+import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 import { Loader } from "lucide-react";
 import { cn } from "@/common/utils/cn";
 
@@ -20,6 +21,7 @@ export const TreeNodeLiContent = memo(
     const [node] = useAtom(nodeAtomFamily(nodeKey));
     const setNodeChildren = useSetAtom(setNodeChildrenAtom);
     const { toggleNode } = useTreeNavigation();
+    const { isCompactMenu, requestPanelExpand } = useTreePanelLayout();
 
     const isExpanded = node?.expanded;
 
@@ -40,8 +42,10 @@ export const TreeNodeLiContent = memo(
     }, [isExpanded, data, node?.key, node?.childrenKeys, setNodeChildren]);
 
     const handleClick = useCallback(() => {
-      if (!isLoading) toggleNode(nodeKey);
-    }, [isLoading, toggleNode, nodeKey]);
+      if (isLoading) return;
+      if (isCompactMenu) requestPanelExpand();
+      toggleNode(nodeKey);
+    }, [isCompactMenu, isLoading, nodeKey, requestPanelExpand, toggleNode]);
 
     if (!node) return null;
 
@@ -53,22 +57,32 @@ export const TreeNodeLiContent = memo(
         node?.kingdom?.toLocaleLowerCase() as keyof typeof COLOR_KINGDOM_BY_NAME
       ];
 
-    const marginLeft = level * TREE_LEVEL_INDENT_PX;
+    const marginLeft = isCompactMenu ? 0 : level * TREE_LEVEL_INDENT_PX;
 
     return (
       <div
-        className={cn("flex", isLoading && "node-loading")}
+        className={cn(
+          "flex",
+          isLoading && "node-loading",
+          isCompactMenu && "cursor-pointer justify-center px-1.5",
+        )}
         style={
           {
             marginLeft,
-            height: isKingdom ? "4.25rem" : "2.125rem",
+            height: isCompactMenu
+              ? isKingdom
+                ? "3.25rem"
+                : "3.25rem"
+              : isKingdom
+                ? "4.25rem"
+                : "2.125rem",
             zIndex: 1,
             "--tree-color": kingdomColor,
           } as React.CSSProperties
         }
         onClick={handleClick}
       >
-        {!isKingdom && (
+        {!isCompactMenu && !isKingdom && (
           <div
             className="z-50 mt-1.5 flex cursor-pointer items-center justify-center rounded-full p-px text-white"
             style={{

@@ -1,5 +1,13 @@
 import { useAtomValue, useSetAtom } from "jotai";
-import { lazy, Suspense, useEffect } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import type { PanelImperativeHandle } from "react-resizable-panels";
 
 import {
   ResizableHandle,
@@ -10,6 +18,7 @@ import { Header } from "@/modules/header";
 import { treeAtom, selectedSpecieKeyAtom } from "@/store/tree";
 import { Tree } from "@/app/tree";
 import { ExploreInfo } from "@/app/details/explore-info";
+import { TreePanelLayoutProvider } from "./tree-panel-layout";
 
 const Challenges = lazy(() =>
   import("@/app/challenges").then((m) => ({ default: m.Challenges })),
@@ -31,11 +40,20 @@ const PanelFallback = ({
   className?: string;
 }) => <div className={className} />;
 
+const TREE_PANEL_DEFAULT_WIDTH = 480;
+const TREE_PANEL_AUTO_EXPAND_WIDTH = 420;
+const TREE_PANEL_COLLAPSED_WIDTH = 92;
+const TREE_PANEL_COMPACT_BREAKPOINT = 132;
+const TREE_PANEL_DRAG_MIN_WIDTH = 120;
+const TREE_PANEL_SNAP_COLLAPSE_WIDTH = 395;
+
 export const HomeDesktop = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
+  const treePanelRef = useRef<PanelImperativeHandle | null>(null);
+  const [isCompactMenu, setIsCompactMenu] = useState(false);
 
   const isCompleted = challenge.status === "COMPLETED";
 
@@ -46,55 +64,94 @@ export const HomeDesktop = () => {
     }
   }, [isCompleted, challenge.speciesKey, setSelectedSpecieKey]);
 
+  const requestPanelExpand = useCallback(
+    (targetWidth = TREE_PANEL_AUTO_EXPAND_WIDTH) => {
+      const panel = treePanelRef.current;
+      if (!panel) return;
+
+      const currentWidth = panel.getSize().inPixels;
+      if (currentWidth >= targetWidth - 4) return;
+
+      panel.resize(targetWidth);
+    },
+    [],
+  );
+
   return (
-    <ResizablePanelGroup orientation="horizontal">
-      <ResizablePanel
-        className="relative"
-        defaultSize={480}
-        minSize={452}
-        maxSize={855}
-      >
-        <Header />
-        <div className="relative">
-          <Tree />
-          {isCompleted && (
-            <>
-              <div className="absolute inset-0 z-10 bg-black/60" />
-              <Suspense
-                fallback={<PanelFallback className="absolute inset-0 z-20" />}
-              >
-                <ChallengeCompletedOverlay />
-              </Suspense>
-            </>
-          )}
-        </div>
-      </ResizablePanel>
+    <TreePanelLayoutProvider value={{ isCompactMenu, requestPanelExpand }}>
+      <ResizablePanelGroup orientation="horizontal" className="min-h-screen">
+        <ResizablePanel
+          className="relative overflow-hidden border-r"
+          defaultSize={TREE_PANEL_DEFAULT_WIDTH}
+          minSize={TREE_PANEL_DRAG_MIN_WIDTH}
+          maxSize={855}
+          collapsible
+          collapsedSize={TREE_PANEL_COLLAPSED_WIDTH}
+          panelRef={treePanelRef}
+          onResize={(size) => {
+            const panel = treePanelRef.current;
+            const width = size.inPixels;
+            const collapsed =
+              panel?.isCollapsed() ?? width <= TREE_PANEL_COMPACT_BREAKPOINT;
 
-      <ResizableHandle />
+            if (!collapsed && width <= TREE_PANEL_SNAP_COLLAPSE_WIDTH) {
+              panel?.collapse();
+              setIsCompactMenu(true);
+              return;
+            }
 
-      <ResizablePanel className="flex w-full flex-col gap-4 pl-6">
-        <div className="h-screen w-full overflow-auto">
-          {isCompleted && (
-            <Suspense fallback={<PanelFallback />}>
-              <SpecieDetail embedded />
-            </Suspense>
-          )}
-          {!isCompleted && challenge.mode && (
-            <Suspense fallback={<PanelFallback />}>
-              <Challenges />
-            </Suspense>
-          )}
-          {!isCompleted &&
-            !challenge.mode &&
-            (isSpecie ? (
+            setIsCompactMenu(width <= TREE_PANEL_COMPACT_BREAKPOINT);
+          }}
+        >
+          <div className="bg-background relative flex h-screen min-w-0 flex-col overflow-hidden">
+            <Header
+              compact={isCompactMenu}
+              onExpandRequest={() => requestPanelExpand()}
+            />
+            <div className="relative flex min-h-0 flex-1 flex-col">
+              <Tree />
+              {isCompleted && (
+                <>
+                  <div className="absolute inset-0 z-10 bg-black/60" />
+                  <Suspense
+                    fallback={
+                      <PanelFallback className="absolute inset-0 z-20" />
+                    }
+                  >
+                    <ChallengeCompletedOverlay />
+                  </Suspense>
+                </>
+              )}
+            </div>
+          </div>
+        </ResizablePanel>
+
+        <ResizableHandle disabled={isCompactMenu} withHandle={!isCompactMenu} />
+
+        <ResizablePanel className="flex w-full min-w-0 flex-col gap-4">
+          <div className="h-screen w-full overflow-auto">
+            {isCompleted && (
               <Suspense fallback={<PanelFallback />}>
-                <SpecieDetail />
+                <SpecieDetail embedded />
               </Suspense>
-            ) : (
-              <ExploreInfo />
-            ))}
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+            )}
+            {!isCompleted && challenge.mode && (
+              <Suspense fallback={<PanelFallback />}>
+                <Challenges />
+              </Suspense>
+            )}
+            {!isCompleted &&
+              !challenge.mode &&
+              (isSpecie ? (
+                <Suspense fallback={<PanelFallback />}>
+                  <SpecieDetail />
+                </Suspense>
+              ) : (
+                <ExploreInfo />
+              ))}
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </TreePanelLayoutProvider>
   );
 };
