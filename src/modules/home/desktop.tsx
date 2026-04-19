@@ -124,7 +124,7 @@ export const HomeDesktop = () => {
             setIsCompactMenu(width <= TREE_PANEL_COMPACT_BREAKPOINT);
           }}
         >
-          <div className="bg-background relative flex h-screen min-w-0 flex-col overflow-hidden">
+          <div className="relative flex h-screen min-w-0 flex-col overflow-hidden">
             <Header
               compact={shouldShowCompactMenu}
               onExpandRequest={() => requestPanelExpand()}
