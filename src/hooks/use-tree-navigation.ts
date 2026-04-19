@@ -8,12 +8,14 @@ import {
 import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import { capitalizar } from "@/common/utils/string";
 import type { PathNode } from "@/common/types/tree-atoms";
+import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 
 export function useTreeNavigation() {
   const navigate = useNavigate();
   const store = useStore();
   const setShortcutTarget = useSetAtom(shortcutScrollTargetAtom);
   const challenge = useAtomValue(treeAtom.challenge);
+  const { requestPanelExpand } = useTreePanelLayout();
 
   const nodesToPath = useCallback(
     (nodes: PathNode[]) => {
@@ -35,11 +37,12 @@ export function useTreeNavigation() {
 
   const navigateToNodes = useCallback(
     (nodes: PathNode[], fromShortcut = false) => {
+      requestPanelExpand();
       setShortcutTarget(fromShortcut ? [...nodes] : null);
       const path = nodesToPath(nodes);
       navigate({ to: path, resetScroll: false });
     },
-    [navigate, nodesToPath, setShortcutTarget],
+    [navigate, nodesToPath, requestPanelExpand, setShortcutTarget],
   );
 
   const toggleNode = useCallback(

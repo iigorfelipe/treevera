@@ -521,9 +521,12 @@ const MyCustomChallenges = () => {
 
 export const ChallengesLobby = ({ dayKey }: { dayKey: string }) => {
   return (
-    <div className="p-4 md:p-8">
-      <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:gap-10">
-        <div className="flex shrink-0 flex-col gap-6">
+    <div
+      className="@container/challenges-lobby p-4 md:p-8"
+      style={{ containerType: "inline-size" }}
+    >
+      <div className="grid grid-cols-1 gap-8 @[1040px]/challenges-lobby:grid-cols-[minmax(20rem,24rem)_minmax(0,1fr)] @[1040px]/challenges-lobby:items-start @[1040px]/challenges-lobby:gap-10">
+        <div className="flex min-w-0 flex-col gap-6">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={dayKey}

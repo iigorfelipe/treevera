@@ -55,7 +55,9 @@ export const HomeDesktop = () => {
   const treePanelRef = useRef<PanelImperativeHandle | null>(null);
   const [isCompactMenu, setIsCompactMenu] = useState(false);
 
+  const isChallengeInProgress = challenge.status === "IN_PROGRESS";
   const isCompleted = challenge.status === "COMPLETED";
+  const shouldShowCompactMenu = !isChallengeInProgress && isCompactMenu;
 
   useEffect(() => {
     if (isCompleted && challenge.speciesKey) {
@@ -77,20 +79,39 @@ export const HomeDesktop = () => {
     [],
   );
 
+  useEffect(() => {
+    if (!isChallengeInProgress) return;
+
+    requestPanelExpand();
+  }, [isChallengeInProgress, requestPanelExpand]);
+
   return (
-    <TreePanelLayoutProvider value={{ isCompactMenu, requestPanelExpand }}>
+    <TreePanelLayoutProvider
+      value={{ isCompactMenu: shouldShowCompactMenu, requestPanelExpand }}
+    >
       <ResizablePanelGroup orientation="horizontal" className="min-h-screen">
         <ResizablePanel
           className="relative overflow-hidden border-r"
           defaultSize={TREE_PANEL_DEFAULT_WIDTH}
-          minSize={TREE_PANEL_DRAG_MIN_WIDTH}
+          minSize={
+            isChallengeInProgress
+              ? TREE_PANEL_AUTO_EXPAND_WIDTH
+              : TREE_PANEL_DRAG_MIN_WIDTH
+          }
           maxSize={855}
-          collapsible
+          collapsible={!isChallengeInProgress}
           collapsedSize={TREE_PANEL_COLLAPSED_WIDTH}
           panelRef={treePanelRef}
           onResize={(size) => {
             const panel = treePanelRef.current;
             const width = size.inPixels;
+
+            if (isChallengeInProgress) {
+              if (panel?.isCollapsed())
+                panel.resize(TREE_PANEL_AUTO_EXPAND_WIDTH);
+              return;
+            }
+
             const collapsed =
               panel?.isCollapsed() ?? width <= TREE_PANEL_COMPACT_BREAKPOINT;
 
@@ -105,7 +126,7 @@ export const HomeDesktop = () => {
         >
           <div className="bg-background relative flex h-screen min-w-0 flex-col overflow-hidden">
             <Header
-              compact={isCompactMenu}
+              compact={shouldShowCompactMenu}
               onExpandRequest={() => requestPanelExpand()}
             />
             <div className="relative flex min-h-0 flex-1 flex-col">
@@ -126,7 +147,10 @@ export const HomeDesktop = () => {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle disabled={isCompactMenu} withHandle={!isCompactMenu} />
+        <ResizableHandle
+          disabled={shouldShowCompactMenu}
+          withHandle={!shouldShowCompactMenu}
+        />
 
         <ResizablePanel className="flex w-full min-w-0 flex-col gap-4">
           <div className="h-screen w-full overflow-auto">

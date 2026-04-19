@@ -294,7 +294,7 @@ export const SpecieDetail = ({
         )}
 
         <div
-          className={`py-2 ${showContextualHeader ? "pt-6" : embedded ? "pt-2" : "md:mt-4"}`}
+          className={`p-6 ${showContextualHeader ? "pt-6" : embedded ? "pt-2" : "md:mt-4"}`}
         >
           <div className="mx-auto max-w-7xl">
             <div className="grid grid-cols-1 gap-6 @[720px]/specie-detail:grid-cols-[minmax(0,1.45fr)_minmax(16rem,1fr)] @[1180px]/specie-detail:grid-cols-[minmax(0,1.9fr)_minmax(18rem,1fr)]">
