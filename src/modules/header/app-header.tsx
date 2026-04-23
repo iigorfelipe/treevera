@@ -118,7 +118,7 @@ export const AppHeader = () => {
       className={
         isListDetailRoute
           ? useTransparentHeader
-            ? "group/header fixed inset-x-0 top-0 z-50 w-full border-b border-transparent bg-transparent transition-colors duration-200"
+            ? "group/header hover:border-border hover:bg-background/95 focus-within:border-border focus-within:bg-background/95 fixed inset-x-0 top-0 z-50 w-full border-b border-transparent bg-transparent transition-[background-color,border-color,backdrop-filter] duration-200 focus-within:backdrop-blur-sm hover:backdrop-blur-sm"
             : "group/header bg-background/95 fixed inset-x-0 top-0 z-50 w-full border-b backdrop-blur-sm transition-colors duration-200"
           : "group/header bg-background/95 sticky top-0 z-50 w-full border-b backdrop-blur-sm"
       }
@@ -127,8 +127,6 @@ export const AppHeader = () => {
         {useTransparentHeader && (
           <div className="pointer-events-none absolute inset-0">
             <div className="from-background/45 absolute inset-x-0 top-0 h-16 bg-linear-to-b to-transparent" />
-            <div className="from-background/85 via-background/45 absolute inset-y-0 left-0 w-36 bg-linear-to-r to-transparent md:w-48" />
-            <div className="from-background/85 via-background/45 absolute inset-y-0 right-0 w-32 bg-linear-to-l to-transparent md:w-44" />
           </div>
         )}
 

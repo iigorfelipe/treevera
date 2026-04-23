@@ -72,8 +72,8 @@ export const ListDetailHero = ({
 
   return (
     <div>
-      <div className="relative left-1/2 mr-[-50vw] ml-[-50vw] w-screen max-w-none overflow-x-clip 2xl:left-auto 2xl:mr-0 2xl:ml-0 2xl:w-auto">
-        <div className="bg-background relative h-76 w-full overflow-hidden sm:h-88 md:h-100 2xl:left-1/2 2xl:w-[calc(100%+228px)] 2xl:max-w-381 2xl:-translate-x-1/2">
+      <div className="relative -mx-4 overflow-x-hidden md:-mx-20">
+        <div className="bg-background relative h-76 overflow-hidden sm:h-88 md:h-100">
           {list.cover_image_url ? (
             <>
               <div
@@ -89,16 +89,7 @@ export const ListDetailHero = ({
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
-                    "radial-gradient(ellipse 95% 110% at 50% 45%, transparent 0%, transparent 15%, color-mix(in oklab, var(--background) 15%, transparent) 35%, color-mix(in oklab, var(--background) 45%, transparent) 55%, color-mix(in oklab, var(--background) 80%, transparent) 75%, var(--background) 95%)",
-                }}
-              />
-
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-0 h-32"
-                style={{
-                  background:
-                    "linear-gradient(to bottom, var(--background) 0%, color-mix(in oklab, var(--background) 85%, transparent) 25%, color-mix(in oklab, var(--background) 50%, transparent) 55%, color-mix(in oklab, var(--background) 20%, transparent) 80%, transparent 100%)",
+                    "radial-gradient(ellipse 110% 120% at 50% 52%, transparent 0%, transparent 24%, color-mix(in oklab, var(--background) 12%, transparent) 44%, color-mix(in oklab, var(--background) 42%, transparent) 62%, color-mix(in oklab, var(--background) 78%, transparent) 80%, var(--background) 96%)",
                 }}
               />
 
@@ -232,7 +223,7 @@ export const ListDetailHero = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-t py-5">
+        <div className="flex flex-col gap-4 py-5">
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <h1 className="min-w-0 text-xl font-bold sm:text-2xl">
               {list.title}
