@@ -17,7 +17,8 @@ import {
 import { Header } from "@/modules/header";
 import { treeAtom, selectedSpecieKeyAtom } from "@/store/tree";
 import { Tree } from "@/app/tree";
-import { ExploreInfo } from "@/app/details/explore-info";
+// import { ExploreInfo } from "@/app/details/explore-info";
+import { HomeInitialPanel } from "@/modules/home/initial-panel";
 import { TreePanelLayoutProvider } from "./tree-panel-layout";
 
 const Challenges = lazy(() =>
@@ -171,7 +172,10 @@ export const HomeDesktop = () => {
                   <SpecieDetail />
                 </Suspense>
               ) : (
-                <ExploreInfo />
+                <>
+                  {/* <ExploreInfo /> */}
+                  <HomeInitialPanel />
+                </>
               ))}
           </div>
         </ResizablePanel>

@@ -9,7 +9,6 @@ import {
   Loader2,
   ListX,
   Pencil,
-  X,
 } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import {
@@ -36,6 +35,7 @@ import { ListCard } from "./list-card";
 import { ListCompactCard } from "./list-compact-card";
 import { ListCoverCollage } from "./list-cover-collage";
 import { ListCreateDialog } from "./list-create-dialog";
+import { FeaturedListCard } from "./featured-list-card";
 import { ListViewToggle, type ListViewMode } from "./list-view-toggle";
 import type { ListWithCreator } from "@/common/types/lists";
 import { useDocumentTitle } from "@/hooks/use-document-title";
@@ -43,65 +43,6 @@ import { useResponsive } from "@/hooks/use-responsive";
 
 const ADMIN_USERNAME = "treevera";
 const MAX_FEATURED = 3;
-
-const FeaturedListCard = ({
-  list,
-  editMode,
-  onRemove,
-}: {
-  list: ListWithCreator;
-  editMode: boolean;
-  onRemove: () => void;
-}) => {
-  const navigate = useNavigate();
-  const listSlug = list.slug || slugify(list.title);
-
-  return (
-    <div
-      onClick={() => {
-        if (editMode) return;
-        navigate({
-          to: "/$username/lists/$listSlug",
-          params: { username: list.user_username, listSlug },
-        });
-      }}
-      className="group bg-card relative flex h-full cursor-pointer items-start gap-3 rounded-lg border p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <ListCoverCollage
-        title={list.title}
-        coverImageUrl={list.cover_image_url}
-        coverSpeciesImages={list.cover_species_images}
-        className="size-14 shrink-0 rounded-md"
-      />
-      <div className="min-w-0 flex-1">
-        <h3 className="text-primary line-clamp-1 text-sm font-semibold group-hover:underline">
-          {list.title}
-        </h3>
-        <div className="mt-0.5 min-h-8">
-          {list.description && (
-            <p className="text-muted-foreground line-clamp-2 text-xs leading-4">
-              {list.description}
-            </p>
-          )}
-        </div>
-        <span className="text-muted-foreground mt-1 block text-xs">
-          {list.species_count} espécies
-        </span>
-      </div>
-      {editMode && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          className="bg-destructive text-destructive-foreground absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full shadow-sm"
-        >
-          <X className="size-3" />
-        </button>
-      )}
-    </div>
-  );
-};
 
 type SortMode = "recent" | "popular";
 
@@ -260,8 +201,7 @@ export const ListsPage = () => {
     "text-muted-foreground text-xs font-semibold tracking-widest uppercase";
   const featuredGridClass =
     "grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))]";
-  const listGridClass =
-    "grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4";
+  const listGridClass = "grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4";
 
   return (
     <div ref={scrollRef}>

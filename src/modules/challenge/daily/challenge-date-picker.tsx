@@ -1,13 +1,16 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/common/components/ui/dialog";
+import { cn } from "@/common/utils/cn";
 import type { ChallengeDate } from "@/hooks/queries/useGetChallengeDates";
 import { useTranslation } from "react-i18next";
 
@@ -16,6 +19,8 @@ type Props = {
   challengeDates: ChallengeDate[];
   onSelectDate: (date: string) => void;
   formattedLabel: string;
+  triggerContent?: ReactNode;
+  triggerClassName?: string;
 };
 
 const getDaysInMonth = (year: number, month: number) =>
@@ -39,6 +44,8 @@ export const ChallengeDatePicker = ({
   challengeDates,
   onSelectDate,
   formattedLabel,
+  triggerContent,
+  triggerClassName,
 }: Props) => {
   const { i18n, t } = useTranslation();
   const today = getToday();
@@ -114,8 +121,14 @@ export const ChallengeDatePicker = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="bg-muted/80 rounded-md px-2 py-1 text-sm font-medium transition-colors">
-          {formattedLabel}
+        <button
+          type="button"
+          className={cn(
+            "bg-muted/80 inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium transition-colors",
+            triggerClassName,
+          )}
+        >
+          {triggerContent ?? formattedLabel}
         </button>
       </DialogTrigger>
 
@@ -124,6 +137,9 @@ export const ChallengeDatePicker = ({
           <DialogTitle className="text-base">
             {t("challenge.dailyChallenges")}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t("challenge.pastChallenges")}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="px-4 pb-5 select-none">
@@ -152,9 +168,9 @@ export const ChallengeDatePicker = ({
           </div>
 
           <div className="mb-1 grid grid-cols-7">
-            {dayHeaders.map((d) => (
+            {dayHeaders.map((d, i) => (
               <div
-                key={d}
+                key={`${d}-${i}`}
                 className="text-muted-foreground py-1 text-center text-[10px] font-medium uppercase"
               >
                 {d}
