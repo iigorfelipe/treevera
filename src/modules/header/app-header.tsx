@@ -1,16 +1,22 @@
 import { Image } from "@/common/components/image";
 import logoUrl from "@/assets/images/avif-logo-icon.avif?url";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useIsFetching } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { Menu } from "@/modules/header/menu";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
-import { useState, useRef, useEffect } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { Search, X, Loader, ChevronLeft } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/common/components/ui/button";
+import { decodeSearchQuery } from "@/common/utils/decode-search-query";
 
 export const AppHeader = () => {
   const { t } = useTranslation();
@@ -18,6 +24,9 @@ export const AppHeader = () => {
   const currentRoutePath = useRouterState({
     select: (s) => s.matches[s.matches.length - 1]?.fullPath ?? "/",
   });
+  const { query: routeQuery } = useParams({ strict: false }) as {
+    query?: string;
+  };
 
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
@@ -42,6 +51,13 @@ export const AppHeader = () => {
   const isSearchLoading = loading || activeSearchRequests > 0;
 
   useEffect(() => {
+    if (currentRoutePath !== "/search/$query") return;
+    const decodedRouteQuery = decodeSearchQuery(routeQuery ?? "");
+    setQuery(decodedRouteQuery);
+    setSearchOpen(Boolean(decodedRouteQuery));
+  }, [currentRoutePath, routeQuery]);
+
+  useEffect(() => {
     if (searchOpen)
       setTimeout(() => {
         mobileInputRef.current?.focus();
@@ -49,11 +65,11 @@ export const AppHeader = () => {
       }, 50);
   }, [searchOpen]);
 
-  const closeSearch = () => {
+  const closeSearch = useCallback(() => {
     setSearchOpen(false);
     setQuery("");
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -63,7 +79,7 @@ export const AppHeader = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [closeSearch]);
 
   const handleSearch = async () => {
     const q = query.trim();
@@ -73,7 +89,7 @@ export const AppHeader = () => {
       setLoading(true);
       await navigate({
         to: "/search/$query",
-        params: { query: encodeURIComponent(q) },
+        params: { query: q },
       });
     } finally {
       setLoading(false);

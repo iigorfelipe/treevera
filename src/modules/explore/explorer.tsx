@@ -94,7 +94,7 @@ export const Explorer = ({
               <button
                 key={i}
                 onClick={onClick}
-                className="rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-left backdrop-blur-sm transition hover:bg-white/20"
+                className="cursor-pointer rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-left backdrop-blur-sm transition hover:bg-white/20"
               >
                 <p
                   className="mt-0.5 text-sm font-semibold"

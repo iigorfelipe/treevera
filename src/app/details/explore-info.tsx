@@ -1,60 +1,14 @@
-import { useState, useEffect } from "react";
 import { CardInfo } from "@/modules/explore/card";
-import { Explorer } from "@/modules/explore/explorer";
 import { treeAtom } from "@/store/tree";
 import { useAtomValue } from "jotai";
-import { useTreeNavigation } from "@/hooks/use-tree-navigation";
-import { useTranslation } from "react-i18next";
-import { useScrollThenNavigate } from "@/hooks/use-scroll-then-navigate";
+import { HomeInitialPanel } from "@/modules/home/initial-panel";
 
 export const ExploreInfo = () => {
-  const { t } = useTranslation();
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
-  const exploreInfos = useAtomValue(treeAtom.exploreInfos);
+
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
-  const { toggleNode } = useTreeNavigation();
-  const scrollThenNavigate = useScrollThenNavigate();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  const total = exploreInfos.length;
-
-  useEffect(() => {
-    if (isPaused) return;
-    const id = setTimeout(() => setCurrentIndex((i) => (i + 1) % total), 8000);
-    return () => clearTimeout(id);
-  }, [currentIndex, total, isPaused]);
 
   if (!challengeMode && expandedNodes.length) return <CardInfo />;
 
-  const current = exploreInfos[currentIndex];
-
-  return (
-    <Explorer
-      bgImg={current.bgImg}
-      alt={current.kingdomName}
-      onCardClick={() =>
-        scrollThenNavigate(() => toggleNode(current.kingdomKey))
-      }
-      kingdomLabel={t("explore.kingdom")}
-      kingdomName={current.kingdomName}
-      primaryColor={current.primaryColor}
-      slideKey={currentIndex}
-      badge={t("explore.kingdom")}
-      title={current.kingdomName}
-      description={current.description}
-      mainGroupsLabel={t("explore.mainGroups")}
-      mainGroups={current.mainGroups
-        .slice(0, 3)
-        .map((g) => ({ groupName: g.groupName }))}
-      total={total}
-      currentIndex={currentIndex}
-      isPaused={isPaused}
-      stopPropagation
-      onPrev={() => setCurrentIndex((i) => (i - 1 + total) % total)}
-      onNext={() => setCurrentIndex((i) => (i + 1) % total)}
-      onDotClick={setCurrentIndex}
-      onTogglePause={() => setIsPaused((p) => !p)}
-    />
-  );
+  return <HomeInitialPanel />;
 };

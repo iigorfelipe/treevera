@@ -1,10 +1,10 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
   type FormEvent,
-  type ReactNode,
 } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { LayoutGroup } from "framer-motion";
@@ -13,11 +13,9 @@ import { useTranslation } from "react-i18next";
 import {
   CalendarDays,
   CheckCircle2,
-  // Compass,
   HelpCircle,
   Loader2,
-  MessageSquare,
-  // MousePointer2,
+  // MessageSquare,
   Play,
   Search,
 } from "lucide-react";
@@ -63,61 +61,40 @@ const getKingdomGridColumns = (width: number) => {
   return 1;
 };
 
-const SectionIntro = ({
-  title,
-  children,
-  className,
-}: {
-  title: string;
-  children: ReactNode;
-  className?: string;
-}) => (
-  <div className={cn("text-foreground py-3", className)}>
-    <h2 className="text-lg font-bold">{title}</h2>
-    <p className="text-muted-foreground mt-1 max-w-3xl text-sm leading-6">
-      {children}
-    </p>
-  </div>
-);
+const POPULAR_SEARCHES = [
+  "Panthera onca",
+  "Gorilla gorilla",
+  "Tyrannosaurus rex",
+];
 
-// const WelcomeStep = ({
-//   icon,
-//   title,
-//   children,
-// }: {
-//   icon: ReactNode;
-//   title: string;
-//   children: ReactNode;
-// }) => (
-//   <div className="border-border bg-card rounded-lg border p-4">
-//     <div className="flex min-w-0 items-center gap-2">
-//       <span className="text-muted-foreground">{icon}</span>
-//       <h3 className="text-foreground text-sm font-bold">{title}</h3>
-//     </div>
-//     <p className="text-muted-foreground mt-3 text-sm leading-6">{children}</p>
-//   </div>
-// );
+const FEATURED_LIST_SKELETON_KEYS = [0, 1, 2];
+
+const RELEASE_GRID_HEIGHT_DELAY = 260;
 
 const WelcomeSearch = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
-  const runSearch = (value: string) => {
-    const q = value.trim();
-    if (!q) return;
+  const runSearch = useCallback(
+    (value: string) => {
+      const q = value.trim();
+      if (!q) return;
 
-    void navigate({
-      to: "/search/$query",
-      params: { query: encodeURIComponent(q) },
-    });
-  };
+      void navigate({
+        to: "/search/$query",
+        params: { query: q },
+      });
+    },
+    [navigate],
+  );
 
-  const handleSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    runSearch(query);
-  };
-
-  const examples = ["Panthera onca", "Gorilla gorilla", "Tyrannosaurus rex"];
+  const handleSubmit = useCallback(
+    (event: FormEvent) => {
+      event.preventDefault();
+      runSearch(query);
+    },
+    [query, runSearch],
+  );
 
   return (
     <form
@@ -134,14 +111,9 @@ const WelcomeSearch = () => {
         />
       </div>
 
-      {/* <p className="text-muted-foreground mt-3 text-sm">
-        Para filtrar apenas a árvore taxonômica, use o campo de busca acima
-        dela.
-      </p> */}
-
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="text-muted-foreground text-xs">Buscas populares:</span>
-        {examples.map((example) => (
+        {POPULAR_SEARCHES.map((example) => (
           <Button
             key={example}
             type="button"
@@ -167,26 +139,6 @@ const WelcomePanel = () => (
       </div>
       <WelcomeSearch />
     </header>
-
-    {/* <div className="mt-16 grid gap-3 lg:grid-cols-3">
-      <WelcomeStep
-        icon={<MousePointer2 className="size-4" />}
-        title="Use a árvore à esquerda"
-      >
-        Clique em qualquer item para expandir e ver os grupos que ele contém.
-      </WelcomeStep>
-
-      <WelcomeStep
-        icon={<Compass className="size-4" />}
-        title="Ou comece por um reino"
-      >
-        Os 7 grandes grupos da vida estão logo abaixo. Escolha um para começar.
-      </WelcomeStep>
-
-      <WelcomeStep icon={<Search className="size-4" />} title="Pesquise direto">
-        Sabe o que procura? Use a busca acima por nome popular ou científico.
-      </WelcomeStep>
-    </div> */}
   </section>
 );
 
@@ -231,36 +183,43 @@ const KingdomsSection = () => {
     [],
   );
 
-  if (!exploreInfos) return null;
+  const selectKingdom = useCallback(
+    (kingdomKey: number) => {
+      scrollThenNavigate(() => toggleNode(kingdomKey));
+    },
+    [scrollThenNavigate, toggleNode],
+  );
 
-  const selectKingdom = (kingdomKey: number) => {
-    scrollThenNavigate(() => toggleNode(kingdomKey));
-  };
+  const selectGroup = useCallback(
+    (pathNode: PathNode[]) => {
+      scrollThenNavigate(() => navigateToNodes(pathNode));
+    },
+    [navigateToNodes, scrollThenNavigate],
+  );
 
-  const selectGroup = (pathNode: PathNode[]) => {
-    scrollThenNavigate(() => navigateToNodes(pathNode));
-  };
+  const setKingdomActive = useCallback(
+    (kingdomKey: number, active: boolean) => {
+      if (active) {
+        if (releaseHeightTimeoutRef.current) {
+          window.clearTimeout(releaseHeightTimeoutRef.current);
+          releaseHeightTimeoutRef.current = null;
+        }
 
-  const setKingdomActive = (kingdomKey: number, active: boolean) => {
-    if (active) {
-      if (releaseHeightTimeoutRef.current) {
-        window.clearTimeout(releaseHeightTimeoutRef.current);
-        releaseHeightTimeoutRef.current = null;
+        setLockedGridHeight((current) => {
+          if (current) return current;
+          return gridRef.current?.getBoundingClientRect().height ?? null;
+        });
       }
 
-      setLockedGridHeight((current) => {
-        if (current) return current;
-        return gridRef.current?.getBoundingClientRect().height ?? null;
+      setActiveKingdomKey((current) => {
+        if (active) return kingdomKey;
+        return current === kingdomKey ? null : current;
       });
-    }
+    },
+    [],
+  );
 
-    setActiveKingdomKey((current) => {
-      if (active) return kingdomKey;
-      return current === kingdomKey ? null : current;
-    });
-  };
-
-  const clearKingdomActive = () => {
+  const clearKingdomActive = useCallback(() => {
     setActiveKingdomKey(null);
 
     if (releaseHeightTimeoutRef.current) {
@@ -270,17 +229,25 @@ const KingdomsSection = () => {
     releaseHeightTimeoutRef.current = window.setTimeout(() => {
       setLockedGridHeight(null);
       releaseHeightTimeoutRef.current = null;
-    }, 260);
-  };
+    }, RELEASE_GRID_HEIGHT_DELAY);
+  }, []);
 
   const focusedLayout = activeKingdomKey !== null && lockedGridHeight !== null;
 
+  if (!exploreInfos) return null;
+
+  const kingdomLabel = t("explore.kingdom");
+  const mainGroupsLabel = t("explore.mainGroups");
+
   return (
     <section className="@container/kingdoms space-y-3">
-      <SectionIntro title="Inicie por um reino" className="max-w-3xl">
-        Toda forma de vida pertence a um destes 7 grupos. Escolha um para
-        expandir a árvore a partir dele.
-      </SectionIntro>
+      <div className="text-foreground max-w-3xl py-3">
+        <h2 className="text-lg font-bold">Inicie por um reino</h2>
+        <p className="text-muted-foreground mt-1 max-w-3xl text-sm leading-6">
+          Toda forma de vida pertence a um destes 7 grupos. Escolha um para
+          expandir a árvore a partir dele.
+        </p>
+      </div>
 
       <LayoutGroup id="home-kingdoms">
         <div
@@ -310,14 +277,12 @@ const KingdomsSection = () => {
               <KingdomCardItem
                 key={item.kingdomKey}
                 item={item}
-                kingdomLabel={t("explore.kingdom")}
-                mainGroupsLabel={t("explore.mainGroups")}
+                kingdomLabel={kingdomLabel}
+                mainGroupsLabel={mainGroupsLabel}
                 active={active}
                 compressed={compressed}
-                onActiveChange={(nextActive) =>
-                  setKingdomActive(item.kingdomKey, nextActive)
-                }
-                onSelect={() => selectKingdom(item.kingdomKey)}
+                onActiveChange={setKingdomActive}
+                onSelect={selectKingdom}
                 onGroupSelect={selectGroup}
                 className={cn(
                   "h-full",
@@ -371,7 +336,7 @@ const FeaturedListsHomeSection = () => {
 
         <div className="grid gap-2 @[720px]/featured:grid-cols-2 @[1080px]/featured:grid-cols-3">
           {isLoading
-            ? Array.from({ length: 3 }).map((_, index) => (
+            ? FEATURED_LIST_SKELETON_KEYS.map((index) => (
                 <div
                   key={index}
                   className="border-border h-20 animate-pulse rounded-lg border"
@@ -406,26 +371,37 @@ const DailyChallengeHomeSection = () => {
 
   const { data: challengeDates = [] } = useGetChallengeDates();
   const { data, isLoading, isError } = useGetDailyChallenge(selectedDate);
-  const currentChallengeDate = challengeDates.find(
-    (challengeDate) => challengeDate.date === selectedDate,
+  const currentChallengeDate = useMemo(
+    () =>
+      challengeDates.find(
+        (challengeDate) => challengeDate.date === selectedDate,
+      ),
+    [challengeDates, selectedDate],
   );
 
   const isToday = selectedDate === today;
   const isCompleted = currentChallengeDate?.completed ?? false;
   const currentStreak = useMemo(
-    () => calcDailyStreak(challengeDates),
-    [challengeDates],
+    () => (isAuthenticated ? calcDailyStreak(challengeDates) : 0),
+    [challengeDates, isAuthenticated],
   );
-  const recordStreak = Math.max(
-    currentStreak,
-    userDb?.game_info?.progress?.consecutive_days ?? 0,
-  );
+  const recordStreak = isAuthenticated
+    ? Math.max(
+        currentStreak,
+        userDb?.game_info?.progress?.consecutive_days ?? 0,
+      )
+    : 0;
+  const pastChallengesLabel = t("challenge.pastChallenges");
 
-  const formattedSelectedDate = new Intl.DateTimeFormat(i18n.language, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(`${selectedDate}T00:00:00`));
+  const formattedSelectedDate = useMemo(
+    () =>
+      new Intl.DateTimeFormat(i18n.language, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }).format(new Date(`${selectedDate}T00:00:00`)),
+    [i18n.language, selectedDate],
+  );
 
   const speciesName = data?.scientificName;
 
@@ -450,7 +426,7 @@ const DailyChallengeHomeSection = () => {
   };
 
   return (
-    <section className="text-foreground @container/daily px-3 py-3">
+    <section className="text-foreground @container/daily py-3">
       <div className="mb-5 flex flex-col items-start gap-3 @[760px]/daily:flex-row @[760px]/daily:justify-between">
         <div>
           <h2 className="text-xl font-bold">Desafio do dia</h2>
@@ -464,11 +440,11 @@ const DailyChallengeHomeSection = () => {
           selectedDate={selectedDate}
           challengeDates={challengeDates}
           onSelectDate={setSelectedDate}
-          formattedLabel={t("challenge.pastChallenges")}
+          formattedLabel={pastChallengesLabel}
           triggerContent={
             <>
               <CalendarDays className="size-3.5" />
-              <span>{t("challenge.pastChallenges")}</span>
+              <span>{pastChallengesLabel}</span>
             </>
           }
           triggerClassName="h-8 shrink-0 border border-border bg-transparent px-3 text-xs text-muted-foreground shadow-none hover:text-foreground"
@@ -563,32 +539,32 @@ const DailyChallengeHomeSection = () => {
   );
 };
 
-const FeedbackSection = () => (
-  <section className="text-muted-foreground @container/feedback mt-12 flex flex-col gap-5 border-t py-12 @[680px]/feedback:flex-row @[680px]/feedback:items-center @[680px]/feedback:justify-between">
-    <div>
-      <h2 className="text-foreground text-xl font-semibold">
-        Contribua com o Treevera
-      </h2>
-      <p className="mt-2 text-base">
-        Envie feedbacks, sugira melhorias e ajude a evoluir o projeto.
-      </p>
-    </div>
-
-    <Button
-      asChild
-      variant="outline"
-      className="h-11 w-full bg-transparent px-8 text-base @[680px]/feedback:w-auto"
-    >
-      <a href="mailto:feedback@treevera.app?subject=Feedback%20Treevera">
-        <MessageSquare className="size-4" />
-        Feedback
-      </a>
-    </Button>
-  </section>
-);
+// const FeedbackSection = () => (
+//   <section className="text-muted-foreground @container/feedback mt-12 flex flex-col gap-5 border-t py-12 @[680px]/feedback:flex-row @[680px]/feedback:items-center @[680px]/feedback:justify-between">
+//     <div>
+//       <h2 className="text-foreground text-xl font-semibold">
+//         Contribua com o Treevera
+//       </h2>
+//       <p className="mt-2 text-base">
+//         Envie feedbacks, sugira melhorias e ajude a evoluir o projeto.
+//       </p>
+//     </div>
+//
+//     <Button
+//       asChild
+//       variant="outline"
+//       className="h-11 w-full bg-transparent px-8 text-base @[680px]/feedback:w-auto"
+//     >
+//       <a href="mailto:feedback@treevera.app?subject=Feedback%20Treevera">
+//         <MessageSquare className="size-4" />
+//         Feedback
+//       </a>
+//     </Button>
+//   </section>
+// );
 
 export const HomeInitialPanel = () => (
-  <main className="text-foreground @container/home-initial mt-6 min-h-screen min-w-0 overflow-x-hidden bg-transparent px-4 py-6">
+  <main className="text-foreground @container/home-initial mb-42 min-h-screen min-w-0 overflow-x-hidden bg-transparent px-6 py-6">
     <div className="mx-auto flex max-w-7xl min-w-0 flex-col gap-10 @[860px]/home-initial:gap-12">
       <WelcomePanel />
 
@@ -598,7 +574,7 @@ export const HomeInitialPanel = () => (
 
       <DailyChallengeHomeSection />
 
-      <FeedbackSection />
+      {/* <FeedbackSection /> */}
     </div>
   </main>
 );

@@ -1,23 +1,38 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { memo, useCallback } from "react";
+import { AnimatePresence, motion, type Transition } from "framer-motion";
 
 import type { ExploreInfo } from "@/common/types/tree-atoms";
 import { cn } from "@/common/utils/cn";
 
 type KingdomGroup = ExploreInfo["mainGroups"][number];
 
+const CARD_LAYOUT_TRANSITION: Transition = {
+  layout: { type: "spring", stiffness: 360, damping: 34 },
+};
+
+const DETAILS_TRANSITION: Transition = {
+  duration: 0.22,
+  ease: [0.22, 1, 0.36, 1],
+};
+
+const MAX_VISIBLE_GROUPS = 3;
+
 interface KingdomCardItemProps {
   item: ExploreInfo;
   kingdomLabel: string;
   mainGroupsLabel: string;
-  onSelect: () => void;
+  onSelect: (kingdomKey: ExploreInfo["kingdomKey"]) => void;
   onGroupSelect: (pathNode: KingdomGroup["pathNode"]) => void;
   active?: boolean;
   compressed?: boolean;
-  onActiveChange?: (active: boolean) => void;
+  onActiveChange?: (
+    kingdomKey: ExploreInfo["kingdomKey"],
+    active: boolean,
+  ) => void;
   className?: string;
 }
 
-export const KingdomCardItem = ({
+const KingdomCardItemComponent = ({
   item,
   kingdomLabel,
   mainGroupsLabel,
@@ -28,16 +43,24 @@ export const KingdomCardItem = ({
   onActiveChange,
   className,
 }: KingdomCardItemProps) => {
+  const handleActive = useCallback(
+    () => onActiveChange?.(item.kingdomKey, true),
+    [item.kingdomKey, onActiveChange],
+  );
+
+  const handleSelect = useCallback(
+    () => onSelect(item.kingdomKey),
+    [item.kingdomKey, onSelect],
+  );
+
   return (
     <motion.div
       layout
-      transition={{
-        layout: { type: "spring", stiffness: 360, damping: 34, duration: 0.5 },
-      }}
-      onMouseEnter={() => onActiveChange?.(true)}
-      onFocus={() => onActiveChange?.(true)}
+      transition={CARD_LAYOUT_TRANSITION}
+      onMouseEnter={handleActive}
+      onFocus={handleActive}
       className={cn(
-        "group @container/kingdom-card relative flex w-full cursor-pointer overflow-hidden bg-black rounded-md text-left text-white shadow-sm will-change-transform hover:shadow-2xl",
+        "group @container/kingdom-card relative flex w-full cursor-pointer overflow-hidden rounded-md bg-black text-left text-white shadow-sm will-change-transform hover:shadow-2xl",
         active && "z-10",
         className,
       )}
@@ -57,7 +80,7 @@ export const KingdomCardItem = ({
         aria-label={`${kingdomLabel} ${item.kingdomName}`}
         className="absolute inset-0 z-10 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2"
         style={{ outlineColor: item.primaryColor }}
-        onClick={onSelect}
+        onClick={handleSelect}
       />
 
       <div
@@ -106,7 +129,7 @@ export const KingdomCardItem = ({
                 initial={{ height: 0, opacity: 0, y: 8 }}
                 animate={{ height: "auto", opacity: 1, y: 0 }}
                 exit={{ height: 0, opacity: 0, y: 4 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                transition={DETAILS_TRANSITION}
                 className="pointer-events-auto overflow-hidden"
               >
                 <p className="mt-2 max-w-md text-sm leading-5 font-semibold text-white/75">
@@ -119,23 +142,25 @@ export const KingdomCardItem = ({
                   </p>
 
                   <div className="mt-2 flex flex-wrap gap-1.5">
-                    {item.mainGroups.slice(0, 3).map((group) => (
-                      <button
-                        key={group.groupName}
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          onGroupSelect(group.pathNode);
-                        }}
-                        className="cursor-pointer rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-left text-xs font-bold backdrop-blur-sm transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2"
-                        style={{
-                          color: item.primaryColor,
-                          outlineColor: item.primaryColor,
-                        }}
-                      >
-                        {group.groupName}
-                      </button>
-                    ))}
+                    {item.mainGroups
+                      .slice(0, MAX_VISIBLE_GROUPS)
+                      .map((group) => (
+                        <button
+                          key={group.groupName}
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onGroupSelect(group.pathNode);
+                          }}
+                          className="cursor-pointer rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-left text-xs font-bold backdrop-blur-sm transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2"
+                          style={{
+                            color: item.primaryColor,
+                            outlineColor: item.primaryColor,
+                          }}
+                        >
+                          {group.groupName}
+                        </button>
+                      ))}
                   </div>
                 </div>
               </motion.div>
@@ -146,3 +171,5 @@ export const KingdomCardItem = ({
     </motion.div>
   );
 };
+
+export const KingdomCardItem = memo(KingdomCardItemComponent);

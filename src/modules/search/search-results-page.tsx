@@ -296,7 +296,7 @@ function Section({
 export function SearchResultsPage({ query }: { query: string }) {
   const [filter, setFilter] = useState<Filter>("all");
 
-  const decoded = decodeURIComponent(query);
+  const decoded = query;
 
   const [taxaQuery, listsQuery, usersQuery] = useQueries({
     queries: [

@@ -111,14 +111,14 @@ export const CardSlideControls = ({
       >
         <button
           onClick={onPrev}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
+          className="flex cursor-pointer h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
         >
           <ChevronLeft className="size-5" />
         </button>
 
         <button
           onClick={onTogglePause}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
+          className="flex cursor-pointer h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/60 transition hover:bg-white/20"
         >
           {isPaused ? (
             <Play className="size-4" />
@@ -129,7 +129,7 @@ export const CardSlideControls = ({
 
         <button
           onClick={onNext}
-          className="flex h-10 w-10 items-center justify-center rounded-full text-black transition"
+          className="flex cursor-pointer h-10 w-10 items-center justify-center rounded-full text-black transition"
           style={{ backgroundColor: primaryColor }}
         >
           <ChevronRight className="size-5" />
