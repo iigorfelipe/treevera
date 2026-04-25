@@ -10,6 +10,10 @@ export type UserSeenSpeciesRow = {
   preferred_image_url: string | null;
   canonical_name: string | null;
   family: string | null;
+  preferred_image_source: string | null;
+  preferred_image_attribution: string | null;
+  preferred_image_license: string | null;
+  is_in_gallery?: boolean;
 };
 
 export const fetchSeenSpecies = async (
@@ -115,12 +119,15 @@ export type GallerySpeciesRow = {
   gbif_key: number;
   canonical_name: string | null;
   family: string | null;
+  kingdom?: string | null;
+  iucn_status?: string | null;
   image_url: string | null;
   image_source: string | null;
   image_attribution: string | null;
   image_license: string | null;
   is_favorite: boolean;
   seen_at: string;
+  is_in_gallery?: boolean;
   total_count: number;
 };
 
@@ -164,7 +171,10 @@ export const fetchGalleryPage = async (
     return { rows: [], totalCount: 0 };
   }
 
-  const rows = (data as GallerySpeciesRow[]) ?? [];
+  const rows = ((data as GallerySpeciesRow[]) ?? []).map((row) => ({
+    ...row,
+    is_in_gallery: row.is_in_gallery ?? true,
+  }));
 
   return {
     rows,
@@ -172,45 +182,62 @@ export const fetchGalleryPage = async (
   };
 };
 
-export const addSeenSpecie = async (
-  userId: string,
-  gbifKey: number,
-  kingdom?: string,
-  canonicalName?: string,
-  family?: string,
-): Promise<void> => {
-  const { error } = await supabase.from("user_seen_species").upsert(
-    {
-      user_id: userId,
-      gbif_key: gbifKey,
-      seen_at: new Date().toISOString(),
-      is_favorite: false,
-      kingdom: kingdom ?? null,
-      canonical_name: canonicalName ?? null,
-      family: family ?? null,
-    },
-    { onConflict: "user_id,gbif_key", ignoreDuplicates: true },
-  );
+export type AddSpeciesToGalleryInput = {
+  gbifKey: number;
+  kingdom?: string | null;
+  canonicalName?: string | null;
+  family?: string | null;
+  imageUrl?: string | null;
+  imageSource?: string | null;
+  imageAttribution?: string | null;
+  imageLicense?: string | null;
+  iucnStatus?: string | null;
+};
+
+export const addSpeciesToGallery = async ({
+  gbifKey,
+  kingdom,
+  canonicalName,
+  family,
+  imageUrl,
+  imageSource,
+  imageAttribution,
+  imageLicense,
+  iucnStatus,
+}: AddSpeciesToGalleryInput): Promise<UserSeenSpeciesRow | null> => {
+  const { data, error } = await supabase.rpc("add_species_to_gallery", {
+    p_gbif_key: gbifKey,
+    p_kingdom: kingdom ?? null,
+    p_canonical_name: canonicalName ?? null,
+    p_family: family ?? null,
+    p_image_url: imageUrl ?? null,
+    p_image_source: imageSource ?? null,
+    p_image_attribution: imageAttribution ?? null,
+    p_image_license: imageLicense ?? null,
+    p_iucn_status: iucnStatus ?? null,
+  });
 
   if (error) {
-    console.error("Error adding seen specie:", error);
-    return;
+    console.error("Error adding species to gallery:", error);
+    throw error;
   }
 
-  if (canonicalName || family) {
-    void supabase
-      .from("user_seen_species")
-      .update({
-        ...(canonicalName ? { canonical_name: canonicalName } : {}),
-        ...(family ? { family } : {}),
-      })
-      .eq("user_id", userId)
-      .eq("gbif_key", gbifKey)
-      .is("canonical_name", null)
-      .then(({ error: err }) => {
-        if (err) console.error("Error backfilling species metadata:", err);
-      });
+  return ((data as UserSeenSpeciesRow[]) ?? [])[0] ?? null;
+};
+
+export const removeSpeciesFromGallery = async (
+  gbifKey: number,
+): Promise<boolean> => {
+  const { data, error } = await supabase.rpc("remove_species_from_gallery", {
+    p_gbif_key: gbifKey,
+  });
+
+  if (error) {
+    console.error("Error removing species from gallery:", error);
+    throw error;
   }
+
+  return Boolean((data as { removed?: boolean } | null)?.removed);
 };
 
 export const toggleFavSpecie = async (
@@ -224,15 +251,7 @@ export const toggleFavSpecie = async (
     kingdom?: string | null;
   },
 ): Promise<void> => {
-  const payload: Partial<UserSeenSpeciesRow> & {
-    user_id: string;
-    gbif_key: number;
-    seen_at: string;
-    is_favorite: boolean;
-  } = {
-    user_id: userId,
-    gbif_key: gbifKey,
-    seen_at: new Date().toISOString(),
+  const payload: Partial<UserSeenSpeciesRow> = {
     is_favorite: isFavorite,
   };
 
@@ -252,7 +271,9 @@ export const toggleFavSpecie = async (
 
   const { error } = await supabase
     .from("user_seen_species")
-    .upsert(payload, { onConflict: "user_id,gbif_key" });
+    .update(payload)
+    .eq("user_id", userId)
+    .eq("gbif_key", gbifKey);
 
   if (error) console.error("Error toggling fav specie:", error);
 };
@@ -269,11 +290,9 @@ export const updatePreferredImage = async (
     license?: string | null;
   },
 ): Promise<void> => {
-  const { error } = await supabase.from("user_seen_species").upsert(
-    {
-      user_id: userId,
-      gbif_key: gbifKey,
-      seen_at: new Date().toISOString(),
+  const { error } = await supabase
+    .from("user_seen_species")
+    .update({
       preferred_image_url: imageUrl,
       preferred_image_source: metadata?.source ?? null,
       preferred_image_attribution: metadata?.author ?? null,
@@ -282,9 +301,9 @@ export const updatePreferredImage = async (
         ? { canonical_name: metadata.canonicalName }
         : {}),
       ...(metadata?.family ? { family: metadata.family } : {}),
-    },
-    { onConflict: "user_id,gbif_key" },
-  );
+    })
+    .eq("user_id", userId)
+    .eq("gbif_key", gbifKey);
   if (error) console.error("Error updating preferred image:", error);
 };
 

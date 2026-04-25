@@ -38,6 +38,7 @@ function toGalleryRow(row: ListSpeciesRow): GallerySpeciesRow {
     image_attribution: row.image_attribution,
     image_license: row.image_license,
     is_favorite: row.is_favorite,
+    is_in_gallery: row.is_in_gallery,
     seen_at: "",
     total_count: row.total_count,
   };

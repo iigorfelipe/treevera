@@ -10,6 +10,8 @@ import {
   ImagePlus,
   Loader2,
   Target,
+  BookmarkPlus,
+  Trash2,
 } from "lucide-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/common/components/ui/dialog";
+import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
 import { authStore } from "@/store/auth/atoms";
 import { injectPathNodesAtom } from "@/store/tree";
 import { useGetParents } from "@/hooks/queries/useGetParents";
@@ -35,8 +38,11 @@ import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
+import { useGetSeenSpecieByKey } from "@/hooks/queries/useGetUserSeenSpecies";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import {
+  addSpeciesToGallery,
+  removeSpeciesFromGallery,
   toggleFavSpecie,
   updatePreferredImage,
 } from "@/common/utils/supabase/user-seen-species";
@@ -48,6 +54,7 @@ import { AddToListDialog } from "@/modules/lists/add-to-list-dialog";
 import { CreateCustomChallengeDialog } from "@/modules/challenge/custom/create-custom-challenge-dialog";
 import { cn } from "@/common/utils/cn";
 import { getAppUrl } from "@/common/utils/base-url";
+import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 
 type SpeciesCardQuickMenuProps = {
   species: GallerySpeciesRow;
@@ -73,16 +80,33 @@ export const SpeciesCardQuickMenu = ({
   const { t } = useTranslation();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const userDb = useAtomValue(authStore.userDb);
+  const setUserDb = useSetAtom(authStore.userDb);
   const canUseAuthenticatedActions = isAuthenticated && !!userDb;
   const queryClient = useQueryClient();
+  const checkAchievements = useCheckAchievements();
 
   const [addToListOpen, setAddToListOpen] = useState(false);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [createChallengeOpen, setCreateChallengeOpen] = useState(false);
+  const [removeGalleryConfirmOpen, setRemoveGalleryConfirmOpen] =
+    useState(false);
   const [isFav, setIsFav] = useState(species.is_favorite);
+  const [isInGallery, setIsInGallery] = useState(
+    species.is_in_gallery ?? false,
+  );
   const [currentImageUrl, setCurrentImageUrl] = useState(species.image_url);
   const [favPending, setFavPending] = useState(false);
+  const [galleryPending, setGalleryPending] = useState(false);
   const [viewInTreePending, setViewInTreePending] = useState(false);
+
+  const shouldFetchGalleryState =
+    canUseAuthenticatedActions && species.is_in_gallery === undefined;
+  const {
+    data: currentUserGallerySpecies,
+    isLoading: galleryStateLoading,
+  } = useGetSeenSpecieByKey(
+    shouldFetchGalleryState ? species.gbif_key : undefined,
+  );
 
   const { data: gallery = [], isLoading: galleryLoading } = useGetSpecieGallery(
     imagePickerOpen ? species.gbif_key : undefined,
@@ -141,6 +165,12 @@ export const SpeciesCardQuickMenu = ({
   }, [species.is_favorite]);
 
   useEffect(() => {
+    setIsInGallery(
+      species.is_in_gallery ?? Boolean(currentUserGallerySpecies),
+    );
+  }, [species.is_in_gallery, currentUserGallerySpecies]);
+
+  useEffect(() => {
     setCurrentImageUrl(species.image_url);
   }, [species.image_url]);
 
@@ -150,8 +180,35 @@ export const SpeciesCardQuickMenu = ({
       ? ownerUsername === userDb?.username
       : true;
 
+  const invalidateSpeciesMembership = () => {
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.user_seen_species_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.seen_specie_by_key_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.favorite_species_page_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.specie_gallery_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.list_species_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.user_seen_in_list_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.achievement_progress_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.public_profile_key],
+    });
+  };
+
   const handleFavToggle = async () => {
-    if (favPending) return;
+    if (favPending || !isInGallery) return;
     const newFav = !isFav;
     setIsFav(newFav);
     setFavPending(true);
@@ -180,6 +237,65 @@ export const SpeciesCardQuickMenu = ({
       });
     } finally {
       setFavPending(false);
+    }
+  };
+
+  const handleGalleryToggle = async () => {
+    if (!userDb || galleryPending || galleryStateLoading) return;
+
+    const previousInGallery = isInGallery;
+    const previousFav = isFav;
+    const nextInGallery = !previousInGallery;
+
+    setIsInGallery(nextInGallery);
+    if (!nextInGallery) setIsFav(false);
+    setGalleryPending(true);
+
+    try {
+      if (nextInGallery) {
+        await addSpeciesToGallery({
+          gbifKey: species.gbif_key,
+          kingdom: species.kingdom,
+          iucnStatus: species.iucn_status,
+          canonicalName: species.canonical_name,
+          family: species.family,
+          imageUrl: currentImageUrl,
+          imageSource: species.image_source,
+          imageAttribution: species.image_attribution,
+          imageLicense: species.image_license,
+        });
+        toast.success(t("gallery.addedToGallery"));
+        void checkAchievements();
+      } else {
+        await removeSpeciesFromGallery(species.gbif_key);
+        setUserDb((prev) =>
+          prev
+            ? {
+                ...prev,
+                game_info: {
+                  ...prev.game_info,
+                  top_fav_species: prev.game_info.top_fav_species?.filter(
+                    (item) => item.key !== species.gbif_key,
+                  ),
+                },
+              }
+            : prev,
+        );
+        toast.success(t("gallery.removedFromGallery"));
+        if (previousFav) {
+          void queryClient.invalidateQueries({
+            queryKey: [QUERY_KEYS.species_fav_count_key, species.gbif_key],
+          });
+        }
+      }
+
+      invalidateSpeciesMembership();
+    } catch {
+      setIsInGallery(previousInGallery);
+      setIsFav(previousFav);
+      toast.error(t("gallery.galleryUpdateError"));
+    } finally {
+      setGalleryPending(false);
     }
   };
 
@@ -251,6 +367,8 @@ export const SpeciesCardQuickMenu = ({
     toast.success(t("lists.listCoverUpdated"));
   };
 
+  const canEditImage = listId ? isOwner : isOwner && isInGallery;
+
   return (
     <>
       <DropdownMenu>
@@ -276,7 +394,29 @@ export const SpeciesCardQuickMenu = ({
             </DropdownMenuItem>
           )}
 
-          {canUseAuthenticatedActions && isOwner && (
+          {canUseAuthenticatedActions && (
+            <DropdownMenuItem
+              onClick={() =>
+                isInGallery
+                  ? setRemoveGalleryConfirmOpen(true)
+                  : void handleGalleryToggle()
+              }
+              disabled={galleryPending || galleryStateLoading}
+            >
+              {galleryPending || galleryStateLoading ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : isInGallery ? (
+                <Trash2 className="mr-2 size-4" />
+              ) : (
+                <BookmarkPlus className="mr-2 size-4" />
+              )}
+              {isInGallery
+                ? t("gallery.removeFromGallery")
+                : t("gallery.addToGallery")}
+            </DropdownMenuItem>
+          )}
+
+          {canUseAuthenticatedActions && isOwner && isInGallery && (
             <DropdownMenuItem onClick={handleFavToggle} disabled={favPending}>
               <Heart
                 className={cn(
@@ -305,7 +445,7 @@ export const SpeciesCardQuickMenu = ({
             </DropdownMenuItem>
           )}
 
-          {canUseAuthenticatedActions && isOwner && !hideImageActions && (
+          {canUseAuthenticatedActions && canEditImage && !hideImageActions && (
             <>
               <DropdownMenuSeparator />
 
@@ -352,6 +492,19 @@ export const SpeciesCardQuickMenu = ({
           if (!open) onDialogClose?.();
         }}
         gbifKey={species.gbif_key}
+      />
+
+      <ConfirmDialog
+        open={removeGalleryConfirmOpen}
+        onOpenChange={(open) => {
+          setRemoveGalleryConfirmOpen(open);
+          if (!open) onDialogClose?.();
+        }}
+        title={t("lists.removeSpecies")}
+        description={t("gallery.removeSpeciesConfirm")}
+        confirmLabel={t("gallery.removeFromGallery")}
+        onConfirm={() => void handleGalleryToggle()}
+        variant="destructive"
       />
 
       <Dialog

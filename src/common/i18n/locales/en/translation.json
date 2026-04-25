@@ -286,6 +286,12 @@
     "chooseImage": "Choose display image",
     "imageUpdated": "Image updated!",
     "noImages": "No images available",
+    "addToGallery": "Add to gallery",
+    "removeFromGallery": "Remove from gallery",
+    "addedToGallery": "Species added to gallery!",
+    "removedFromGallery": "Species removed from gallery.",
+    "removeSpeciesConfirm": "Are you sure you want to remove this species from the gallery?",
+    "galleryUpdateError": "Could not update the gallery.",
     "quickActions": "Quick actions"
   },
   "specieDetail": {

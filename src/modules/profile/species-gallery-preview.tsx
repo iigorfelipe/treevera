@@ -21,6 +21,7 @@ const RecentSpeciesCard = ({
   name,
   family,
   isFavorite,
+  isInGallery,
   ownerUsername,
 }: {
   gbifKey: number;
@@ -31,6 +32,7 @@ const RecentSpeciesCard = ({
   name: string | null;
   family: string | null;
   isFavorite: boolean;
+  isInGallery?: boolean;
   ownerUsername?: string;
 }) => {
   const navigate = useNavigate();
@@ -58,6 +60,7 @@ const RecentSpeciesCard = ({
     image_attribution: imgAttribution ?? null,
     image_license: imgLicense ?? null,
     is_favorite: isFavorite,
+    is_in_gallery: isInGallery,
     seen_at: "",
     total_count: 0,
   };
@@ -187,6 +190,7 @@ export const SpeciesGalleryPreview = ({
               name={species.canonical_name}
               family={species.family}
               isFavorite={species.is_favorite}
+              isInGallery={species.is_in_gallery}
               ownerUsername={profileUsername}
             />
           ))}

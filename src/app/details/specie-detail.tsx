@@ -31,7 +31,6 @@ import { Skeleton } from "@/common/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  addSeenSpecie,
   toggleFavSpecie,
   updateSeenSpeciesIucn,
 } from "@/common/utils/supabase/user-seen-species";
@@ -89,7 +88,6 @@ export const SpecieDetail = ({
   const session = useAtomValue(authStore.session);
   const userId = session?.user?.id;
   const userDb = useAtomValue(authStore.userDb);
-  const challenge = useAtomValue(treeAtom.challenge);
 
   const [pendingUnfav, setPendingUnfav] = useState(false);
 
@@ -130,31 +128,7 @@ export const SpecieDetail = ({
   const checkAchievements = useCheckAchievements();
 
   const isFav = specie?.is_favorite ?? false;
-
-  useEffect(() => {
-    if (!userId || !specieKey || !specieDetail) return;
-    if (challenge.status === "IN_PROGRESS") return;
-    void addSeenSpecie(
-      userId,
-      specieKey,
-      specieDetail.kingdom,
-      canonicalName,
-      specieDetail.family,
-    ).then(() => {
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_seen_species_key, userId],
-      });
-      void checkAchievements();
-    });
-  }, [
-    userId,
-    specieKey,
-    specieDetail,
-    canonicalName,
-    queryClient,
-    checkAchievements,
-    challenge.status,
-  ]);
+  const isInGallery = !!specie;
 
   useEffect(() => {
     if (!userId || !specieKey || !cache?.iucnCode || !specie) return;
@@ -194,7 +168,7 @@ export const SpecieDetail = ({
     false;
 
   const doToggleFav = async () => {
-    if (!userId || specieKey == null) return;
+    if (!userId || specieKey == null || !specie) return;
 
     const newIsFav = !isFav;
 
@@ -269,11 +243,14 @@ export const SpecieDetail = ({
           canonical_name:
             specieDetail.canonicalName ?? specieDetail.scientificName ?? null,
           family: specieDetail.family ?? null,
+          kingdom: specieDetail.kingdom ?? null,
+          iucn_status: cache?.iucnCode ?? null,
           image_url: gallery[0]?.imgUrl ?? null,
           image_source: gallery[0]?.source ?? null,
           image_attribution: gallery[0]?.author ?? null,
           image_license: gallery[0]?.licenseCode ?? null,
           is_favorite: isFav,
+          is_in_gallery: isInGallery,
           seen_at: specie?.seen_at ?? "",
           total_count: 0,
         };
@@ -321,7 +298,7 @@ export const SpecieDetail = ({
                 >
                   <SpecieImageDetail
                     isFav={isFav}
-                    showFavButton={!!userId}
+                    showFavButton={!!userId && isInGallery}
                     onToggleFav={toggleFav}
                     favCount={favCount}
                     specieKey={specieKey}

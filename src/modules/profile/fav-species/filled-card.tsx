@@ -58,6 +58,7 @@ export const FilledFavCard = ({
     image_attribution: imgAttribution ?? null,
     image_license: imgLicense ?? null,
     is_favorite: true,
+    is_in_gallery: ownerUsername ? undefined : true,
     seen_at: "",
     total_count: 0,
   };

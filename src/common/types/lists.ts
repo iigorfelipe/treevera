@@ -56,6 +56,7 @@ export interface ListSpeciesRow {
   image_attribution: string | null;
   image_license: string | null;
   is_favorite: boolean;
+  is_in_gallery: boolean;
   sort_position: number;
   total_count: number;
 }

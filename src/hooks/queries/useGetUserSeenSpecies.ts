@@ -58,6 +58,7 @@ export const useGetRecentSeenSpecies = (limit: number, userId?: string) => {
           preferred_image_license: r.image_license ?? null,
           canonical_name: r.canonical_name,
           family: r.family,
+          is_in_gallery: r.is_in_gallery,
         })),
       };
     },

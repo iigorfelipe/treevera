@@ -286,6 +286,12 @@
     "chooseImage": "Escolher imagem de exibição",
     "imageUpdated": "Imagem atualizada!",
     "noImages": "Nenhuma imagem disponível",
+    "addToGallery": "Adicionar à galeria",
+    "removeFromGallery": "Remover da galeria",
+    "addedToGallery": "Espécie adicionada à galeria!",
+    "removedFromGallery": "Espécie removida da galeria.",
+    "removeSpeciesConfirm": "Tem certeza que deseja remover esta espécie da galeria?",
+    "galleryUpdateError": "Não foi possível atualizar a galeria.",
     "quickActions": "Ações rápidas"
   },
   "specieDetail": {
