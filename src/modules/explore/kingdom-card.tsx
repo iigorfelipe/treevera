@@ -1,132 +1,148 @@
-// import { useAtomValue } from "jotai";
-// import { useTranslation } from "react-i18next";
+import { AnimatePresence, motion } from "framer-motion";
 
 import type { ExploreInfo } from "@/common/types/tree-atoms";
 import { cn } from "@/common/utils/cn";
-// import { useScrollThenNavigate } from "@/hooks/use-scroll-then-navigate";
-// import { useTreeNavigation } from "@/hooks/use-tree-navigation";
-// import { treeAtom } from "@/store/tree";
+
+type KingdomGroup = ExploreInfo["mainGroups"][number];
 
 interface KingdomCardItemProps {
   item: ExploreInfo;
   kingdomLabel: string;
+  mainGroupsLabel: string;
   onSelect: () => void;
+  onGroupSelect: (pathNode: KingdomGroup["pathNode"]) => void;
+  active?: boolean;
+  compressed?: boolean;
+  onActiveChange?: (active: boolean) => void;
   className?: string;
 }
 
 export const KingdomCardItem = ({
   item,
   kingdomLabel,
+  mainGroupsLabel,
   onSelect,
+  onGroupSelect,
+  active = false,
+  compressed = false,
+  onActiveChange,
   className,
-}: KingdomCardItemProps) => (
-  <button
-    type="button"
-    aria-label={`${kingdomLabel} ${item.kingdomName}`}
-    className={cn(
-      "group relative flex w-full cursor-pointer overflow-hidden bg-black text-left text-white shadow-sm transition duration-300 hover:shadow-2xl focus-visible:outline-2 focus-visible:outline-offset-2",
-      className,
-    )}
-    style={{ outlineColor: item.primaryColor }}
-    onClick={onSelect}
-  >
-    <img
-      src={item.bgImg}
-      alt={item.kingdomName}
-      className="absolute inset-0 h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
-      loading="lazy"
-    />
+}: KingdomCardItemProps) => {
+  return (
+    <motion.div
+      layout
+      transition={{
+        layout: { type: "spring", stiffness: 360, damping: 34, duration: 0.5 },
+      }}
+      onMouseEnter={() => onActiveChange?.(true)}
+      onFocus={() => onActiveChange?.(true)}
+      className={cn(
+        "group @container/kingdom-card relative flex w-full cursor-pointer overflow-hidden bg-black rounded-md text-left text-white shadow-sm will-change-transform hover:shadow-2xl",
+        active && "z-10",
+        className,
+      )}
+    >
+      <img
+        src={item.bgImg}
+        alt={item.kingdomName}
+        className="absolute inset-0 h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
+        loading="lazy"
+      />
 
-    <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/55 to-black/20" />
-    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-black/10" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/55 to-black/20" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-black/10" />
 
-    <div className={cn("relative z-10 flex h-full w-full flex-col p-5 sm:p-7")}>
-      <span
+      <button
+        type="button"
+        aria-label={`${kingdomLabel} ${item.kingdomName}`}
+        className="absolute inset-0 z-10 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2"
+        style={{ outlineColor: item.primaryColor }}
+        onClick={onSelect}
+      />
+
+      <div
         className={cn(
-          "w-fit rounded-full px-2 py-0.5 text-[9px] font-bold text-white uppercase",
-        )}
-        style={{ backgroundColor: item.primaryColor }}
-      >
-        {kingdomLabel}
-      </span>
-
-      <h2 className={cn("pt-3 text-2xl leading-none font-black text-white")}>
-        {item.kingdomName}
-      </h2>
-      {/* <div
-        className={cn(
-          "mt-auto flex flex-col pt-8",
-          size === "compact" ? "gap-3" : "gap-4",
+          "pointer-events-none relative z-20 flex h-full w-full flex-col",
+          compressed
+            ? "p-3 @[240px]/kingdom-card:p-4"
+            : active
+              ? "p-4 @[240px]/kingdom-card:p-5 @[340px]/kingdom-card:p-6"
+              : "p-4 @[240px]/kingdom-card:p-5 @[340px]/kingdom-card:p-7",
         )}
       >
-        <div>
-          <p
-            className={cn(
-              "mt-3 max-w-md pr-2 font-semibold text-white/75",
-              size === "compact" ? "text-sm leading-5" : "text-base leading-6",
-            )}
-          >
-            {item.description}
-          </p>
-        </div>
+        <span
+          className={cn(
+            "w-fit rounded-full font-bold text-white uppercase",
+            compressed ? "px-1.5 py-0.5 text-[8px]" : "px-2 py-0.5 text-[9px]",
+          )}
+          style={{ backgroundColor: item.primaryColor }}
+        >
+          {kingdomLabel}
+        </span>
 
-        <div>
-          <p
+        <motion.div
+          layout
+          className={cn(
+            "mt-auto",
+            compressed ? "pt-3" : active ? "pt-4" : "pt-6",
+          )}
+        >
+          <motion.h2
+            layout
             className={cn(
-              "font-bold text-white/45 uppercase",
-              size === "compact" ? "text-[8px]" : "text-[10px]",
+              "leading-none font-black text-white",
+              compressed
+                ? "text-base @[240px]/kingdom-card:text-lg"
+                : "text-xl @[240px]/kingdom-card:text-2xl",
             )}
           >
-            {mainGroupsLabel}:
-          </p>
+            {item.kingdomName}
+          </motion.h2>
 
-          <div
-            className={cn(
-              "mt-2 flex flex-wrap",
-              size === "compact" ? "gap-1.5" : "gap-3",
-            )}
-          >
-            {item.mainGroups.slice(0, 3).map((group) => (
-              <span
-                key={group.groupName}
-                className={cn(
-                  "rounded-lg border border-white/10 bg-white/10 font-bold backdrop-blur-sm",
-                  size === "compact"
-                    ? "px-2 py-1 text-[9px]"
-                    : "px-3 py-2 text-sm",
-                )}
-                style={{ color: item.primaryColor }}
+          <AnimatePresence initial={false}>
+            {active && (
+              <motion.div
+                key="details"
+                initial={{ height: 0, opacity: 0, y: 8 }}
+                animate={{ height: "auto", opacity: 1, y: 0 }}
+                exit={{ height: 0, opacity: 0, y: 4 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="pointer-events-auto overflow-hidden"
               >
-                {group.groupName}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div> */}
-    </div>
-  </button>
-);
+                <p className="mt-2 max-w-md text-sm leading-5 font-semibold text-white/75">
+                  {item.description}
+                </p>
 
-// export const KingdomCard = () => {
-//   const { t } = useTranslation();
-//   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
-//   const { toggleNode } = useTreeNavigation();
-//   const scrollThenNavigate = useScrollThenNavigate();
+                <div className="mt-3">
+                  <p className="text-[8px] font-bold text-white/45 uppercase">
+                    {mainGroupsLabel}:
+                  </p>
 
-//   return (
-//     <section className="min-h-screen bg-transparent px-4 py-6 sm:px-6 md:px-8">
-//       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-//         {exploreInfos.map((item) => (
-//           <KingdomCardItem
-//             key={item.kingdomKey}
-//             item={item}
-//             kingdomLabel={t("explore.kingdom")}
-//             onSelect={() =>
-//               scrollThenNavigate(() => toggleNode(item.kingdomKey))
-//             }
-//           />
-//         ))}
-//       </div>
-//     </section>
-//   );
-// };
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {item.mainGroups.slice(0, 3).map((group) => (
+                      <button
+                        key={group.groupName}
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onGroupSelect(group.pathNode);
+                        }}
+                        className="cursor-pointer rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-left text-xs font-bold backdrop-blur-sm transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2"
+                        style={{
+                          color: item.primaryColor,
+                          outlineColor: item.primaryColor,
+                        }}
+                      >
+                        {group.groupName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+};
