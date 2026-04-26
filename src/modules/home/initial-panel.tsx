@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/common/components/ui/button";
+import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import type { PathNode } from "@/common/types/tree-atoms";
 import { cn } from "@/common/utils/cn";
 import { ChallengeDatePicker } from "@/modules/challenge/daily/challenge-date-picker";
@@ -69,7 +70,7 @@ const POPULAR_SEARCHES = [
 
 const FEATURED_LIST_SKELETON_KEYS = [0, 1, 2];
 
-const RELEASE_GRID_HEIGHT_DELAY = 260;
+const DEFAULT_EXPANDED_KINGDOM_KEY = KEY_KINGDOM_BY_NAME.animalia;
 
 const WelcomeSearch = () => {
   const navigate = useNavigate();
@@ -151,7 +152,6 @@ const KingdomsSection = () => {
   const [lockedGridHeight, setLockedGridHeight] = useState<number | null>(null);
   const [gridColumns, setGridColumns] = useState(1);
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const releaseHeightTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const element = gridRef.current;
@@ -162,6 +162,7 @@ const KingdomsSection = () => {
     };
 
     updateColumns();
+    setLockedGridHeight(element.getBoundingClientRect().height);
 
     if (typeof ResizeObserver === "undefined") return;
 
@@ -173,15 +174,6 @@ const KingdomsSection = () => {
 
     return () => observer.disconnect();
   }, []);
-
-  useEffect(
-    () => () => {
-      if (releaseHeightTimeoutRef.current) {
-        window.clearTimeout(releaseHeightTimeoutRef.current);
-      }
-    },
-    [],
-  );
 
   const selectKingdom = useCallback(
     (kingdomKey: number) => {
@@ -200,11 +192,6 @@ const KingdomsSection = () => {
   const setKingdomActive = useCallback(
     (kingdomKey: number, active: boolean) => {
       if (active) {
-        if (releaseHeightTimeoutRef.current) {
-          window.clearTimeout(releaseHeightTimeoutRef.current);
-          releaseHeightTimeoutRef.current = null;
-        }
-
         setLockedGridHeight((current) => {
           if (current) return current;
           return gridRef.current?.getBoundingClientRect().height ?? null;
@@ -221,18 +208,12 @@ const KingdomsSection = () => {
 
   const clearKingdomActive = useCallback(() => {
     setActiveKingdomKey(null);
-
-    if (releaseHeightTimeoutRef.current) {
-      window.clearTimeout(releaseHeightTimeoutRef.current);
-    }
-
-    releaseHeightTimeoutRef.current = window.setTimeout(() => {
-      setLockedGridHeight(null);
-      releaseHeightTimeoutRef.current = null;
-    }, RELEASE_GRID_HEIGHT_DELAY);
   }, []);
 
-  const focusedLayout = activeKingdomKey !== null && lockedGridHeight !== null;
+  const focusedLayout = lockedGridHeight !== null;
+  const effectiveActiveKingdomKey = focusedLayout
+    ? (activeKingdomKey ?? DEFAULT_EXPANDED_KINGDOM_KEY)
+    : activeKingdomKey;
 
   if (!exploreInfos) return null;
 
@@ -268,7 +249,7 @@ const KingdomsSection = () => {
           style={lockedGridHeight ? { height: lockedGridHeight } : undefined}
         >
           {exploreInfos.map((item, index) => {
-            const active = activeKingdomKey === item.kingdomKey;
+            const active = effectiveActiveKingdomKey === item.kingdomKey;
             const compressed = focusedLayout && !active;
             const hasHorizontalRoom =
               gridColumns > 1 && index % gridColumns < gridColumns - 1;
