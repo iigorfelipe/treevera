@@ -68,7 +68,6 @@ export const SpeciesGallery = ({
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [photosFirst, setPhotosFirst] = useState(true);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
@@ -100,7 +99,10 @@ export const SpeciesGallery = ({
   }, [allSpecies, numColumns]);
 
   useEffect(() => {
-    if (!hasNextPage || !sentinelRef.current || !scrollRef.current) return;
+    const sentinel = sentinelRef.current;
+    if (!hasNextPage || !sentinel) return;
+
+    const scrollRoot = sentinel.closest("[data-scroll-root]");
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -108,10 +110,10 @@ export const SpeciesGallery = ({
           void fetchNextPage();
         }
       },
-      { root: scrollRef.current, rootMargin: "200px" },
+      { root: scrollRoot, rootMargin: "200px" },
     );
 
-    observer.observe(sentinelRef.current);
+    observer.observe(sentinel);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
