@@ -29,7 +29,7 @@ import type { TFunction } from "i18next";
 import { useGetChallengeTips } from "@/hooks/queries/useGetChallengeTips";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
 import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
-import { useGetVernacularNames } from "@/hooks/queries/useGetVernacularNames";
+import { useGetChallengeCommonNames } from "@/hooks/queries/useGetChallengeCommonNames";
 import { Image } from "@/common/components/image";
 import { Skeleton } from "@/common/components/ui/skeleton";
 import { useResponsive } from "@/hooks/use-responsive";
@@ -70,6 +70,7 @@ export const ChallengeTips = ({
   );
   const [open, setOpen] = useState(false);
   const [visibleStep, setVisibleStep] = useState(currentStep);
+  const [hasExpandedNames, setHasExpandedNames] = useState(false);
   const allNodes = useAtomValue(treeAtom.nodes);
   const setHighlightedKeys = useSetAtom(setHighlightedKeysAtom);
   const setScrollToNodeKey = useSetAtom(scrollToNodeKeyAtom);
@@ -81,16 +82,21 @@ export const ChallengeTips = ({
   const [hasOpened, setHasOpened] = useState(false);
 
   const { data: tipsMap = {} } = useGetChallengeTips(correctPath, hasOpened);
-  const { data: specieDetail } = useGetSpecieDetail({
-    specieKey: speciesKey,
-    enabled: hasOpened,
-  });
+  const { data: specieDetail, isLoading: isLoadingSpecieDetail } =
+    useGetSpecieDetail({
+      specieKey: speciesKey,
+      enabled: hasOpened,
+    });
   const { data: imageData, isLoading: isLoadingImage } = useGetSpecieImage(
     hasOpened ? speciesKey : 0,
     hasOpened ? specieDetail?.canonicalName : undefined,
   );
-  const { data: vernacularNames = [], isLoading: isLoadingVernacular } =
-    useGetVernacularNames(hasOpened ? speciesKey : 0);
+  const { data: commonNames = [], isLoading: isLoadingCommonNames } =
+    useGetChallengeCommonNames({
+      speciesKey,
+      canonicalName: specieDetail?.canonicalName,
+      enabled: hasOpened && hasExpandedNames,
+    });
 
   const currentNode = correctPath[visibleStep];
   const hints: string[] = currentNode ? (tipsMap[currentNode.name] ?? []) : [];
@@ -365,7 +371,10 @@ export const ChallengeTips = ({
               <Collapsible.Content className="mt-1 space-y-1 overflow-hidden">
                 <Collapsible.Root
                   onOpenChange={(isOpen) => {
-                    if (isOpen) onInteraction?.(visibleStep, "namesExpanded");
+                    if (isOpen) {
+                      setHasExpandedNames(true);
+                      onInteraction?.(visibleStep, "namesExpanded");
+                    }
                   }}
                 >
                   <Collapsible.Trigger asChild>
@@ -378,19 +387,19 @@ export const ChallengeTips = ({
                     </button>
                   </Collapsible.Trigger>
 
-                  <Collapsible.Content className="mt-2 overflow-hidden rounded-md border p-2">
-                    {isLoadingVernacular ? (
+                  <Collapsible.Content className="mt-2 max-h-64 overflow-y-auto rounded-md border p-2">
+                    {isLoadingSpecieDetail || isLoadingCommonNames ? (
                       <div className="space-y-1">
                         <Skeleton className="h-4 w-full" />
                         <Skeleton className="h-4 w-3/4" />
                       </div>
-                    ) : vernacularNames.length === 0 ? (
+                    ) : commonNames.length === 0 ? (
                       <div className="text-muted-foreground text-xs">
                         {t("challenge.noCommonNames")}
                       </div>
                     ) : (
                       <ul className="space-y-1">
-                        {vernacularNames.map((v, i) => (
+                        {commonNames.map((v, i) => (
                           <li
                             key={i}
                             className="flex items-center gap-2 text-xs"

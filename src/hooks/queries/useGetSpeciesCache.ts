@@ -15,6 +15,9 @@ import { QUERY_KEYS } from "./keys";
 import { useTranslation } from "react-i18next";
 
 type WikiDescription = {
+  title?: string;
+  language?: string;
+  extractHtml?: string;
   extract: string;
   description: string;
 };
@@ -34,13 +37,28 @@ export type SpeciesCacheResult = {
 };
 
 const BIOLOGICAL_TERMS = [
-  "genus", "gênero", "género",
-  "species", "espécie", "espécies", "especie", "especies",
-  "família", "familia", "family",
-  "planta", "plant", "vegetal",
-  "animal", "fungo", "fungus",
-  "taxon", "táxon", "taxonom",
-  "phylum", "filo",
+  "genus",
+  "gênero",
+  "género",
+  "species",
+  "espécie",
+  "espécies",
+  "especie",
+  "especies",
+  "família",
+  "familia",
+  "family",
+  "planta",
+  "plant",
+  "vegetal",
+  "animal",
+  "fungo",
+  "fungus",
+  "taxon",
+  "táxon",
+  "taxonom",
+  "phylum",
+  "filo",
 ];
 
 const DISAMBIGUATION_SUFFIXES: Record<string, string[]> = {
@@ -53,7 +71,8 @@ function isBiologicalArticle(wikiData: {
   description?: string;
   extract?: string;
 }): boolean {
-  const text = `${wikiData.description ?? ""} ${(wikiData.extract ?? "").slice(0, 300)}`.toLowerCase();
+  const text =
+    `${wikiData.description ?? ""} ${(wikiData.extract ?? "").slice(0, 300)}`.toLowerCase();
   return BIOLOGICAL_TERMS.some((term) => text.includes(term));
 }
 
@@ -61,13 +80,16 @@ async function fetchWikiValidated(
   name: string,
   lang: string,
   mustBeTaxon: boolean,
-): Promise<{ extract: string; description: string } | null> {
+): Promise<WikiDescription | null> {
   try {
     const wikiData = await getWikiSpecieDetail(name, lang);
     const text = wikiData?.extract ?? wikiData?.description ?? "";
     if (!text) return null;
     if (!mustBeTaxon || isBiologicalArticle(wikiData)) {
       return {
+        title: wikiData.title ?? "",
+        language: lang,
+        extractHtml: wikiData.extract_html ?? "",
         extract: wikiData.extract ?? "",
         description: wikiData.description ?? "",
       };
@@ -82,14 +104,19 @@ async function fetchDescriptionWithFallback(
   canonicalName: string,
   lang: string,
   isTaxon = false,
-): Promise<{ extract: string; description: string } | null> {
+): Promise<WikiDescription | null> {
   const result = await fetchWikiValidated(canonicalName, lang, isTaxon);
   if (result) return result;
 
   if (isTaxon) {
-    const suffixes = DISAMBIGUATION_SUFFIXES[lang] ?? DISAMBIGUATION_SUFFIXES.en;
+    const suffixes =
+      DISAMBIGUATION_SUFFIXES[lang] ?? DISAMBIGUATION_SUFFIXES.en;
     for (const suffix of suffixes) {
-      const disambig = await fetchWikiValidated(`${canonicalName} ${suffix}`, lang, true);
+      const disambig = await fetchWikiValidated(
+        `${canonicalName} ${suffix}`,
+        lang,
+        true,
+      );
       if (disambig) return disambig;
     }
   }
@@ -100,7 +127,11 @@ async function fetchDescriptionWithFallback(
 
     if (isTaxon) {
       for (const suffix of DISAMBIGUATION_SUFFIXES.en) {
-        const disambig = await fetchWikiValidated(`${canonicalName} ${suffix}`, "en", true);
+        const disambig = await fetchWikiValidated(
+          `${canonicalName} ${suffix}`,
+          "en",
+          true,
+        );
         if (disambig) return disambig;
       }
     }
@@ -162,12 +193,17 @@ export const useGetSpeciesCache = (
           lang === "pt" && cached.has_description && !!cached.description_pt;
 
         const [speciesResult, genusResult] = await Promise.allSettled([
-          usesCachedPt
-            ? Promise.resolve({
-                extract: cached.description_pt!,
-                description: "",
-              })
-            : fetchDescriptionWithFallback(canonicalName, lang, true),
+          fetchDescriptionWithFallback(canonicalName, lang, true).then(
+            (fresh) =>
+              fresh ??
+              (usesCachedPt
+                ? {
+                    language: "pt",
+                    extract: cached.description_pt!,
+                    description: "",
+                  }
+                : null),
+          ),
           genusName
             ? fetchDescriptionWithFallback(genusName, lang, true)
             : Promise.resolve(null),

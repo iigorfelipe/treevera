@@ -111,8 +111,8 @@ const OCCURRENCE_URL = `${GBIF_BASE_URL}/occurrence`;
 //   return data;
 // };
 
-export const getVernacularNames = async (key: number) => {
-  const url = `${SPECIES_URL}/${key}/vernacularNames`;
+export const getVernacularNames = async (key: number, limit = 100) => {
+  const url = `${SPECIES_URL}/${key}/vernacularNames?limit=${limit}`;
   const data = await fetch(url).then((res) => res.json());
   return (data.results ?? []) as VernacularName[];
 };

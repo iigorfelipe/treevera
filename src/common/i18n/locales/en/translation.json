@@ -311,6 +311,8 @@
     "genusLabel": "Genus",
     "descriptionTitle": "Description",
     "genusDescriptionTitle": "About the Genus",
+    "commonNamesTitle": "Common names",
+    "noCommonNames": "No common names found.",
     "showMore": "Show more",
     "showLess": "Show less",
     "nomenclatureTitle": "Nomenclature Details",

@@ -311,6 +311,8 @@
     "genusLabel": "Género",
     "descriptionTitle": "Descripción",
     "genusDescriptionTitle": "Sobre el Género",
+    "commonNamesTitle": "Nombres comunes",
+    "noCommonNames": "No se encontraron nombres comunes.",
     "showMore": "Ver más",
     "showLess": "Ver menos",
     "nomenclatureTitle": "Detalles de Nomenclatura",
