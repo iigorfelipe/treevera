@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
-import { searchTaxa, getSpecieDetail } from "@/services/apis/gbif";
+import { getSpecieDetail } from "@/services/apis/gbif";
+import { searchTaxaByUserQuery } from "@/services/apis/species-search";
 import type { Rank, Taxon } from "@/common/types/api";
 import { EXCLUDED_RANKS } from "@/common/utils/tree/children";
 import { useNavigateToTaxon } from "@/hooks/use-navigate-to-taxon";
@@ -11,6 +12,7 @@ import {
   setFocusSearchAtom,
   searchQAtom,
   searchKingdomAtom,
+  searchRankAtom,
   searchResultsAtom,
   searchErrorAtom,
   searchSelectedAtom,
@@ -103,12 +105,13 @@ const dedupeGenusSpecies = (list: Taxon[], tokens: string[]): Taxon[] => {
 };
 
 export function useSearch() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { navigateToTaxon } = useNavigateToTaxon();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useAtom(searchQAtom);
   const [kingdom, setKingdom] = useAtom(searchKingdomAtom);
+  const [rank, setRank] = useAtom(searchRankAtom);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useAtom(searchResultsAtom);
   const [error, setError] = useAtom(searchErrorAtom);
@@ -130,6 +133,7 @@ export function useSearch() {
     setDiagnosis(null);
     setMinimized(false);
     if (focusTrigger.kingdom) setKingdom(focusTrigger.kingdom);
+    setRank("");
     setTimeout(() => inputRef.current?.focus(), 50);
     setFocusTrigger(null);
   }, [focusTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -201,14 +205,19 @@ export function useSearch() {
         }
 
         // #region Text search
-        const data = await searchTaxa(trimmed, kingdom || undefined);
+        const data = await searchTaxaByUserQuery(
+          trimmed,
+          kingdom || undefined,
+          rank || undefined,
+          i18n.resolvedLanguage ?? i18n.language,
+        );
         const all = (data ?? []) as Taxon[];
 
         const filtered = all.filter((r) => {
           const det = r as unknown as Record<string, unknown>;
           const nub = det["nubKey"] as number | undefined;
           const hasNub = typeof nub === "number" && nub > 0;
-          const rankOk = !EXCLUDED_RANKS.has(r.rank);
+          const rankOk = rank ? r.rank === rank : !EXCLUDED_RANKS.has(r.rank);
           if (!kingdom) return Boolean(hasNub && rankOk);
           const k = String(r.kingdom ?? "").toLowerCase();
           const kingdomOk =
@@ -220,8 +229,29 @@ export function useSearch() {
 
         const qLower = trimmed.toLowerCase();
         const tokens = qLower.split(/\s+/).filter(Boolean);
+        const dedupeByTaxon = (list: Taxon[]) => {
+          const seen = new Set<string>();
+          return list.filter((taxon) => {
+            const d = taxon as unknown as Record<string, unknown>;
+            const key =
+              d["nubKey"] ??
+              taxon.key ??
+              taxon.canonicalName ??
+              taxon.scientificName;
+            if (!key) return false;
+
+            const normalizedKey = String(key).toLowerCase();
+            if (seen.has(normalizedKey)) return false;
+            seen.add(normalizedKey);
+            return true;
+          });
+        };
 
         const dedupeFiltered = (list: Taxon[]) => {
+          if (rank && rank !== "GENUS" && rank !== "SPECIES") {
+            return dedupeByTaxon(list);
+          }
+
           if (tokens.length >= 2) {
             const exact = list.filter((r) => {
               const name = (
@@ -279,7 +309,7 @@ export function useSearch() {
         setLoading(false);
       }
     },
-    [q, kingdom, isKeySearch, gbifKey, t], // eslint-disable-line react-hooks/exhaustive-deps
+    [q, kingdom, rank, isKeySearch, gbifKey, t, i18n], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const onPick = useCallback(
@@ -304,6 +334,8 @@ export function useSearch() {
     setQ,
     kingdom,
     setKingdom,
+    rank,
+    setRank,
     loading,
     results,
     error,

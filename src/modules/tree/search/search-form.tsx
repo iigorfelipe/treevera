@@ -1,19 +1,10 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader, SearchIcon, X } from "lucide-react";
 
-import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
-import { capitalizar } from "@/common/utils/string";
-import { getRankIcon } from "@/common/utils/tree/ranks";
-import { Image } from "@/common/components/image";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/common/components/ui/select";
+import type { Rank } from "@/common/types/api";
 
+import { SearchFilter } from "./search-filter";
 import {
   useAnimatedPlaceholder,
   SUGGESTIONS_BY_KINGDOM,
@@ -24,6 +15,8 @@ interface SearchFormProps {
   setQ: (v: string) => void;
   kingdom: string;
   setKingdom: (v: string) => void;
+  rank: Rank | "";
+  setRank: (v: Rank | "") => void;
   loading: boolean;
   isKeySearch: boolean;
   hasResults: boolean;
@@ -37,6 +30,8 @@ export function SearchForm({
   setQ,
   kingdom,
   setKingdom,
+  rank,
+  setRank,
   loading,
   isKeySearch,
   hasResults,
@@ -45,16 +40,6 @@ export function SearchForm({
   inputRef,
 }: SearchFormProps) {
   const { t } = useTranslation();
-  const clearingRef = useRef(false);
-
-  const kingdomOptions = useMemo(
-    () =>
-      Object.entries(NAME_KINGDOM_BY_KEY).map(([k, name]) => ({
-        key: Number(k),
-        name,
-      })),
-    [],
-  );
 
   const suggestions = useMemo(() => {
     if (q) return [];
@@ -79,54 +64,13 @@ export function SearchForm({
       className="flex h-9.5 flex-nowrap items-center gap-1.5"
     >
       {!isKeySearch && (
-        <Select
-          value={kingdom}
-          onValueChange={(v) => {
-            if (clearingRef.current) {
-              clearingRef.current = false;
-              return;
-            }
-            setKingdom(v);
+        <SearchFilter
+          value={{ kingdom, rank }}
+          onChange={(next) => {
+            setKingdom(next.kingdom);
+            setRank(next.rank);
           }}
-        >
-          <SelectTrigger className="rounded-lg border px-2 text-sm font-medium">
-            <SelectValue placeholder={t("search.kingdom")}>
-              {kingdom ? (
-                <Image
-                  src={getRankIcon(
-                    kingdomOptions.find((k) => k.name === kingdom)?.key ?? 0,
-                  )}
-                  alt="Reino"
-                  className="size-5"
-                />
-              ) : (
-                <span>{t("search.kingdom")}</span>
-              )}
-            </SelectValue>
-          </SelectTrigger>
-
-          <SelectContent className="rounded-lg text-sm font-medium">
-            {kingdomOptions.map((opt) => (
-              <SelectItem
-                key={opt.key}
-                value={opt.name}
-                onPointerDown={() => {
-                  if (kingdom === opt.name) {
-                    clearingRef.current = true;
-                    setKingdom("");
-                  }
-                }}
-              >
-                <Image
-                  src={getRankIcon(opt.key)}
-                  alt={`${opt.name} icon`}
-                  className="size-5"
-                />
-                {capitalizar(opt.name)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       )}
 
       {isKeySearch && (

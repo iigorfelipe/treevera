@@ -9,6 +9,8 @@ export const Search = () => {
     setQ,
     kingdom,
     setKingdom,
+    rank,
+    setRank,
     loading,
     results,
     error,
@@ -30,6 +32,8 @@ export const Search = () => {
         setQ={setQ}
         kingdom={kingdom}
         setKingdom={setKingdom}
+        rank={rank}
+        setRank={setRank}
         loading={loading}
         isKeySearch={isKeySearch}
         hasResults={results !== null}
@@ -42,6 +46,7 @@ export const Search = () => {
 
       {results !== null && (
         <SearchResults
+          query={q}
           results={results}
           selected={selected}
           minimized={minimized}

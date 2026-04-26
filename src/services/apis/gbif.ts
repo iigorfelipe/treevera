@@ -70,6 +70,7 @@ export const getSpeciesMatch = async (
 
   return {
     key: data.usageKey as number,
+    nubKey: data.usageKey as number,
     scientificName: (data.scientificName as string) ?? "",
     canonicalName: (data.canonicalName as string) ?? "",
     rank: (data.rank as Taxon["rank"]) ?? "SPECIES",
@@ -83,10 +84,17 @@ export const getSpeciesMatch = async (
   } as Taxon;
 };
 
-export const searchTaxa = async (q: string, kingdom?: string) => {
+export const searchTaxa = async (
+  q: string,
+  kingdom?: string,
+  rank?: Taxon["rank"],
+) => {
   let url = `${SPECIES_URL}/search?q=${encodeURIComponent(q)}${STATUS_ACCEPTED}&limit=50`;
   if (kingdom) {
     url += `&kingdom=${encodeURIComponent(kingdom)}`;
+  }
+  if (rank) {
+    url += `&rank=${encodeURIComponent(rank)}`;
   }
 
   const data = await fetch(url).then((res) => res.json());

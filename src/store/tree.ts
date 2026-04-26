@@ -51,6 +51,7 @@ const mergeNodes = atom(null, (_, set, nodes: NodeEntity[]) => {
 
 export const searchQAtom = atom("");
 export const searchKingdomAtom = atom("");
+export const searchRankAtom = atom<Rank | "">("");
 export const searchResultsAtom = atom<Taxon[] | null>(null);
 export const searchErrorAtom = atom<string | null>(null);
 export const searchSelectedAtom = atom<Taxon | null>(null);

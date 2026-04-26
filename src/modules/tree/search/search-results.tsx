@@ -19,6 +19,7 @@ const OFFICIAL_KINGDOMS = [
 ];
 
 interface SearchResultsProps {
+  query: string;
   results: Taxon[];
   selected: Taxon | null;
   minimized: boolean;
@@ -27,6 +28,7 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({
+  query,
   results,
   selected,
   minimized,
@@ -38,6 +40,13 @@ export function SearchResults({
     setMinimized(true);
   };
   const { t } = useTranslation();
+  const hyphenSuggestion = useMemo(() => {
+    const trimmed = query.trim();
+    if (!/\s/.test(trimmed)) return null;
+
+    const suggestion = trimmed.replace(/\s+/g, "-");
+    return suggestion !== trimmed ? suggestion : null;
+  }, [query]);
 
   const groupedByKingdom = useMemo(() => {
     const map = new Map<string, Taxon[]>();
@@ -172,9 +181,16 @@ export function SearchResults({
       )}
 
       {!minimized && results.length === 0 && (
-        <p className="text-muted-foreground px-3 pb-3 text-sm">
-          {t("search.noResults")}
-        </p>
+        <div className="px-3 pb-3">
+          <p className="text-muted-foreground text-sm">
+            {t("search.noResults")}
+          </p>
+          {hyphenSuggestion && (
+            <p className="text-muted-foreground/80 mt-1 text-xs">
+              {t("search.hyphenSuggestion", { term: hyphenSuggestion })}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

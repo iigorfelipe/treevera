@@ -263,6 +263,7 @@ function Section({
   count,
   loading,
   empty,
+  emptyHint,
   contentClassName,
   children,
 }: {
@@ -270,6 +271,7 @@ function Section({
   count: number;
   loading: boolean;
   empty: boolean;
+  emptyHint?: ReactNode;
   contentClassName?: string;
   children: ReactNode;
 }) {
@@ -291,9 +293,12 @@ function Section({
       {loading ? (
         <SectionSkeletons />
       ) : empty ? (
-        <p className="text-muted-foreground px-4 py-6 text-center text-sm">
-          {t("search.noResults")}
-        </p>
+        <div className="px-4 py-6 text-center">
+          <p className="text-muted-foreground text-sm">
+            {t("search.noResults")}
+          </p>
+          {emptyHint}
+        </div>
       ) : (
         <div className={`divide-y ${contentClassName ?? ""}`}>{children}</div>
       )}
@@ -306,6 +311,13 @@ export function SearchResultsPage({ query }: { query: string }) {
   const [filter, setFilter] = useState<Filter>("all");
 
   const decoded = query;
+  const hyphenSuggestion = useMemo(() => {
+    const trimmed = decoded.trim();
+    if (!/\s/.test(trimmed)) return null;
+
+    const suggestion = trimmed.replace(/\s+/g, "-");
+    return suggestion !== trimmed ? suggestion : null;
+  }, [decoded]);
 
   const [taxaQuery, listsQuery, usersQuery] = useQueries({
     queries: [
@@ -342,6 +354,7 @@ export function SearchResultsPage({ query }: { query: string }) {
     title: string;
     count: number;
     loading: boolean;
+    emptyHint?: ReactNode;
     contentClassName?: string;
     children: ReactNode;
   };
@@ -353,6 +366,11 @@ export function SearchResultsPage({ query }: { query: string }) {
       count: taxa.length,
       loading: taxaQuery.isLoading,
       contentClassName: "max-h-[32rem] overflow-y-auto",
+      emptyHint: hyphenSuggestion ? (
+        <p className="text-muted-foreground/80 mx-auto mt-1 max-w-sm text-xs">
+          {t("search.hyphenSuggestion", { term: hyphenSuggestion })}
+        </p>
+      ) : null,
       children: <TaxaResults taxa={taxa} />,
     },
     {
@@ -419,6 +437,7 @@ export function SearchResultsPage({ query }: { query: string }) {
             count={section.count}
             loading={section.loading}
             empty={!section.loading && section.count === 0}
+            emptyHint={section.emptyHint}
             contentClassName={section.contentClassName}
           >
             {section.children}
