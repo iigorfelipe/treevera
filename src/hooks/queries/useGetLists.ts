@@ -16,6 +16,7 @@ import {
   fetchUserSeenInList,
   fetchListsWithSpecies,
   fetchListLikers,
+  fetchListLikersPage,
   toggleListLike,
   createList,
   updateList,
@@ -39,6 +40,21 @@ export function useGetUserLists(userId: string | undefined, limit: number) {
   });
 }
 
+export function useGetUserListsInfinite(userId: string | undefined) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.user_lists_key, userId, "infinite"],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchUserLists(userId!, PAGE_SIZE, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((acc, p) => acc + p.rows.length, 0);
+      return loaded < lastPage.totalCount ? loaded : undefined;
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useGetUserLikedLists(
   userId: string | undefined,
   limit: number,
@@ -46,6 +62,21 @@ export function useGetUserLikedLists(
   return useQuery({
     queryKey: [QUERY_KEYS.user_liked_lists_key, userId, limit],
     queryFn: () => fetchUserLikedLists(userId!, limit),
+    enabled: !!userId,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useGetUserLikedListsInfinite(userId: string | undefined) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.user_liked_lists_key, userId, "infinite"],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchUserLikedLists(userId!, PAGE_SIZE, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((acc, p) => acc + p.rows.length, 0);
+      return loaded < lastPage.totalCount ? loaded : undefined;
+    },
     enabled: !!userId,
     staleTime: 5 * 60_000,
   });
@@ -133,6 +164,12 @@ export function useToggleListLike(
       void queryClient.invalidateQueries({ queryKey: detailKey });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.public_lists_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.user_liked_lists_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.list_likers_key],
       });
     },
   });
@@ -255,6 +292,21 @@ export function useGetListsWithSpecies(gbifKey: number | undefined, limit = 5) {
   });
 }
 
+export function useGetListsWithSpeciesInfinite(gbifKey: number | undefined) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.lists_with_species_key, gbifKey, "infinite"],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchListsWithSpecies(gbifKey!, PAGE_SIZE, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((acc, p) => acc + p.rows.length, 0);
+      return loaded < lastPage.totalCount ? loaded : undefined;
+    },
+    enabled: !!gbifKey,
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useGetListLikers(
   username: string | undefined,
   slug: string | undefined,
@@ -262,6 +314,24 @@ export function useGetListLikers(
   return useQuery({
     queryKey: [QUERY_KEYS.list_likers_key, username, slug],
     queryFn: () => fetchListLikers(username!, slug!),
+    enabled: !!username && !!slug,
+    staleTime: 2 * 60_000,
+  });
+}
+
+export function useGetListLikersInfinite(
+  username: string | undefined,
+  slug: string | undefined,
+) {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.list_likers_key, username, slug, "infinite"],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchListLikersPage(username!, slug!, PAGE_SIZE, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((acc, p) => acc + p.rows.length, 0);
+      return loaded < lastPage.totalCount ? loaded : undefined;
+    },
     enabled: !!username && !!slug,
     staleTime: 2 * 60_000,
   });

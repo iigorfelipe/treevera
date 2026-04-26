@@ -191,16 +191,37 @@ export async function fetchListLikers(
   username: string,
   slug: string,
 ): Promise<ListLiker[]> {
+  const page = await fetchListLikersPage(username, slug, 50, 0);
+  return page.rows;
+}
+
+export type ListLikersPage = {
+  rows: ListLiker[];
+  totalCount: number;
+};
+
+export async function fetchListLikersPage(
+  username: string,
+  slug: string,
+  limit: number,
+  offset: number,
+): Promise<ListLikersPage> {
   try {
     const { data, error } = await supabase.rpc("get_list_likers", {
       p_username: username,
       p_slug: slug,
+      p_limit: limit,
+      p_offset: offset,
     });
     if (error) throw error;
-    return (data as ListLiker[]) ?? [];
+    const rows = (data as ListLiker[]) ?? [];
+    return {
+      rows,
+      totalCount: rows[0]?.total_count ?? 0,
+    };
   } catch (err) {
     console.error("fetchListLikers:", err);
-    return [];
+    return { rows: [], totalCount: 0 };
   }
 }
 export async function createList(
@@ -364,11 +385,13 @@ export async function removeSpeciesFromList(
 export async function fetchListsWithSpecies(
   gbifKey: number,
   limit = 5,
+  offset = 0,
 ): Promise<{ rows: ListPreviewWithCreator[]; totalCount: number }> {
   try {
     const { data, error } = await supabase.rpc("get_lists_with_species", {
       p_gbif_key: gbifKey,
       p_limit: limit,
+      p_offset: offset,
     });
 
     if (error) throw error;

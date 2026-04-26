@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
-import { useGetUserLists } from "@/hooks/queries/useGetLists";
-import { ListX } from "lucide-react";
+import { useGetUserListsInfinite } from "@/hooks/queries/useGetLists";
+import { ListX, Loader2 } from "lucide-react";
 import { ListCard } from "@/modules/lists/list-card";
 import { ListCompactCard } from "@/modules/lists/list-compact-card";
 import {
@@ -15,31 +15,60 @@ import { motion } from "framer-motion";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 
-const PAGE_LIMIT = 50;
-
 export const UserListsPage = () => {
   const { t } = useTranslation();
   const { username } = useParams({ strict: false }) as { username: string };
   const userDb = useAtomValue(authStore.userDb);
   const isOwner = userDb?.username === username;
   const [viewMode, setViewMode] = useState<ListViewMode>("grid");
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const { data: profile, isLoading: loadingProfile } =
     useGetPublicProfile(username);
-  const { data: listsData, isLoading: loadingLists } = useGetUserLists(
-    profile?.id,
-    PAGE_LIMIT,
+  const {
+    data: listsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: loadingLists,
+  } = useGetUserListsInfinite(profile?.id);
+
+  const lists = useMemo(
+    () => listsData?.pages.flatMap((page) => page.rows) ?? [],
+    [listsData],
+  );
+  const totalCount = listsData?.pages[0]?.totalCount ?? lists.length;
+  const title = isOwner ? t("lists.myLists") : t("lists.listsOf", { username });
+  const isInitialLoading = loadingProfile || loadingLists;
+
+  const enrichedLists = useMemo(
+    () =>
+      lists.map((list) => ({
+        ...list,
+        user_username: username,
+        user_name: profile?.name ?? username,
+        user_avatar_url: profile?.avatar_url ?? null,
+      })),
+    [lists, profile, username],
   );
 
-  const lists = listsData?.rows ?? [];
-  const title = isOwner ? t("lists.myLists") : t("lists.listsOf", { username });
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!hasNextPage || !sentinel) return;
 
-  const enrichedLists = lists.map((list) => ({
-    ...list,
-    user_username: username,
-    user_name: profile?.name ?? username,
-    user_avatar_url: profile?.avatar_url ?? null,
-  }));
+    const scrollRoot = sentinel.closest("[data-scroll-root]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root: scrollRoot, rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col">
@@ -57,8 +86,8 @@ export const UserListsPage = () => {
                 <h1 className="text-base leading-tight font-bold">{title}</h1>
               )}
               <span className="text-muted-foreground text-xs">
-                {lists.length > 0
-                  ? `${lists.length} ${t("lists.title").toLowerCase()}`
+                {totalCount > 0
+                  ? `${totalCount} ${t("lists.title").toLowerCase()}`
                   : ""}
               </span>
             </div>
@@ -69,7 +98,7 @@ export const UserListsPage = () => {
       </motion.div>
 
       <div className="flex-1">
-        {loadingLists ? (
+        {isInitialLoading ? (
           <div className="p-4">
             <div
               className={
@@ -127,6 +156,21 @@ export const UserListsPage = () => {
                   )}
                 </motion.div>
               ))}
+
+              {hasNextPage && (
+                <div
+                  ref={sentinelRef}
+                  className={
+                    viewMode === "grid"
+                      ? "col-span-full flex items-center justify-center py-8"
+                      : "flex items-center justify-center py-8"
+                  }
+                >
+                  {isFetchingNextPage && (
+                    <Loader2 className="text-muted-foreground size-6 animate-spin" />
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

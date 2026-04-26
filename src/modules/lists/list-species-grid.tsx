@@ -49,7 +49,6 @@ type ListSpeciesGridProps = {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
-  scrollRef: React.RefObject<HTMLDivElement | null>;
   isOwner?: boolean;
   onRemove?: (gbifKey: number) => void;
   listId?: string;
@@ -62,7 +61,6 @@ export const ListSpeciesGrid = ({
   hasNextPage,
   isFetchingNextPage,
   fetchNextPage,
-  scrollRef,
   isOwner = false,
   onRemove,
   listId,
@@ -86,20 +84,22 @@ export const ListSpeciesGrid = ({
   }, [species, numColumns]);
 
   useEffect(() => {
-    if (!hasNextPage || !sentinelRef.current || !scrollRef.current) return;
+    const sentinel = sentinelRef.current;
+    if (!hasNextPage || !sentinel) return;
 
+    const scrollRoot = sentinel.closest("[data-scroll-root]");
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !isFetchingNextPage) {
           void fetchNextPage();
         }
       },
-      { root: scrollRef.current, rootMargin: "200px" },
+      { root: scrollRoot, rootMargin: "200px" },
     );
 
-    observer.observe(sentinelRef.current);
+    observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollRef]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleSelectSpecies = (gbifKey: number) => {
     navigate({

@@ -78,4 +78,5 @@ export interface ListLiker {
   user_name: string;
   user_username: string;
   user_avatar_url: string | null;
+  total_count?: number;
 }

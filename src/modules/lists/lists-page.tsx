@@ -67,7 +67,6 @@ export const ListsPage = () => {
   const [pickerSearch, setPickerSearch] = useState("");
   const [pickerDebouncedSearch, setPickerDebouncedSearch] = useState("");
 
-  const scrollRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const pickerScrollRef = useRef<HTMLDivElement>(null);
   const pickerSentinelRef = useRef<HTMLDivElement>(null);
@@ -138,15 +137,18 @@ export const ListsPage = () => {
   );
 
   useEffect(() => {
-    if (!hasNextPage || !sentinelRef.current || !scrollRef.current) return;
+    const sentinel = sentinelRef.current;
+    if (!hasNextPage || !sentinel) return;
+
+    const scrollRoot = sentinel.closest("[data-scroll-root]");
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !isFetchingNextPage)
           void fetchNextPage();
       },
-      { root: scrollRef.current, rootMargin: "200px" },
+      { root: scrollRoot, rootMargin: "200px" },
     );
-    observer.observe(sentinelRef.current);
+    observer.observe(sentinel);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
@@ -204,7 +206,7 @@ export const ListsPage = () => {
   const listGridClass = "grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4";
 
   return (
-    <div ref={scrollRef}>
+    <div>
       <div className="mx-auto flex max-w-7xl flex-col py-4">
         <motion.div
           initial={{ opacity: 0, y: -12 }}

@@ -1,9 +1,10 @@
 import { useParams } from "@tanstack/react-router";
-import { useGetListLikers } from "@/hooks/queries/useGetLists";
+import { useGetListLikersInfinite } from "@/hooks/queries/useGetLists";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -18,7 +19,38 @@ export const ListLikesPage = () => {
     listSlug: string;
   };
 
-  const { data: likers = [], isLoading } = useGetListLikers(username, listSlug);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useGetListLikersInfinite(username, listSlug);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const likers = useMemo(
+    () => data?.pages.flatMap((page) => page.rows) ?? [],
+    [data],
+  );
+  const totalCount = data?.pages[0]?.totalCount ?? likers.length;
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!hasNextPage || !sentinel) return;
+
+    const scrollRoot = sentinel.closest("[data-scroll-root]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root: scrollRoot, rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col">
@@ -34,14 +66,14 @@ export const ListLikesPage = () => {
             </h1>
             {!isLoading && (
               <span className="text-muted-foreground text-xs">
-                {likers.length} {t("lists.people")}
+                {totalCount} {t("lists.people")}
               </span>
             )}
           </div>
         </div>
       </motion.div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1">
         {isLoading ? (
           <div className="space-y-2 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -95,6 +127,17 @@ export const ListLikesPage = () => {
                 </Link>
               </motion.div>
             ))}
+
+            {hasNextPage && (
+              <div
+                ref={sentinelRef}
+                className="flex items-center justify-center py-8"
+              >
+                {isFetchingNextPage && (
+                  <Loader2 className="text-muted-foreground size-6 animate-spin" />
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

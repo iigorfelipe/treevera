@@ -1,9 +1,10 @@
 import { useParams } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { List } from "lucide-react";
+import { List, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useRef } from "react";
 import { Skeleton } from "@/common/components/ui/skeleton";
-import { useGetListsWithSpecies } from "@/hooks/queries/useGetLists";
+import { useGetListsWithSpeciesInfinite } from "@/hooks/queries/useGetLists";
 import { ListCard } from "@/modules/lists/list-card";
 
 export const SpecieListsPage = () => {
@@ -13,9 +14,38 @@ export const SpecieListsPage = () => {
   };
 
   const gbifKey = specieKey ? Number(specieKey) : undefined;
-  const { data, isLoading } = useGetListsWithSpecies(gbifKey, 100);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useGetListsWithSpeciesInfinite(gbifKey);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const lists = data?.rows ?? [];
+  const lists = useMemo(
+    () => data?.pages.flatMap((page) => page.rows) ?? [],
+    [data],
+  );
+  const totalCount = data?.pages[0]?.totalCount ?? lists.length;
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!hasNextPage || !sentinel) return;
+
+    const scrollRoot = sentinel.closest("[data-scroll-root]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root: scrollRoot, rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col">
@@ -31,14 +61,14 @@ export const SpecieListsPage = () => {
             </h1>
             {!isLoading && (
               <span className="text-muted-foreground text-xs">
-                {lists.length} {t("lists.lists")}
+                {totalCount} {t("lists.lists")}
               </span>
             )}
           </div>
         </div>
       </motion.div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1">
         {isLoading ? (
           <div className="space-y-2 py-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -64,6 +94,17 @@ export const SpecieListsPage = () => {
                 <ListCard list={list} />
               </motion.div>
             ))}
+
+            {hasNextPage && (
+              <div
+                ref={sentinelRef}
+                className="flex items-center justify-center py-8"
+              >
+                {isFetchingNextPage && (
+                  <Loader2 className="text-muted-foreground size-6 animate-spin" />
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

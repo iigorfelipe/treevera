@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
@@ -82,7 +82,6 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -191,7 +190,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
 
   return (
     <div className="flex h-full flex-col">
-      <div ref={scrollRef}>
+      <div>
         <ListDetailHero
           list={list}
           isOwner={isOwner}
@@ -222,7 +221,6 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
             hasNextPage={hasNextPage ?? false}
             isFetchingNextPage={isFetchingNextPage}
             fetchNextPage={() => void fetchNextPage()}
-            scrollRef={scrollRef}
             isOwner={isOwner}
             onRemove={(gbifKey) => setRemoveSpeciesGbifKey(gbifKey)}
             listId={list.id}

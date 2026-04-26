@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
-import { useGetUserLikedLists } from "@/hooks/queries/useGetLists";
-import { Heart } from "lucide-react";
+import { useGetUserLikedListsInfinite } from "@/hooks/queries/useGetLists";
+import { Heart, Loader2 } from "lucide-react";
 import { ListCard } from "@/modules/lists/list-card";
 import { ListCompactCard } from "@/modules/lists/list-compact-card";
 import {
@@ -15,26 +15,51 @@ import { motion } from "framer-motion";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 
-const PAGE_LIMIT = 50;
-
 export const UserLikedListsPage = () => {
   const { t } = useTranslation();
   const { username } = useParams({ strict: false }) as { username: string };
   const userDb = useAtomValue(authStore.userDb);
   const isOwner = userDb?.username === username;
   const [viewMode, setViewMode] = useState<ListViewMode>("grid");
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const { data: profile, isLoading: loadingProfile } =
     useGetPublicProfile(username);
-  const { data: listsData, isLoading: loadingLists } = useGetUserLikedLists(
-    profile?.id,
-    PAGE_LIMIT,
-  );
+  const {
+    data: listsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: loadingLists,
+  } = useGetUserLikedListsInfinite(profile?.id);
 
-  const lists = listsData?.rows ?? [];
+  const lists = useMemo(
+    () => listsData?.pages.flatMap((page) => page.rows) ?? [],
+    [listsData],
+  );
+  const totalCount = listsData?.pages[0]?.totalCount ?? lists.length;
   const title = isOwner
     ? t("lists.myLikedLists")
     : t("lists.likedListsOf", { username });
+  const isInitialLoading = loadingProfile || loadingLists;
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!hasNextPage || !sentinel) return;
+
+    const scrollRoot = sentinel.closest("[data-scroll-root]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root: scrollRoot, rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col">
@@ -52,8 +77,8 @@ export const UserLikedListsPage = () => {
                 <h1 className="text-base leading-tight font-bold">{title}</h1>
               )}
               <span className="text-muted-foreground text-xs">
-                {lists.length > 0
-                  ? `${lists.length} ${t("lists.title").toLowerCase()}`
+                {totalCount > 0
+                  ? `${totalCount} ${t("lists.title").toLowerCase()}`
                   : ""}
               </span>
             </div>
@@ -63,8 +88,8 @@ export const UserLikedListsPage = () => {
         </div>
       </motion.div>
 
-      <div className="flex-1 overflow-y-auto">
-        {loadingLists ? (
+      <div className="flex-1">
+        {isInitialLoading ? (
           <div className="p-4">
             <div
               className={
@@ -125,6 +150,21 @@ export const UserLikedListsPage = () => {
                   )}
                 </motion.div>
               ))}
+
+              {hasNextPage && (
+                <div
+                  ref={sentinelRef}
+                  className={
+                    viewMode === "grid"
+                      ? "col-span-full flex items-center justify-center py-8"
+                      : "flex items-center justify-center py-8"
+                  }
+                >
+                  {isFetchingNextPage && (
+                    <Loader2 className="text-muted-foreground size-6 animate-spin" />
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

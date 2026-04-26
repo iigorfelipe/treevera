@@ -321,6 +321,12 @@ export type SpeciesFavoriter = {
   user_name: string;
   user_username: string;
   user_avatar_url: string | null;
+  total_count?: number;
+};
+
+export type SpeciesFavoritersPage = {
+  rows: SpeciesFavoriter[];
+  totalCount: number;
 };
 
 export const fetchSpeciesFavCount = async (
@@ -339,14 +345,29 @@ export const fetchSpeciesFavCount = async (
 export const fetchSpeciesFavoriters = async (
   gbifKey: number,
 ): Promise<SpeciesFavoriter[]> => {
+  const page = await fetchSpeciesFavoritersPage(gbifKey, 0, 50);
+  return page.rows;
+};
+
+export const fetchSpeciesFavoritersPage = async (
+  gbifKey: number,
+  offset: number,
+  pageSize: number,
+): Promise<SpeciesFavoritersPage> => {
   const { data, error } = await supabase.rpc("get_species_favoriters", {
     p_gbif_key: gbifKey,
+    p_limit: pageSize,
+    p_offset: offset,
   });
   if (error) {
     console.error("Error fetching species favoriters:", error);
-    return [];
+    return { rows: [], totalCount: 0 };
   }
-  return (data as SpeciesFavoriter[]) ?? [];
+  const rows = (data as SpeciesFavoriter[]) ?? [];
+  return {
+    rows,
+    totalCount: rows[0]?.total_count ?? 0,
+  };
 };
 
 export const updateSeenSpeciesIucn = async (

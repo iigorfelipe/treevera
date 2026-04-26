@@ -12,6 +12,7 @@ import {
   fetchGalleryPage,
   fetchSpeciesFavCount,
   fetchSpeciesFavoriters,
+  fetchSpeciesFavoritersPage,
 } from "@/common/utils/supabase/user-seen-species";
 import type { FetchSeenSpeciesPageOptions } from "@/common/utils/supabase/user-seen-species";
 import { batchGetImageAttribution } from "@/common/utils/supabase/species-cache";
@@ -158,6 +159,29 @@ export const useGetSpeciesFavoriters = (gbifKey: number | undefined) => {
   return useQuery({
     queryKey: [QUERY_KEYS.species_favoriters_key, gbifKey],
     queryFn: () => fetchSpeciesFavoriters(gbifKey!),
+    enabled: !!gbifKey,
+    staleTime: 2 * 60_000,
+  });
+};
+
+const SPECIES_FAVORITERS_PAGE_SIZE = 50;
+
+export const useGetSpeciesFavoritersInfinite = (
+  gbifKey: number | undefined,
+) => {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.species_favoriters_key, gbifKey, "infinite"],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchSpeciesFavoritersPage(
+        gbifKey!,
+        pageParam as number,
+        SPECIES_FAVORITERS_PAGE_SIZE,
+      ),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((acc, p) => acc + p.rows.length, 0);
+      return loaded < lastPage.totalCount ? loaded : undefined;
+    },
     enabled: !!gbifKey,
     staleTime: 2 * 60_000,
   });
