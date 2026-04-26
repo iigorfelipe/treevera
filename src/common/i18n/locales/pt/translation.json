@@ -16,7 +16,10 @@
     "tagline": "Taxonomia interativa",
     "userAvatarAlt": "Usuário",
     "userMenu": "Menu do usuário",
-    "searchPlaceholder": "Pesquisar na árvore"
+    "searchPlaceholder": "Pesquisar na árvore",
+    "siteSearchPlaceholder": "Pesquisar...",
+    "openSearch": "Pesquisar",
+    "closeSearch": "Fechar busca"
   },
   "dialog": {
     "close": "Fechar"
@@ -415,7 +418,13 @@
     "searchTaxa": "Pesquisar taxa",
     "expandResults": "Expandir resultados",
     "minimizeResults": "Minimizar resultados",
+    "filterAll": "Todos",
+    "taxonomicTree": "Árvore taxonômica",
+    "users": "Usuários",
+    "result": "resultado",
     "results": "resultados",
+    "resultsFor": "Resultados para",
+    "unknownKingdom": "Reino desconhecido",
     "clearSearch": "Limpar",
     "noResults": "Nenhum resultado encontrado",
     "searchByNameOrKey": "Nome canônico ou chave GBIF...",
@@ -438,6 +447,33 @@
     "mainGroups": "Principais Grupos",
     "kingdom": "Reino",
     "yourShortcuts": "Seus {{title}}:"
+  },
+  "homeInitial": {
+    "heroTitle": "Encontre qualquer ser vivo já catalogado, das bactérias às baleias.",
+    "searchPlaceholder": "Pesquise em todo o site (espécies, listas, usuários)",
+    "popularSearches": "Buscas populares",
+    "kingdoms": {
+      "title": "Inicie por um reino",
+      "description": "Toda forma de vida pertence a um destes 7 grupos. Escolha um para expandir a árvore a partir dele."
+    },
+    "featuredLists": {
+      "title": "Explore através de listas",
+      "viewAll": "Ver todas as listas",
+      "empty": "Nenhuma lista em destaque por enquanto."
+    },
+    "dailyChallenge": {
+      "title": "Desafio do dia",
+      "description": "Receba uma espécie por dia e descubra o caminho dela do reino até o nome científico. Bom para fixar a hierarquia.",
+      "badge": "Desafio diário",
+      "findPathPrefix": "Encontre o caminho taxonômico de",
+      "loadingSpecies": "carregando",
+      "surpriseSpecies": "uma espécie surpresa",
+      "authenticatedHint": "Uma espécie nova por dia. Você tem até meia-noite para resolver e manter sua sequência.",
+      "guestHint": "Uma espécie nova por dia.",
+      "currentStreak": "Sequência atual",
+      "recordStreak": "Recorde",
+      "howItWorks": "Como funciona"
+    }
   },
   "challenge": {
     "title": "Desafio Diário",

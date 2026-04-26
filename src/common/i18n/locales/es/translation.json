@@ -16,7 +16,10 @@
     "tagline": "Taxonomía interactiva",
     "userAvatarAlt": "Usuario",
     "userMenu": "Menú de usuario",
-    "searchPlaceholder": "Buscar en el árbol"
+    "searchPlaceholder": "Buscar en el árbol",
+    "siteSearchPlaceholder": "Buscar...",
+    "openSearch": "Buscar",
+    "closeSearch": "Cerrar búsqueda"
   },
   "dialog": {
     "close": "Cerrar"
@@ -415,7 +418,13 @@
     "searchTaxa": "Buscar taxa",
     "expandResults": "Expandir resultados",
     "minimizeResults": "Minimizar resultados",
+    "filterAll": "Todos",
+    "taxonomicTree": "Árbol taxonómico",
+    "users": "Usuarios",
+    "result": "resultado",
     "results": "resultados",
+    "resultsFor": "Resultados para",
+    "unknownKingdom": "Reino desconocido",
     "clearSearch": "Limpiar",
     "noResults": "Sin resultados",
     "searchByNameOrKey": "Nombre canónico o clave GBIF...",
@@ -438,6 +447,33 @@
     "mainGroups": "Grupos Principales",
     "kingdom": "Reino",
     "yourShortcuts": "Tus {{title}}:"
+  },
+  "homeInitial": {
+    "heroTitle": "Encuentra cualquier ser vivo ya catalogado, desde bacterias hasta ballenas.",
+    "searchPlaceholder": "Busca en todo el sitio (especies, listas, usuarios)",
+    "popularSearches": "Búsquedas populares",
+    "kingdoms": {
+      "title": "Empieza por un reino",
+      "description": "Toda forma de vida pertenece a uno de estos 7 grupos. Elige uno para expandir el árbol desde allí."
+    },
+    "featuredLists": {
+      "title": "Explora a través de listas",
+      "viewAll": "Ver todas las listas",
+      "empty": "Aún no hay listas destacadas."
+    },
+    "dailyChallenge": {
+      "title": "Desafío del día",
+      "description": "Recibe una especie por día y descubre su camino desde el reino hasta el nombre científico. Ideal para practicar la jerarquía.",
+      "badge": "Desafío diario",
+      "findPathPrefix": "Encuentra el camino taxonómico de",
+      "loadingSpecies": "cargando",
+      "surpriseSpecies": "una especie sorpresa",
+      "authenticatedHint": "Una especie nueva por día. Tienes hasta medianoche para resolverla y mantener tu racha.",
+      "guestHint": "Una especie nueva por día.",
+      "currentStreak": "Racha actual",
+      "recordStreak": "Récord",
+      "howItWorks": "Cómo funciona"
+    }
   },
   "challenge": {
     "title": "Desafío Diario",

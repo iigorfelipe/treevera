@@ -16,7 +16,10 @@
     "tagline": "Interactive taxonomy",
     "userAvatarAlt": "User",
     "userMenu": "User menu",
-    "searchPlaceholder": "Search the tree"
+    "searchPlaceholder": "Search the tree",
+    "siteSearchPlaceholder": "Search...",
+    "openSearch": "Search",
+    "closeSearch": "Close search"
   },
   "dialog": {
     "close": "Close"
@@ -415,7 +418,13 @@
     "searchTaxa": "Search taxa",
     "expandResults": "Expand results",
     "minimizeResults": "Minimize results",
+    "filterAll": "All",
+    "taxonomicTree": "Taxonomic tree",
+    "users": "Users",
+    "result": "result",
     "results": "results",
+    "resultsFor": "Results for",
+    "unknownKingdom": "Unknown kingdom",
     "clearSearch": "Clear",
     "noResults": "No results found",
     "searchByNameOrKey": "Canonical name or GBIF key...",
@@ -438,6 +447,33 @@
     "mainGroups": "Main Groups",
     "kingdom": "Kingdom",
     "yourShortcuts": "Your {{title}}:"
+  },
+  "homeInitial": {
+    "heroTitle": "Find any cataloged living organism, from bacteria to whales.",
+    "searchPlaceholder": "Search the whole site (species, lists, users)",
+    "popularSearches": "Popular searches",
+    "kingdoms": {
+      "title": "Start with a kingdom",
+      "description": "Every form of life belongs to one of these 7 groups. Choose one to expand the tree from there."
+    },
+    "featuredLists": {
+      "title": "Explore through lists",
+      "viewAll": "View all lists",
+      "empty": "No featured lists yet."
+    },
+    "dailyChallenge": {
+      "title": "Daily challenge",
+      "description": "Get one species per day and discover its path from kingdom to scientific name. Great for practicing the hierarchy.",
+      "badge": "Daily challenge",
+      "findPathPrefix": "Find the taxonomic path for",
+      "loadingSpecies": "loading",
+      "surpriseSpecies": "a surprise species",
+      "authenticatedHint": "One new species per day. You have until midnight to solve it and keep your streak.",
+      "guestHint": "One new species per day.",
+      "currentStreak": "Current streak",
+      "recordStreak": "Record",
+      "howItWorks": "How it works"
+    }
   },
   "challenge": {
     "title": "Daily Challenge",

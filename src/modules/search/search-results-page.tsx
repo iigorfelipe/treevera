@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, List, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { searchTaxa } from "@/services/apis/gbif";
 import { fetchPublicLists } from "@/common/utils/supabase/lists";
@@ -38,11 +39,11 @@ const OFFICIAL_KINGDOMS = [
 
 type Filter = "all" | "tree" | "lists" | "users";
 
-const FILTER_OPTIONS: Array<{ value: Filter; label: string }> = [
-  { value: "all", label: "Todos" },
-  { value: "tree", label: "\u00c1rvore taxon\u00f4mica" },
-  { value: "lists", label: "Listas" },
-  { value: "users", label: "Usu\u00e1rios" },
+const FILTER_OPTIONS: Array<{ value: Filter; labelKey: string }> = [
+  { value: "all", labelKey: "search.filterAll" },
+  { value: "tree", labelKey: "search.taxonomicTree" },
+  { value: "lists", labelKey: "lists.title" },
+  { value: "users", labelKey: "search.users" },
 ];
 
 function breadcrumb(r: Taxon) {
@@ -112,6 +113,7 @@ function TaxonItem({
 }
 
 function TaxaResults({ taxa }: { taxa: Taxon[] }) {
+  const { t } = useTranslation();
   const { navigateToTaxon } = useNavigateToTaxon();
 
   const groupedByKingdom = useMemo(() => {
@@ -162,7 +164,9 @@ function TaxaResults({ taxa }: { taxa: Taxon[] }) {
                   />
                 )}
                 <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                  {capitalizar(kingdom)}
+                  {kingdom === "unknown"
+                    ? t("search.unknownKingdom")
+                    : capitalizar(kingdom)}
                 </span>
                 <span className="text-muted-foreground text-xs">
                   ({group.length})
@@ -194,6 +198,8 @@ function TaxaResults({ taxa }: { taxa: Taxon[] }) {
 }
 
 function ListRow({ list }: { list: ListWithCreator }) {
+  const { t } = useTranslation();
+
   return (
     <Link
       to="/$username/lists/$listSlug"
@@ -214,8 +220,8 @@ function ListRow({ list }: { list: ListWithCreator }) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{list.title}</p>
         <p className="text-muted-foreground text-xs">
-          @{list.user_username} {"\u00b7"} {list.species_count} esp\u00e9cies{" "}
-          {"\u00b7"} {"\u2665"} {list.likes_count}
+          @{list.user_username} {"\u00b7"} {list.species_count}{" "}
+          {t("lists.species")} {"\u00b7"} {"\u2665"} {list.likes_count}
         </p>
       </div>
       <ChevronRight className="text-muted-foreground size-4 shrink-0" />
@@ -267,6 +273,8 @@ function Section({
   contentClassName?: string;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="overflow-hidden rounded-xl border">
       <div className="bg-muted/30 flex items-center gap-2 border-b px-4 py-3">
@@ -275,7 +283,7 @@ function Section({
         </span>
         {!loading && (
           <span className="text-muted-foreground ml-auto text-xs">
-            {count} resultado{count !== 1 ? "s" : ""}
+            {count} {t(count === 1 ? "search.result" : "search.results")}
           </span>
         )}
       </div>
@@ -284,7 +292,7 @@ function Section({
         <SectionSkeletons />
       ) : empty ? (
         <p className="text-muted-foreground px-4 py-6 text-center text-sm">
-          Nenhum resultado
+          {t("search.noResults")}
         </p>
       ) : (
         <div className={`divide-y ${contentClassName ?? ""}`}>{children}</div>
@@ -294,6 +302,7 @@ function Section({
 }
 
 export function SearchResultsPage({ query }: { query: string }) {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<Filter>("all");
 
   const decoded = query;
@@ -340,7 +349,7 @@ export function SearchResultsPage({ query }: { query: string }) {
   const allSections: SectionDef[] = [
     {
       key: "tree",
-      title: "\u00c1rvore taxon\u00f4mica",
+      title: t("search.taxonomicTree"),
       count: taxa.length,
       loading: taxaQuery.isLoading,
       contentClassName: "max-h-[32rem] overflow-y-auto",
@@ -348,14 +357,14 @@ export function SearchResultsPage({ query }: { query: string }) {
     },
     {
       key: "lists",
-      title: "Listas",
+      title: t("lists.title"),
       count: lists.length,
       loading: listsQuery.isLoading,
       children: lists.map((list) => <ListRow key={list.id} list={list} />),
     },
     {
       key: "users",
-      title: "Usu\u00e1rios",
+      title: t("search.users"),
       count: users.length,
       loading: usersQuery.isLoading,
       children: users.map((user) => <UserRow key={user.id} user={user} />),
@@ -378,7 +387,7 @@ export function SearchResultsPage({ query }: { query: string }) {
       <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-baseline gap-2">
           <p className="text-muted-foreground shrink-0 text-sm">
-            Resultados para
+            {t("search.resultsFor")}
           </p>
           <h1 className="truncate text-xl font-bold">"{decoded}"</h1>
         </div>
@@ -388,12 +397,12 @@ export function SearchResultsPage({ query }: { query: string }) {
           onValueChange={(value) => setFilter(value as Filter)}
         >
           <SelectTrigger className="w-full rounded-lg font-medium sm:w-60">
-            <SelectValue placeholder="Todos" />
+            <SelectValue placeholder={t("search.filterAll")} />
           </SelectTrigger>
           <SelectContent className="rounded-lg text-sm font-medium">
             {FILTER_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>

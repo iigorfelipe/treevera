@@ -244,13 +244,13 @@ export const AppHeader = () => {
                         autoComplete="off"
                         autoCorrect="off"
                         spellCheck={false}
-                        placeholder={t("nav.searchPlaceholder")}
+                        placeholder={t("header.siteSearchPlaceholder")}
                         disabled={loading}
                       />
                       <button
                         onClick={() => closeSearch()}
                         className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer p-1 transition-colors"
-                        aria-label={t("nav.close")}
+                        aria-label={t("header.closeSearch")}
                       >
                         <X className="size-3.5" />
                       </button>
@@ -278,13 +278,13 @@ export const AppHeader = () => {
                     autoComplete="off"
                     autoCorrect="off"
                     spellCheck={false}
-                    placeholder="Pesquisar..."
+                    placeholder={t("header.siteSearchPlaceholder")}
                     disabled={loading}
                   />
                   <button
                     onClick={() => closeSearch()}
                     className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer p-1 transition-colors"
-                    aria-label="Fechar"
+                    aria-label={t("header.closeSearch")}
                   >
                     <X className="size-3.5" />
                   </button>
@@ -294,7 +294,7 @@ export const AppHeader = () => {
               <motion.button
                 onClick={searchOpen ? handleSearch : () => setSearchOpen(true)}
                 className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors"
-                aria-label="Pesquisar"
+                aria-label={t("header.openSearch")}
                 disabled={loading}
                 whileTap={{ scale: 0.9 }}
               >

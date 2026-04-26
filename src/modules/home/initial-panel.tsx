@@ -73,6 +73,7 @@ const FEATURED_LIST_SKELETON_KEYS = [0, 1, 2];
 const DEFAULT_EXPANDED_KINGDOM_KEY = KEY_KINGDOM_BY_NAME.animalia;
 
 const WelcomeSearch = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
 
@@ -107,13 +108,15 @@ const WelcomeSearch = () => {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Pesquise em todo o site (espécies, listas, usuários)"
+          placeholder={t("homeInitial.searchPlaceholder")}
           className="placeholder:text-muted-foreground text-foreground min-w-0 flex-1 text-sm outline-none"
         />
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="text-muted-foreground text-xs">Buscas populares:</span>
+        <span className="text-muted-foreground text-xs">
+          {t("homeInitial.popularSearches")}:
+        </span>
         {POPULAR_SEARCHES.map((example) => (
           <Button
             key={example}
@@ -130,18 +133,22 @@ const WelcomeSearch = () => {
   );
 };
 
-const WelcomePanel = () => (
-  <section className="@container/welcome">
-    <header className="flex flex-col gap-6 @[900px]/welcome:flex-row @[900px]/welcome:items-start @[900px]/welcome:justify-between">
-      <div className="max-w-xl space-y-2">
-        <h1 className="text-2xl leading-tight font-semibold tracking-tight @[560px]/welcome:text-3xl @[1120px]/welcome:text-4xl">
-          Encontre qualquer ser vivo já catalogado, das bactérias às baleias.
-        </h1>
-      </div>
-      <WelcomeSearch />
-    </header>
-  </section>
-);
+const WelcomePanel = () => {
+  const { t } = useTranslation();
+
+  return (
+    <section className="@container/welcome">
+      <header className="flex flex-col gap-6 @[900px]/welcome:flex-row @[900px]/welcome:items-start @[900px]/welcome:justify-between">
+        <div className="max-w-xl space-y-2">
+          <h1 className="text-2xl leading-tight font-semibold tracking-tight @[560px]/welcome:text-3xl @[1120px]/welcome:text-4xl">
+            {t("homeInitial.heroTitle")}
+          </h1>
+        </div>
+        <WelcomeSearch />
+      </header>
+    </section>
+  );
+};
 
 const KingdomsSection = () => {
   const { t } = useTranslation();
@@ -223,10 +230,9 @@ const KingdomsSection = () => {
   return (
     <section className="@container/kingdoms space-y-3">
       <div className="text-foreground max-w-3xl py-3">
-        <h2 className="text-lg font-bold">Inicie por um reino</h2>
+        <h2 className="text-lg font-bold">{t("homeInitial.kingdoms.title")}</h2>
         <p className="text-muted-foreground mt-1 max-w-3xl text-sm leading-6">
-          Toda forma de vida pertence a um destes 7 grupos. Escolha um para
-          expandir a árvore a partir dele.
+          {t("homeInitial.kingdoms.description")}
         </p>
       </div>
 
@@ -294,7 +300,7 @@ const FeaturedListsHomeSection = () => {
     <section className="@container/featured space-y-3">
       <div className="flex flex-col items-start gap-3 @[520px]/featured:flex-row @[520px]/featured:items-center @[520px]/featured:justify-between">
         <h2 className="text-foreground text-xl font-bold">
-          Explore através de listas
+          {t("homeInitial.featuredLists.title")}
         </h2>
 
         <Button
@@ -304,7 +310,7 @@ const FeaturedListsHomeSection = () => {
           onClick={() => void navigate({ to: "/lists" })}
           className="w-full @[520px]/featured:w-auto"
         >
-          Ver todas as listas
+          {t("homeInitial.featuredLists.viewAll")}
         </Button>
       </div>
 
@@ -330,7 +336,7 @@ const FeaturedListsHomeSection = () => {
 
         {!isLoading && featuredLists.length === 0 && (
           <p className="text-muted-foreground px-2 py-8 text-center text-sm">
-            Nenhuma lista em destaque por enquanto.
+            {t("homeInitial.featuredLists.empty")}
           </p>
         )}
       </div>
@@ -410,10 +416,11 @@ const DailyChallengeHomeSection = () => {
     <section className="text-foreground @container/daily py-3">
       <div className="mb-5 flex flex-col items-start gap-3 @[760px]/daily:flex-row @[760px]/daily:justify-between">
         <div>
-          <h2 className="text-xl font-bold">Desafio do dia</h2>
+          <h2 className="text-xl font-bold">
+            {t("homeInitial.dailyChallenge.title")}
+          </h2>
           <p className="text-muted-foreground mt-1 max-w-3xl text-sm leading-6">
-            Receba uma espécie por dia e descubra o caminho dela do reino até o
-            nome científico. Bom para fixar a hierarquia.
+            {t("homeInitial.dailyChallenge.description")}
           </p>
         </div>
 
@@ -437,7 +444,7 @@ const DailyChallengeHomeSection = () => {
           <div className="min-w-0">
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <span className="border-border text-muted-foreground rounded-md border px-3 py-1 text-xs font-bold">
-                Desafio diário
+                {t("homeInitial.dailyChallenge.badge")}
               </span>
               <span className="text-muted-foreground text-sm">
                 {formattedSelectedDate}
@@ -452,15 +459,15 @@ const DailyChallengeHomeSection = () => {
             </div>
 
             <h3 className="text-foreground text-xl leading-tight font-bold @[640px]/daily:text-2xl">
-              Encontre o caminho taxonômico de{" "}
+              {t("homeInitial.dailyChallenge.findPathPrefix")}{" "}
               {isLoading ? (
                 <span className="text-muted-foreground inline-flex items-center gap-2">
                   <Loader2 className="size-5 animate-spin" />
-                  carregando
+                  {t("homeInitial.dailyChallenge.loadingSpecies")}
                 </span>
               ) : isError || !speciesName ? (
                 <span className="text-muted-foreground">
-                  uma espécie surpresa
+                  {t("homeInitial.dailyChallenge.surpriseSpecies")}
                 </span>
               ) : (
                 <span className="font-semibold text-emerald-600">
@@ -471,25 +478,25 @@ const DailyChallengeHomeSection = () => {
 
             <p className="text-muted-foreground mt-3 text-sm">
               {isAuthenticated
-                ? "Uma espécie nova por dia. Você tem até meia-noite para resolver e manter sua sequência."
-                : "Uma espécie nova por dia."}
+                ? t("homeInitial.dailyChallenge.authenticatedHint")
+                : t("homeInitial.dailyChallenge.guestHint")}
             </p>
 
             {isAuthenticated && (
               <div className="text-muted-foreground mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
                 <span>
-                  Sequência atual:{" "}
+                  {t("homeInitial.dailyChallenge.currentStreak")}:{" "}
                   <strong className="text-foreground">
-                    {currentStreak} dias
+                    {currentStreak} {t("challenge.statsDays")}
                   </strong>
                 </span>
                 <span className="text-border hidden @[420px]/daily:inline">
                   |
                 </span>
                 <span>
-                  Recorde:{" "}
+                  {t("homeInitial.dailyChallenge.recordStreak")}:{" "}
                   <strong className="text-foreground">
-                    {recordStreak} dias
+                    {recordStreak} {t("challenge.statsDays")}
                   </strong>
                 </span>
               </div>
@@ -511,7 +518,7 @@ const DailyChallengeHomeSection = () => {
               className="h-9"
             >
               <HelpCircle className="size-4" />
-              Como funciona
+              {t("homeInitial.dailyChallenge.howItWorks")}
             </Button>
           </div>
         </div>
