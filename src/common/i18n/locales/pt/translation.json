@@ -166,7 +166,7 @@
     "memberSince": "Usuário desde",
     "globalRanking": "Ranking Global",
     "rankingHint": "Pontue em espécies exploradas, precisão de acerto e velocidade para continuar subindo.",
-"notFoundTitle": "Perfil não encontrado",
+    "notFoundTitle": "Perfil não encontrado",
     "notFoundDescription": "O usuário @{{username}} não existe."
   },
   "progress": {
@@ -454,7 +454,16 @@
     "popularSearches": "Buscas populares",
     "kingdoms": {
       "title": "Inicie por um reino",
-      "description": "Toda forma de vida pertence a um destes 7 grupos. Escolha um para expandir a árvore a partir dele."
+      "description": "Toda forma de vida pertence a um destes 7 grupos. Escolha um para expandir a árvore a partir dele.",
+      "cardDescriptions": {
+        "animalia": "Organismos multicelulares heterótrofos que se alimentam de outros seres vivos.",
+        "archaea": "Micro-organismos unicelulares procariontes que vivem em ambientes extremos.",
+        "bacteria": "Organismos unicelulares procariontes, encontrados em praticamente todos os ambientes.",
+        "chromista": "Grupo diverso de organismos, incluindo algas marrons e diatomáceas, geralmente fotossintéticos.",
+        "fungi": "Organismos heterótrofos com parede celular quitinosa, decompositores na natureza.",
+        "plantae": "Organismos fotossintéticos multicelulares, produtores de oxigênio e base das cadeias alimentares.",
+        "protozoa": "Organismos unicelulares eucariontes, geralmente móveis e heterótrofos."
+      }
     },
     "featuredLists": {
       "title": "Explore através de listas",

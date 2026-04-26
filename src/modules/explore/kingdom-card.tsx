@@ -25,6 +25,7 @@ interface KingdomCardItemProps {
   onGroupSelect: (pathNode: KingdomGroup["pathNode"]) => void;
   active?: boolean;
   compressed?: boolean;
+  description?: string;
   onActiveChange?: (
     kingdomKey: ExploreInfo["kingdomKey"],
     active: boolean,
@@ -40,6 +41,7 @@ const KingdomCardItemComponent = ({
   onGroupSelect,
   active = false,
   compressed = false,
+  description,
   onActiveChange,
   className,
 }: KingdomCardItemProps) => {
@@ -133,7 +135,7 @@ const KingdomCardItemComponent = ({
                 className="pointer-events-auto overflow-hidden"
               >
                 <p className="mt-2 max-w-md text-sm leading-5 font-semibold text-white/75">
-                  {item.description}
+                  {description ?? item.description}
                 </p>
 
                 <div className="mt-3">

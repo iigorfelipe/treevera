@@ -166,7 +166,7 @@
     "memberSince": "Member since",
     "globalRanking": "Global Ranking",
     "rankingHint": "Score on explored species, hit accuracy and speed to keep climbing.",
-"notFoundTitle": "Profile not found",
+    "notFoundTitle": "Profile not found",
     "notFoundDescription": "The user @{{username}} does not exist."
   },
   "progress": {
@@ -454,7 +454,16 @@
     "popularSearches": "Popular searches",
     "kingdoms": {
       "title": "Start with a kingdom",
-      "description": "Every form of life belongs to one of these 7 groups. Choose one to expand the tree from there."
+      "description": "Every form of life belongs to one of these 7 groups. Choose one to expand the tree from there.",
+      "cardDescriptions": {
+        "animalia": "Multicellular heterotrophic organisms that feed on other living beings.",
+        "archaea": "Unicellular prokaryotic microorganisms that live in extreme environments.",
+        "bacteria": "Unicellular prokaryotic organisms found in practically every environment.",
+        "chromista": "A diverse group of organisms including brown algae and diatoms, usually photosynthetic.",
+        "fungi": "Heterotrophic organisms with chitinous cell walls, decomposers in nature.",
+        "plantae": "Multicellular photosynthetic organisms that produce oxygen and form the base of food chains.",
+        "protozoa": "Unicellular eukaryotic organisms, usually mobile and heterotrophic."
+      }
     },
     "featuredLists": {
       "title": "Explore through lists",

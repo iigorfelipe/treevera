@@ -21,7 +21,10 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/common/components/ui/button";
-import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
+import {
+  KEY_KINGDOM_BY_NAME,
+  NAME_KINGDOM_BY_KEY,
+} from "@/common/constants/tree";
 import type { PathNode } from "@/common/types/tree-atoms";
 import { cn } from "@/common/utils/cn";
 import { ChallengeDatePicker } from "@/modules/challenge/daily/challenge-date-picker";
@@ -71,6 +74,14 @@ const POPULAR_SEARCHES = [
 const FEATURED_LIST_SKELETON_KEYS = [0, 1, 2];
 
 const DEFAULT_EXPANDED_KINGDOM_KEY = KEY_KINGDOM_BY_NAME.animalia;
+
+const getKingdomCardDescriptionKey = (kingdomKey: number) => {
+  const kingdomName = NAME_KINGDOM_BY_KEY[kingdomKey];
+
+  return kingdomName
+    ? `homeInitial.kingdoms.cardDescriptions.${kingdomName}`
+    : null;
+};
 
 const WelcomeSearch = () => {
   const { t } = useTranslation();
@@ -259,6 +270,9 @@ const KingdomsSection = () => {
             const compressed = focusedLayout && !active;
             const hasHorizontalRoom =
               gridColumns > 1 && index % gridColumns < gridColumns - 1;
+            const descriptionKey = getKingdomCardDescriptionKey(
+              item.kingdomKey,
+            );
 
             return (
               <KingdomCardItem
@@ -266,6 +280,11 @@ const KingdomsSection = () => {
                 item={item}
                 kingdomLabel={kingdomLabel}
                 mainGroupsLabel={mainGroupsLabel}
+                description={
+                  descriptionKey
+                    ? t(descriptionKey, { defaultValue: item.description })
+                    : item.description
+                }
                 active={active}
                 compressed={compressed}
                 onActiveChange={setKingdomActive}
