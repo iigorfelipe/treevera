@@ -361,40 +361,44 @@ function buildMetaHtml(
   }
 
   result = result.replace(
-    /<meta property="og:title"[^>]*\/>/,
+    /<meta\s+property="og:title"[^>]*\/>/,
     `<meta property="og:title" content="${e.title}" />`,
   );
   result = result.replace(
-    /<meta property="og:description"[^>]*\/>/,
+    /<meta\s+property="og:description"[^>]*\/>/,
     `<meta property="og:description" content="${e.description}" />`,
   );
   result = result.replace(
-    /<meta property="og:image"[^>]*\/>/,
+    /<meta\s+property="og:image"[^>]*\/>/,
     `<meta property="og:image" content="${e.image}" />`,
   );
   result = result.replace(
-    /<meta property="og:url"[^>]*\/>/,
+    /<meta\s+property="og:url"[^>]*\/>/,
     `<meta property="og:url" content="${e.url}" />`,
   );
   result = result.replace(
-    /<meta property="og:locale"[^>]*\/>/,
+    /<meta\s+property="og:locale"[^>]*\/>/,
     `<meta property="og:locale" content="${e.locale}" />`,
   );
   result = result.replace(
-    /<meta name="robots"[^>]*\/>/,
+    /<meta\s+name="robots"[^>]*\/>/,
     `<meta name="robots" content="${e.robots}" />`,
   );
   result = result.replace(
-    /<meta name="twitter:title"[^>]*\/>/,
+    /<meta\s+name="twitter:title"[^>]*\/>/,
     `<meta name="twitter:title" content="${e.title}" />`,
   );
   result = result.replace(
-    /<meta name="twitter:description"[^>]*\/>/,
+    /<meta\s+name="twitter:description"[^>]*\/>/,
     `<meta name="twitter:description" content="${e.description}" />`,
   );
   result = result.replace(
-    /<meta name="twitter:image"[^>]*\/>/,
+    /<meta\s+name="twitter:image"[^>]*\/>/,
     `<meta name="twitter:image" content="${e.image}" />`,
+  );
+  result = result.replace(
+    /<meta\s+name="description"[^>]*\/>/,
+    `<meta name="description" content="${e.description}" />`,
   );
   result = result.replace(
     /<link rel="canonical"[^>]*>/,
