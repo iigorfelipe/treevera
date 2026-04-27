@@ -1,4 +1,4 @@
-import type { Taxon } from "@/common/types/api";
+import type { Rank, Taxon } from "@/common/types/api";
 import { EXCLUDED_RANKS } from "@/common/utils/tree/children";
 
 const dedupeGenusSpecies = (list: Taxon[], tokens: string[]): Taxon[] => {
@@ -74,18 +74,52 @@ const dedupeGenusSpecies = (list: Taxon[], tokens: string[]): Taxon[] => {
   return results;
 };
 
-export function processTaxaResults(raw: Taxon[], q: string): Taxon[] {
+const dedupeByTaxon = (list: Taxon[]): Taxon[] => {
+  const seen = new Set<string>();
+
+  return list.filter((taxon) => {
+    const d = taxon as unknown as Record<string, unknown>;
+    const key =
+      d["nubKey"] ?? taxon.key ?? taxon.canonicalName ?? taxon.scientificName;
+    if (!key) return false;
+
+    const normalizedKey = String(key).toLowerCase();
+    if (seen.has(normalizedKey)) return false;
+
+    seen.add(normalizedKey);
+    return true;
+  });
+};
+
+export function processTaxaResults(
+  raw: Taxon[],
+  q: string,
+  rank?: Rank,
+  kingdom?: string,
+): Taxon[] {
   const qLower = q.trim().toLowerCase();
   const tokens = qLower.split(/\s+/).filter(Boolean);
+  const normalizedKingdom = kingdom?.toLowerCase();
 
   const filtered = raw.filter((r) => {
     const det = r as unknown as Record<string, unknown>;
     const nub = det["nubKey"] as number | undefined;
     const hasNub = typeof nub === "number" && nub > 0;
-    return hasNub && !EXCLUDED_RANKS.has(r.rank);
+    const rankOk = rank ? r.rank === rank : !EXCLUDED_RANKS.has(r.rank);
+    const resultKingdom = String(r.kingdom ?? "").toLowerCase();
+    const kingdomOk =
+      !normalizedKingdom ||
+      resultKingdom === normalizedKingdom ||
+      (resultKingdom === "metazoa" && normalizedKingdom === "animalia");
+
+    return hasNub && kingdomOk && rankOk;
   });
 
   const dedupeFiltered = (list: Taxon[]): Taxon[] => {
+    if (rank && rank !== "GENUS" && rank !== "SPECIES") {
+      return dedupeByTaxon(list);
+    }
+
     if (tokens.length >= 2) {
       const exact = list.filter((r) => {
         const name = (

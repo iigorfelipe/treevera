@@ -34,7 +34,7 @@ const SEARCH_RANKS: SearchRankFilter[] = [
   "SPECIES",
 ];
 
-type SearchFilterValue = {
+export type SearchFilterValue = {
   kingdom: string;
   rank: Rank | "";
 };
@@ -61,10 +61,11 @@ export function SearchFilter({ value, onChange }: SearchFilterProps) {
     (option) => option.name === value.kingdom,
   );
 
-  const label = value.rank
-    ? t(`ranks.${value.rank}`)
+  const label = value.rank ? t(`ranks.${value.rank}`) : t("search.filter");
+  const ariaLabel = value.rank
+    ? `${t("search.filter")}: ${capitalizar(value.kingdom)} | ${label}`
     : value.kingdom
-      ? capitalizar(value.kingdom)
+      ? `${t("search.filter")}: ${capitalizar(value.kingdom)}`
       : t("search.filter");
 
   const selectKingdom = (kingdom: string) => {
@@ -96,7 +97,7 @@ export function SearchFilter({ value, onChange }: SearchFilterProps) {
         <button
           type="button"
           className="flex h-9.5 shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border px-2 text-sm font-medium"
-          aria-label={t("search.filter")}
+          aria-label={ariaLabel}
         >
           {selectedKingdom && (
             <Image
@@ -105,7 +106,14 @@ export function SearchFilter({ value, onChange }: SearchFilterProps) {
               className="size-5"
             />
           )}
-          <span className="max-w-24 truncate">{label}</span>
+          {selectedKingdom && value.rank && (
+            <span className="text-border" aria-hidden="true">
+              |
+            </span>
+          )}
+          {(!selectedKingdom || value.rank) && (
+            <span className="max-w-24 truncate">{label}</span>
+          )}
         </button>
       </DropdownMenuTrigger>
 

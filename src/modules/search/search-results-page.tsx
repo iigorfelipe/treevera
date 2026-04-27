@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight, List, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { searchTaxa } from "@/services/apis/gbif";
+import { searchTaxaByUserQuery } from "@/services/apis/species-search";
 import { fetchPublicLists } from "@/common/utils/supabase/lists";
 import { searchUsers } from "@/common/utils/supabase/search";
 import { processTaxaResults } from "@/common/utils/tree/search-taxa";
@@ -26,6 +26,10 @@ import { useNavigateToTaxon } from "@/hooks/use-navigate-to-taxon";
 import type { Taxon } from "@/common/types/api";
 import type { ListWithCreator } from "@/common/types/lists";
 import type { UserSearchResult } from "@/common/utils/supabase/search";
+import {
+  SearchFilter,
+  type SearchFilterValue,
+} from "@/modules/tree/search/search-filter";
 
 const OFFICIAL_KINGDOMS = [
   "animalia",
@@ -262,6 +266,7 @@ function Section({
   title,
   count,
   loading,
+  headerAction,
   empty,
   emptyHint,
   contentClassName,
@@ -270,6 +275,7 @@ function Section({
   title: string;
   count: number;
   loading: boolean;
+  headerAction?: ReactNode;
   empty: boolean;
   emptyHint?: ReactNode;
   contentClassName?: string;
@@ -283,11 +289,14 @@ function Section({
         <span className="text-xs font-semibold tracking-[0.18em] uppercase">
           {title}
         </span>
-        {!loading && (
-          <span className="text-muted-foreground ml-auto text-xs">
-            {count} {t(count === 1 ? "search.result" : "search.results")}
-          </span>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {headerAction}
+          {!loading && (
+            <span className="text-muted-foreground shrink-0 text-xs">
+              {count} {t(count === 1 ? "search.result" : "search.results")}
+            </span>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -307,23 +316,44 @@ function Section({
 }
 
 export function SearchResultsPage({ query }: { query: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [filter, setFilter] = useState<Filter>("all");
+  const [taxonomicFilter, setTaxonomicFilter] = useState<SearchFilterValue>({
+    kingdom: "",
+    rank: "",
+  });
 
   const decoded = query;
+  const activeKingdom = taxonomicFilter.kingdom;
+  const activeRank = taxonomicFilter.rank;
+  const language = i18n.resolvedLanguage ?? i18n.language;
   const hyphenSuggestion = useMemo(() => {
+    if (activeRank !== "SPECIES") return null;
+
     const trimmed = decoded.trim();
     if (!/\s/.test(trimmed)) return null;
 
     const suggestion = trimmed.replace(/\s+/g, "-");
     return suggestion !== trimmed ? suggestion : null;
-  }, [decoded]);
+  }, [activeRank, decoded]);
 
   const [taxaQuery, listsQuery, usersQuery] = useQueries({
     queries: [
       {
-        queryKey: [QUERY_KEYS.search_taxa_key, decoded],
-        queryFn: () => searchTaxa(decoded),
+        queryKey: [
+          QUERY_KEYS.search_taxa_key,
+          decoded,
+          activeKingdom,
+          activeRank,
+          language,
+        ],
+        queryFn: () =>
+          searchTaxaByUserQuery(
+            decoded,
+            activeKingdom || undefined,
+            activeRank || undefined,
+            language,
+          ),
         enabled: decoded.length > 0,
         staleTime: 1000 * 60 * 5,
       },
@@ -342,7 +372,12 @@ export function SearchResultsPage({ query }: { query: string }) {
     ],
   });
 
-  const taxa = processTaxaResults((taxaQuery.data as Taxon[]) ?? [], decoded);
+  const taxa = processTaxaResults(
+    (taxaQuery.data as Taxon[]) ?? [],
+    decoded,
+    activeRank || undefined,
+    activeKingdom || undefined,
+  );
   const lists = listsQuery.data?.rows ?? [];
   const users = usersQuery.data ?? [];
 
@@ -354,6 +389,7 @@ export function SearchResultsPage({ query }: { query: string }) {
     title: string;
     count: number;
     loading: boolean;
+    headerAction?: ReactNode;
     emptyHint?: ReactNode;
     contentClassName?: string;
     children: ReactNode;
@@ -365,6 +401,9 @@ export function SearchResultsPage({ query }: { query: string }) {
       title: t("search.taxonomicTree"),
       count: taxa.length,
       loading: taxaQuery.isLoading,
+      headerAction: (
+        <SearchFilter value={taxonomicFilter} onChange={setTaxonomicFilter} />
+      ),
       contentClassName: "max-h-[32rem] overflow-y-auto",
       emptyHint: hyphenSuggestion ? (
         <p className="text-muted-foreground/80 mx-auto mt-1 max-w-sm text-xs">
@@ -410,21 +449,23 @@ export function SearchResultsPage({ query }: { query: string }) {
           <h1 className="truncate text-xl font-bold">"{decoded}"</h1>
         </div>
 
-        <Select
-          value={filter}
-          onValueChange={(value) => setFilter(value as Filter)}
-        >
-          <SelectTrigger className="w-full rounded-lg font-medium sm:w-60">
-            <SelectValue placeholder={t("search.filterAll")} />
-          </SelectTrigger>
-          <SelectContent className="rounded-lg text-sm font-medium">
-            {FILTER_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {t(option.labelKey)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <Select
+            value={filter}
+            onValueChange={(value) => setFilter(value as Filter)}
+          >
+            <SelectTrigger className="w-full rounded-lg font-medium sm:w-60">
+              <SelectValue placeholder={t("search.filterAll")} />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg text-sm font-medium">
+              {FILTER_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {t(option.labelKey)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <hr className="border-border mb-8" />
@@ -436,6 +477,7 @@ export function SearchResultsPage({ query }: { query: string }) {
             title={section.title}
             count={section.count}
             loading={section.loading}
+            headerAction={section.headerAction}
             empty={!section.loading && section.count === 0}
             emptyHint={section.emptyHint}
             contentClassName={section.contentClassName}

@@ -6,7 +6,7 @@ import { capitalizar } from "@/common/utils/string";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { Image } from "@/common/components/image";
-import type { Taxon } from "@/common/types/api";
+import type { Rank, Taxon } from "@/common/types/api";
 
 const OFFICIAL_KINGDOMS = [
   "animalia",
@@ -20,6 +20,7 @@ const OFFICIAL_KINGDOMS = [
 
 interface SearchResultsProps {
   query: string;
+  rank: Rank | "";
   results: Taxon[];
   selected: Taxon | null;
   minimized: boolean;
@@ -29,6 +30,7 @@ interface SearchResultsProps {
 
 export function SearchResults({
   query,
+  rank,
   results,
   selected,
   minimized,
@@ -41,12 +43,14 @@ export function SearchResults({
   };
   const { t } = useTranslation();
   const hyphenSuggestion = useMemo(() => {
+    if (rank !== "SPECIES") return null;
+
     const trimmed = query.trim();
     if (!/\s/.test(trimmed)) return null;
 
     const suggestion = trimmed.replace(/\s+/g, "-");
     return suggestion !== trimmed ? suggestion : null;
-  }, [query]);
+  }, [query, rank]);
 
   const groupedByKingdom = useMemo(() => {
     const map = new Map<string, Taxon[]>();

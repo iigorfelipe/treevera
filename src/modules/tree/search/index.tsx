@@ -47,6 +47,7 @@ export const Search = () => {
       {results !== null && (
         <SearchResults
           query={q}
+          rank={rank}
           results={results}
           selected={selected}
           minimized={minimized}
