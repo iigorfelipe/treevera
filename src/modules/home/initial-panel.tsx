@@ -1,13 +1,5 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type FormEvent,
-} from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { LayoutGroup } from "framer-motion";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
@@ -26,7 +18,6 @@ import {
   NAME_KINGDOM_BY_KEY,
 } from "@/common/constants/tree";
 import type { PathNode } from "@/common/types/tree-atoms";
-import { cn } from "@/common/utils/cn";
 import { ChallengeDatePicker } from "@/modules/challenge/daily/challenge-date-picker";
 import { Timer } from "@/modules/challenge/components/timer";
 import { FeaturedListCard } from "@/modules/lists/featured-list-card";
@@ -57,12 +48,6 @@ const calcDailyStreak = (dates: { date: string; completed: boolean }[]) => {
   }
 
   return streak;
-};
-
-const getKingdomGridColumns = (width: number) => {
-  if (width >= 1080) return 4;
-  if (width >= 700) return 3;
-  return 1;
 };
 
 const POPULAR_SEARCHES = [
@@ -166,32 +151,9 @@ const KingdomsSection = () => {
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
   const { navigateToNodes, toggleNode } = useTreeNavigation();
   const scrollThenNavigate = useScrollThenNavigate();
-  const [activeKingdomKey, setActiveKingdomKey] = useState<number | null>(null);
-  const [lockedGridHeight, setLockedGridHeight] = useState<number | null>(null);
-  const [gridColumns, setGridColumns] = useState(1);
-  const gridRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const element = gridRef.current;
-    if (!element) return;
-
-    const updateColumns = (width = element.getBoundingClientRect().width) => {
-      setGridColumns(getKingdomGridColumns(width));
-    };
-
-    updateColumns();
-    setLockedGridHeight(element.getBoundingClientRect().height);
-
-    if (typeof ResizeObserver === "undefined") return;
-
-    const observer = new ResizeObserver(([entry]) => {
-      updateColumns(entry.contentRect.width);
-    });
-
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, []);
+  const [activeKingdomKey, setActiveKingdomKey] = useState(
+    DEFAULT_EXPANDED_KINGDOM_KEY,
+  );
 
   const selectKingdom = useCallback(
     (kingdomKey: number) => {
@@ -207,36 +169,20 @@ const KingdomsSection = () => {
     [navigateToNodes, scrollThenNavigate],
   );
 
-  const setKingdomActive = useCallback(
-    (kingdomKey: number, active: boolean) => {
-      if (active) {
-        setLockedGridHeight((current) => {
-          if (current) return current;
-          return gridRef.current?.getBoundingClientRect().height ?? null;
-        });
-      }
-
-      setActiveKingdomKey((current) => {
-        if (active) return kingdomKey;
-        return current === kingdomKey ? null : current;
-      });
-    },
+  const activateKingdom = useCallback(
+    (kingdomKey: number) => setActiveKingdomKey(kingdomKey),
     [],
   );
 
-  const clearKingdomActive = useCallback(() => {
-    setActiveKingdomKey(null);
-  }, []);
-
-  const focusedLayout = lockedGridHeight !== null;
-  const effectiveActiveKingdomKey = focusedLayout
-    ? (activeKingdomKey ?? DEFAULT_EXPANDED_KINGDOM_KEY)
-    : activeKingdomKey;
-
-  if (!exploreInfos) return null;
+  if (!exploreInfos?.length) return null;
 
   const kingdomLabel = t("explore.kingdom");
   const mainGroupsLabel = t("explore.mainGroups");
+  const effectiveActiveKingdomKey = exploreInfos.some(
+    (item) => item.kingdomKey === activeKingdomKey,
+  )
+    ? activeKingdomKey
+    : exploreInfos[0].kingdomKey;
 
   return (
     <section className="@container/kingdoms space-y-3">
@@ -247,65 +193,35 @@ const KingdomsSection = () => {
         </p>
       </div>
 
-      <LayoutGroup id="home-kingdoms">
-        <div
-          ref={gridRef}
-          onMouseLeave={clearKingdomActive}
-          onBlur={(event) => {
-            const nextTarget = event.relatedTarget;
-            if (nextTarget && event.currentTarget.contains(nextTarget as Node))
-              return;
-            clearKingdomActive();
-          }}
-          className={cn(
-            "grid gap-2 overflow-hidden transition-[height] duration-300 ease-out",
-            focusedLayout
-              ? "auto-rows-fr @[700px]/kingdoms:grid-cols-3 @[1080px]/kingdoms:grid-cols-4"
-              : "@[700px]/kingdoms:grid-cols-3 @[1080px]/kingdoms:grid-cols-4",
-          )}
-          style={lockedGridHeight ? { height: lockedGridHeight } : undefined}
-        >
-          {exploreInfos.map((item, index) => {
-            const active = effectiveActiveKingdomKey === item.kingdomKey;
-            const compressed = focusedLayout && !active;
-            const hasHorizontalRoom =
-              gridColumns > 1 && index % gridColumns < gridColumns - 1;
-            const descriptionKey = getKingdomCardDescriptionKey(
-              item.kingdomKey,
-            );
+      <div className="flex flex-col @[620px]/kingdoms:h-88 @[620px]/kingdoms:flex-row">
+        {exploreInfos.map((item) => {
+          const active = effectiveActiveKingdomKey === item.kingdomKey;
+          const descriptionKey = getKingdomCardDescriptionKey(item.kingdomKey);
 
-            return (
-              <KingdomCardItem
-                key={item.kingdomKey}
-                item={item}
-                kingdomLabel={kingdomLabel}
-                mainGroupsLabel={mainGroupsLabel}
-                description={
-                  descriptionKey
-                    ? t(descriptionKey, { defaultValue: item.description })
-                    : item.description
-                }
-                active={active}
-                compressed={compressed}
-                onActiveChange={setKingdomActive}
-                onSelect={selectKingdom}
-                onGroupSelect={selectGroup}
-                className={cn(
-                  "h-full",
-                  focusedLayout
-                    ? "min-h-0"
-                    : "min-h-34 @[700px]/kingdoms:min-h-38",
-                  active && focusedLayout && "row-span-3",
-                  active &&
-                    focusedLayout &&
-                    hasHorizontalRoom &&
-                    "@[700px]/kingdoms:col-span-2",
-                )}
-              />
-            );
-          })}
-        </div>
-      </LayoutGroup>
+          return (
+            <KingdomCardItem
+              key={item.kingdomKey}
+              item={item}
+              active={active}
+              kingdomLabel={kingdomLabel}
+              mainGroupsLabel={mainGroupsLabel}
+              description={
+                descriptionKey
+                  ? t(descriptionKey, { defaultValue: item.description })
+                  : item.description
+              }
+              onActivate={activateKingdom}
+              onSelect={selectKingdom}
+              onGroupSelect={selectGroup}
+              className={
+                active
+                  ? "h-72 @[620px]/kingdoms:h-full @[620px]/kingdoms:flex-[3.6]"
+                  : "h-19 @[620px]/kingdoms:h-full @[620px]/kingdoms:flex-1"
+              }
+            />
+          );
+        })}
+      </div>
     </section>
   );
 };

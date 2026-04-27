@@ -1,53 +1,38 @@
 import { memo, useCallback } from "react";
-import { AnimatePresence, motion, type Transition } from "framer-motion";
 
 import type { ExploreInfo } from "@/common/types/tree-atoms";
 import { cn } from "@/common/utils/cn";
 
 type KingdomGroup = ExploreInfo["mainGroups"][number];
 
-const CARD_LAYOUT_TRANSITION: Transition = {
-  layout: { type: "spring", stiffness: 360, damping: 34 },
-};
-
-const DETAILS_TRANSITION: Transition = {
-  duration: 0.22,
-  ease: [0.22, 1, 0.36, 1],
-};
-
 const MAX_VISIBLE_GROUPS = 3;
 
 interface KingdomCardItemProps {
   item: ExploreInfo;
+  active: boolean;
   kingdomLabel: string;
   mainGroupsLabel: string;
   onSelect: (kingdomKey: ExploreInfo["kingdomKey"]) => void;
   onGroupSelect: (pathNode: KingdomGroup["pathNode"]) => void;
-  active?: boolean;
-  compressed?: boolean;
   description?: string;
-  onActiveChange?: (
-    kingdomKey: ExploreInfo["kingdomKey"],
-    active: boolean,
-  ) => void;
+  onActivate: (kingdomKey: ExploreInfo["kingdomKey"]) => void;
   className?: string;
 }
 
 const KingdomCardItemComponent = ({
   item,
+  active,
   kingdomLabel,
   mainGroupsLabel,
   onSelect,
   onGroupSelect,
-  active = false,
-  compressed = false,
   description,
-  onActiveChange,
+  onActivate,
   className,
 }: KingdomCardItemProps) => {
-  const handleActive = useCallback(
-    () => onActiveChange?.(item.kingdomKey, true),
-    [item.kingdomKey, onActiveChange],
+  const handleActivate = useCallback(
+    () => onActivate(item.kingdomKey),
+    [item.kingdomKey, onActivate],
   );
 
   const handleSelect = useCallback(
@@ -56,14 +41,12 @@ const KingdomCardItemComponent = ({
   );
 
   return (
-    <motion.div
-      layout
-      transition={CARD_LAYOUT_TRANSITION}
-      onMouseEnter={handleActive}
-      onFocus={handleActive}
+    <article
+      onMouseEnter={handleActivate}
+      onFocus={handleActivate}
       className={cn(
-        "group @container/kingdom-card relative flex w-full cursor-pointer overflow-hidden rounded-md bg-black text-left text-white shadow-sm will-change-transform hover:shadow-2xl",
-        active && "z-10",
+        "group @container/kingdom-card relative min-w-0 cursor-pointer overflow-hidden bg-black text-left text-white shadow-sm transition-[height,flex,box-shadow,opacity] duration-300 ease-out hover:shadow-2xl",
+        active ? "z-10 opacity-100" : "opacity-90 hover:opacity-100",
         className,
       )}
     >
@@ -88,89 +71,77 @@ const KingdomCardItemComponent = ({
       <div
         className={cn(
           "pointer-events-none relative z-20 flex h-full w-full flex-col",
-          compressed
-            ? "p-3 @[240px]/kingdom-card:p-4"
-            : active
-              ? "p-4 @[240px]/kingdom-card:p-5 @[340px]/kingdom-card:p-6"
-              : "p-4 @[240px]/kingdom-card:p-5 @[340px]/kingdom-card:p-7",
+          active
+            ? "p-5 @[320px]/kingdom-card:p-6"
+            : "items-center justify-end p-2 @[90px]/kingdom-card:items-start @[120px]/kingdom-card:p-3",
         )}
       >
-        <span
-          className={cn(
-            "w-fit rounded-full font-bold text-white uppercase",
-            compressed ? "px-1.5 py-0.5 text-[8px]" : "px-2 py-0.5 text-[9px]",
-          )}
-          style={{ backgroundColor: item.primaryColor }}
-        >
-          {kingdomLabel}
-        </span>
+        {active && (
+          <span
+            className="w-fit rounded-full px-2 py-0.5 text-[9px] font-bold text-white uppercase"
+            style={{ backgroundColor: item.primaryColor }}
+          >
+            {kingdomLabel}
+          </span>
+        )}
 
-        <motion.div
-          layout
-          className={cn(
-            "mt-auto",
-            compressed ? "pt-3" : active ? "pt-4" : "pt-6",
+        <div className="mt-auto">
+          {!active && (
+            <img
+              src={item.icon}
+              alt=""
+              aria-hidden="true"
+              className="size-8 rounded-md object-contain @[90px]/kingdom-card:hidden"
+            />
           )}
-        >
-          <motion.h2
-            layout
+
+          <h2
             className={cn(
-              "leading-none font-black text-white",
-              compressed
-                ? "text-base @[240px]/kingdom-card:text-lg"
-                : "text-xl @[240px]/kingdom-card:text-2xl",
+              "font-black wrap-break-word text-white",
+              active
+                ? "text-2xl leading-none @[320px]/kingdom-card:text-3xl"
+                : "hidden text-xs leading-tight @[90px]/kingdom-card:block @[120px]/kingdom-card:text-sm @[160px]/kingdom-card:text-lg",
             )}
           >
             {item.kingdomName}
-          </motion.h2>
+          </h2>
 
-          <AnimatePresence initial={false}>
-            {active && (
-              <motion.div
-                key="details"
-                initial={{ height: 0, opacity: 0, y: 8 }}
-                animate={{ height: "auto", opacity: 1, y: 0 }}
-                exit={{ height: 0, opacity: 0, y: 4 }}
-                transition={DETAILS_TRANSITION}
-                className="pointer-events-auto overflow-hidden"
-              >
-                <p className="mt-2 max-w-md text-sm leading-5 font-semibold text-white/75">
-                  {description ?? item.description}
+          {active && (
+            <div className="pointer-events-auto mt-3">
+              <p className="max-w-md text-sm leading-5 font-semibold text-white/75">
+                {description ?? item.description}
+              </p>
+
+              <div className="mt-4">
+                <p className="text-[8px] font-bold text-white/45 uppercase">
+                  {mainGroupsLabel}:
                 </p>
 
-                <div className="mt-3">
-                  <p className="text-[8px] font-bold text-white/45 uppercase">
-                    {mainGroupsLabel}:
-                  </p>
-
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {item.mainGroups
-                      .slice(0, MAX_VISIBLE_GROUPS)
-                      .map((group) => (
-                        <button
-                          key={group.groupName}
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onGroupSelect(group.pathNode);
-                          }}
-                          className="cursor-pointer rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-left text-xs font-bold backdrop-blur-sm transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2"
-                          style={{
-                            color: item.primaryColor,
-                            outlineColor: item.primaryColor,
-                          }}
-                        >
-                          {group.groupName}
-                        </button>
-                      ))}
-                  </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {item.mainGroups.slice(0, MAX_VISIBLE_GROUPS).map((group) => (
+                    <button
+                      key={group.groupName}
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onGroupSelect(group.pathNode);
+                      }}
+                      className="cursor-pointer rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-left text-xs font-bold backdrop-blur-sm transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2"
+                      style={{
+                        color: item.primaryColor,
+                        outlineColor: item.primaryColor,
+                      }}
+                    >
+                      {group.groupName}
+                    </button>
+                  ))}
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </motion.div>
+    </article>
   );
 };
 
