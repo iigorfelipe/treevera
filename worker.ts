@@ -2,7 +2,7 @@ const CRAWLERS =
   /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkshare|w3c_validator|whatsapp|telegram|discord/i;
 
 interface Env {
-  ASSETS: { fetch(request: Request): Promise<Response> };
+  ASSETS?: { fetch(request: Request): Promise<Response> };
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
   SITE_URL: string;
@@ -278,6 +278,52 @@ const NOINDEX_PATTERNS = [
 
 function shouldNoindex(pathname: string): boolean {
   return NOINDEX_PATTERNS.some((re) => re.test(pathname));
+}
+
+function shouldTrySpaFallback(request: Request): boolean {
+  if (request.method !== "GET" && request.method !== "HEAD") return false;
+
+  const url = new URL(request.url);
+  const lastSegment = url.pathname.split("/").pop() ?? "";
+  if (lastSegment.includes(".")) return false;
+
+  const accept = request.headers.get("accept") ?? "";
+  return accept.includes("text/html") || accept.includes("*/*") || !accept;
+}
+
+function toGetRequest(request: Request): Request {
+  if (request.method !== "HEAD") return request;
+  return new Request(request, { method: "GET" });
+}
+
+function toHeadResponse(response: Response): Response {
+  return new Response(null, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
+}
+
+async function fetchAsset(request: Request, env: Env): Promise<Response> {
+  if (!env.ASSETS?.fetch) {
+    return new Response("ASSETS binding not configured", { status: 500 });
+  }
+
+  try {
+    const assetRequest = toGetRequest(request);
+    let response = await env.ASSETS.fetch(assetRequest);
+
+    if (response.status === 404 && shouldTrySpaFallback(request)) {
+      const fallbackUrl = new URL("/", request.url);
+      response = await env.ASSETS.fetch(
+        new Request(fallbackUrl.toString(), assetRequest),
+      );
+    }
+
+    return request.method === "HEAD" ? toHeadResponse(response) : response;
+  } catch {
+    return new Response("Asset fetch failed", { status: 500 });
+  }
 }
 
 function buildMetaHtml(
@@ -628,21 +674,21 @@ export default {
 
       const userAgent = request.headers.get("user-agent") ?? "";
       if (!CRAWLERS.test(userAgent)) {
-        return env.ASSETS.fetch(request);
+        return fetchAsset(request, env);
       }
 
       if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-        return env.ASSETS.fetch(request);
+        return fetchAsset(request, env);
       }
 
       const meta = await getMetaForRoute(url.pathname, env, locale);
       if (!meta) {
-        return env.ASSETS.fetch(request);
+        return fetchAsset(request, env);
       }
 
       const robots = shouldNoindex(url.pathname) ? "noindex,follow" : undefined;
 
-      const assetResponse = await env.ASSETS.fetch(request);
+      const assetResponse = await fetchAsset(request, env);
       const contentType = assetResponse.headers.get("content-type") ?? "";
       if (!contentType.includes("text/html")) {
         return assetResponse;
@@ -680,7 +726,7 @@ export default {
         headers,
       });
     } catch {
-      return env.ASSETS.fetch(request);
+      return fetchAsset(request, env);
     }
   },
 };
