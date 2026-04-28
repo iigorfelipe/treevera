@@ -2,6 +2,7 @@ const CRAWLERS =
   /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkshare|w3c_validator|whatsapp|telegram|discord/i;
 
 const SITEMAP_CACHE_TTL_SECONDS = 3600;
+const SITEMAP_CACHE_VERSION = "species-slugs-v1";
 
 interface Env {
   ASSETS?: { fetch(request: Request): Promise<Response> };
@@ -319,7 +320,7 @@ function getCacheApi(): Cache | null {
 
 function getSitemapCacheKey(request: Request): Request {
   const url = new URL(request.url);
-  url.search = "";
+  url.search = `?v=${SITEMAP_CACHE_VERSION}`;
   return new Request(url.toString(), { method: "GET" });
 }
 
