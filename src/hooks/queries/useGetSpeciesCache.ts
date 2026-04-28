@@ -1,8 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+
 import type { StatusCode } from "@/common/components/vulnerability-badge";
 import {
   getSpeciesCache,
   upsertSpeciesCache,
+  type SpeciesCacheRow,
 } from "@/common/utils/supabase/species-cache";
 import { getSpecieImageFromINaturalist } from "@/services/apis/iNaturalist";
 import {
@@ -12,7 +15,6 @@ import {
 import { getSpeciesStatusFromIUCN } from "@/services/apis/iucn";
 import { getSpecieImageFromGBIF } from "@/services/apis/gbif";
 import { QUERY_KEYS } from "./keys";
-import { useTranslation } from "react-i18next";
 
 type WikiDescription = {
   title?: string;
@@ -36,16 +38,21 @@ export type SpeciesCacheResult = {
   genusDetails: WikiDescription | null;
 };
 
+type FetchFreshParams = {
+  gbifKey: number;
+  canonicalName: string;
+  genusName?: string;
+  family?: string;
+  lang: string;
+  base?: SpeciesCacheResult;
+};
+
 const BIOLOGICAL_TERMS = [
   "genus",
-  "gênero",
-  "género",
+  "genero",
   "species",
-  "espécie",
-  "espécies",
   "especie",
   "especies",
-  "família",
   "familia",
   "family",
   "planta",
@@ -55,24 +62,48 @@ const BIOLOGICAL_TERMS = [
   "fungo",
   "fungus",
   "taxon",
-  "táxon",
   "taxonom",
   "phylum",
   "filo",
 ];
 
 const DISAMBIGUATION_SUFFIXES: Record<string, string[]> = {
-  pt: ["(gênero)", "(género)", "(botânica)", "(zoologia)", "(biologia)"],
+  pt: [
+    "(gênero)",
+    "(género)",
+    "(botânica)",
+    "(zoologia)",
+    "(biologia)",
+    "(genero)",
+    "(botanica)",
+  ],
   en: ["(genus)", "(biology)", "(botany)"],
-  es: ["(género)", "(botánica)", "(biología)", "(zoología)"],
+  es: [
+    "(género)",
+    "(botánica)",
+    "(biología)",
+    "(zoología)",
+    "(genero)",
+    "(botanica)",
+    "(biologia)",
+    "(zoologia)",
+  ],
 };
+
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 function isBiologicalArticle(wikiData: {
   description?: string;
   extract?: string;
 }): boolean {
-  const text =
-    `${wikiData.description ?? ""} ${(wikiData.extract ?? "").slice(0, 300)}`.toLowerCase();
+  const text = normalizeSearchText(
+    `${wikiData.description ?? ""} ${(wikiData.extract ?? "").slice(0, 300)}`,
+  );
   return BIOLOGICAL_TERMS.some((term) => text.includes(term));
 }
 
@@ -140,6 +171,149 @@ async function fetchDescriptionWithFallback(
   return null;
 }
 
+function buildCachedResult(cached: SpeciesCacheRow): SpeciesCacheResult {
+  const cachedDescription =
+    cached.has_description && cached.description_pt
+      ? {
+          title: cached.scientific_name,
+          language: "pt",
+          extractHtml: "",
+          extract: cached.description_pt,
+          description: "",
+        }
+      : null;
+
+  return {
+    image:
+      cached.has_image && cached.image_url
+        ? {
+            imgUrl: cached.image_url,
+            source: cached.image_source ?? "",
+            licenseCode: cached.image_license ?? "",
+            author: cached.image_attribution ?? "",
+          }
+        : null,
+    iucnCode: (cached.iucn_code as StatusCode | null) ?? null,
+    iucnTrend: cached.iucn_population_trend ?? null,
+    iucnYear: cached.iucn_assessment_year ?? null,
+    wikiDetails: cachedDescription,
+    genusDetails: null,
+  };
+}
+
+function shouldRefreshCachedSpecies(cached: SpeciesCacheRow) {
+  return !cached.has_image || !cached.has_iucn || !cached.has_description;
+}
+
+function mergeSpeciesCacheResults(
+  cached: SpeciesCacheResult,
+  fresh: SpeciesCacheResult | null,
+): SpeciesCacheResult {
+  if (!fresh) return cached;
+
+  return {
+    image: fresh.image ?? cached.image,
+    iucnCode: fresh.iucnCode ?? cached.iucnCode,
+    iucnTrend: fresh.iucnTrend ?? cached.iucnTrend,
+    iucnYear: fresh.iucnYear ?? cached.iucnYear,
+    wikiDetails: fresh.wikiDetails ?? cached.wikiDetails,
+    genusDetails: fresh.genusDetails ?? cached.genusDetails,
+  };
+}
+
+async function fetchFreshSpeciesCache({
+  gbifKey,
+  canonicalName,
+  genusName,
+  family,
+  lang,
+  base,
+}: FetchFreshParams): Promise<SpeciesCacheResult> {
+  const [
+    iNatResult,
+    wikiImgResult,
+    wikiDetailResult,
+    iucnResult,
+    genusResult,
+  ] = await Promise.allSettled([
+    getSpecieImageFromINaturalist({ canonicalName }),
+    getSpecieImageFromWikipedia({ canonicalName }),
+    fetchDescriptionWithFallback(canonicalName, lang, true),
+    getSpeciesStatusFromIUCN(canonicalName),
+    genusName
+      ? fetchDescriptionWithFallback(genusName, lang, true)
+      : Promise.resolve(null),
+  ]);
+
+  const iNatImg =
+    iNatResult.status === "fulfilled" ? iNatResult.value : null;
+  const wikiImg =
+    wikiImgResult.status === "fulfilled" ? wikiImgResult.value : null;
+  const wikiDetails =
+    wikiDetailResult.status === "fulfilled" ? wikiDetailResult.value : null;
+  const iucn = iucnResult.status === "fulfilled" ? iucnResult.value : null;
+  const genusDetails =
+    genusResult.status === "fulfilled" ? genusResult.value : null;
+
+  let image = iNatImg ?? wikiImg ?? null;
+  if (!image) {
+    try {
+      const gbifImg = await getSpecieImageFromGBIF({ specieKey: gbifKey });
+      image = gbifImg ?? null;
+    } catch {
+      //
+    }
+  }
+
+  const description = wikiDetails?.extract ?? wikiDetails?.description ?? null;
+  const baseDescription =
+    base?.wikiDetails?.extract ?? base?.wikiDetails?.description ?? null;
+  const finalImage = image
+    ? {
+        imgUrl: image.imgUrl,
+        source: image.source,
+        licenseCode: image.licenseCode ?? "",
+        author: image.author ?? "",
+      }
+    : base?.image ?? null;
+  const finalIucnCode = iucn?.code ?? base?.iucnCode ?? null;
+  const finalIucnTrend = iucn?.trend ?? base?.iucnTrend ?? null;
+  const finalIucnYear = iucn?.year ?? base?.iucnYear ?? null;
+  const finalDescription = description ?? baseDescription;
+  const expires_at = new Date(
+    Date.now() + 30 * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
+  void upsertSpeciesCache({
+    gbif_key: gbifKey,
+    scientific_name: canonicalName,
+    image_url: finalImage?.imgUrl ?? null,
+    image_source: finalImage?.source ?? null,
+    image_attribution: finalImage?.author ?? null,
+    image_license: finalImage?.licenseCode ?? null,
+    iucn_code: finalIucnCode,
+    iucn_population_trend: finalIucnTrend,
+    iucn_assessment_year: finalIucnYear,
+    description_pt: lang === "pt" ? finalDescription : baseDescription,
+    description_source: null,
+    vernacular_names: null,
+    family: family ?? null,
+    expires_at,
+    has_image: !!finalImage,
+    has_iucn: finalIucnCode !== null,
+    has_description: !!finalDescription,
+  });
+
+  return {
+    image: finalImage,
+    iucnCode: finalIucnCode,
+    iucnTrend: finalIucnTrend,
+    iucnYear: finalIucnYear,
+    wikiDetails: wikiDetails ?? base?.wikiDetails ?? null,
+    genusDetails: genusDetails ?? base?.genusDetails ?? null,
+  };
+}
+
 export const useGetSpeciesCache = (
   gbifKey: number | undefined,
   canonicalName: string | undefined,
@@ -148,171 +322,48 @@ export const useGetSpeciesCache = (
 ) => {
   const { i18n } = useTranslation();
   const lang = i18n.language?.slice(0, 2) ?? "pt";
+  const queryClient = useQueryClient();
+  const queryKey = [QUERY_KEYS.species_cache_key, gbifKey, lang] as const;
 
   return useQuery<SpeciesCacheResult | null>({
-    queryKey: [QUERY_KEYS.species_cache_key, gbifKey, lang],
+    queryKey,
     queryFn: async (): Promise<SpeciesCacheResult | null> => {
       if (!gbifKey || !canonicalName) return null;
 
       const cached = await getSpeciesCache(gbifKey);
 
       if (cached) {
-        let iucnCode = (cached.iucn_code as StatusCode | null) ?? null;
-        let iucnTrend = cached.iucn_population_trend ?? null;
-        let iucnYear = cached.iucn_assessment_year ?? null;
+        const cachedResult = buildCachedResult(cached);
 
-        if (!cached.has_iucn) {
-          const freshIucn = await getSpeciesStatusFromIUCN(canonicalName);
-          if (freshIucn) {
-            iucnCode = freshIucn.code;
-            iucnTrend = freshIucn.trend;
-            iucnYear = freshIucn.year;
-            void upsertSpeciesCache({
-              gbif_key: gbifKey,
-              scientific_name: canonicalName,
-              image_url: cached.image_url,
-              image_source: cached.image_source,
-              image_attribution: cached.image_attribution,
-              image_license: cached.image_license,
-              iucn_code: freshIucn.code,
-              iucn_population_trend: freshIucn.trend,
-              iucn_assessment_year: freshIucn.year,
-              description_pt: cached.description_pt,
-              description_source: cached.description_source,
-              vernacular_names: cached.vernacular_names,
-              family: cached.family ?? family ?? null,
-              expires_at: cached.expires_at,
-              has_image: cached.has_image,
-              has_iucn: true,
-              has_description: cached.has_description,
-            });
-          }
+        if (shouldRefreshCachedSpecies(cached)) {
+          void fetchFreshSpeciesCache({
+            gbifKey,
+            canonicalName,
+            genusName,
+            family,
+            lang,
+            base: cachedResult,
+          }).then((fresh) => {
+            queryClient.setQueryData(
+              queryKey,
+              mergeSpeciesCacheResults(cachedResult, fresh),
+            );
+          });
         }
 
-        const usesCachedPt =
-          lang === "pt" && cached.has_description && !!cached.description_pt;
-
-        const [speciesResult, genusResult] = await Promise.allSettled([
-          fetchDescriptionWithFallback(canonicalName, lang, true).then(
-            (fresh) =>
-              fresh ??
-              (usesCachedPt
-                ? {
-                    language: "pt",
-                    extract: cached.description_pt!,
-                    description: "",
-                  }
-                : null),
-          ),
-          genusName
-            ? fetchDescriptionWithFallback(genusName, lang, true)
-            : Promise.resolve(null),
-        ]);
-
-        const wikiDetails =
-          speciesResult.status === "fulfilled" ? speciesResult.value : null;
-        const genusDetails =
-          genusResult.status === "fulfilled" ? genusResult.value : null;
-
-        return {
-          image:
-            cached.has_image && cached.image_url
-              ? {
-                  imgUrl: cached.image_url,
-                  source: cached.image_source ?? "",
-                  licenseCode: cached.image_license ?? "",
-                  author: cached.image_attribution ?? "",
-                }
-              : null,
-          iucnCode,
-          iucnTrend,
-          iucnYear,
-          wikiDetails,
-          genusDetails,
-        };
+        return cachedResult;
       }
 
-      const [
-        iNatResult,
-        wikiImgResult,
-        wikiDetailResult,
-        iucnResult,
-        genusResult,
-      ] = await Promise.allSettled([
-        getSpecieImageFromINaturalist({ canonicalName }),
-        getSpecieImageFromWikipedia({ canonicalName }),
-        fetchDescriptionWithFallback(canonicalName, lang, true),
-        getSpeciesStatusFromIUCN(canonicalName),
-        genusName
-          ? fetchDescriptionWithFallback(genusName, lang, true)
-          : Promise.resolve(null),
-      ]);
-
-      const iNatImg =
-        iNatResult.status === "fulfilled" ? iNatResult.value : null;
-      const wikiImg =
-        wikiImgResult.status === "fulfilled" ? wikiImgResult.value : null;
-      const wikiDetails =
-        wikiDetailResult.status === "fulfilled" ? wikiDetailResult.value : null;
-      const iucn = iucnResult.status === "fulfilled" ? iucnResult.value : null;
-      const genusDetails =
-        genusResult.status === "fulfilled" ? genusResult.value : null;
-
-      let image = iNatImg ?? wikiImg ?? null;
-      if (!image) {
-        try {
-          const gbifImg = await getSpecieImageFromGBIF({ specieKey: gbifKey });
-          image = gbifImg ?? null;
-        } catch {
-          //
-        }
-      }
-
-      const description =
-        wikiDetails?.extract ?? wikiDetails?.description ?? null;
-
-      const expires_at = new Date(
-        Date.now() + 30 * 24 * 60 * 60 * 1000,
-      ).toISOString();
-
-      void upsertSpeciesCache({
-        gbif_key: gbifKey,
-        scientific_name: canonicalName,
-        image_url: image?.imgUrl ?? null,
-        image_source: image?.source ?? null,
-        image_attribution: image?.author ?? null,
-        image_license: image?.licenseCode ?? null,
-        iucn_code: iucn?.code ?? null,
-        iucn_population_trend: iucn?.trend ?? null,
-        iucn_assessment_year: iucn?.year ?? null,
-        description_pt: lang === "pt" ? description : null,
-        description_source: null,
-        vernacular_names: null,
-        family: family ?? null,
-        expires_at,
-        has_image: !!image,
-        has_iucn: iucn !== null,
-        has_description: !!description,
+      return await fetchFreshSpeciesCache({
+        gbifKey,
+        canonicalName,
+        genusName,
+        family,
+        lang,
       });
-
-      return {
-        image: image
-          ? {
-              imgUrl: image.imgUrl,
-              source: image.source,
-              licenseCode: image.licenseCode ?? "",
-              author: image.author ?? "",
-            }
-          : null,
-        iucnCode: iucn?.code ?? null,
-        iucnTrend: iucn?.trend ?? null,
-        iucnYear: iucn?.year ?? null,
-        wikiDetails,
-        genusDetails,
-      };
     },
     enabled: !!gbifKey && !!canonicalName,
-    staleTime: 1000 * 60 * 60 * 24 * 30, // 30 dias
-    gcTime: 1000 * 60 * 60 * 24 * 7, // 7 dias
+    staleTime: 1000 * 60 * 60 * 24 * 30,
+    gcTime: 1000 * 60 * 60 * 24 * 7,
   });
 };

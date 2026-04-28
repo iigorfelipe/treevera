@@ -120,6 +120,7 @@ export const SpecieDetail = ({
     undefined,
     specieDetail?.family,
   );
+  const primaryImage = cache?.image ?? gallery[0] ?? null;
 
   const { data: specie } = useGetSeenSpecieByKey(specieKey);
   const { data: favCount = 0 } = useGetSpeciesFavCount(specieKey);
@@ -245,10 +246,10 @@ export const SpecieDetail = ({
           family: specieDetail.family ?? null,
           kingdom: specieDetail.kingdom ?? null,
           iucn_status: cache?.iucnCode ?? null,
-          image_url: gallery[0]?.imgUrl ?? null,
-          image_source: gallery[0]?.source ?? null,
-          image_attribution: gallery[0]?.author ?? null,
-          image_license: gallery[0]?.licenseCode ?? null,
+          image_url: primaryImage?.imgUrl ?? null,
+          image_source: primaryImage?.source ?? null,
+          image_attribution: primaryImage?.author ?? null,
+          image_license: primaryImage?.licenseCode ?? null,
           is_favorite: isFav,
           is_in_gallery: isInGallery,
           seen_at: specie?.seen_at ?? "",
@@ -302,6 +303,7 @@ export const SpecieDetail = ({
                     onToggleFav={toggleFav}
                     favCount={favCount}
                     specieKey={specieKey}
+                    initialImage={primaryImage}
                     quickActions={
                       detailQuickMenuSpecies ? (
                         <SpeciesCardQuickMenu

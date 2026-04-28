@@ -8,7 +8,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getRankIcon } from "@/common/utils/tree/ranks";
 import { Image } from "@/common/components/image";
 import { useGetSpecieDetail } from "@/hooks/queries/useGetSpecieDetail";
-import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
+import {
+  useGetSpecieGallery,
+  type GalleryImage,
+} from "@/hooks/queries/useGetSpecieGallery";
 import { inatImageUrl } from "@/common/utils/image-size";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
@@ -24,6 +27,7 @@ type Props = {
   favCount?: number;
   specieKey?: number;
   quickActions?: ReactNode;
+  initialImage?: GalleryImage | null;
 };
 
 function getSourceIdFromName(source?: string) {
@@ -42,6 +46,7 @@ export const SpecieImageDetail = ({
   favCount = 0,
   specieKey,
   quickActions,
+  initialImage,
 }: Props) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -76,11 +81,16 @@ export const SpecieImageDetail = ({
     KEY_KINGDOM_BY_NAME[specieDetail.kingdom.toLowerCase() as "animalia"],
   );
 
-  if (isLoadingGallery) {
+  const displayGallery = [
+    ...(initialImage ? [initialImage] : []),
+    ...gallery.filter((img) => img.imgUrl !== initialImage?.imgUrl),
+  ];
+
+  if (isLoadingGallery && displayGallery.length === 0) {
     return <SkeletonImage />;
   }
 
-  const currentImage = gallery[selectedIndex] ?? null;
+  const currentImage = displayGallery[selectedIndex] ?? null;
 
   const showCounter = optimisticCount > 0;
 
@@ -92,8 +102,8 @@ export const SpecieImageDetail = ({
   };
 
   const goPrev = () =>
-    goTo((selectedIndex - 1 + gallery.length) % gallery.length);
-  const goNext = () => goTo((selectedIndex + 1) % gallery.length);
+    goTo((selectedIndex - 1 + displayGallery.length) % displayGallery.length);
+  const goNext = () => goTo((selectedIndex + 1) % displayGallery.length);
 
   const handleFavToggle = () => {
     if (!isFav) {
@@ -113,7 +123,7 @@ export const SpecieImageDetail = ({
     });
   };
 
-  if (gallery.length === 0 || isFallback) {
+  if (displayGallery.length === 0 || isFallback) {
     return (
       <div className="flex flex-col items-center justify-center space-y-2 rounded-xl border border-dashed p-4 text-center text-sm">
         <Image
@@ -174,7 +184,7 @@ export const SpecieImageDetail = ({
           </div>
         )}
 
-        {gallery.length > 1 && (
+        {displayGallery.length > 1 && (
           <>
             <button
               onClick={goPrev}
@@ -272,15 +282,15 @@ export const SpecieImageDetail = ({
           </div>
         )}
 
-        {gallery.length > 1 && (
+        {displayGallery.length > 1 && (
           <>
             <div className="pointer-events-none absolute right-0 bottom-0 left-0 h-12 bg-linear-to-t from-black/40 to-transparent" />
           </>
         )}
 
-        {gallery.length > 1 && (
+        {displayGallery.length > 1 && (
           <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 gap-1">
-            {gallery.map((_, i) => (
+            {displayGallery.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
@@ -297,9 +307,9 @@ export const SpecieImageDetail = ({
         )}
       </div>
 
-      {gallery.length > 1 && (
+      {displayGallery.length > 1 && (
         <div className="specie-gallery-scrollbar flex gap-2 overflow-x-auto pb-1">
-          {gallery.map((img, i) => (
+          {displayGallery.map((img, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
