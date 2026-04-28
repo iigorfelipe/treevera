@@ -63,7 +63,7 @@ export const SpecieImageDetail = ({
   const specieKeyFromStore = selectedKey ?? treeSpecieKey;
 
   const { data: specieDetail } = useGetSpecieDetail({
-    specieKey: specieKeyFromStore!,
+    specieKey: specieKeyFromStore,
   });
 
   const canonicalName =

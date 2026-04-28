@@ -341,7 +341,7 @@ export const SpecieInfos = () => {
   const specieKey = selectedKey ?? treeSpecieKey;
 
   const { data: specieDetail, isLoading } = useGetSpecieDetail({
-    specieKey: specieKey!,
+    specieKey,
   });
 
   const canonicalName =

@@ -4,7 +4,7 @@ import { QUERY_KEYS } from "./keys";
 import type { SpecieDetail } from "@/common/types/api";
 
 type UseGetSpecieDetail = {
-  specieKey: number;
+  specieKey: number | null | undefined;
   enabled?: boolean;
 };
 
@@ -13,11 +13,18 @@ export const useGetSpecieDetail = ({
   enabled = true,
 }: UseGetSpecieDetail) => {
   const { specie_key } = QUERY_KEYS;
+  const hasValidSpecieKey =
+    typeof specieKey === "number" && Number.isFinite(specieKey) && specieKey > 0;
+  const validSpecieKey = hasValidSpecieKey ? specieKey : null;
 
   return useQuery<SpecieDetail>({
-    queryKey: [specie_key, specieKey],
+    queryKey: [specie_key, specieKey ?? null],
     queryFn: async () => {
-      const data = await getSpecieDetail(specieKey);
+      if (validSpecieKey === null) {
+        throw new Error("A valid species key is required.");
+      }
+
+      const data = await getSpecieDetail(validSpecieKey);
 
       return {
         canonicalName: data.canonicalName,
@@ -34,7 +41,7 @@ export const useGetSpecieDetail = ({
         title: data.title,
       };
     },
-    enabled,
+    enabled: enabled && hasValidSpecieKey,
     staleTime: 1000 * 60 * 60 * 24, // 24h
     gcTime: 1000 * 60 * 60 * 24 * 7, // 7 dias
   });

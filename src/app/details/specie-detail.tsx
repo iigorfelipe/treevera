@@ -115,6 +115,8 @@ export const SpecieDetail = ({
   )?.key;
 
   const specieKey = selectedKey ?? treeSpecieKey;
+  const hasSpecieKey =
+    typeof specieKey === "number" && Number.isFinite(specieKey) && specieKey > 0;
   const isFromGallery = selectedKey !== null;
   const isFromTree =
     !isFromGallery &&
@@ -123,7 +125,7 @@ export const SpecieDetail = ({
     isTablet;
 
   const { data: specieDetail, isLoading } = useGetSpecieDetail({
-    specieKey: specieKey!,
+    specieKey,
   });
 
   const canonicalName =
@@ -283,7 +285,7 @@ export const SpecieDetail = ({
     void doToggleFav();
   };
 
-  if (isLoading) {
+  if (!hasSpecieKey || isLoading) {
     return (
       <div className="p-6">
         <SkeletonText />

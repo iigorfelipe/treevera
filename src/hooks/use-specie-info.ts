@@ -5,7 +5,7 @@ import { useGetSpecieDetail } from "./queries/useGetSpecieDetail";
  */
 export const useSpecieInfo = (specieKey: number | undefined) => {
   const { data: specieDetail, isLoading } = useGetSpecieDetail({
-    specieKey: specieKey!,
+    specieKey,
   });
 
   return {
