@@ -20,6 +20,7 @@ type SpeciesCardProps = {
   listUsername?: string;
   listSlug?: string;
   ownerUsername?: string;
+  reserveTopRightActionSpace?: boolean;
 };
 
 export const SpeciesCard = ({
@@ -29,6 +30,7 @@ export const SpeciesCard = ({
   listUsername,
   listSlug,
   ownerUsername,
+  reserveTopRightActionSpace = false,
 }: SpeciesCardProps) => {
   const { t } = useTranslation();
   const [brokenImgUrl, setBrokenImgUrl] = useState<string | null>(null);
@@ -180,8 +182,10 @@ export const SpeciesCard = ({
         )}
 
         {species.is_favorite && (
-          <div className="bg-card/95 absolute top-2 right-2 rounded-full p-1.5 shadow-lg backdrop-blur-sm">
-            <Heart className="size-4 fill-red-500 text-red-500" />
+          <div
+            className={`absolute top-2 ${reserveTopRightActionSpace ? "right-11" : "right-2"} z-10 flex size-6 items-center justify-center rounded-full bg-black/60 text-white shadow-sm backdrop-blur-sm`}
+          >
+            <Heart className="size-3.5 fill-red-500 text-red-500" />
           </div>
         )}
       </div>
@@ -204,7 +208,7 @@ export const SpeciesCard = ({
         onDialogClose={handleDialogClose}
       />
 
-      <div className="pointer-events-none absolute inset-0 rounded-xl border-2 border-transparent transition-colors group-hover:border-blue-500" />
+      <div className="border-primary/40 pointer-events-none absolute inset-0 rounded-xl border border-transparent transition-colors group-hover:border-primary/40" />
     </div>
   );
 };

@@ -205,24 +205,82 @@ export const addSpeciesToGallery = async ({
   imageLicense,
   iucnStatus,
 }: AddSpeciesToGalleryInput): Promise<UserSeenSpeciesRow | null> => {
-  const { data, error } = await supabase.rpc("add_species_to_gallery", {
-    p_gbif_key: gbifKey,
-    p_kingdom: kingdom ?? null,
-    p_canonical_name: canonicalName ?? null,
-    p_family: family ?? null,
-    p_image_url: imageUrl ?? null,
-    p_image_source: imageSource ?? null,
-    p_image_attribution: imageAttribution ?? null,
-    p_image_license: imageLicense ?? null,
-    p_iucn_status: iucnStatus ?? null,
-  });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+
+  const userId = session.user.id;
+
+  const { data: existing, error: existingError } = await supabase
+    .from("user_seen_species")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("gbif_key", gbifKey)
+    .maybeSingle();
+
+  if (existingError) {
+    console.error("Error fetching species before gallery add:", existingError);
+    throw existingError;
+  }
+
+  if (existing) {
+    const updates: Partial<UserSeenSpeciesRow> = {
+      kingdom: kingdom ?? existing.kingdom,
+      iucn_status: iucnStatus ?? existing.iucn_status,
+      canonical_name: canonicalName ?? existing.canonical_name,
+      family: family ?? existing.family,
+      preferred_image_url: existing.preferred_image_url ?? imageUrl ?? null,
+      preferred_image_source:
+        existing.preferred_image_source ?? imageSource ?? null,
+      preferred_image_attribution:
+        existing.preferred_image_attribution ?? imageAttribution ?? null,
+      preferred_image_license:
+        existing.preferred_image_license ?? imageLicense ?? null,
+    };
+
+    const { data, error } = await supabase
+      .from("user_seen_species")
+      .update(updates)
+      .eq("user_id", userId)
+      .eq("gbif_key", gbifKey)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error adding existing species to gallery:", error);
+      throw error;
+    }
+
+    return data as UserSeenSpeciesRow;
+  }
+
+  const { data, error } = await supabase
+    .from("user_seen_species")
+    .insert({
+      user_id: userId,
+      gbif_key: gbifKey,
+      kingdom: kingdom ?? null,
+      iucn_status: iucnStatus ?? null,
+      preferred_image_url: imageUrl ?? null,
+      preferred_image_source: imageSource ?? null,
+      preferred_image_attribution: imageAttribution ?? null,
+      preferred_image_license: imageLicense ?? null,
+      canonical_name: canonicalName ?? null,
+      family: family ?? null,
+    })
+    .select()
+    .single();
 
   if (error) {
     console.error("Error adding species to gallery:", error);
     throw error;
   }
 
-  return ((data as UserSeenSpeciesRow[]) ?? [])[0] ?? null;
+  return data as UserSeenSpeciesRow;
 };
 
 export const removeSpeciesFromGallery = async (

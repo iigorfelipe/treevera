@@ -5,13 +5,13 @@ import {
   ListPlus,
   Heart,
   Share2,
-  TreeDeciduous,
-  ImageIcon,
+  ListTree,
+  Images,
   ImagePlus,
+  ImageMinus,
   Loader2,
   Target,
-  BookmarkPlus,
-  Trash2,
+  Wallpaper,
 } from "lucide-react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,6 +24,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/common/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +71,7 @@ type SpeciesCardQuickMenuProps = {
   onDialogClose?: () => void;
   triggerClassName?: string;
   hideImageActions?: boolean;
+  showPinnedActions?: boolean;
 };
 
 export const SpeciesCardQuickMenu = ({
@@ -77,6 +83,7 @@ export const SpeciesCardQuickMenu = ({
   onDialogClose,
   triggerClassName,
   hideImageActions = false,
+  showPinnedActions = false,
 }: SpeciesCardQuickMenuProps) => {
   const { t } = useTranslation();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
@@ -367,28 +374,56 @@ export const SpeciesCardQuickMenu = ({
   };
 
   const canEditImage = listId ? isOwner : isOwner && isInGallery;
+  const currentImageForPicker = currentImageUrl
+    ? {
+        imgUrl: currentImageUrl,
+        source: species.image_source ?? "",
+        author: species.image_attribution ?? "",
+        licenseCode: species.image_license ?? "",
+      }
+    : null;
+  const currentImageAlreadyInPicker =
+    !!currentImageForPicker &&
+    gallery.some((img) => img.imgUrl === currentImageForPicker.imgUrl);
+  const pickerGallery =
+    gallery.length > 0
+      ? currentImageForPicker && !currentImageAlreadyInPicker
+        ? [...gallery, currentImageForPicker]
+        : gallery
+      : currentImageForPicker
+        ? [currentImageForPicker]
+        : [];
+  const pinnedActionClass =
+    "group/action z-10 cursor-pointer rounded-full bg-black/40 p-2 text-white shadow-sm backdrop-blur-sm transition-colors duration-150 hover:bg-black/60 active:bg-black/70 disabled:cursor-wait disabled:opacity-70";
+  const pinnedIconClass =
+    "size-3.5 transition-transform duration-200 group-hover/action:-rotate-12 group-hover/action:scale-125 group-active/action:scale-90";
+  const menuItemClass = "group/item";
+  const menuIconClass =
+    "mr-2 size-4 transition-transform duration-200 group-hover/item:-rotate-12 group-hover/item:scale-125 group-focus/item:-rotate-12 group-focus/item:scale-125";
 
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-            className={cn(
-              "z-10 cursor-pointer rounded-full shadow backdrop-blur-sm",
-              triggerClassName ??
-                "bg-card/80 absolute right-2 bottom-13 p-1.5 transition-opacity md:opacity-0 md:group-hover:opacity-100",
-            )}
-            aria-label={t("gallery.quickActions")}
-          >
-            <MoreVertical className="size-3.5" />
-          </button>
-        </DropdownMenuTrigger>
+  const menu = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          className={cn(
+            "z-10 cursor-pointer rounded-full shadow backdrop-blur-sm",
+            triggerClassName ??
+              "bg-card/80 absolute right-2 bottom-13 p-1.5 transition-opacity md:opacity-0 md:group-hover:opacity-100",
+          )}
+          aria-label={t("gallery.quickActions")}
+        >
+          <MoreVertical className="size-3.5" />
+        </button>
+      </DropdownMenuTrigger>
         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
           {canUseAuthenticatedActions && (
-            <DropdownMenuItem onClick={() => setAddToListOpen(true)}>
-              <ListPlus className="mr-2 size-4" />
+            <DropdownMenuItem
+              onClick={() => setAddToListOpen(true)}
+              className={menuItemClass}
+            >
+              <ListPlus className={menuIconClass} />
               {t("lists.addToList")}
             </DropdownMenuItem>
           )}
@@ -401,13 +436,14 @@ export const SpeciesCardQuickMenu = ({
                   : void handleGalleryToggle()
               }
               disabled={galleryPending || galleryStateLoading}
+              className={menuItemClass}
             >
               {galleryPending || galleryStateLoading ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               ) : isInGallery ? (
-                <Trash2 className="mr-2 size-4" />
+                <ImageMinus className={menuIconClass} />
               ) : (
-                <BookmarkPlus className="mr-2 size-4" />
+                <ImagePlus className={menuIconClass} />
               )}
               {isInGallery
                 ? t("gallery.removeFromGallery")
@@ -416,10 +452,14 @@ export const SpeciesCardQuickMenu = ({
           )}
 
           {canUseAuthenticatedActions && isOwner && isInGallery && (
-            <DropdownMenuItem onClick={handleFavToggle} disabled={favPending}>
+            <DropdownMenuItem
+              onClick={handleFavToggle}
+              disabled={favPending}
+              className={menuItemClass}
+            >
               <Heart
                 className={cn(
-                  "mr-2 size-4",
+                  menuIconClass,
                   isFav ? "fill-red-500 text-red-500" : "",
                 )}
               />
@@ -427,19 +467,22 @@ export const SpeciesCardQuickMenu = ({
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuItem onClick={handleShare}>
-            <Share2 className="mr-2 size-4" />
+          <DropdownMenuItem onClick={handleShare} className={menuItemClass}>
+            <Share2 className={menuIconClass} />
             {t("specieDetail.shareLabel")}
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={handleViewInTree}>
-            <TreeDeciduous className="mr-2 size-4" />
+          <DropdownMenuItem onClick={handleViewInTree} className={menuItemClass}>
+            <ListTree className={menuIconClass} />
             {t("gallery.viewInTree")}
           </DropdownMenuItem>
 
           {canUseAuthenticatedActions && (
-            <DropdownMenuItem onClick={() => setCreateChallengeOpen(true)}>
-              <Target className="mr-2 size-4" />
+            <DropdownMenuItem
+              onClick={() => setCreateChallengeOpen(true)}
+              className={menuItemClass}
+            >
+              <Target className={menuIconClass} />
               {t("challenge.createCustom")}
             </DropdownMenuItem>
           )}
@@ -448,21 +491,97 @@ export const SpeciesCardQuickMenu = ({
             <>
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem onClick={() => setImagePickerOpen(true)}>
-                <ImageIcon className="mr-2 size-4" />
+              <DropdownMenuItem
+                onClick={() => setImagePickerOpen(true)}
+                className={menuItemClass}
+              >
+                <Images className={menuIconClass} />
                 {t("gallery.chooseImage")}
               </DropdownMenuItem>
 
               {listId && currentImageUrl && (
-                <DropdownMenuItem onClick={handleSetListCover}>
-                  <ImagePlus className="mr-2 size-4" />
+                <DropdownMenuItem
+                  onClick={handleSetListCover}
+                  className={menuItemClass}
+                >
+                  <Wallpaper className={menuIconClass} />
                   {t("lists.setAsCover")}
                 </DropdownMenuItem>
               )}
             </>
           )}
         </DropdownMenuContent>
-      </DropdownMenu>
+    </DropdownMenu>
+  );
+
+  return (
+    <>
+      {showPinnedActions ? (
+        <div className="flex items-center gap-2">
+          {canUseAuthenticatedActions && (
+            <Tooltip delayDuration={120}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isInGallery) {
+                      setRemoveGalleryConfirmOpen(true);
+                      return;
+                    }
+                    void handleGalleryToggle();
+                  }}
+                  disabled={galleryPending || galleryStateLoading}
+                  className={pinnedActionClass}
+                  aria-label={
+                    isInGallery
+                      ? t("gallery.removeFromGallery")
+                      : t("gallery.addToGallery")
+                  }
+                >
+                  {galleryPending || galleryStateLoading ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : isInGallery ? (
+                    <ImageMinus className={pinnedIconClass} />
+                  ) : (
+                    <ImagePlus className={pinnedIconClass} />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {isInGallery
+                  ? t("gallery.removeFromGallery")
+                  : t("gallery.addToGallery")}
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          <Tooltip delayDuration={120}>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void handleShare();
+                }}
+                className={pinnedActionClass}
+                aria-label={t("specieDetail.shareLabel")}
+              >
+                <Share2 className={pinnedIconClass} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {t("specieDetail.shareLabel")}
+            </TooltipContent>
+          </Tooltip>
+
+          {menu}
+        </div>
+      ) : (
+        menu
+      )}
 
       <AddToListDialog
         open={addToListOpen}
@@ -521,17 +640,17 @@ export const SpeciesCardQuickMenu = ({
             <DialogTitle>{t("gallery.chooseImage")}</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-4 pb-4">
-            {galleryLoading ? (
+            {galleryLoading && pickerGallery.length === 0 ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="text-muted-foreground size-6 animate-spin" />
               </div>
-            ) : gallery.length === 0 ? (
+            ) : pickerGallery.length === 0 ? (
               <p className="text-muted-foreground py-6 text-center text-sm">
                 {t("gallery.noImages")}
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {gallery.map((img, i) => (
+                {pickerGallery.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => void handlePickImage(img)}

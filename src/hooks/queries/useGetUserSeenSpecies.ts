@@ -40,13 +40,17 @@ export const useGetRecentSeenSpecies = (limit: number, userId?: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.user_seen_species_key, "recent", targetUserId, limit],
     queryFn: async () => {
-      const page = await fetchGalleryPage(targetUserId!, 0, limit, {
+      const page = await fetchGalleryPage(targetUserId!, 0, 50, {
         sortOrder: "newest",
         photosFirst: false,
       });
+      const rowsWithImages = page.rows
+        .filter((r) => !!r.image_url)
+        .slice(0, limit);
+
       return {
         totalCount: page.totalCount,
-        species: page.rows.map((r) => ({
+        species: rowsWithImages.map((r) => ({
           user_id: targetUserId!,
           gbif_key: r.gbif_key,
           seen_at: r.seen_at,

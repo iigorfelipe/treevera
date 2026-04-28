@@ -142,6 +142,7 @@ export const ListSpeciesGrid = ({
                   listId={listId}
                   listUsername={listUsername}
                   listSlug={listSlug}
+                  reserveTopRightActionSpace={isOwner && !!onRemove}
                 />
                 {isOwner && onRemove && (
                   <button
@@ -149,8 +150,9 @@ export const ListSpeciesGrid = ({
                       e.stopPropagation();
                       onRemove(s.gbif_key);
                     }}
-                    className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80"
+                    className="absolute top-2 right-2 z-10 flex size-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
                     title={t("lists.removeFromList")}
+                    aria-label={t("lists.removeFromList")}
                   >
                     <X className="size-3.5" />
                   </button>

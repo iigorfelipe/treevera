@@ -31,6 +31,7 @@ import { Skeleton } from "@/common/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
+  addSpeciesToGallery,
   toggleFavSpecie,
   updateSeenSpeciesIucn,
 } from "@/common/utils/supabase/user-seen-species";
@@ -62,6 +63,24 @@ const OccurrenceMapFallback = () => (
         <Skeleton className="h-8 w-28 rounded-full" />
         <Skeleton className="h-8 w-36 rounded-full" />
       </div>
+    </div>
+  </div>
+);
+
+const VulnerabilityBadgeFallback = () => (
+  <div className="bg-card rounded-xl border p-4 shadow-sm">
+    <div className="mb-3 flex items-center justify-between">
+      <Skeleton className="h-4 w-32" />
+      <Skeleton className="h-4 w-20" />
+    </div>
+    <div className="mb-3 flex gap-1">
+      {Array.from({ length: 7 }).map((_, i) => (
+        <Skeleton key={i} className="h-7 flex-1 rounded" />
+      ))}
+    </div>
+    <div className="space-y-2">
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-2/3" />
     </div>
   </div>
 );
@@ -129,7 +148,7 @@ export const SpecieDetail = ({
   const checkAchievements = useCheckAchievements();
 
   const isFav = specie?.is_favorite ?? false;
-  const isInGallery = !!specie;
+  const isInGallery = specie?.is_in_gallery ?? !!specie;
 
   useEffect(() => {
     if (!userId || !specieKey || !cache?.iucnCode || !specie) return;
@@ -169,43 +188,90 @@ export const SpecieDetail = ({
     false;
 
   const doToggleFav = async () => {
-    if (!userId || specieKey == null || !specie) return;
+    if (!userId || specieKey == null) return;
 
     const newIsFav = !isFav;
+    const seenSpecieKey = [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey];
+    const previousSpecie =
+      queryClient.getQueryData<UserSeenSpeciesRow | null>(seenSpecieKey);
+
+    const optimisticSpecie: UserSeenSpeciesRow = {
+      user_id: userId,
+      gbif_key: specieKey,
+      seen_at: specie?.seen_at ?? new Date().toISOString(),
+      is_favorite: newIsFav,
+      kingdom: specieDetail?.kingdom ?? null,
+      iucn_status: cache?.iucnCode ?? null,
+      preferred_image_url: primaryImage?.imgUrl ?? null,
+      canonical_name: canonicalName ?? null,
+      family: specieDetail?.family ?? null,
+      preferred_image_source: primaryImage?.source ?? null,
+      preferred_image_attribution: primaryImage?.author ?? null,
+      preferred_image_license: primaryImage?.licenseCode ?? null,
+      is_in_gallery: newIsFav ? true : isInGallery,
+    };
 
     queryClient.setQueryData(
-      [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
+      seenSpecieKey,
       (old: UserSeenSpeciesRow | null | undefined) =>
-        old ? { ...old, is_favorite: newIsFav } : old,
+        old
+          ? {
+              ...old,
+              is_favorite: newIsFav,
+              is_in_gallery: newIsFav ? true : (old.is_in_gallery ?? true),
+            }
+          : newIsFav
+            ? optimisticSpecie
+            : old,
     );
 
-    await toggleFavSpecie(userId, specieKey, newIsFav, undefined, {
-      canonicalName,
-      family: specieDetail?.family,
-      kingdom: specieDetail?.kingdom,
-    });
+    try {
+      if (newIsFav && !isInGallery) {
+        await addSpeciesToGallery({
+          gbifKey: specieKey,
+          kingdom: specieDetail?.kingdom,
+          canonicalName,
+          family: specieDetail?.family,
+          imageUrl: primaryImage?.imgUrl,
+          imageSource: primaryImage?.source,
+          imageAttribution: primaryImage?.author,
+          imageLicense: primaryImage?.licenseCode,
+          iucnStatus: cache?.iucnCode,
+        });
+      }
 
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_seen_species_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.favorite_species_page_key],
-    });
-    if (specieKey != null) invalidateSpeciesFavCount(specieKey);
-    void checkAchievements();
+      await toggleFavSpecie(userId, specieKey, newIsFav, primaryImage?.imgUrl, {
+        canonicalName,
+        family: specieDetail?.family,
+        kingdom: specieDetail?.kingdom,
+      });
 
-    if (newIsFav) {
-      void updateFavActivity({
-        userId,
-        speciesName: canonicalName ?? "",
-        isFav: newIsFav,
+      void checkAchievements();
+
+      if (newIsFav) {
+        void updateFavActivity({
+          userId,
+          speciesName: canonicalName ?? "",
+          isFav: newIsFav,
+        });
+        void queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.user_activities_key, userId],
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling favorite specie:", error);
+      queryClient.setQueryData(seenSpecieKey, previousSpecie ?? null);
+    } finally {
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
       });
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_activities_key, userId],
+        queryKey: [QUERY_KEYS.user_seen_species_key],
       });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.favorite_species_page_key],
+      });
+      invalidateSpeciesFavCount(specieKey);
     }
   };
 
@@ -299,7 +365,7 @@ export const SpecieDetail = ({
                 >
                   <SpecieImageDetail
                     isFav={isFav}
-                    showFavButton={!!userId && isInGallery}
+                    showFavButton={!!userId}
                     onToggleFav={toggleFav}
                     favCount={favCount}
                     specieKey={specieKey}
@@ -308,8 +374,9 @@ export const SpecieDetail = ({
                       detailQuickMenuSpecies ? (
                         <SpeciesCardQuickMenu
                           species={detailQuickMenuSpecies}
-                          triggerClassName="rounded-full bg-black/40 p-2 text-white shadow-sm backdrop-blur-sm transition hover:bg-black/50"
+                          triggerClassName="rounded-full bg-black/40 p-2 text-white shadow-sm backdrop-blur-sm"
                           hideImageActions
+                          showPinnedActions
                         />
                       ) : null
                     }
@@ -343,7 +410,9 @@ export const SpecieDetail = ({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  {!isLoadingCache && (
+                  {isLoadingCache ? (
+                    <VulnerabilityBadgeFallback />
+                  ) : (
                     <VulnerabilityBadge
                       statusCode={cache?.iucnCode ?? null}
                       trend={cache?.iucnTrend ?? null}

@@ -2,7 +2,7 @@ import { useGetParents } from "@/hooks/queries/useGetParents";
 import { RANK_FIXES } from "@/common/utils/tree/ranks";
 import { injectPathNodesAtom } from "@/store/tree";
 import { useSetAtom } from "jotai";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ListTree } from "lucide-react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
@@ -160,7 +160,7 @@ export const TaxonomyCard = ({
               {isClickable ? (
                 <button
                   onClick={() => navigateToTaxon(parentKey!)}
-                  className="text-primary mt-0.5 text-left text-sm leading-tight font-semibold wrap-break-word hover:underline focus:outline-none"
+                  className="text-primary mt-0.5 cursor-pointer text-left text-sm leading-tight font-semibold wrap-break-word hover:underline focus:outline-none"
                 >
                   {value}
                 </button>
@@ -176,11 +176,16 @@ export const TaxonomyCard = ({
 
       {showViewInTree && (
         <button
+          type="button"
           onClick={navigateToSpecies}
-          className="text-primary mt-4 flex items-center gap-1 text-xs font-medium hover:underline focus:outline-none"
+          disabled={isLoading}
+          className="border-border bg-muted/40 text-primary hover:bg-muted mt-4 flex w-full cursor-pointer items-center justify-between gap-3 rounded-md border px-3 py-2 text-left text-xs font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-60"
         >
-          {t("specieDetail.viewInTree")}
-          <ChevronRight className="size-3" />
+          <span className="flex min-w-0 items-center gap-2">
+            <ListTree className="size-4 shrink-0" />
+            <span className="truncate">{t("specieDetail.viewInTree")}</span>
+          </span>
+          <ChevronLeft className="size-4 shrink-0" />
         </button>
       )}
     </div>

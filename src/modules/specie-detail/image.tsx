@@ -14,11 +14,17 @@ import {
 } from "@/hooks/queries/useGetSpecieGallery";
 import { inatImageUrl } from "@/common/utils/image-size";
 import { SkeletonImage } from "@/modules/specie-detail/skeletons";
+import { Skeleton } from "@/common/components/ui/skeleton";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
 import { ImageWithZoom } from "@/common/components/image-with-zoom";
 import { cn } from "@/common/utils/cn";
 import { SourceReference } from "@/common/components/source-info/source-reference";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/common/components/ui/tooltip";
 
 type Props = {
   isFav: boolean;
@@ -75,22 +81,37 @@ export const SpecieImageDetail = ({
     setOptimisticCount(favCount);
   }, [favCount]);
 
+  useEffect(() => {
+    setSelectedIndex(0);
+    setImageLoading(false);
+    setIsFallback(false);
+  }, [specieKeyFromStore]);
+
   if (!specieDetail) return null;
 
   const fallbackImage = getRankIcon(
     KEY_KINGDOM_BY_NAME[specieDetail.kingdom.toLowerCase() as "animalia"],
   );
 
-  const displayGallery = [
-    ...(initialImage ? [initialImage] : []),
-    ...gallery.filter((img) => img.imgUrl !== initialImage?.imgUrl),
-  ];
+  const initialImageAlreadyInGallery =
+    !!initialImage && gallery.some((img) => img.imgUrl === initialImage.imgUrl);
+
+  const displayGallery =
+    gallery.length > 0
+      ? initialImage && !initialImageAlreadyInGallery
+        ? [...gallery, initialImage]
+        : gallery
+      : initialImage
+        ? [initialImage]
+        : [];
 
   if (isLoadingGallery && displayGallery.length === 0) {
     return <SkeletonImage />;
   }
 
   const currentImage = displayGallery[selectedIndex] ?? null;
+  const showThumbnailSkeletons =
+    isLoadingGallery && displayGallery.length > 0 && gallery.length === 0;
 
   const showCounter = optimisticCount > 0;
 
@@ -188,17 +209,17 @@ export const SpecieImageDetail = ({
           <>
             <button
               onClick={goPrev}
-              className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+              className="group/prev absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-colors duration-150 hover:bg-black/60 group-hover:opacity-100"
               aria-label={t("specieDetail.previousImage")}
             >
-              <ChevronLeft className="size-5" />
+              <ChevronLeft className="size-5 transition-transform duration-200 group-hover/prev:-translate-x-0.5 group-hover/prev:scale-125 group-active/prev:scale-90" />
             </button>
             <button
               onClick={goNext}
-              className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+              className="group/next absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-colors duration-150 hover:bg-black/60 group-hover:opacity-100"
               aria-label={t("specieDetail.nextImage")}
             >
-              <ChevronRight className="size-5" />
+              <ChevronRight className="size-5 transition-transform duration-200 group-hover/next:translate-x-0.5 group-hover/next:scale-125 group-active/next:scale-90" />
             </button>
           </>
         )}
@@ -216,43 +237,54 @@ export const SpecieImageDetail = ({
                       transition={{ duration: 0.25, ease: "easeOut" }}
                       className="overflow-hidden"
                     >
-                      <button
-                        onClick={handleCountClick}
-                        className="h-8 cursor-pointer rounded-l-none rounded-r-full bg-black/40 px-2.5 text-xs font-medium whitespace-nowrap text-white tabular-nums backdrop-blur-sm"
-                        aria-label={t("specieDetail.viewFavoriters")}
-                        title={t("specieDetail.whoLiked")}
-                      >
-                        {optimisticCount}
-                      </button>
+                      <Tooltip delayDuration={120}>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={handleCountClick}
+                            className="h-8 cursor-pointer rounded-l-none rounded-r-full bg-black/40 px-2.5 text-xs font-medium whitespace-nowrap text-white tabular-nums backdrop-blur-sm transition-all duration-150 hover:bg-black/50 active:scale-95"
+                            aria-label={t("specieDetail.viewFavoriters")}
+                          >
+                            {optimisticCount}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          {t("specieDetail.whoLiked")}
+                        </TooltipContent>
+                      </Tooltip>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleFavToggle}
-                  className={cn(
-                    "size-8 cursor-pointer bg-black/40 p-0 backdrop-blur-sm transition-all",
-                    showCounter
-                      ? "rounded-l-full rounded-r-none"
-                      : "rounded-full",
-                  )}
-                  aria-label={
-                    isFav
+                <Tooltip delayDuration={120}>
+                  <TooltipTrigger asChild>
+                    <motion.button
+                      onClick={handleFavToggle}
+                      className={cn(
+                        "group/heart size-8 cursor-pointer bg-black/40 p-0 backdrop-blur-sm transition-colors hover:bg-black/60",
+                        showCounter
+                          ? "rounded-l-full rounded-r-none"
+                          : "rounded-full",
+                      )}
+                      aria-label={
+                        isFav
+                          ? t("specieDetail.removeFavorite")
+                          : t("specieDetail.favorite")
+                      }
+                    >
+                      <Heart
+                        className={cn(
+                          "mx-auto size-4 transition-transform duration-200 group-hover/heart:-rotate-12 group-hover/heart:scale-125 group-active/heart:scale-90",
+                          isFav ? "fill-red-500 text-red-500" : "text-white",
+                        )}
+                      />
+                    </motion.button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    {isFav
                       ? t("specieDetail.removeFavorite")
-                      : t("specieDetail.favorite")
-                  }
-                >
-                  <Heart
-                    className={cn(
-                      "mx-auto size-4 transition-all",
-                      isFav
-                        ? "fill-red-500 text-red-500"
-                        : "text-white hover:text-red-400",
-                    )}
-                  />
-                </motion.button>
+                      : t("specieDetail.favorite")}
+                  </TooltipContent>
+                </Tooltip>
               </div>
             )}
             {quickActions}
@@ -307,7 +339,13 @@ export const SpecieImageDetail = ({
         )}
       </div>
 
-      {displayGallery.length > 1 && (
+      {showThumbnailSkeletons ? (
+        <div className="specie-gallery-scrollbar flex gap-2 overflow-x-auto pb-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-14 shrink-0 rounded-lg" />
+          ))}
+        </div>
+      ) : displayGallery.length > 1 ? (
         <div className="specie-gallery-scrollbar flex gap-2 overflow-x-auto pb-1">
           {displayGallery.map((img, i) => (
             <button
@@ -335,7 +373,7 @@ export const SpecieImageDetail = ({
             </button>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

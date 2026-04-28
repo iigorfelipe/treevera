@@ -54,6 +54,7 @@ export const CreateCustomChallengeDialog = ({
   const setChallenge = useSetAtom(treeAtom.challenge);
   const navigate = useNavigate();
   const [creating, setCreating] = useState(false);
+  const [createdGbifKey, setCreatedGbifKey] = useState<number | null>(null);
 
   const { data: existingChallenges = [] } = useGetUserCustomChallenges();
   const duplicate = existingChallenges.find((c) => c.gbif_key === gbifKey);
@@ -67,20 +68,30 @@ export const CreateCustomChallengeDialog = ({
   const loading = !externalDetail && isLoading;
   const valid = detail ? isTaxonomyComplete(detail) : false;
   const speciesName = detail?.canonicalName || detail?.scientificName || "";
+  const created = createdGbifKey === gbifKey;
 
-  const handlePlayExisting = () => {
-    if (!duplicate) return;
+  const playCustomChallenge = (targetSpecies: string, speciesKey: number) => {
     setChallenge({
       mode: "CUSTOM",
       status: "IN_PROGRESS",
-      targetSpecies: duplicate.species_name,
-      speciesKey: duplicate.gbif_key,
+      targetSpecies,
+      speciesKey,
       startedAt: Date.now(),
       errorTracking: { count: 0, perStep: [] },
       stepInteractions: {},
     });
     onOpenChange(false);
     void navigate({ to: "/challenges/custom" });
+  };
+
+  const handlePlayExisting = () => {
+    if (!duplicate) return;
+    playCustomChallenge(duplicate.species_name, duplicate.gbif_key);
+  };
+
+  const handlePlayCreated = () => {
+    if (!speciesName) return;
+    playCustomChallenge(speciesName, gbifKey);
   };
 
   const handleCreate = async () => {
@@ -108,8 +119,8 @@ export const CreateCustomChallengeDialog = ({
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.user_custom_challenges_key, userId],
       });
+      setCreatedGbifKey(gbifKey);
       toast.success(t("challenge.customCreated"));
-      onOpenChange(false);
     } else {
       const msgKey: Record<string, string> = {
         already_exists: "challenge.customAlreadyExists",
@@ -123,7 +134,10 @@ export const CreateCustomChallengeDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm" onClick={(e) => e.stopPropagation()}>
+      <DialogContent
+        className="bg-card w-[calc(100vw-2rem)] max-w-md"
+        onClick={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle>{t("challenge.customCreateTitle")}</DialogTitle>
           <DialogDescription>
@@ -131,7 +145,7 @@ export const CreateCustomChallengeDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-1 pb-2">
+        <div className="px-6 pb-6">
           {loading ? (
             <div className="flex justify-center py-6">
               <Loader2 className="text-muted-foreground size-6 animate-spin" />
@@ -140,50 +154,55 @@ export const CreateCustomChallengeDialog = ({
             <p className="text-muted-foreground text-sm">
               {t("challenge.customLoadError")}
             </p>
-          ) : duplicate ? (
+          ) : duplicate || created ? (
             <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="mt-0.5 size-4 shrink-0 text-orange-500" />
-                <div>
-                  <p className="text-sm font-medium">{duplicate.species_name}</p>
-                  <p className="text-muted-foreground text-xs">
-                    {t("challenge.customAlreadyExists")}
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium italic">{speciesName}</p>
+                  <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+                    {detail.family} Â· {t("challenge.customTaxonomyValid")}
                   </p>
                 </div>
               </div>
-              <Button className="w-full" onClick={handlePlayExisting}>
+              <Button
+                className="w-full"
+                onClick={duplicate ? handlePlayExisting : handlePlayCreated}
+              >
                 {t("challenge.play")}
               </Button>
             </div>
           ) : valid ? (
             <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-3">
                 <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
-                <div>
-                  <p className="text-sm font-medium">{speciesName}</p>
-                  <p className="text-muted-foreground text-xs">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium italic">{speciesName}</p>
+                  <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
                     {detail.family} · {t("challenge.customTaxonomyValid")}
                   </p>
                 </div>
               </div>
               <Button
                 className="w-full"
-                onClick={handleCreate}
+                onClick={created ? handlePlayCreated : handleCreate}
                 disabled={creating}
               >
                 {creating ? (
                   <Loader2 className="size-4 animate-spin" />
+                ) : created ? (
+                  t("challenge.play")
                 ) : (
                   t("challenge.customCreate")
                 )}
               </Button>
             </div>
           ) : (
-            <div className="flex items-start gap-2">
-              <AlertCircle className="text-destructive mt-0.5 size-4 shrink-0" />
-              <div>
-                <p className="text-sm font-medium">{speciesName}</p>
-                <p className="text-muted-foreground text-xs">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="mt-0.5 size-4 shrink-0 text-orange-500" />
+              <div className="min-w-0">
+                <p className="text-sm font-medium italic">{speciesName}</p>
+                <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
                   {t("challenge.customTaxonomyIncomplete")}
                 </p>
               </div>
