@@ -21,6 +21,7 @@ import {
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import { useGetGallerySpecies } from "@/hooks/queries/useGetUserSeenSpecies";
+import { getSpeciesSlugParam } from "@/common/utils/species-url";
 
 type SortOrder = "newest" | "oldest";
 
@@ -119,6 +120,19 @@ export const SpeciesGallery = ({
 
   const handleSelectSpecies = useCallback(
     (species: GallerySpeciesRow) => {
+      const speciesSlug = getSpeciesSlugParam(
+        species.gbif_key,
+        species.canonical_name,
+      );
+      if (speciesSlug) {
+        navigate({
+          to: "/species/$speciesSlug",
+          params: { speciesSlug },
+          search: { from: "gallery" },
+        });
+        return;
+      }
+
       navigate({
         to: "/specie-detail/$specieKey",
         params: { specieKey: String(species.gbif_key) },

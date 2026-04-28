@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useGetRecentSeenSpecies } from "@/hooks/queries/useGetUserSeenSpecies";
 import { SpeciesCardQuickMenu } from "@/modules/species-gallery/species-card-quick-menu";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
+import { getSpeciesSlugParam } from "@/common/utils/species-url";
 
 const RecentSpeciesCard = ({
   gbifKey,
@@ -44,6 +45,16 @@ const RecentSpeciesCard = ({
 
   const handleCardClick = () => {
     if (Date.now() - dialogCloseTimeRef.current < 300) return;
+    const speciesSlug = getSpeciesSlugParam(gbifKey, name);
+    if (speciesSlug) {
+      navigate({
+        to: "/species/$speciesSlug",
+        params: { speciesSlug },
+        search: { from: "profile" },
+      });
+      return;
+    }
+
     navigate({
       to: "/specie-detail/$specieKey",
       params: { specieKey: String(gbifKey) },
@@ -107,9 +118,19 @@ const RecentSpeciesCard = ({
               alt={name ?? ""}
               className="block max-h-56 max-w-56 object-contain"
             />
-            {buildAttributionText(imgSource, imgAttribution, imgLicense, imgUrl) && (
+            {buildAttributionText(
+              imgSource,
+              imgAttribution,
+              imgLicense,
+              imgUrl,
+            ) && (
               <p className="text-muted-foreground px-2 py-1 text-right text-xs">
-                {buildAttributionText(imgSource, imgAttribution, imgLicense, imgUrl)}
+                {buildAttributionText(
+                  imgSource,
+                  imgAttribution,
+                  imgLicense,
+                  imgUrl,
+                )}
               </p>
             )}
           </div>

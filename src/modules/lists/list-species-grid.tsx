@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { SpeciesCard } from "@/modules/species-gallery/species-card";
 import type { ListSpeciesRow } from "@/common/types/lists";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
+import { getSpeciesSlugParam } from "@/common/utils/species-url";
 
 const useNumColumns = () => {
   const [numColumns, setNumColumns] = useState(1);
@@ -101,10 +102,20 @@ export const ListSpeciesGrid = ({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleSelectSpecies = (gbifKey: number) => {
+  const handleSelectSpecies = (s: ListSpeciesRow) => {
+    const speciesSlug = getSpeciesSlugParam(s.gbif_key, s.canonical_name);
+    if (speciesSlug) {
+      navigate({
+        to: "/species/$speciesSlug",
+        params: { speciesSlug },
+        search: { from: "list" },
+      });
+      return;
+    }
+
     navigate({
       to: "/specie-detail/$specieKey",
-      params: { specieKey: String(gbifKey) },
+      params: { specieKey: String(s.gbif_key) },
       search: { from: "list" },
     });
   };
@@ -127,7 +138,7 @@ export const ListSpeciesGrid = ({
               >
                 <SpeciesCard
                   species={toGalleryRow(s)}
-                  onClick={() => handleSelectSpecies(s.gbif_key)}
+                  onClick={() => handleSelectSpecies(s)}
                   listId={listId}
                   listUsername={listUsername}
                   listSlug={listSlug}

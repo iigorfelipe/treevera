@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getAppUrl } from "@/common/utils/base-url";
+import { getSpeciesPath } from "@/common/utils/species-url";
 
 type Props = {
   specieKey: number;
@@ -14,7 +15,7 @@ export const ShareButton = ({ specieKey, canonicalName }: Props) => {
   const { t } = useTranslation();
 
   const handleShare = useCallback(async () => {
-    const url = getAppUrl(`/specie-detail/${specieKey}`);
+    const url = getAppUrl(getSpeciesPath(specieKey, canonicalName));
     const title = canonicalName;
     const text = t("specieDetail.shareText", { name: canonicalName });
 

@@ -36,6 +36,7 @@ import {
   useGetBatchAttribution,
 } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
+import { getSpeciesSlugParam } from "@/common/utils/species-url";
 
 export const FavoriteSpecies = ({
   favSpecies,
@@ -134,13 +135,23 @@ export const FavoriteSpecies = ({
               imgLicense={attributionMap?.get(f.key)?.license}
               ownerUsername={profileOwnerUsername}
               editMode={false}
-              onClick={() =>
+              onClick={() => {
+                const speciesSlug = getSpeciesSlugParam(f.key, f.name);
+                if (speciesSlug) {
+                  navigate({
+                    to: "/species/$speciesSlug",
+                    params: { speciesSlug },
+                    search: { from: "profile" },
+                  });
+                  return;
+                }
+
                 navigate({
                   to: "/specie-detail/$specieKey",
                   params: { specieKey: String(f.key) },
                   search: { from: "profile" },
-                })
-              }
+                });
+              }}
               onRemove={() => {}}
             />
           ))}
@@ -267,11 +278,26 @@ export const FavoriteSpecies = ({
                   onClick={() =>
                     editMode
                       ? openPicker(idx)
-                      : navigate({
-                          to: "/specie-detail/$specieKey",
-                          params: { specieKey: String(key) },
-                          search: { from: "profile" },
-                        })
+                      : (() => {
+                          const speciesSlug = getSpeciesSlugParam(
+                            key,
+                            favData?.name,
+                          );
+                          if (speciesSlug) {
+                            navigate({
+                              to: "/species/$speciesSlug",
+                              params: { speciesSlug },
+                              search: { from: "profile" },
+                            });
+                            return;
+                          }
+
+                          navigate({
+                            to: "/specie-detail/$specieKey",
+                            params: { specieKey: String(key) },
+                            search: { from: "profile" },
+                          });
+                        })()
                   }
                   onRemove={() => handleRemove(idx)}
                 />

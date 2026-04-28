@@ -43,8 +43,32 @@ type MetaInfo = {
   title: string;
   description: string;
   image: string;
+  canonicalPath?: string;
   structuredData?: StructuredData;
 } | null;
+
+function slugifyScientificName(value: string | null | undefined): string {
+  const slug = (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return slug || "species";
+}
+
+function getSpeciesPath(scientificName: string | null | undefined, key: string) {
+  return `/species/${slugifyScientificName(scientificName)}-${key}`;
+}
+
+function getGbifKeyFromSpeciesPath(pathname: string): string | null {
+  const speciesMatch = pathname.match(/^\/species\/[a-z0-9-]+-(\d+)$/);
+  if (speciesMatch) return speciesMatch[1];
+
+  const legacyMatch = pathname.match(/^\/specie-detail\/(\d+)$/);
+  return legacyMatch?.[1] ?? null;
+}
 
 function escapeHtml(str: string): string {
   return str
@@ -189,7 +213,7 @@ async function generateDynamicSitemap(env: Env): Promise<string> {
     const pageSize = 1000;
     for (let offset = 0; ; offset += pageSize) {
       const speciesRes = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/species_data_cache?select=gbif_key&or=(has_image.eq.true,description_pt.not.is.null)&order=gbif_key&limit=${pageSize}&offset=${offset}`,
+        `${env.SUPABASE_URL}/rest/v1/species_data_cache?select=gbif_key,scientific_name&or=(has_image.eq.true,description_pt.not.is.null)&order=gbif_key&limit=${pageSize}&offset=${offset}`,
         {
           headers: {
             apikey: env.SUPABASE_ANON_KEY,
@@ -200,10 +224,13 @@ async function generateDynamicSitemap(env: Env): Promise<string> {
       );
       if (!speciesRes.ok) break;
 
-      const species = (await speciesRes.json()) as { gbif_key: number }[];
+      const species = (await speciesRes.json()) as {
+        gbif_key: number;
+        scientific_name: string | null;
+      }[];
       for (const s of species) {
         dynamicUrls.push({
-          loc: `${siteUrl}/specie-detail/${s.gbif_key}`,
+          loc: `${siteUrl}${getSpeciesPath(s.scientific_name, String(s.gbif_key))}`,
           priority: "0.7",
         });
       }
@@ -523,6 +550,18 @@ async function supabaseRpc<T>(
   }
 }
 
+async function getSpeciesCanonicalPath(
+  gbifKey: string,
+  env: Env,
+): Promise<string | null> {
+  const row = await supabaseGet<{ scientific_name: string | null }>(
+    env,
+    `species_data_cache?gbif_key=eq.${gbifKey}&select=scientific_name`,
+  );
+  if (!row) return null;
+  return getSpeciesPath(row.scientific_name, gbifKey);
+}
+
 async function getMetaForRoute(
   pathname: string,
   env: Env,
@@ -602,25 +641,26 @@ async function getMetaForRoute(
     };
   }
 
-  const specieMatch = pathname.match(/^\/specie-detail\/(\d+)/);
-  if (specieMatch) {
-    const gbifKey = specieMatch[1];
+  const gbifKey = getGbifKeyFromSpeciesPath(pathname);
+  if (gbifKey) {
     const row = await supabaseGet<SpeciesCacheRow>(
       env,
       `species_data_cache?gbif_key=eq.${gbifKey}&select=scientific_name,image_url,has_image,description_pt,family`,
     );
     if (!row) return null;
+    const canonicalPath = getSpeciesPath(row.scientific_name, gbifKey);
     const description =
       row.description_pt?.slice(0, 160) ??
       (row.family
         ? `${text.familyLabel}: ${row.family}`
         : text.speciesFallback);
-    const url = absoluteUrl(siteUrl, pathname);
+    const url = absoluteUrl(siteUrl, canonicalPath);
 
     return {
       title: `${row.scientific_name} | Treevera`,
       description,
       image: row.has_image && row.image_url ? row.image_url : "",
+      canonicalPath,
       structuredData: {
         "@context": "https://schema.org",
         "@type": "WebPage",
@@ -738,6 +778,21 @@ export default {
         return getSitemapResponse(request, env, ctx);
       }
 
+      if (env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
+        const legacySpecieMatch = url.pathname.match(/^\/specie-detail\/(\d+)$/);
+        if (legacySpecieMatch) {
+          const canonicalPath = await getSpeciesCanonicalPath(
+            legacySpecieMatch[1],
+            env,
+          );
+          if (canonicalPath && canonicalPath !== url.pathname) {
+            url.pathname = canonicalPath;
+            return Response.redirect(url.toString(), 301);
+          }
+        }
+
+      }
+
       const userAgent = request.headers.get("user-agent") ?? "";
       if (!CRAWLERS.test(userAgent)) {
         return fetchAsset(request, env);
@@ -777,7 +832,7 @@ export default {
         title: meta.title,
         description: meta.description,
         image: fullImage || `${siteUrl}/og-image.png`,
-        url: `${siteUrl}${url.pathname}`,
+        url: `${siteUrl}${meta.canonicalPath ?? url.pathname}`,
         locale: getOgLocale(locale),
         lang: langMap[locale],
         robots,

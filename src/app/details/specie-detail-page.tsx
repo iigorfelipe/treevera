@@ -3,14 +3,17 @@ import { selectedSpecieKeyAtom } from "@/store/tree";
 import { useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { useParams } from "@tanstack/react-router";
+import { parseGbifKeyFromSpeciesSlug } from "@/common/utils/species-url";
 
 export const SpecieDetailPage = () => {
-  const { specieKey } = useParams({ strict: false });
+  const { specieKey, speciesSlug } = useParams({ strict: false });
   const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
-  const numericKey = Number(specieKey);
+  const numericKey = specieKey
+    ? Number(specieKey)
+    : parseGbifKeyFromSpeciesSlug(speciesSlug);
 
   useEffect(() => {
-    if (!isNaN(numericKey) && numericKey > 0) {
+    if (numericKey && numericKey > 0) {
       setSelectedKey(numericKey);
     }
     return () => {

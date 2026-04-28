@@ -55,6 +55,7 @@ import { CreateCustomChallengeDialog } from "@/modules/challenge/custom/create-c
 import { cn } from "@/common/utils/cn";
 import { getAppUrl } from "@/common/utils/base-url";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
+import { getSpeciesPath } from "@/common/utils/species-url";
 
 type SpeciesCardQuickMenuProps = {
   species: GallerySpeciesRow;
@@ -101,12 +102,10 @@ export const SpeciesCardQuickMenu = ({
 
   const shouldFetchGalleryState =
     canUseAuthenticatedActions && species.is_in_gallery === undefined;
-  const {
-    data: currentUserGallerySpecies,
-    isLoading: galleryStateLoading,
-  } = useGetSeenSpecieByKey(
-    shouldFetchGalleryState ? species.gbif_key : undefined,
-  );
+  const { data: currentUserGallerySpecies, isLoading: galleryStateLoading } =
+    useGetSeenSpecieByKey(
+      shouldFetchGalleryState ? species.gbif_key : undefined,
+    );
 
   const { data: gallery = [], isLoading: galleryLoading } = useGetSpecieGallery(
     imagePickerOpen ? species.gbif_key : undefined,
@@ -165,9 +164,7 @@ export const SpeciesCardQuickMenu = ({
   }, [species.is_favorite]);
 
   useEffect(() => {
-    setIsInGallery(
-      species.is_in_gallery ?? Boolean(currentUserGallerySpecies),
-    );
+    setIsInGallery(species.is_in_gallery ?? Boolean(currentUserGallerySpecies));
   }, [species.is_in_gallery, currentUserGallerySpecies]);
 
   useEffect(() => {
@@ -300,7 +297,9 @@ export const SpeciesCardQuickMenu = ({
   };
 
   const handleShare = async () => {
-    const url = getAppUrl(`/specie-detail/${species.gbif_key}`);
+    const url = getAppUrl(
+      getSpeciesPath(species.gbif_key, species.canonical_name),
+    );
     const name = species.canonical_name ?? "";
     if (navigator.share) {
       await navigator

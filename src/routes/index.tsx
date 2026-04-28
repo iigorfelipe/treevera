@@ -183,6 +183,12 @@ const specieDetailRoute = createRoute({
   component: SpecieDetailPage,
 });
 
+const speciesDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/species/$speciesSlug",
+  component: SpecieDetailPage,
+});
+
 const specieFavoritersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/specie-detail/$specieKey/likes",
@@ -385,6 +391,7 @@ const routeTree = rootRoute.addChildren([
   tree6Route,
   tree7Route,
   authCallbackRoute,
+  speciesDetailRoute,
   specieDetailRoute,
   specieFavoritersRoute,
   specieListsRoute,
