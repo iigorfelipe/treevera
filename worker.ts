@@ -181,7 +181,7 @@ async function generateDynamicSitemap(env: Env): Promise<string> {
 
   try {
     const speciesRes = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/species_data_cache?select=gbif_key&has_image=eq.true&order=gbif_key&limit=5000`,
+      `${env.SUPABASE_URL}/rest/v1/species_data_cache?select=gbif_key&or=(has_image.eq.true,description_pt.not.is.null)&order=gbif_key&limit=5000`,
       {
         headers: {
           apikey: env.SUPABASE_ANON_KEY,
