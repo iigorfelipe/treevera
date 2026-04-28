@@ -1,12 +1,20 @@
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Image } from "@/common/components/image";
 import { inatImageUrl, buildAttributionText } from "@/common/utils/image-size";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Leaf, X } from "lucide-react";
+import { GripVertical, Leaf, Loader2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAtomValue } from "jotai";
+import { useQueryClient } from "@tanstack/react-query";
 import { SpeciesCardQuickMenu } from "@/modules/species-gallery/species-card-quick-menu";
-import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
+import {
+  updatePreferredImage,
+  type GallerySpeciesRow,
+} from "@/common/utils/supabase/user-seen-species";
+import { authStore } from "@/store/auth/atoms";
+import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { useRecoverableSpeciesImage } from "@/modules/species-gallery/use-recoverable-species-image";
 
 export const FilledFavCard = ({
   specieKey,
@@ -36,9 +44,24 @@ export const FilledFavCard = ({
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
 }) => {
   const { t } = useTranslation();
-  const hasImage = !!imgUrl;
-  const cardSrc = imgUrl ? inatImageUrl(imgUrl, "medium") : null;
   const dialogCloseTimeRef = useRef(0);
+  const persistedImageRef = useRef<string | null>(null);
+  const userDb = useAtomValue(authStore.userDb);
+  const queryClient = useQueryClient();
+  const [brokenImgUrl, setBrokenImgUrl] = useState<string | null>(null);
+  const [loadedImgUrl, setLoadedImgUrl] = useState<string | null>(null);
+  const { image, isRecovered, isResolving, handleImageError } =
+    useRecoverableSpeciesImage({
+      gbifKey: specieKey,
+      canonicalName: specieName,
+      imageUrl: imgUrl,
+      imageSource: imgSource,
+      imageAttribution: imgAttribution,
+      imageLicense: imgLicense,
+    });
+  const cardSrc = image ? inatImageUrl(image.imgUrl, "medium") : null;
+  const hasImage = !!cardSrc && brokenImgUrl !== cardSrc;
+  const imgLoading = hasImage && loadedImgUrl !== cardSrc;
 
   const handleDialogClose = () => {
     dialogCloseTimeRef.current = Date.now();
@@ -53,15 +76,48 @@ export const FilledFavCard = ({
     gbif_key: specieKey,
     canonical_name: specieName,
     family: familyName,
-    image_url: imgUrl,
-    image_source: imgSource ?? null,
-    image_attribution: imgAttribution ?? null,
-    image_license: imgLicense ?? null,
+    image_url: image?.imgUrl ?? imgUrl,
+    image_source: image?.source ?? imgSource ?? null,
+    image_attribution: image?.author ?? imgAttribution ?? null,
+    image_license: image?.licenseCode ?? imgLicense ?? null,
     is_favorite: true,
     is_in_gallery: ownerUsername ? undefined : true,
     seen_at: "",
     total_count: 0,
   };
+
+  const persistRecoveredImage = useCallback(async () => {
+    if (!image || !isRecovered || persistedImageRef.current === image.imgUrl) {
+      return;
+    }
+
+    const isOwnProfile = !!userDb && (!ownerUsername || ownerUsername === userDb.username);
+    if (!isOwnProfile) return;
+
+    persistedImageRef.current = image.imgUrl;
+    await updatePreferredImage(userDb.id, specieKey, image.imgUrl, {
+      canonicalName: specieName,
+      family: familyName,
+      source: image.source,
+      author: image.author,
+      license: image.licenseCode,
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.user_seen_species_key],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.favorite_species_page_key],
+    });
+  }, [
+    familyName,
+    image,
+    isRecovered,
+    ownerUsername,
+    queryClient,
+    specieKey,
+    specieName,
+    userDb,
+  ]);
 
   return (
     <div className="group relative">
@@ -81,10 +137,28 @@ export const FilledFavCard = ({
             className={`size-full object-cover transition-transform duration-500 ease-out ${
               editMode ? "" : "group-hover:scale-110"
             }`}
+            onLoad={() => {
+              setLoadedImgUrl(cardSrc);
+              void persistRecoveredImage();
+            }}
+            onError={() => {
+              setBrokenImgUrl(cardSrc);
+              handleImageError();
+            }}
           />
         ) : (
           <div className="bg-muted flex size-full items-center justify-center">
-            <Leaf className="text-muted-foreground/30 size-10" />
+            {isResolving ? (
+              <Loader2 className="text-muted-foreground/40 size-8 animate-spin" />
+            ) : (
+              <Leaf className="text-muted-foreground/30 size-10" />
+            )}
+          </div>
+        )}
+
+        {imgLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <Loader2 className="text-white/80 size-5 animate-spin" />
           </div>
         )}
 
@@ -141,26 +215,26 @@ export const FilledFavCard = ({
         </div>
       )}
 
-      {!editMode && hasImage && (
+      {!editMode && image && (
         <div className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-50 -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
           <div className="bg-popover ring-border overflow-hidden rounded-xl shadow-2xl ring-1">
             <img
-              src={cardSrc!}
+              src={inatImageUrl(image.imgUrl, "medium")}
               alt={specieName}
               className="block max-h-56 max-w-56 object-contain"
             />
             {buildAttributionText(
-              imgSource,
-              imgAttribution,
-              imgLicense,
-              imgUrl,
+              image.source,
+              image.author,
+              image.licenseCode,
+              image.imgUrl,
             ) && (
               <p className="text-muted-foreground px-2 py-1 text-right text-xs">
                 {buildAttributionText(
-                  imgSource,
-                  imgAttribution,
-                  imgLicense,
-                  imgUrl,
+                  image.source,
+                  image.author,
+                  image.licenseCode,
+                  image.imgUrl,
                 )}
               </p>
             )}

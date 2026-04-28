@@ -1,10 +1,17 @@
-import { useRef, useState } from "react";
-import { Heart, ImageOff } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import { Heart, ImageOff, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAtomValue } from "jotai";
+import { useQueryClient } from "@tanstack/react-query";
+
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
-import { clearBrokenImage } from "@/common/utils/supabase/user-seen-species";
-import { SpeciesCardQuickMenu } from "./species-card-quick-menu";
+import { updatePreferredImage } from "@/common/utils/supabase/user-seen-species";
+import { updateListSpeciesImage } from "@/common/utils/supabase/lists";
 import { inatImageUrl, buildAttributionText } from "@/common/utils/image-size";
+import { authStore } from "@/store/auth/atoms";
+import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { SpeciesCardQuickMenu } from "./species-card-quick-menu";
+import { useRecoverableSpeciesImage } from "./use-recoverable-species-image";
 
 type SpeciesCardProps = {
   species: GallerySpeciesRow;
@@ -24,8 +31,12 @@ export const SpeciesCard = ({
   ownerUsername,
 }: SpeciesCardProps) => {
   const { t } = useTranslation();
-  const [imgBroken, setImgBroken] = useState(false);
+  const [brokenImgUrl, setBrokenImgUrl] = useState<string | null>(null);
+  const [loadedImgUrl, setLoadedImgUrl] = useState<string | null>(null);
   const dialogCloseTimeRef = useRef(0);
+  const persistedImageRef = useRef<string | null>(null);
+  const userDb = useAtomValue(authStore.userDb);
+  const queryClient = useQueryClient();
 
   const handleDialogClose = () => {
     dialogCloseTimeRef.current = Date.now();
@@ -36,12 +47,92 @@ export const SpeciesCard = ({
     onClick();
   };
 
-  const specieName = species.canonical_name || "—";
-  const familyName = species.family || "—";
-  const imgUrl = species.image_url
-    ? inatImageUrl(species.image_url, "medium")
-    : null;
-  const hasImage = !!imgUrl && !imgBroken;
+  const specieName = species.canonical_name || "-";
+  const familyName = species.family || "-";
+  const { image, isRecovered, isResolving, handleImageError } =
+    useRecoverableSpeciesImage({
+      gbifKey: species.gbif_key,
+      canonicalName: species.canonical_name,
+      imageUrl: species.image_url,
+      imageSource: species.image_source,
+      imageAttribution: species.image_attribution,
+      imageLicense: species.image_license,
+    });
+
+  const imgUrl = image ? inatImageUrl(image.imgUrl, "medium") : null;
+  const hasImage = !!imgUrl && brokenImgUrl !== imgUrl;
+  const imgLoading = hasImage && loadedImgUrl !== imgUrl;
+
+  const persistRecoveredImage = useCallback(async () => {
+    if (!image || !isRecovered || persistedImageRef.current === image.imgUrl) {
+      return;
+    }
+
+    persistedImageRef.current = image.imgUrl;
+    const isListOwner = !!listId && listUsername === userDb?.username;
+    const isOwnGallery =
+      !listId &&
+      !!userDb &&
+      (!ownerUsername || ownerUsername === userDb.username) &&
+      species.is_in_gallery !== false;
+
+    if (isListOwner) {
+      await updateListSpeciesImage(listId, species.gbif_key, image.imgUrl, {
+        source: image.source,
+        author: image.author,
+        license: image.licenseCode,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.list_species_key],
+      });
+      return;
+    }
+
+    if (isOwnGallery) {
+      await updatePreferredImage(userDb.id, species.gbif_key, image.imgUrl, {
+        canonicalName: species.canonical_name,
+        family: species.family,
+        source: image.source,
+        author: image.author,
+        license: image.licenseCode,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.user_seen_species_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.seen_specie_by_key_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.favorite_species_page_key],
+      });
+    }
+  }, [
+    image,
+    isRecovered,
+    listId,
+    listUsername,
+    ownerUsername,
+    queryClient,
+    species,
+    userDb,
+  ]);
+
+  const displaySpecies: GallerySpeciesRow = image
+    ? {
+        ...species,
+        image_url: image.imgUrl,
+        image_source: image.source,
+        image_attribution: image.author,
+        image_license: image.licenseCode,
+      }
+    : species;
+
+  const attribution = buildAttributionText(
+    image?.source,
+    image?.author,
+    image?.licenseCode,
+    image?.imgUrl,
+  );
 
   return (
     <div
@@ -56,31 +147,34 @@ export const SpeciesCard = ({
               alt={specieName}
               className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
+              onLoad={() => {
+                setLoadedImgUrl(imgUrl);
+                void persistRecoveredImage();
+              }}
               onError={() => {
-                setImgBroken(true);
-                void clearBrokenImage(species.gbif_key);
+                setBrokenImgUrl(imgUrl);
+                handleImageError();
               }}
             />
+            {imgLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                <Loader2 className="text-muted-foreground size-5 animate-spin" />
+              </div>
+            )}
             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            {buildAttributionText(
-              species.image_source,
-              species.image_attribution,
-              species.image_license,
-              species.image_url,
-            ) && (
+            {attribution && (
               <p className="absolute right-2 bottom-2 rounded bg-black/55 px-1.5 py-0.5 text-xs text-white opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
-                {buildAttributionText(
-                  species.image_source,
-                  species.image_attribution,
-                  species.image_license,
-                  species.image_url,
-                )}
+                {attribution}
               </p>
             )}
           </>
         ) : (
           <div className="text-muted-foreground flex aspect-4/3 flex-col items-center justify-center">
-            <ImageOff className="mb-2 size-12" />
+            {isResolving ? (
+              <Loader2 className="mb-2 size-8 animate-spin" />
+            ) : (
+              <ImageOff className="mb-2 size-12" />
+            )}
             <p className="text-xs">{t("gallery.noImage")}</p>
           </div>
         )}
@@ -102,7 +196,7 @@ export const SpeciesCard = ({
       </div>
 
       <SpeciesCardQuickMenu
-        species={species}
+        species={displaySpecies}
         listId={listId}
         listUsername={listUsername}
         listSlug={listSlug}
