@@ -180,17 +180,20 @@ async function generateDynamicSitemap(env: Env): Promise<string> {
   const dynamicUrls: { loc: string; priority: string }[] = [];
 
   try {
-    const speciesRes = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/species_data_cache?select=gbif_key&or=(has_image.eq.true,description_pt.not.is.null)&order=gbif_key&limit=5000`,
-      {
-        headers: {
-          apikey: env.SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
-          Accept: "application/json",
+    const pageSize = 1000;
+    for (let offset = 0; ; offset += pageSize) {
+      const speciesRes = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/species_data_cache?select=gbif_key&or=(has_image.eq.true,description_pt.not.is.null)&order=gbif_key&limit=${pageSize}&offset=${offset}`,
+        {
+          headers: {
+            apikey: env.SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+            Accept: "application/json",
+          },
         },
-      },
-    );
-    if (speciesRes.ok) {
+      );
+      if (!speciesRes.ok) break;
+
       const species = (await speciesRes.json()) as { gbif_key: number }[];
       for (const s of species) {
         dynamicUrls.push({
@@ -198,6 +201,8 @@ async function generateDynamicSitemap(env: Env): Promise<string> {
           priority: "0.7",
         });
       }
+
+      if (species.length < pageSize) break;
     }
   } catch {
     //
