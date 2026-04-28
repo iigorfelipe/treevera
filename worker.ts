@@ -1,11 +1,17 @@
 const CRAWLERS =
   /googlebot|bingbot|yandex|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkshare|w3c_validator|whatsapp|telegram|discord/i;
 
+const SITEMAP_CACHE_TTL_SECONDS = 3600;
+
 interface Env {
   ASSETS?: { fetch(request: Request): Promise<Response> };
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
   SITE_URL: string;
+}
+
+interface WorkerExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
 }
 
 interface SpeciesCacheRow {
@@ -268,6 +274,59 @@ async function generateDynamicSitemap(env: Env): Promise<string> {
   }
 
   return buildSitemapXml([...staticUrls, ...dynamicUrls]);
+}
+
+function buildSitemapResponse(xml: string): Response {
+  return new Response(xml, {
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": `public, max-age=${SITEMAP_CACHE_TTL_SECONDS}, s-maxage=${SITEMAP_CACHE_TTL_SECONDS}`,
+    },
+  });
+}
+
+function getCacheApi(): Cache | null {
+  return ((globalThis as unknown as { caches?: { default?: Cache } }).caches
+    ?.default ?? null);
+}
+
+function getSitemapCacheKey(request: Request): Request {
+  const url = new URL(request.url);
+  url.search = "";
+  return new Request(url.toString(), { method: "GET" });
+}
+
+async function getSitemapResponse(
+  request: Request,
+  env: Env,
+  ctx?: WorkerExecutionContext,
+): Promise<Response> {
+  const cache = getCacheApi();
+  const cacheKey = getSitemapCacheKey(request);
+
+  if (cache) {
+    try {
+      const cached = await cache.match(cacheKey);
+      if (cached) {
+        return request.method === "HEAD" ? toHeadResponse(cached) : cached;
+      }
+    } catch {
+      //
+    }
+  }
+
+  const response = buildSitemapResponse(await generateDynamicSitemap(env));
+
+  if (cache) {
+    const cacheWrite = cache.put(cacheKey, response.clone()).catch(() => {});
+    if (ctx) {
+      ctx.waitUntil(cacheWrite);
+    } else {
+      await cacheWrite;
+    }
+  }
+
+  return request.method === "HEAD" ? toHeadResponse(response) : response;
 }
 
 const NOINDEX_PATTERNS = [
@@ -657,7 +716,11 @@ async function getMetaForRoute(
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx?: WorkerExecutionContext,
+  ): Promise<Response> {
     try {
       const url = new URL(request.url);
       const locale = detectLocale(request.headers.get("accept-language"));
@@ -672,13 +735,7 @@ export default {
         env.SUPABASE_URL &&
         env.SUPABASE_ANON_KEY
       ) {
-        const xml = await generateDynamicSitemap(env);
-        return new Response(xml, {
-          headers: {
-            "Content-Type": "application/xml; charset=utf-8",
-            "Cache-Control": "public, max-age=3600, s-maxage=3600",
-          },
-        });
+        return getSitemapResponse(request, env, ctx);
       }
 
       const userAgent = request.headers.get("user-agent") ?? "";
