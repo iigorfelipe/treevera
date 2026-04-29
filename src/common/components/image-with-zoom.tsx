@@ -67,6 +67,7 @@ export const ImageWithZoom = ({
           draggable={false}
           fallbackSrc={imageProps.fallbackSrc}
           onFallbackChange={imageProps.onFallbackChange}
+          onError={imageProps.onError}
           onLoad={imageProps.onLoad}
         />
       </div>

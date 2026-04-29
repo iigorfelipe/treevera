@@ -74,7 +74,9 @@ export const SpecieImageDetail = ({
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(false);
-  const [isFallback, setIsFallback] = useState(false);
+  const [brokenImageUrls, setBrokenImageUrls] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [optimisticCount, setOptimisticCount] = useState(favCount);
 
   useEffect(() => {
@@ -84,19 +86,13 @@ export const SpecieImageDetail = ({
   useEffect(() => {
     setSelectedIndex(0);
     setImageLoading(false);
-    setIsFallback(false);
+    setBrokenImageUrls(new Set());
   }, [specieKeyFromStore]);
-
-  if (!specieDetail) return null;
-
-  const fallbackImage = getRankIcon(
-    KEY_KINGDOM_BY_NAME[specieDetail.kingdom.toLowerCase() as "animalia"],
-  );
 
   const initialImageAlreadyInGallery =
     !!initialImage && gallery.some((img) => img.imgUrl === initialImage.imgUrl);
 
-  const displayGallery =
+  const rawDisplayGallery =
     gallery.length > 0
       ? initialImage && !initialImageAlreadyInGallery
         ? [...gallery, initialImage]
@@ -105,11 +101,32 @@ export const SpecieImageDetail = ({
         ? [initialImage]
         : [];
 
+  const displayGallery = rawDisplayGallery.filter(
+    (img) => !brokenImageUrls.has(img.imgUrl),
+  );
+
+  useEffect(() => {
+    if (displayGallery.length === 0) {
+      if (selectedIndex !== 0) setSelectedIndex(0);
+      return;
+    }
+
+    if (selectedIndex >= displayGallery.length) {
+      setSelectedIndex(displayGallery.length - 1);
+    }
+  }, [displayGallery.length, selectedIndex]);
+
+  if (!specieDetail) return null;
+
+  const fallbackImage = getRankIcon(
+    KEY_KINGDOM_BY_NAME[specieDetail.kingdom.toLowerCase() as "animalia"],
+  );
+
   if (isLoadingGallery && displayGallery.length === 0) {
     return <SkeletonImage />;
   }
 
-  const currentImage = displayGallery[selectedIndex] ?? null;
+  const currentImage = displayGallery[selectedIndex] ?? displayGallery[0] ?? null;
   const showThumbnailSkeletons =
     isLoadingGallery && displayGallery.length > 0 && gallery.length === 0;
 
@@ -119,7 +136,6 @@ export const SpecieImageDetail = ({
     if (index === selectedIndex) return;
     setSelectedIndex(index);
     setImageLoading(true);
-    setIsFallback(false);
   };
 
   const goPrev = () =>
@@ -133,6 +149,18 @@ export const SpecieImageDetail = ({
       setOptimisticCount((c) => Math.max(c - 1, 0));
     }
     onToggleFav?.();
+  };
+
+  const markImageAsBroken = (imgUrl?: string) => {
+    if (!imgUrl) return;
+
+    setBrokenImageUrls((current) => {
+      if (current.has(imgUrl)) return current;
+      const next = new Set(current);
+      next.add(imgUrl);
+      return next;
+    });
+    setImageLoading(false);
   };
 
   const handleCountClick = (e: React.MouseEvent) => {
@@ -202,25 +230,15 @@ export const SpecieImageDetail = ({
               ? inatImageUrl(currentImage.imgUrl, "large")
               : fallbackImage
           }
-          zoomSrc={isFallback ? fallbackImage : currentImage?.imgUrl}
-          fallbackSrc={fallbackImage}
+          zoomSrc={currentImage?.imgUrl}
           alt={t("specieDetail.speciesImageAlt", {
             name: specieDetail.scientificName,
           })}
-          onFallbackChange={setIsFallback}
           onLoad={() => setImageLoading(false)}
+          onError={() => markImageAsBroken(currentImage?.imgUrl)}
           zoom={3}
           contain
         />
-
-        {isFallback && (
-          <div className="pointer-events-none absolute top-1/2 left-1/2 max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-md bg-black/60 px-3 py-2 text-center text-xs text-white shadow-sm backdrop-blur-sm">
-            <p className="font-medium">{t("specieDetail.imageNotFound")}</p>
-            <p className="mt-0.5 text-white/75">
-              {t("specieDetail.imageUnavailableHint")}
-            </p>
-          </div>
-        )}
 
         {imageLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
@@ -314,7 +332,7 @@ export const SpecieImageDetail = ({
           </div>
         )}
 
-        {currentImage?.source && !isFallback && (
+        {currentImage?.source && (
           <div className="absolute right-2 bottom-2">
             <p className="rounded bg-black/55 px-1.5 py-0.5 text-xs text-white backdrop-blur-sm">
               {t("specieDetail.imageSource")}:{" "}
@@ -390,7 +408,7 @@ export const SpecieImageDetail = ({
             >
               <Image
                 src={inatImageUrl(img.imgUrl, "small")}
-                fallbackSrc={fallbackImage}
+                onError={() => markImageAsBroken(img.imgUrl)}
                 alt={t("specieDetail.photo", { number: i + 1 })}
                 className="h-full w-full object-cover"
               />

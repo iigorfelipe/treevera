@@ -12,6 +12,7 @@ export const Image = ({
   loading = "lazy",
   decoding = "async",
   onFallbackChange,
+  onError,
   ...props
 }: ImageProps) => {
   const [imgSrc, setImgSrc] = useState(src);
@@ -32,10 +33,11 @@ export const Image = ({
       alt={alt}
       loading={loading}
       decoding={decoding}
-      onError={() => {
+      onError={(event) => {
         if (fallbackSrc && !isFallback) {
           setImgSrc(fallbackSrc);
         }
+        onError?.(event);
       }}
       {...props}
     />
