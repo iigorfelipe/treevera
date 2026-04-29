@@ -48,7 +48,10 @@ type MetaInfo = {
   structuredData?: StructuredData;
 } | null;
 
-function slugifyScientificName(value: string | null | undefined): string {
+function slugifyPathSegment(
+  value: string | null | undefined,
+  fallback: string,
+): string {
   const slug = (value ?? "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -56,11 +59,19 @@ function slugifyScientificName(value: string | null | undefined): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-  return slug || "species";
+  return slug || fallback;
+}
+
+function slugifyScientificName(value: string | null | undefined): string {
+  return slugifyPathSegment(value, "species");
 }
 
 function getSpeciesPath(scientificName: string | null | undefined, key: string) {
   return `/species/${slugifyScientificName(scientificName)}-${key}`;
+}
+
+function getListPath(username: string, title: string | null | undefined) {
+  return `/${username}/lists/${slugifyPathSegment(title, "list")}`;
 }
 
 function getGbifKeyFromSpeciesPath(pathname: string): string | null {
@@ -264,11 +275,12 @@ async function generateDynamicSitemap(env: Env): Promise<string> {
     if (listsRes.ok) {
       const lists = (await listsRes.json()) as {
         user_username: string;
+        title: string;
         slug: string;
       }[];
       for (const l of lists) {
         dynamicUrls.push({
-          loc: `${siteUrl}/${l.user_username}/lists/${l.slug}`,
+          loc: `${siteUrl}${getListPath(l.user_username, l.title)}`,
           priority: "0.6",
         });
       }
@@ -551,6 +563,30 @@ async function supabaseRpc<T>(
   }
 }
 
+async function supabaseRpcArray<T>(
+  env: Env,
+  fnName: string,
+  params: Record<string, unknown>,
+): Promise<T[]> {
+  try {
+    const res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/${fnName}`, {
+      method: "POST",
+      headers: {
+        apikey: env.SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${env.SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 async function getSpeciesCanonicalPath(
   gbifKey: string,
   env: Env,
@@ -561,6 +597,65 @@ async function getSpeciesCanonicalPath(
   );
   if (!row) return null;
   return getSpeciesPath(row.scientific_name, gbifKey);
+}
+
+async function getListDetailBySlug(
+  env: Env,
+  username: string,
+  slug: string,
+): Promise<ListDetail | null> {
+  return supabaseRpc<ListDetail>(env, "get_list_detail_by_slug", {
+    p_username: username,
+    p_slug: slug,
+  });
+}
+
+async function getListDetailForPath(
+  env: Env,
+  username: string,
+  slug: string,
+): Promise<ListDetail | null> {
+  const exact = await getListDetailBySlug(env, username, slug);
+  if (exact) return exact;
+
+  const search = slug.replace(/-/g, " ").trim();
+  if (!search) return null;
+
+  const lists = await supabaseRpcArray<{
+    user_username: string;
+    title: string;
+    slug: string;
+  }>(env, "get_public_lists", {
+    p_limit: 20,
+    p_offset: 0,
+    p_sort: "recent",
+    p_search: search,
+  });
+  const candidate = lists.find(
+    (list) =>
+      list.user_username === username &&
+      getListPath(list.user_username, list.title) ===
+        `/${username}/lists/${slug}`,
+  );
+
+  if (!candidate?.slug || candidate.slug === slug) return null;
+  return getListDetailBySlug(env, username, candidate.slug);
+}
+
+async function getListCanonicalPath(
+  pathname: string,
+  env: Env,
+): Promise<string | null> {
+  const listMatch = pathname.match(
+    /^\/([a-z0-9_]{3,30})\/lists\/([a-z0-9-]+)$/,
+  );
+  if (!listMatch) return null;
+
+  const [, username, slug] = listMatch;
+  const list = await getListDetailForPath(env, username, slug);
+  if (!list) return null;
+
+  return getListPath(username, list.title);
 }
 
 async function getMetaForRoute(
@@ -725,19 +820,18 @@ async function getMetaForRoute(
   );
   if (listMatch) {
     const [, username, slug] = listMatch;
-    const list = await supabaseRpc<ListDetail>(env, "get_list_detail_by_slug", {
-      p_username: username,
-      p_slug: slug,
-    });
+    const list = await getListDetailForPath(env, username, slug);
     if (!list) return null;
     const description =
       list.description?.slice(0, 160) ?? text.listWithCount(list.species_count);
-    const url = absoluteUrl(siteUrl, pathname);
+    const canonicalPath = getListPath(username, list.title);
+    const url = absoluteUrl(siteUrl, canonicalPath);
 
     return {
       title: `${list.title} | Treevera`,
       description,
       image: list.cover_image_url ?? "",
+      canonicalPath,
       structuredData: {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
@@ -792,6 +886,11 @@ export default {
           }
         }
 
+        const canonicalListPath = await getListCanonicalPath(url.pathname, env);
+        if (canonicalListPath && canonicalListPath !== url.pathname) {
+          url.pathname = canonicalListPath;
+          return Response.redirect(url.toString(), 301);
+        }
       }
 
       const userAgent = request.headers.get("user-agent") ?? "";

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import type { ListWithCreator } from "@/common/types/lists";
 import { cn } from "@/common/utils/cn";
-import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 import { ListCoverCollage } from "./list-cover-collage";
 
 type FeaturedListCardProps = {
@@ -24,7 +24,7 @@ export const FeaturedListCard = ({
 }: FeaturedListCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const listSlug = list.slug || slugify(list.title);
+  const listSlug = getListSlugParam(list.title);
   const isDark = tone === "dark";
   const isTransparent = tone === "transparent";
 

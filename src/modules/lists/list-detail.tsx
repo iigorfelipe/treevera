@@ -25,7 +25,7 @@ import { ListDetailHero, type SpeciesFilter } from "./list-detail-hero";
 import { ListSpeciesGrid } from "./list-species-grid";
 import { ListEditDialog } from "./list-edit-dialog";
 import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
-import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 import {
   Dialog,
   DialogContent,
@@ -206,6 +206,20 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   );
 
   useDocumentTitle(list?.title);
+  useEffect(() => {
+    if (!list) return;
+
+    const canonicalSlug = getListSlugParam(list.title);
+    if (canonicalSlug === listSlug) return;
+    if (!list.is_public && list.slug !== canonicalSlug) return;
+
+    navigate({
+      to: "/$username/lists/$listSlug",
+      params: { username, listSlug: canonicalSlug },
+      replace: true,
+    });
+  }, [list, listSlug, navigate, username]);
+
   const {
     data: speciesData,
     fetchNextPage,
@@ -271,7 +285,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
         onSuccess: () => {
           setEditOpen(false);
           toast.success(t("lists.listUpdated"));
-          const newSlug = slugify(title);
+          const newSlug = getListSlugParam(title);
           if (newSlug !== listSlug) {
             navigate({
               to: "/$username/lists/$listSlug",
@@ -340,7 +354,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
             onRemove={(gbifKey) => setRemoveSpeciesGbifKey(gbifKey)}
             listId={list.id}
             listUsername={list.user_username}
-            listSlug={list.slug}
+            listSlug={getListSlugParam(list.title)}
           />
         )}
       </div>

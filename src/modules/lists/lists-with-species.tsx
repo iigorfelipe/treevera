@@ -12,7 +12,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
-import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 import type {
   ListPickerItem,
   ListPreviewWithCreator,
@@ -74,7 +74,7 @@ const MySpeciesListCard = ({
   username: string;
 }) => {
   const { t } = useTranslation();
-  const listSlug = slugify(list.title);
+  const listSlug = getListSlugParam(list.title);
 
   return (
     <Link

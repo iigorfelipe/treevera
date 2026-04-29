@@ -30,6 +30,7 @@ import {
   SearchFilter,
   type SearchFilterValue,
 } from "@/modules/tree/search/search-filter";
+import { getListSlugParam } from "@/common/utils/list-url";
 
 const OFFICIAL_KINGDOMS = [
   "animalia",
@@ -203,11 +204,12 @@ function TaxaResults({ taxa }: { taxa: Taxon[] }) {
 
 function ListRow({ list }: { list: ListWithCreator }) {
   const { t } = useTranslation();
+  const listSlug = getListSlugParam(list.title);
 
   return (
     <Link
       to="/$username/lists/$listSlug"
-      params={{ username: list.user_username, listSlug: list.slug }}
+      params={{ username: list.user_username, listSlug }}
       className="hover:bg-muted/50 flex items-center gap-3 px-4 py-3 transition-colors"
     >
       <div className="bg-muted flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md">

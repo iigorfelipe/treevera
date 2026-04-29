@@ -30,7 +30,7 @@ import {
   useGetFeaturedLists,
   useSetFeaturedLists,
 } from "@/hooks/queries/useGetLists";
-import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 import { ListCard } from "./list-card";
 import { ListCompactCard } from "./list-compact-card";
 import { ListCoverCollage } from "./list-cover-collage";
@@ -181,7 +181,7 @@ export const ListsPage = () => {
     if (userDb?.username) {
       navigate({
         to: "/$username/lists/$listSlug",
-        params: { username: userDb.username, listSlug: slugify(title) },
+        params: { username: userDb.username, listSlug: getListSlugParam(title) },
       });
     }
   };

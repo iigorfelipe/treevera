@@ -109,6 +109,26 @@ export async function fetchListDetail(
   username: string,
   slug: string,
 ): Promise<ListWithCreator | null> {
+  const detail = await fetchListDetailByStoredSlug(username, slug);
+  if (detail) return detail;
+
+  const search = slug.replace(/-/g, " ").trim();
+  if (!search) return null;
+
+  const { rows } = await fetchPublicLists(20, 0, "recent", search);
+  const candidate = rows.find(
+    (list) => list.user_username === username && slugify(list.title) === slug,
+  );
+
+  if (!candidate?.slug || candidate.slug === slug) return null;
+
+  return fetchListDetailByStoredSlug(username, candidate.slug);
+}
+
+async function fetchListDetailByStoredSlug(
+  username: string,
+  slug: string,
+): Promise<ListWithCreator | null> {
   try {
     const { data, error } = await supabase.rpc("get_list_detail_by_slug", {
       p_username: username,
@@ -207,9 +227,11 @@ export async function fetchListLikersPage(
   offset: number,
 ): Promise<ListLikersPage> {
   try {
+    const detail = await fetchListDetail(username, slug);
+    const storedSlug = detail?.slug ?? slug;
     const { data, error } = await supabase.rpc("get_list_likers", {
       p_username: username,
-      p_slug: slug,
+      p_slug: storedSlug,
       p_limit: limit,
       p_offset: offset,
     });
@@ -240,6 +262,7 @@ export async function createList(
       .insert({
         user_id: session.user.id,
         title,
+        slug: slugify(title),
         description: description || null,
         is_public: isPublic,
       })

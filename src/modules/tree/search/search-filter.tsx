@@ -1,5 +1,5 @@
-import { Check } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Check, ChevronRight } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Image } from "@/common/components/image";
@@ -16,6 +16,7 @@ import { NAME_KINGDOM_BY_KEY } from "@/common/constants/tree";
 import type { Rank } from "@/common/types/api";
 import { capitalizar } from "@/common/utils/string";
 import { getRankIcon } from "@/common/utils/tree/ranks";
+import { useResponsive } from "@/hooks/use-responsive";
 
 export type SearchRankFilter =
   | "PHYLUM"
@@ -46,7 +47,9 @@ type SearchFilterProps = {
 
 export function SearchFilter({ value, onChange }: SearchFilterProps) {
   const { t } = useTranslation();
+  const { isTablet } = useResponsive();
   const [open, setOpen] = useState(false);
+  const [expandedMobileKingdom, setExpandedMobileKingdom] = useState("");
 
   const kingdomOptions = useMemo(
     () =>
@@ -77,6 +80,13 @@ export function SearchFilter({ value, onChange }: SearchFilterProps) {
     setOpen(false);
   };
 
+  const selectMobileKingdom = (kingdom: string) => {
+    onChange({ kingdom, rank: "" });
+    setExpandedMobileKingdom((current) =>
+      current === kingdom ? "" : kingdom,
+    );
+  };
+
   const selectRank = (kingdom: string, rank: SearchRankFilter) => {
     const next =
       value.kingdom === kingdom && value.rank === rank
@@ -88,11 +98,19 @@ export function SearchFilter({ value, onChange }: SearchFilterProps) {
 
   const clearFilter = () => {
     onChange({ kingdom: "", rank: "" });
+    setExpandedMobileKingdom("");
     setOpen(false);
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen && isTablet && value.kingdom) {
+      setExpandedMobileKingdom(value.kingdom);
+    }
+  };
+
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
@@ -127,6 +145,60 @@ export function SearchFilter({ value, onChange }: SearchFilterProps) {
 
         {kingdomOptions.map((option) => {
           const kingdomSelected = value.kingdom === option.name;
+
+          if (isTablet) {
+            const expanded = expandedMobileKingdom === option.name;
+
+            return (
+              <Fragment key={option.key}>
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    selectMobileKingdom(option.name);
+                  }}
+                  className="gap-2"
+                >
+                  <span className="flex w-4 justify-center">
+                    {kingdomSelected && <Check className="size-4" />}
+                  </span>
+                  <Image
+                    src={getRankIcon(option.key)}
+                    alt={`${option.name} icon`}
+                    className="size-5"
+                  />
+                  <span className="min-w-0 flex-1">
+                    {capitalizar(option.name)}
+                  </span>
+                  <ChevronRight
+                    className={`text-muted-foreground size-4 transition-transform ${
+                      expanded ? "rotate-90" : ""
+                    }`}
+                  />
+                </DropdownMenuItem>
+
+                {expanded && (
+                  <div className="border-border/60 ml-6 border-l py-1 pl-2">
+                    {SEARCH_RANKS.map((rank) => {
+                      const selected = kingdomSelected && value.rank === rank;
+
+                      return (
+                        <DropdownMenuItem
+                          key={rank}
+                          onSelect={() => selectRank(option.name, rank)}
+                          className="h-8 gap-2 text-xs"
+                        >
+                          <span className="flex w-4 justify-center">
+                            {selected && <Check className="size-4" />}
+                          </span>
+                          {t(`ranks.${rank}`)}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </div>
+                )}
+              </Fragment>
+            );
+          }
 
           return (
             <DropdownMenuSub key={option.key}>

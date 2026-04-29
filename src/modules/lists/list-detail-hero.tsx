@@ -27,6 +27,7 @@ import type { ListWithCreator } from "@/common/types/lists";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { getAppUrl } from "@/common/utils/base-url";
+import { getListSlugParam } from "@/common/utils/list-url";
 
 export type SpeciesFilter = "all" | "known" | "unknown";
 
@@ -52,9 +53,10 @@ export const ListDetailHero = ({
   const knownCount = list.known_count ?? 0;
   const totalCount = list.species_count;
   const pct = totalCount > 0 ? (knownCount / totalCount) * 100 : 0;
+  const listSlug = getListSlugParam(list.title);
 
   const handleShare = async () => {
-    const url = getAppUrl(`/${list.user_username}/lists/${list.slug}`);
+    const url = getAppUrl(`/${list.user_username}/lists/${listSlug}`);
     const title = list.title;
     const text = t("lists.shareText", { name: list.title });
 
@@ -175,7 +177,7 @@ export const ListDetailHero = ({
                   likesCount={list.likes_count}
                   size="sm"
                   username={list.user_username}
-                  listSlug={list.slug}
+                  listSlug={listSlug}
                 />
                 <Button
                   variant="outline"

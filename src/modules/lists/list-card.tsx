@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { inatImageUrl } from "@/common/utils/image-size";
 import { ListLikeButton } from "./list-like-button";
 import { formatActivityDate } from "@/common/utils/date-formats";
-import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 
 export type ListCardData = {
   id: string;
@@ -29,7 +29,7 @@ type ListCardProps = {
 export const ListCard = ({ list }: ListCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const listSlug = list.slug || slugify(list.title);
+  const listSlug = getListSlugParam(list.title);
 
   return (
     <div

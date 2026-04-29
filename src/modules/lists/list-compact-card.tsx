@@ -6,7 +6,7 @@ import {
   AvatarImage,
 } from "@/common/components/ui/avatar";
 import { formatActivityDate } from "@/common/utils/date-formats";
-import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 import type { ListCardData } from "./list-card";
 import { ListCoverCollage } from "./list-cover-collage";
 import { ListLikeButton } from "./list-like-button";
@@ -18,7 +18,7 @@ type ListCompactCardProps = {
 export const ListCompactCard = ({ list }: ListCompactCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const listSlug = list.slug || slugify(list.title);
+  const listSlug = getListSlugParam(list.title);
 
   const handleOpenList = () => {
     navigate({
