@@ -45,6 +45,8 @@ type FetchFreshParams = {
   family?: string;
   lang: string;
   base?: SpeciesCacheResult;
+  existingDescriptionPt?: string | null;
+  existingHasDescription?: boolean;
 };
 
 const BIOLOGICAL_TERMS = [
@@ -171,9 +173,12 @@ async function fetchDescriptionWithFallback(
   return null;
 }
 
-function buildCachedResult(cached: SpeciesCacheRow): SpeciesCacheResult {
+function buildCachedResult(
+  cached: SpeciesCacheRow,
+  lang: string,
+): SpeciesCacheResult {
   const cachedDescription =
-    cached.has_description && cached.description_pt
+    lang === "pt" && cached.has_description && cached.description_pt
       ? {
           title: cached.scientific_name,
           language: "pt",
@@ -201,8 +206,11 @@ function buildCachedResult(cached: SpeciesCacheRow): SpeciesCacheResult {
   };
 }
 
-function shouldRefreshCachedSpecies(cached: SpeciesCacheRow) {
-  return !cached.has_image || !cached.has_iucn || !cached.has_description;
+function shouldRefreshCachedSpecies(
+  cached: SpeciesCacheRow,
+  cachedResult: SpeciesCacheResult,
+) {
+  return !cached.has_image || !cached.has_iucn || !cachedResult.wikiDetails;
 }
 
 function mergeSpeciesCacheResults(
@@ -228,7 +236,11 @@ async function fetchFreshSpeciesCache({
   family,
   lang,
   base,
+  existingDescriptionPt,
+  existingHasDescription,
 }: FetchFreshParams): Promise<SpeciesCacheResult> {
+  const shouldFetchImage = !base?.image;
+  const shouldFetchIucn = !base?.iucnCode;
   const [
     iNatResult,
     wikiImgResult,
@@ -236,10 +248,16 @@ async function fetchFreshSpeciesCache({
     iucnResult,
     genusResult,
   ] = await Promise.allSettled([
-    getSpecieImageFromINaturalist({ canonicalName }),
-    getSpecieImageFromWikipedia({ canonicalName }),
+    shouldFetchImage
+      ? getSpecieImageFromINaturalist({ canonicalName })
+      : Promise.resolve(null),
+    shouldFetchImage
+      ? getSpecieImageFromWikipedia({ canonicalName })
+      : Promise.resolve(null),
     fetchDescriptionWithFallback(canonicalName, lang, true),
-    getSpeciesStatusFromIUCN(canonicalName),
+    shouldFetchIucn
+      ? getSpeciesStatusFromIUCN(canonicalName)
+      : Promise.resolve(null),
     genusName
       ? fetchDescriptionWithFallback(genusName, lang, true)
       : Promise.resolve(null),
@@ -256,7 +274,7 @@ async function fetchFreshSpeciesCache({
     genusResult.status === "fulfilled" ? genusResult.value : null;
 
   let image = iNatImg ?? wikiImg ?? null;
-  if (!image) {
+  if (shouldFetchImage && !image) {
     try {
       const gbifImg = await getSpecieImageFromGBIF({ specieKey: gbifKey });
       image = gbifImg ?? null;
@@ -284,6 +302,15 @@ async function fetchFreshSpeciesCache({
     Date.now() + 30 * 24 * 60 * 60 * 1000,
   ).toISOString();
 
+  const descriptionPt =
+    lang === "pt"
+      ? finalDescription
+      : (existingDescriptionPt ?? null);
+  const hasPersistedDescription =
+    lang === "pt"
+      ? !!descriptionPt
+      : (existingHasDescription ?? !!descriptionPt);
+
   void upsertSpeciesCache({
     gbif_key: gbifKey,
     scientific_name: canonicalName,
@@ -294,14 +321,14 @@ async function fetchFreshSpeciesCache({
     iucn_code: finalIucnCode,
     iucn_population_trend: finalIucnTrend,
     iucn_assessment_year: finalIucnYear,
-    description_pt: lang === "pt" ? finalDescription : baseDescription,
+    description_pt: descriptionPt,
     description_source: null,
     vernacular_names: null,
     family: family ?? null,
     expires_at,
     has_image: !!finalImage,
     has_iucn: finalIucnCode !== null,
-    has_description: !!finalDescription,
+    has_description: hasPersistedDescription,
   });
 
   return {
@@ -323,7 +350,12 @@ export const useGetSpeciesCache = (
   const { i18n } = useTranslation();
   const lang = i18n.language?.slice(0, 2) ?? "pt";
   const queryClient = useQueryClient();
-  const queryKey = [QUERY_KEYS.species_cache_key, gbifKey, lang] as const;
+  const queryKey = [
+    QUERY_KEYS.species_cache_key,
+    gbifKey,
+    lang,
+    "localized-v2",
+  ] as const;
 
   return useQuery<SpeciesCacheResult | null>({
     queryKey,
@@ -333,17 +365,25 @@ export const useGetSpeciesCache = (
       const cached = await getSpeciesCache(gbifKey);
 
       if (cached) {
-        const cachedResult = buildCachedResult(cached);
+        const cachedResult = buildCachedResult(cached, lang);
+        const freshParams = {
+          gbifKey,
+          canonicalName,
+          genusName,
+          family,
+          lang,
+          base: cachedResult,
+          existingDescriptionPt: cached.description_pt,
+          existingHasDescription: cached.has_description,
+        };
 
-        if (shouldRefreshCachedSpecies(cached)) {
-          void fetchFreshSpeciesCache({
-            gbifKey,
-            canonicalName,
-            genusName,
-            family,
-            lang,
-            base: cachedResult,
-          }).then((fresh) => {
+        if (!cachedResult.wikiDetails) {
+          const fresh = await fetchFreshSpeciesCache(freshParams);
+          return mergeSpeciesCacheResults(cachedResult, fresh);
+        }
+
+        if (shouldRefreshCachedSpecies(cached, cachedResult)) {
+          void fetchFreshSpeciesCache(freshParams).then((fresh) => {
             queryClient.setQueryData(
               queryKey,
               mergeSpeciesCacheResults(cachedResult, fresh),
