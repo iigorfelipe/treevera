@@ -501,7 +501,10 @@
       "pathGenus": "Genus",
       "pathSpecies": "Species",
       "historyTitle": "Past challenges",
-      "historyDescription": "Pick another day to try a published species and track which challenges you have completed."
+      "historyDescription": "Pick another day to try a published species and track which challenges you have completed.",
+      "revealImage": "Reveal",
+      "hideImage": "Hide",
+      "viewSpecies": "View species"
     }
   },
   "challenge": {

@@ -30,6 +30,7 @@ export const useVirtualTree = (
   roots: number[],
   parentRef: RefObject<HTMLDivElement | null>,
   isCompactMenu = false,
+  showSearchBanner = true,
 ) => {
   const flattenTree = useCallback(
     (
@@ -49,7 +50,7 @@ export const useVirtualTree = (
           const children = flattenTree(nodes, node.childrenKeys, level + 1);
           for (let i = 0; i < children.length; i++) result.push(children[i]);
 
-          if (!isCompactMenu && node.rank !== "KINGDOM") {
+          if (!isCompactMenu && showSearchBanner && node.rank !== "KINGDOM") {
             result.push({
               key: -(node.key + 3_000_000_000),
               level: level + 1,
@@ -75,7 +76,7 @@ export const useVirtualTree = (
 
       return result;
     },
-    [isCompactMenu],
+    [isCompactMenu, showSearchBanner],
   );
 
   const flattened = useMemo(() => {

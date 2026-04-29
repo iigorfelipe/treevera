@@ -55,6 +55,7 @@ export const VirtualTree = () => {
     roots,
     parentRef,
     isCompactMenu,
+    !challengeMode,
   );
 
   useEffect(() => {

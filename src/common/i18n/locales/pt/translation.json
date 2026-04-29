@@ -501,7 +501,10 @@
       "pathGenus": "Gênero",
       "pathSpecies": "Espécie",
       "historyTitle": "Desafios anteriores",
-      "historyDescription": "Escolha outro dia para tentar uma espécie já publicada e acompanhar quais desafios você concluiu."
+      "historyDescription": "Escolha outro dia para tentar uma espécie já publicada e acompanhar quais desafios você concluiu.",
+      "revealImage": "Revelar",
+      "hideImage": "Ocultar",
+      "viewSpecies": "Ver espécie"
     }
   },
   "challenge": {

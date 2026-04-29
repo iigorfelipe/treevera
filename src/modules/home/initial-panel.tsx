@@ -3,8 +3,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
-  ChevronRight,
   CheckCircle2,
+  Eye,
+  EyeOff,
   HelpCircle,
   Loader2,
   // MessageSquare,
@@ -12,13 +13,17 @@ import {
   Search,
 } from "lucide-react";
 
+import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
+import challengePathVideo from "@/assets/videos/tutorial.mp4";
 import {
   KEY_KINGDOM_BY_NAME,
   NAME_KINGDOM_BY_KEY,
 } from "@/common/constants/tree";
 import type { PathNode } from "@/common/types/tree-atoms";
-import { ChallengeDateCalendar } from "@/modules/challenge/daily/challenge-date-picker";
+import { cn } from "@/common/utils/cn";
+import { inatImageUrl } from "@/common/utils/image-size";
+import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { Timer } from "@/modules/challenge/components/timer";
 import { FeaturedListCard } from "@/modules/lists/featured-list-card";
 import { ListCreateDialog } from "@/modules/lists/list-create-dialog";
@@ -26,6 +31,7 @@ import { KingdomCardItem } from "@/modules/explore/kingdom-card";
 import { useGetChallengeDates } from "@/hooks/queries/useGetChallengeDates";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
 import { useGetFeaturedLists } from "@/hooks/queries/useGetLists";
+import { useGetSpecieImage } from "@/hooks/queries/useGetSpecieImage";
 import { useScrollThenNavigate } from "@/hooks/use-scroll-then-navigate";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { authStore } from "@/store/auth/atoms";
@@ -352,6 +358,13 @@ const DailyChallengeHomeSection = () => {
 
   const { data: challengeDates = [] } = useGetChallengeDates();
   const { data, isLoading, isError } = useGetDailyChallenge(selectedDate);
+  const { data: challengeImage, isLoading: isImageLoading } = useGetSpecieImage(
+    data?.gbifKey,
+    data?.scientificName,
+  );
+  const [revealedImageDate, setRevealedImageDate] = useState<string | null>(
+    null,
+  );
   const currentChallengeDate = useMemo(
     () =>
       challengeDates.find(
@@ -384,15 +397,13 @@ const DailyChallengeHomeSection = () => {
   );
 
   const speciesName = data?.scientificName;
-  const pathSteps = [
-    t("homeInitial.dailyChallenge.pathKingdom"),
-    t("homeInitial.dailyChallenge.pathPhylum"),
-    t("homeInitial.dailyChallenge.pathClass"),
-    t("homeInitial.dailyChallenge.pathOrder"),
-    t("homeInitial.dailyChallenge.pathFamily"),
-    t("homeInitial.dailyChallenge.pathGenus"),
-    t("homeInitial.dailyChallenge.pathSpecies"),
-  ];
+  const challengeImageSrc = challengeImage?.imgUrl
+    ? inatImageUrl(challengeImage.imgUrl, "medium")
+    : null;
+  const imageRevealed = revealedImageDate === selectedDate;
+  const completedDailyCount = challengeDates.filter(
+    (challengeDate) => challengeDate.completed,
+  ).length;
 
   const startDailyChallenge = () => {
     if (!data) return;
@@ -406,6 +417,18 @@ const DailyChallengeHomeSection = () => {
       startedAt: Date.now(),
       errorTracking: { count: 0, perStep: [] },
       stepInteractions: {},
+    });
+  };
+
+  const openCompletedSpecies = () => {
+    if (!data) return;
+
+    const speciesSlug = getSpeciesSlugParam(data.gbifKey, data.scientificName);
+    if (!speciesSlug) return;
+
+    void navigate({
+      to: "/species/$speciesSlug",
+      params: { speciesSlug },
     });
   };
 
@@ -443,128 +466,210 @@ const DailyChallengeHomeSection = () => {
       </div>
 
       <div className="border-border bg-card rounded-xl border p-4 @[640px]/daily:p-6">
-        <div className="flex flex-col gap-5 @[920px]/daily:flex-row @[920px]/daily:items-center @[920px]/daily:justify-between">
-          <div className="min-w-0">
-            <div className="mb-3 flex flex-wrap items-center gap-3">
-              <span className="border-border text-muted-foreground rounded-md border px-3 py-1 text-xs font-bold">
-                {t("homeInitial.dailyChallenge.badge")}
-              </span>
-              <span className="text-muted-foreground text-sm">
-                {formattedSelectedDate}
-              </span>
-              {isCompleted && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
-                  <CheckCircle2 className="size-3.5" />
-                  {t("challenge.alreadyCompleted")}
+        <div className="space-y-6">
+          <div className="flex min-w-0 flex-col gap-5 border-b pb-5 @[820px]/daily:flex-row @[820px]/daily:items-start @[820px]/daily:justify-between">
+            <div className="min-w-0">
+              <div className="mb-3 flex flex-wrap items-center gap-3">
+                <span className="border-border text-muted-foreground rounded-md border px-3 py-1 text-xs font-bold">
+                  {t("homeInitial.dailyChallenge.badge")}
                 </span>
-              )}
-              {isToday && <Timer />}
+                <span className="text-muted-foreground text-sm">
+                  {formattedSelectedDate}
+                </span>
+                {isCompleted && (
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                    <CheckCircle2 className="size-3.5" />
+                    {t("challenge.alreadyCompleted")}
+                  </span>
+                )}
+                {isToday && <Timer />}
+              </div>
+
+              <h3 className="text-foreground text-xl leading-tight font-bold @[640px]/daily:text-2xl">
+                {t("homeInitial.dailyChallenge.findPathPrefix")}{" "}
+                {isLoading ? (
+                  <span className="text-muted-foreground inline-flex items-center gap-2">
+                    <Loader2 className="size-5 animate-spin" />
+                    {t("homeInitial.dailyChallenge.loadingSpecies")}
+                  </span>
+                ) : isError || !speciesName ? (
+                  <span className="text-muted-foreground">
+                    {t("homeInitial.dailyChallenge.surpriseSpecies")}
+                  </span>
+                ) : (
+                  <span className="font-semibold text-emerald-600">
+                    {speciesName}
+                  </span>
+                )}
+              </h3>
+
+              <p className="text-muted-foreground mt-3 max-w-3xl text-sm">
+                {isAuthenticated
+                  ? isCompleted
+                    ? t("homeInitial.dailyChallenge.completedHint")
+                    : t("homeInitial.dailyChallenge.authenticatedHint")
+                  : t("homeInitial.dailyChallenge.guestHint")}
+              </p>
             </div>
 
-            <h3 className="text-foreground text-xl leading-tight font-bold @[640px]/daily:text-2xl">
-              {t("homeInitial.dailyChallenge.findPathPrefix")}{" "}
-              {isLoading ? (
-                <span className="text-muted-foreground inline-flex items-center gap-2">
-                  <Loader2 className="size-5 animate-spin" />
-                  {t("homeInitial.dailyChallenge.loadingSpecies")}
-                </span>
-              ) : isError || !speciesName ? (
-                <span className="text-muted-foreground">
-                  {t("homeInitial.dailyChallenge.surpriseSpecies")}
-                </span>
-              ) : (
-                <span className="font-semibold text-emerald-600">
-                  {speciesName}
-                </span>
-              )}
-            </h3>
+            <div className="flex w-full flex-col gap-3 @[480px]/daily:flex-row @[820px]/daily:w-56 @[820px]/daily:flex-col @[820px]/daily:pt-5">
+              <Button
+                onClick={handlePrimaryAction}
+                disabled={isLoading || isError || !data}
+                className="h-11 bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                <Play className="size-4" />
+                {primaryActionLabel}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => void navigate({ to: "/challenges" })}
+                className="h-9"
+              >
+                <HelpCircle className="size-4" />
+                {t("homeInitial.dailyChallenge.viewChallengeModes")}
+              </Button>
+            </div>
+          </div>
 
-            <p className="text-muted-foreground mt-3 text-sm">
-              {isAuthenticated
-                ? isCompleted
-                  ? t("homeInitial.dailyChallenge.completedHint")
-                  : t("homeInitial.dailyChallenge.authenticatedHint")
-                : t("homeInitial.dailyChallenge.guestHint")}
-            </p>
-
-            <div className="mt-4 rounded-lg border p-3">
-              <p className="text-muted-foreground mb-2 text-xs font-medium">
+          <div
+            className={cn(
+              "grid gap-6 @[720px]/daily:items-start",
+              isAuthenticated
+                ? "@[720px]/daily:grid-cols-[18rem_14rem] @[980px]/daily:grid-cols-[18rem_14rem_minmax(0,1fr)]"
+                : "@[720px]/daily:grid-cols-[18rem_14rem]",
+            )}
+          >
+            <div className="mx-auto w-full max-w-72 min-w-0 space-y-3 @[720px]/daily:mx-0">
+              <p className="text-muted-foreground mb-3 text-xs font-medium">
                 {t("homeInitial.dailyChallenge.pathHint")}
               </p>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {pathSteps.map((step, index) => (
-                  <div key={step} className="flex items-center gap-1.5">
-                    <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs font-medium">
-                      {step}
-                    </span>
-                    {index < pathSteps.length - 1 && (
-                      <ChevronRight className="text-muted-foreground size-3.5" />
-                    )}
-                  </div>
-                ))}
+              <div className="overflow-hidden rounded-lg border bg-black">
+                <video
+                  src={challengePathVideo}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  aria-label={t("homeInitial.dailyChallenge.pathHint")}
+                  className="aspect-[472/316] w-full object-cover"
+                />
               </div>
             </div>
 
+            <div className="mx-auto w-full max-w-56 min-w-0 space-y-3 @[720px]/daily:mx-0">
+              <div className="flex justify-center">
+                <DailyDateNav
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                />
+              </div>
+
+              <div className="bg-muted relative aspect-[4/3] overflow-hidden rounded-lg border">
+                {isImageLoading ? (
+                  <div className="bg-muted-foreground/10 h-full w-full animate-pulse" />
+                ) : challengeImageSrc ? (
+                  <Image
+                    src={challengeImageSrc}
+                    alt={t("specieDetail.speciesImageAlt", {
+                      name: speciesName ?? "",
+                    })}
+                    className={cn(
+                      "h-full w-full object-cover transition duration-500",
+                      imageRevealed
+                        ? "blur-0 scale-100 brightness-100"
+                        : "scale-110 blur-[6px] brightness-[0.55] saturate-90",
+                    )}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center px-6 text-center">
+                    <span className="text-muted-foreground text-sm">
+                      {t("challenge.imageUnavailable")}
+                    </span>
+                  </div>
+                )}
+
+                {challengeImageSrc && (
+                  <>
+                    {!imageRevealed && (
+                      <div className="absolute inset-0 bg-black/30" />
+                    )}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={imageRevealed ? "secondary" : "default"}
+                      onClick={() =>
+                        setRevealedImageDate((value) =>
+                          value === selectedDate ? null : selectedDate,
+                        )
+                      }
+                      className={cn(
+                        "absolute shadow-md",
+                        imageRevealed
+                          ? "top-3 right-3"
+                          : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                      )}
+                    >
+                      {imageRevealed ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                      {imageRevealed
+                        ? t("homeInitial.dailyChallenge.hideImage")
+                        : t("homeInitial.dailyChallenge.revealImage")}
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {isCompleted && data && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={openCompletedSpecies}
+                  className="h-10 w-full"
+                >
+                  {t("homeInitial.dailyChallenge.viewSpecies")}
+                </Button>
+              )}
+            </div>
+
             {isAuthenticated && (
-              <div className="mt-4 grid gap-2 @[520px]/daily:grid-cols-2">
-                <div className="rounded-lg border p-3">
-                  <p className="text-muted-foreground text-xs">
-                    {t("homeInitial.dailyChallenge.currentStreak")}
-                  </p>
-                  <p className="text-foreground mt-1 text-lg font-semibold">
-                    {currentStreak} {t("challenge.statsDays")}
-                  </p>
-                </div>
-                <div className="rounded-lg border p-3">
-                  <p className="text-muted-foreground text-xs">
-                    {t("homeInitial.dailyChallenge.recordStreak")}
-                  </p>
-                  <p className="text-foreground mt-1 text-lg font-semibold">
-                    {recordStreak} {t("challenge.statsDays")}
-                  </p>
+              <div className="min-w-0 border-t pt-5 @[980px]/daily:border-t-0 @[980px]/daily:border-l @[980px]/daily:pt-0 @[980px]/daily:pl-6">
+                <h3 className="text-base font-semibold">
+                  {t("challenge.statsTitle")}
+                </h3>
+                <div className="mt-4 grid gap-3 @[520px]/daily:grid-cols-3 @[980px]/daily:grid-cols-1 @[1160px]/daily:grid-cols-3">
+                  <div>
+                    <p className="text-muted-foreground text-xs">
+                      {t("challenge.statsDailyCompleted")}
+                    </p>
+                    <p className="text-foreground mt-1 text-lg font-semibold">
+                      {completedDailyCount}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">
+                      {t("homeInitial.dailyChallenge.currentStreak")}
+                    </p>
+                    <p className="text-foreground mt-1 text-lg font-semibold">
+                      {currentStreak} {t("challenge.statsDays")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">
+                      {t("homeInitial.dailyChallenge.recordStreak")}
+                    </p>
+                    <p className="text-foreground mt-1 text-lg font-semibold">
+                      {recordStreak} {t("challenge.statsDays")}
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-
-          <div className="flex shrink-0 flex-col items-stretch gap-3 @[520px]/daily:min-w-48">
-            <Button
-              onClick={handlePrimaryAction}
-              disabled={isLoading || isError || !data}
-              className="h-11 bg-emerald-600 text-white hover:bg-emerald-700"
-            >
-              <Play className="size-4" />
-              {primaryActionLabel}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => void navigate({ to: "/challenges" })}
-              className="h-9"
-            >
-              <HelpCircle className="size-4" />
-              {t("homeInitial.dailyChallenge.viewChallengeModes")}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-border bg-card mt-4 rounded-xl border p-4 @[640px]/daily:p-6">
-        <div className="grid gap-5 @[820px]/daily:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] @[820px]/daily:items-start">
-          <div>
-            <h3 className="text-base font-semibold">
-              {t("homeInitial.dailyChallenge.historyTitle")}
-            </h3>
-            <p className="text-muted-foreground mt-1 text-sm leading-6">
-              {t("homeInitial.dailyChallenge.historyDescription")}
-            </p>
-          </div>
-
-          <ChallengeDateCalendar
-            selectedDate={selectedDate}
-            challengeDates={challengeDates}
-            onSelectDate={setSelectedDate}
-            className="min-w-0"
-          />
         </div>
       </div>
     </section>
@@ -597,7 +702,7 @@ const DailyChallengeHomeSection = () => {
 
 export const HomeInitialPanel = () => (
   <main className="text-foreground @container/home-initial mb-42 min-h-screen min-w-0 overflow-x-hidden bg-transparent px-6 py-6">
-    <div className="mx-auto flex max-w-7xl min-w-0 flex-col gap-10 @[860px]/home-initial:gap-12">
+    <div className="mx-auto flex max-w-7xl min-w-0 flex-col gap-14 @[860px]/home-initial:gap-16">
       <WelcomePanel />
 
       <KingdomsSection />
