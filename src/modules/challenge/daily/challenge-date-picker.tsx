@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/common/components/ui/button";
@@ -23,6 +23,14 @@ type Props = {
   triggerClassName?: string;
 };
 
+type ChallengeDateCalendarProps = {
+  selectedDate: string;
+  challengeDates: ChallengeDate[];
+  onSelectDate: (date: string) => void;
+  onAfterSelect?: () => void;
+  className?: string;
+};
+
 const getDaysInMonth = (year: number, month: number) =>
   new Date(year, month + 1, 0).getDate();
 
@@ -39,24 +47,27 @@ const getToday = () => {
   return `${y}-${m}-${d}`;
 };
 
-export const ChallengeDatePicker = ({
+export const ChallengeDateCalendar = ({
   selectedDate,
   challengeDates,
   onSelectDate,
-  formattedLabel,
-  triggerContent,
-  triggerClassName,
-}: Props) => {
+  onAfterSelect,
+  className,
+}: ChallengeDateCalendarProps) => {
   const { i18n, t } = useTranslation();
   const today = getToday();
 
-  const [open, setOpen] = useState(false);
   const [viewYear, setViewYear] = useState(() =>
     parseInt(selectedDate.slice(0, 4)),
   );
   const [viewMonth, setViewMonth] = useState(
     () => parseInt(selectedDate.slice(5, 7)) - 1,
   );
+
+  useEffect(() => {
+    setViewYear(parseInt(selectedDate.slice(0, 4)));
+    setViewMonth(parseInt(selectedDate.slice(5, 7)) - 1);
+  }, [selectedDate]);
 
   const challengeMap = new Map<string, ChallengeDate>(
     challengeDates.map((cd) => [cd.date, cd]),
@@ -68,7 +79,11 @@ export const ChallengeDatePicker = ({
 
   const minDate =
     challengeDates.length > 0
-      ? challengeDates[challengeDates.length - 1].date
+      ? challengeDates.reduce(
+          (oldest, challengeDate) =>
+            challengeDate.date < oldest ? challengeDate.date : oldest,
+          challengeDates[0].date,
+        )
       : today;
   const minYear = parseInt(minDate.slice(0, 4));
   const minMonth = parseInt(minDate.slice(5, 7)) - 1;
@@ -97,10 +112,10 @@ export const ChallengeDatePicker = ({
   };
 
   const handleSelectDay = (dateStr: string) => {
-    const cd = challengeMap.get(dateStr);
-    if (!cd || dateStr > today) return;
+    const challengeDate = challengeMap.get(dateStr);
+    if (!challengeDate || dateStr > today) return;
     onSelectDate(dateStr);
-    setOpen(false);
+    onAfterSelect?.();
   };
 
   const daysInMonth = getDaysInMonth(viewYear, viewMonth);
@@ -112,11 +127,121 @@ export const ChallengeDatePicker = ({
   }).format(new Date(viewYear, viewMonth, 1));
 
   const dayHeaders = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(2025, 0, 6 + i);
+    const day = new Date(2025, 0, 6 + i);
     return new Intl.DateTimeFormat(i18n.language, { weekday: "short" })
-      .format(d)
+      .format(day)
       .slice(0, 2);
   });
+
+  return (
+    <div className={cn("select-none", className)}>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handlePrevMonth}
+          disabled={isAtMinMonth}
+          aria-label={t("challenge.prevMonth")}
+        >
+          <ChevronLeft className="size-4" />
+        </Button>
+        <span className="text-sm font-semibold capitalize">{monthLabel}</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handleNextMonth}
+          disabled={isAtMaxMonth}
+          aria-label={t("challenge.nextMonth")}
+        >
+          <ChevronRight className="size-4" />
+        </Button>
+      </div>
+
+      <div className="mb-1 grid grid-cols-7">
+        {dayHeaders.map((day, index) => (
+          <div
+            key={`${day}-${index}`}
+            className="text-muted-foreground py-1 text-center text-[10px] font-medium uppercase"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-y-1">
+        {Array.from({ length: firstDay }, (_, i) => (
+          <div key={`gap-${i}`} />
+        ))}
+
+        {Array.from({ length: daysInMonth }, (_, i) => {
+          const day = i + 1;
+          const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const isFuture = dateStr > today;
+          const challengeDate = challengeMap.get(dateStr);
+          const hasChallenge = !!challengeDate;
+          const isCompleted = challengeDate?.completed ?? false;
+          const isSelected = dateStr === selectedDate;
+          const disabled = isFuture || !hasChallenge;
+
+          return (
+            <button
+              key={day}
+              type="button"
+              onClick={() => !disabled && handleSelectDay(dateStr)}
+              disabled={disabled}
+              className={[
+                "relative mx-auto flex size-8 items-center justify-center rounded-full text-sm transition-all",
+                disabled
+                  ? "text-muted-foreground/35 cursor-not-allowed"
+                  : "cursor-pointer",
+                isSelected
+                  ? "ring-primary bg-primary/5 ring-1"
+                  : !disabled
+                    ? "hover:bg-muted"
+                    : "",
+                isCompleted && !isSelected
+                  ? "font-semibold text-emerald-600 dark:text-emerald-400"
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {day}
+              {isCompleted && (
+                <span className="absolute bottom-0.5 left-1/2 size-1 -translate-x-1/2 rounded-full bg-emerald-500" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-3 text-xs">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block size-1.5 rounded-full bg-emerald-500" />
+          {t("challenge.completedLabel")}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="ring-primary inline-block size-3 rounded-full ring-1" />
+          {t("challenge.selectedLabel")}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export const ChallengeDatePicker = ({
+  selectedDate,
+  challengeDates,
+  onSelectDate,
+  formattedLabel,
+  triggerContent,
+  triggerClassName,
+}: Props) => {
+  const { t } = useTranslation();
+
+  const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -142,96 +267,13 @@ export const ChallengeDatePicker = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-4 pb-5 select-none">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              onClick={handlePrevMonth}
-              disabled={isAtMinMonth}
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <span className="text-sm font-semibold capitalize">
-              {monthLabel}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-7"
-              onClick={handleNextMonth}
-              disabled={isAtMaxMonth}
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
-
-          <div className="mb-1 grid grid-cols-7">
-            {dayHeaders.map((d, i) => (
-              <div
-                key={`${d}-${i}`}
-                className="text-muted-foreground py-1 text-center text-[10px] font-medium uppercase"
-              >
-                {d}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-y-1">
-            {Array.from({ length: firstDay }, (_, i) => (
-              <div key={`gap-${i}`} />
-            ))}
-
-            {Array.from({ length: daysInMonth }, (_, i) => {
-              const day = i + 1;
-              const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-              const isFuture = dateStr > today;
-              const cd = challengeMap.get(dateStr);
-              const hasChallenge = !!cd;
-              const isCompleted = cd?.completed ?? false;
-              // const isToday = dateStr === today;
-              const isSelected = dateStr === selectedDate;
-              const disabled = isFuture || !hasChallenge;
-
-              return (
-                <button
-                  key={day}
-                  onClick={() => !disabled && handleSelectDay(dateStr)}
-                  disabled={disabled}
-                  className={[
-                    "relative mx-auto flex size-8 items-center justify-center rounded-full text-sm transition-all",
-                    disabled
-                      ? "text-muted-foreground/35 cursor-not-allowed"
-                      : "cursor-pointer",
-                    isSelected
-                      ? "ring-primary ring-1"
-                      : !disabled
-                        ? "hover:bg-muted"
-                        : "",
-                    isCompleted && !isSelected
-                      ? "font-semibold text-emerald-600 dark:text-emerald-400"
-                      : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  {day}
-                  {isCompleted && (
-                    <span className="absolute bottom-0.5 left-1/2 size-1 -translate-x-1/2 rounded-full bg-emerald-500" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="text-muted-foreground mt-3 flex items-center gap-3 border-t pt-3 text-xs">
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block size-1.5 rounded-full bg-emerald-500" />
-              {t("challenge.completedLabel")}
-            </span>
-          </div>
-        </div>
+        <ChallengeDateCalendar
+          selectedDate={selectedDate}
+          challengeDates={challengeDates}
+          onSelectDate={onSelectDate}
+          onAfterSelect={() => setOpen(false)}
+          className="px-4 pb-5"
+        />
       </DialogContent>
     </Dialog>
   );

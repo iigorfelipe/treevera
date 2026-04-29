@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import {
-  CalendarDays,
+  ChevronRight,
   CheckCircle2,
   HelpCircle,
   Loader2,
@@ -18,7 +18,7 @@ import {
   NAME_KINGDOM_BY_KEY,
 } from "@/common/constants/tree";
 import type { PathNode } from "@/common/types/tree-atoms";
-import { ChallengeDatePicker } from "@/modules/challenge/daily/challenge-date-picker";
+import { ChallengeDateCalendar } from "@/modules/challenge/daily/challenge-date-picker";
 import { Timer } from "@/modules/challenge/components/timer";
 import { FeaturedListCard } from "@/modules/lists/featured-list-card";
 import { ListCreateDialog } from "@/modules/lists/list-create-dialog";
@@ -372,7 +372,6 @@ const DailyChallengeHomeSection = () => {
         userDb?.game_info?.progress?.consecutive_days ?? 0,
       )
     : 0;
-  const pastChallengesLabel = t("challenge.pastChallenges");
 
   const formattedSelectedDate = useMemo(
     () =>
@@ -385,13 +384,17 @@ const DailyChallengeHomeSection = () => {
   );
 
   const speciesName = data?.scientificName;
+  const pathSteps = [
+    t("homeInitial.dailyChallenge.pathKingdom"),
+    t("homeInitial.dailyChallenge.pathPhylum"),
+    t("homeInitial.dailyChallenge.pathClass"),
+    t("homeInitial.dailyChallenge.pathOrder"),
+    t("homeInitial.dailyChallenge.pathFamily"),
+    t("homeInitial.dailyChallenge.pathGenus"),
+    t("homeInitial.dailyChallenge.pathSpecies"),
+  ];
 
-  const handleStart = () => {
-    if (!isAuthenticated) {
-      void navigate({ to: "/login" });
-      return;
-    }
-
+  const startDailyChallenge = () => {
     if (!data) return;
 
     setChallenge({
@@ -406,9 +409,29 @@ const DailyChallengeHomeSection = () => {
     });
   };
 
+  const handlePrimaryAction = () => {
+    if (!isAuthenticated) {
+      void navigate({ to: "/login" });
+      return;
+    }
+
+    if (isCompleted) {
+      void navigate({ to: "/challenges/random" });
+      return;
+    }
+
+    startDailyChallenge();
+  };
+
+  const primaryActionLabel = !isAuthenticated
+    ? t("homeInitial.dailyChallenge.signInToPlay")
+    : isCompleted
+      ? t("challenge.tryRandom")
+      : t("challenge.start");
+
   return (
     <section className="text-foreground @container/daily py-3">
-      <div className="mb-5 flex flex-col items-start gap-3 @[760px]/daily:flex-row @[760px]/daily:justify-between">
+      <div className="mb-5">
         <div>
           <h2 className="text-xl font-bold">
             {t("homeInitial.dailyChallenge.title")}
@@ -417,20 +440,6 @@ const DailyChallengeHomeSection = () => {
             {t("homeInitial.dailyChallenge.description")}
           </p>
         </div>
-
-        <ChallengeDatePicker
-          selectedDate={selectedDate}
-          challengeDates={challengeDates}
-          onSelectDate={setSelectedDate}
-          formattedLabel={pastChallengesLabel}
-          triggerContent={
-            <>
-              <CalendarDays className="size-3.5" />
-              <span>{pastChallengesLabel}</span>
-            </>
-          }
-          triggerClassName="h-8 shrink-0 border border-border bg-transparent px-3 text-xs text-muted-foreground shadow-none hover:text-foreground"
-        />
       </div>
 
       <div className="border-border bg-card rounded-xl border p-4 @[640px]/daily:p-6">
@@ -472,39 +481,60 @@ const DailyChallengeHomeSection = () => {
 
             <p className="text-muted-foreground mt-3 text-sm">
               {isAuthenticated
-                ? t("homeInitial.dailyChallenge.authenticatedHint")
+                ? isCompleted
+                  ? t("homeInitial.dailyChallenge.completedHint")
+                  : t("homeInitial.dailyChallenge.authenticatedHint")
                 : t("homeInitial.dailyChallenge.guestHint")}
             </p>
 
+            <div className="mt-4 rounded-lg border p-3">
+              <p className="text-muted-foreground mb-2 text-xs font-medium">
+                {t("homeInitial.dailyChallenge.pathHint")}
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {pathSteps.map((step, index) => (
+                  <div key={step} className="flex items-center gap-1.5">
+                    <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs font-medium">
+                      {step}
+                    </span>
+                    {index < pathSteps.length - 1 && (
+                      <ChevronRight className="text-muted-foreground size-3.5" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {isAuthenticated && (
-              <div className="text-muted-foreground mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-                <span>
-                  {t("homeInitial.dailyChallenge.currentStreak")}:{" "}
-                  <strong className="text-foreground">
+              <div className="mt-4 grid gap-2 @[520px]/daily:grid-cols-2">
+                <div className="rounded-lg border p-3">
+                  <p className="text-muted-foreground text-xs">
+                    {t("homeInitial.dailyChallenge.currentStreak")}
+                  </p>
+                  <p className="text-foreground mt-1 text-lg font-semibold">
                     {currentStreak} {t("challenge.statsDays")}
-                  </strong>
-                </span>
-                <span className="text-border hidden @[420px]/daily:inline">
-                  |
-                </span>
-                <span>
-                  {t("homeInitial.dailyChallenge.recordStreak")}:{" "}
-                  <strong className="text-foreground">
+                  </p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <p className="text-muted-foreground text-xs">
+                    {t("homeInitial.dailyChallenge.recordStreak")}
+                  </p>
+                  <p className="text-foreground mt-1 text-lg font-semibold">
                     {recordStreak} {t("challenge.statsDays")}
-                  </strong>
-                </span>
+                  </p>
+                </div>
               </div>
             )}
           </div>
 
           <div className="flex shrink-0 flex-col items-stretch gap-3 @[520px]/daily:min-w-48">
             <Button
-              onClick={handleStart}
+              onClick={handlePrimaryAction}
               disabled={isLoading || isError || !data}
               className="h-11 bg-emerald-600 text-white hover:bg-emerald-700"
             >
               <Play className="size-4" />
-              {isCompleted ? t("challenge.play") : t("challenge.start")}
+              {primaryActionLabel}
             </Button>
             <Button
               variant="ghost"
@@ -512,9 +542,29 @@ const DailyChallengeHomeSection = () => {
               className="h-9"
             >
               <HelpCircle className="size-4" />
-              {t("homeInitial.dailyChallenge.howItWorks")}
+              {t("homeInitial.dailyChallenge.viewChallengeModes")}
             </Button>
           </div>
+        </div>
+      </div>
+
+      <div className="border-border bg-card mt-4 rounded-xl border p-4 @[640px]/daily:p-6">
+        <div className="grid gap-5 @[820px]/daily:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] @[820px]/daily:items-start">
+          <div>
+            <h3 className="text-base font-semibold">
+              {t("homeInitial.dailyChallenge.historyTitle")}
+            </h3>
+            <p className="text-muted-foreground mt-1 text-sm leading-6">
+              {t("homeInitial.dailyChallenge.historyDescription")}
+            </p>
+          </div>
+
+          <ChallengeDateCalendar
+            selectedDate={selectedDate}
+            challengeDates={challengeDates}
+            onSelectDate={setSelectedDate}
+            className="min-w-0"
+          />
         </div>
       </div>
     </section>
