@@ -457,20 +457,6 @@
     "heroTitle": "Encuentra cualquier ser vivo ya catalogado, desde bacterias hasta ballenas.",
     "searchPlaceholder": "Busca en todo el sitio (especies, listas, usuarios)",
     "popularSearches": "Búsquedas populares",
-    "journey": {
-      "search": {
-        "title": "Busca una especie",
-        "description": "Abre una página con imágenes, descripción, mapa y taxonomía."
-      },
-      "tree": {
-        "title": "Entiende el camino",
-        "description": "Ve dónde está en el árbol, desde el reino hasta el género."
-      },
-      "keep": {
-        "title": "Guarda y practica",
-        "description": "Guarda especies en listas y convierte hallazgos en desafíos."
-      }
-    },
     "kingdoms": {
       "title": "Empieza por un reino",
       "description": "Toda forma de vida pertenece a uno de estos 7 grupos. Elige uno para expandir el árbol desde allí.",
@@ -486,7 +472,9 @@
     },
     "featuredLists": {
       "title": "Explora a través de listas",
+      "description": "Descubre colecciones listas o crea tus propias listas de especies.",
       "viewAll": "Ver todas las listas",
+      "create": "Crear lista",
       "empty": "Aún no hay listas destacadas."
     },
     "dailyChallenge": {
@@ -663,6 +651,12 @@
     "by": "por",
     "noListsFound": "No se encontraron listas",
     "noSpeciesInList": "Esta lista aún no tiene especies",
+    "emptyOwnerListTitle": "Tu lista está vacía",
+    "emptyOwnerListDescription": "Busca una especie para empezar. Luego usa el menú de la tarjeta o la página de detalles para añadirla a esta lista.",
+    "emptyOwnerListSearchLabel": "Buscar especie para añadir a la lista",
+    "emptyOwnerListSearchPlaceholder": "Nombre científico o común...",
+    "emptyOwnerListSearchButton": "Buscar especie",
+    "viewOtherLists": "Ver otras listas",
     "adjustFilters": "Intenta ajustar los filtros",
     "emptyMyLists": "Sin listas creadas",
     "emptyMyListsHint": "¡Crea tu primera lista de especies!",
@@ -694,6 +688,7 @@
     "filterAll": "Todas",
     "filterKnown": "Conocidas",
     "filterUnknown": "Desconocidas",
+    "myListsWithSpecies": "Tus listas con esta especie",
     "listsWithSpecies": "Listas con esta especie",
     "list": "lista",
     "lists": "listas",

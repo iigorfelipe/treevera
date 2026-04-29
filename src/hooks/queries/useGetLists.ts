@@ -250,7 +250,7 @@ export function useAddSpeciesToList(listId: string) {
         license?: string | null;
       };
     }) => addSpeciesToList(listId, gbifKey, image),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_species_key, listId],
       });
@@ -259,6 +259,9 @@ export function useAddSpeciesToList(listId: string) {
       });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.my_lists_picker_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.lists_with_species_key, variables.gbifKey],
       });
     },
   });
@@ -269,7 +272,7 @@ export function useRemoveSpeciesFromList(listId: string) {
 
   return useMutation({
     mutationFn: (gbifKey: number) => removeSpeciesFromList(listId, gbifKey),
-    onSuccess: () => {
+    onSuccess: (_data, gbifKey) => {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_species_key, listId],
       });
@@ -278,6 +281,9 @@ export function useRemoveSpeciesFromList(listId: string) {
       });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.my_lists_picker_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.lists_with_species_key, gbifKey],
       });
     },
   });

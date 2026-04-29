@@ -457,20 +457,6 @@
     "heroTitle": "Find any cataloged living organism, from bacteria to whales.",
     "searchPlaceholder": "Search the whole site (species, lists, users)",
     "popularSearches": "Popular searches",
-    "journey": {
-      "search": {
-        "title": "Search a species",
-        "description": "Open a page with images, description, map, and taxonomy."
-      },
-      "tree": {
-        "title": "Understand the path",
-        "description": "See where it belongs in the tree, from kingdom to genus."
-      },
-      "keep": {
-        "title": "Save and practice",
-        "description": "Save species in lists and turn discoveries into challenges."
-      }
-    },
     "kingdoms": {
       "title": "Start with a kingdom",
       "description": "Every form of life belongs to one of these 7 groups. Choose one to expand the tree from there.",
@@ -486,7 +472,9 @@
     },
     "featuredLists": {
       "title": "Explore through lists",
+      "description": "Discover ready-made collections or create your own species lists.",
       "viewAll": "View all lists",
+      "create": "Create list",
       "empty": "No featured lists yet."
     },
     "dailyChallenge": {
@@ -663,6 +651,12 @@
     "by": "by",
     "noListsFound": "No lists found",
     "noSpeciesInList": "This list has no species yet",
+    "emptyOwnerListTitle": "Your list is empty",
+    "emptyOwnerListDescription": "Search for a species to get started. Then use the card menu or the detail page to add it to this list.",
+    "emptyOwnerListSearchLabel": "Search for a species to add to the list",
+    "emptyOwnerListSearchPlaceholder": "Scientific or common name...",
+    "emptyOwnerListSearchButton": "Search species",
+    "viewOtherLists": "View other lists",
     "adjustFilters": "Try adjusting the filters",
     "emptyMyLists": "No lists created",
     "emptyMyListsHint": "Create your first species list!",
@@ -694,6 +688,7 @@
     "filterAll": "All",
     "filterKnown": "Known",
     "filterUnknown": "Unknown",
+    "myListsWithSpecies": "Your lists with this species",
     "listsWithSpecies": "Lists with this species",
     "list": "list",
     "lists": "lists",

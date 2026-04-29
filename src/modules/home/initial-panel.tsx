@@ -21,6 +21,7 @@ import type { PathNode } from "@/common/types/tree-atoms";
 import { ChallengeDatePicker } from "@/modules/challenge/daily/challenge-date-picker";
 import { Timer } from "@/modules/challenge/components/timer";
 import { FeaturedListCard } from "@/modules/lists/featured-list-card";
+import { ListCreateDialog } from "@/modules/lists/list-create-dialog";
 import { KingdomCardItem } from "@/modules/explore/kingdom-card";
 import { useGetChallengeDates } from "@/hooks/queries/useGetChallengeDates";
 import { useGetDailyChallenge } from "@/hooks/queries/useGetDailyChallenge";
@@ -29,6 +30,8 @@ import { useScrollThenNavigate } from "@/hooks/use-scroll-then-navigate";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { authStore } from "@/store/auth/atoms";
 import { treeAtom } from "@/store/tree";
+import { getSpeciesSlugParam } from "@/common/utils/species-url";
+import { slugify } from "@/common/utils/slugify";
 
 const getLocalDateKey = (date = new Date()) => {
   const y = date.getFullYear();
@@ -51,10 +54,10 @@ const calcDailyStreak = (dates: { date: string; completed: boolean }[]) => {
 };
 
 const POPULAR_SEARCHES = [
-  "Panthera onca",
-  "Gorilla gorilla",
-  "Tyrannosaurus rex",
-];
+  { name: "Panthera onca", gbifKey: 5219426 },
+  { name: "Gorilla gorilla", gbifKey: 2436441 },
+  { name: "Tyrannosaurus rex", gbifKey: 4822633 },
+] as const;
 
 const FEATURED_LIST_SKELETON_KEYS = [0, 1, 2];
 
@@ -94,6 +97,19 @@ const WelcomeSearch = () => {
     [query, runSearch],
   );
 
+  const openPopularSpecies = useCallback(
+    (species: (typeof POPULAR_SEARCHES)[number]) => {
+      const speciesSlug = getSpeciesSlugParam(species.gbifKey, species.name);
+      if (!speciesSlug) return;
+
+      void navigate({
+        to: "/species/$speciesSlug",
+        params: { speciesSlug },
+      });
+    },
+    [navigate],
+  );
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -113,15 +129,15 @@ const WelcomeSearch = () => {
         <span className="text-muted-foreground text-xs">
           {t("homeInitial.popularSearches")}:
         </span>
-        {POPULAR_SEARCHES.map((example) => (
+        {POPULAR_SEARCHES.map((species) => (
           <Button
-            key={example}
+            key={species.gbifKey}
             type="button"
-            onClick={() => runSearch(example)}
+            onClick={() => openPopularSpecies(species)}
             variant="outline"
             className="h-auto min-h-6 rounded-sm px-2 py-1 text-left text-xs whitespace-normal"
           >
-            {example}
+            {species.name}
           </Button>
         ))}
       </div>
@@ -229,24 +245,61 @@ const KingdomsSection = () => {
 const FeaturedListsHomeSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const isAuthenticated = useAtomValue(authStore.isAuthenticated);
+  const userDb = useAtomValue(authStore.userDb);
+  const [createOpen, setCreateOpen] = useState(false);
   const { data: featuredLists = [], isLoading } = useGetFeaturedLists();
+
+  const handleCreateClick = () => {
+    if (!isAuthenticated) {
+      void navigate({ to: "/login" });
+      return;
+    }
+
+    setCreateOpen(true);
+  };
+
+  const handleListCreated = (_listId: string, title: string) => {
+    setCreateOpen(false);
+    if (userDb?.username) {
+      void navigate({
+        to: "/$username/lists/$listSlug",
+        params: { username: userDb.username, listSlug: slugify(title) },
+      });
+    }
+  };
 
   return (
     <section className="@container/featured space-y-3">
       <div className="flex flex-col items-start gap-3 @[520px]/featured:flex-row @[520px]/featured:items-center @[520px]/featured:justify-between">
-        <h2 className="text-foreground text-xl font-bold">
-          {t("homeInitial.featuredLists.title")}
-        </h2>
+        <div className="max-w-2xl">
+          <h2 className="text-foreground text-xl font-bold">
+            {t("homeInitial.featuredLists.title")}
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm leading-6">
+            {t("homeInitial.featuredLists.description")}
+          </p>
+        </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => void navigate({ to: "/lists" })}
-          className="w-full @[520px]/featured:w-auto"
-        >
-          {t("homeInitial.featuredLists.viewAll")}
-        </Button>
+        <div className="flex w-full flex-col gap-2 @[520px]/featured:w-auto @[520px]/featured:flex-row">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => void navigate({ to: "/lists" })}
+            className="w-full @[520px]/featured:w-auto"
+          >
+            {t("homeInitial.featuredLists.viewAll")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleCreateClick}
+            className="w-full @[520px]/featured:w-auto"
+          >
+            {t("homeInitial.featuredLists.create")}
+          </Button>
+        </div>
       </div>
 
       <div>
@@ -275,6 +328,12 @@ const FeaturedListsHomeSection = () => {
           </p>
         )}
       </div>
+
+      <ListCreateDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={handleListCreated}
+      />
     </section>
   );
 };

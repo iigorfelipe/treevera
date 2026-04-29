@@ -457,20 +457,6 @@
     "heroTitle": "Encontre qualquer ser vivo já catalogado, das bactérias às baleias.",
     "searchPlaceholder": "Pesquise em todo o site (espécies, listas, usuários)",
     "popularSearches": "Buscas populares",
-    "journey": {
-      "search": {
-        "title": "Busque uma espécie",
-        "description": "Abra uma página com imagens, descrição, mapa e taxonomia."
-      },
-      "tree": {
-        "title": "Entenda o caminho",
-        "description": "Veja onde ela fica na árvore, do reino ao gênero."
-      },
-      "keep": {
-        "title": "Guarde e pratique",
-        "description": "Salve espécies em listas e transforme descobertas em desafios."
-      }
-    },
     "kingdoms": {
       "title": "Inicie por um reino",
       "description": "Toda forma de vida pertence a um destes 7 grupos. Escolha um para expandir a árvore a partir dele.",
@@ -486,7 +472,9 @@
     },
     "featuredLists": {
       "title": "Explore através de listas",
+      "description": "Descubra coleções prontas ou crie suas próprias listas de espécies.",
       "viewAll": "Ver todas as listas",
+      "create": "Criar lista",
       "empty": "Nenhuma lista em destaque por enquanto."
     },
     "dailyChallenge": {
@@ -663,6 +651,12 @@
     "by": "por",
     "noListsFound": "Nenhuma lista encontrada",
     "noSpeciesInList": "Esta lista ainda não tem espécies",
+    "emptyOwnerListTitle": "Sua lista está vazia",
+    "emptyOwnerListDescription": "Busque uma espécie para começar. Depois, use o menu do card ou a página de detalhes para adicioná-la à lista.",
+    "emptyOwnerListSearchLabel": "Buscar espécie para adicionar à lista",
+    "emptyOwnerListSearchPlaceholder": "Nome científico ou comum...",
+    "emptyOwnerListSearchButton": "Buscar espécie",
+    "viewOtherLists": "Ver outras listas",
     "noKnownSpeciesInList": "Nenhuma espécie conhecida nessa lista",
     "noUnknownSpeciesInList": "Você já conhece todas as espécies dessa lista!",
     "adjustFilters": "Tente ajustar os filtros",
@@ -696,6 +690,7 @@
     "filterAll": "Todas",
     "filterKnown": "Conhecidas",
     "filterUnknown": "Desconhecidas",
+    "myListsWithSpecies": "Suas listas com essa espécie",
     "listsWithSpecies": "Listas com essa espécie",
     "list": "lista",
     "lists": "listas",

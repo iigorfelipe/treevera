@@ -1,8 +1,14 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  type FormEvent,
+} from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
-import { Images, Loader2 } from "lucide-react";
+import { Images, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { authStore } from "@/store/auth/atoms";
@@ -28,6 +34,10 @@ import {
   DialogDescription,
 } from "@/common/components/ui/dialog";
 import { useDocumentTitle } from "@/hooks/use-document-title";
+import {
+  SUGGESTIONS_BY_KINGDOM,
+  useAnimatedPlaceholder,
+} from "@/modules/tree/search/use-animated-placeholder";
 
 type ListDetailProps = {
   username: string;
@@ -78,6 +88,106 @@ const ListSpeciesGridSkeleton = () => {
   );
 };
 
+type EmptyListStateProps = {
+  isOwner: boolean;
+  isFiltered: boolean;
+  message: string;
+  onSearch: (query: string) => void;
+  onBrowseLists: () => void;
+};
+
+const EmptyListState = ({
+  isOwner,
+  isFiltered,
+  message,
+  onSearch,
+  onBrowseLists,
+}: EmptyListStateProps) => {
+  const { t } = useTranslation();
+  const [query, setQuery] = useState("");
+  const animatedPlaceholder = useAnimatedPlaceholder(
+    query ? [] : SUGGESTIONS_BY_KINGDOM.animalia,
+  );
+
+  const showOwnerSearch = isOwner && !isFiltered;
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
+    onSearch(trimmedQuery);
+  };
+
+  return (
+    <div className="flex items-center justify-center px-4 py-16 md:py-20">
+      <div className="w-full max-w-md text-center">
+        <Images className="text-muted-foreground mx-auto mb-3 size-16 opacity-30" />
+
+        {showOwnerSearch ? (
+          <>
+            <p className="text-foreground text-base font-medium">
+              {t("lists.emptyOwnerListTitle")}
+            </p>
+            <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
+              {t("lists.emptyOwnerListDescription")}
+            </p>
+
+            <form
+              onSubmit={handleSubmit}
+              className="mt-5 flex flex-col gap-2 sm:flex-row"
+            >
+              <label htmlFor="empty-list-species-search" className="sr-only">
+                {t("lists.emptyOwnerListSearchLabel")}
+              </label>
+              <div className="border-border bg-background flex h-10 min-w-0 flex-1 items-center rounded-md border px-3">
+                <Search className="text-muted-foreground mr-2 size-4 shrink-0" />
+                <div className="relative min-w-0 flex-1">
+                  <input
+                    id="empty-list-species-search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    className="text-foreground h-full w-full bg-transparent text-sm outline-none"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                  />
+                  {!query && (
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 select-none"
+                    >
+                      <span className="text-muted-foreground absolute inset-y-0 left-0 flex items-center text-sm">
+                        {animatedPlaceholder ||
+                          t("lists.emptyOwnerListSearchPlaceholder")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <Button type="submit" disabled={!query.trim()}>
+                {t("lists.emptyOwnerListSearchButton")}
+              </Button>
+            </form>
+          </>
+        ) : (
+          <>
+            <p className="text-muted-foreground text-sm">{message}</p>
+            {!isOwner && !isFiltered && (
+              <Button
+                variant="outline"
+                className="mt-5"
+                onClick={onBrowseLists}
+              >
+                {t("lists.viewOtherLists")}
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -115,6 +225,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     () => speciesData?.pages.flatMap((p) => p.rows) ?? [],
     [speciesData],
   );
+  const isListEmpty = allSpecies.length === 0;
 
   const filteredSpecies = useMemo(() => {
     if (speciesFilter === "known")
@@ -127,6 +238,13 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     !!list && !speciesData && (loadingSpecies || fetchingSpecies);
 
   const isOwner = !!userDb && !!list && userDb.id === list.user_id;
+  const emptyListMessage = isListEmpty
+    ? t("lists.noSpeciesInList")
+    : speciesFilter === "known"
+      ? t("lists.noKnownSpeciesInList")
+      : speciesFilter === "unknown"
+        ? t("lists.noUnknownSpeciesInList")
+        : t("lists.noSpeciesInList");
 
   const handleBack = useCallback(() => {
     window.history.back();
@@ -203,18 +321,15 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
         {isSpeciesInitialLoading ? (
           <ListSpeciesGridSkeleton />
         ) : filteredSpecies.length === 0 && !isFetchingNextPage ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-muted-foreground text-center">
-              <Images className="mx-auto mb-3 size-16 opacity-30" />
-              <p className="text-sm">
-                {speciesFilter === "known"
-                  ? t("lists.noKnownSpeciesInList")
-                  : speciesFilter === "unknown"
-                    ? t("lists.noUnknownSpeciesInList")
-                    : t("lists.noSpeciesInList")}
-              </p>
-            </div>
-          </div>
+          <EmptyListState
+            isOwner={isOwner}
+            isFiltered={!isListEmpty && speciesFilter !== "all"}
+            message={emptyListMessage}
+            onSearch={(query) =>
+              navigate({ to: "/search/$query", params: { query } })
+            }
+            onBrowseLists={() => navigate({ to: "/lists" })}
+          />
         ) : (
           <ListSpeciesGrid
             species={filteredSpecies}
