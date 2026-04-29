@@ -320,7 +320,8 @@
     "publishedIn": "Published in",
     "sources": "Sources",
     "imageNotFound": "Image not found.",
-    "imageNote": "Images are sourced from Wikipedia, iNaturalist and GBIF, and may be missing for species with limited visual documentation.",
+    "imageUnavailableHint": "Choose another photo from the gallery below.",
+    "imageNote": "Images are sourced from <inat>iNaturalist</inat>, <commons>Wikimedia Commons</commons>, <gbif>GBIF</gbif>, and <wikipedia>Wikipedia</wikipedia>, and may be missing for species with limited visual documentation.",
     "viewOnGoogle": "View on Google Images",
     "speciesImageAlt": "Image of species \"{{name}}\"",
     "imageSource": "Source",
@@ -456,6 +457,20 @@
     "heroTitle": "Find any cataloged living organism, from bacteria to whales.",
     "searchPlaceholder": "Search the whole site (species, lists, users)",
     "popularSearches": "Popular searches",
+    "journey": {
+      "search": {
+        "title": "Search a species",
+        "description": "Open a page with images, description, map, and taxonomy."
+      },
+      "tree": {
+        "title": "Understand the path",
+        "description": "See where it belongs in the tree, from kingdom to genus."
+      },
+      "keep": {
+        "title": "Save and practice",
+        "description": "Save species in lists and turn discoveries into challenges."
+      }
+    },
     "kingdoms": {
       "title": "Start with a kingdom",
       "description": "Every form of life belongs to one of these 7 groups. Choose one to expand the tree from there.",

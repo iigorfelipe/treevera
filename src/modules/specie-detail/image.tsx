@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { ChevronLeft, ChevronRight, Heart, Loader2 } from "lucide-react";
@@ -144,7 +144,7 @@ export const SpecieImageDetail = ({
     });
   };
 
-  if (displayGallery.length === 0 || isFallback) {
+  if (displayGallery.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center space-y-2 rounded-xl border border-dashed p-4 text-center text-sm">
         <Image
@@ -155,13 +155,27 @@ export const SpecieImageDetail = ({
         <span>{t("specieDetail.imageNotFound")}</span>
         <div className="rounded-md border p-3 text-xs">
           <p>
-            As imagens são obtidas através da{" "}
-            <SourceReference sourceId="wikipedia">Wikipedia</SourceReference>,{" "}
-            <SourceReference sourceId="inaturalist">
-              iNaturalist
-            </SourceReference>{" "}
-            e <SourceReference sourceId="gbif">GBIF</SourceReference>, e podem
-            estar ausentes para espécies com pouca documentação visual.
+            <Trans
+              i18nKey="specieDetail.imageNote"
+              components={{
+                inat: (
+                  <SourceReference sourceId="inaturalist">
+                    iNaturalist
+                  </SourceReference>
+                ),
+                commons: (
+                  <SourceReference sourceId="wikimedia-commons">
+                    Wikimedia Commons
+                  </SourceReference>
+                ),
+                gbif: <SourceReference sourceId="gbif">GBIF</SourceReference>,
+                wikipedia: (
+                  <SourceReference sourceId="wikipedia">
+                    Wikipedia
+                  </SourceReference>
+                ),
+              }}
+            />
           </p>
         </div>
 
@@ -188,7 +202,7 @@ export const SpecieImageDetail = ({
               ? inatImageUrl(currentImage.imgUrl, "large")
               : fallbackImage
           }
-          zoomSrc={currentImage?.imgUrl}
+          zoomSrc={isFallback ? fallbackImage : currentImage?.imgUrl}
           fallbackSrc={fallbackImage}
           alt={t("specieDetail.speciesImageAlt", {
             name: specieDetail.scientificName,
@@ -198,6 +212,15 @@ export const SpecieImageDetail = ({
           zoom={3}
           contain
         />
+
+        {isFallback && (
+          <div className="pointer-events-none absolute top-1/2 left-1/2 max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-md bg-black/60 px-3 py-2 text-center text-xs text-white shadow-sm backdrop-blur-sm">
+            <p className="font-medium">{t("specieDetail.imageNotFound")}</p>
+            <p className="mt-0.5 text-white/75">
+              {t("specieDetail.imageUnavailableHint")}
+            </p>
+          </div>
+        )}
 
         {imageLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
@@ -209,14 +232,14 @@ export const SpecieImageDetail = ({
           <>
             <button
               onClick={goPrev}
-              className="group/prev absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-colors duration-150 hover:bg-black/60 group-hover:opacity-100"
+              className="group/prev absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-colors duration-150 group-hover:opacity-100 hover:bg-black/60"
               aria-label={t("specieDetail.previousImage")}
             >
               <ChevronLeft className="size-5 transition-transform duration-200 group-hover/prev:-translate-x-0.5 group-hover/prev:scale-125 group-active/prev:scale-90" />
             </button>
             <button
               onClick={goNext}
-              className="group/next absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-colors duration-150 hover:bg-black/60 group-hover:opacity-100"
+              className="group/next absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white opacity-0 backdrop-blur-sm transition-colors duration-150 group-hover:opacity-100 hover:bg-black/60"
               aria-label={t("specieDetail.nextImage")}
             >
               <ChevronRight className="size-5 transition-transform duration-200 group-hover/next:translate-x-0.5 group-hover/next:scale-125 group-active/next:scale-90" />
@@ -273,7 +296,7 @@ export const SpecieImageDetail = ({
                     >
                       <Heart
                         className={cn(
-                          "mx-auto size-4 transition-transform duration-200 group-hover/heart:-rotate-12 group-hover/heart:scale-125 group-active/heart:scale-90",
+                          "mx-auto size-4 transition-transform duration-200 group-hover/heart:scale-125 group-hover/heart:-rotate-12 group-active/heart:scale-90",
                           isFav ? "fill-red-500 text-red-500" : "text-white",
                         )}
                       />
@@ -291,7 +314,7 @@ export const SpecieImageDetail = ({
           </div>
         )}
 
-        {currentImage?.source && (
+        {currentImage?.source && !isFallback && (
           <div className="absolute right-2 bottom-2">
             <p className="rounded bg-black/55 px-1.5 py-0.5 text-xs text-white backdrop-blur-sm">
               {t("specieDetail.imageSource")}:{" "}
@@ -365,8 +388,9 @@ export const SpecieImageDetail = ({
                   : "border-transparent opacity-60 hover:opacity-100",
               )}
             >
-              <img
+              <Image
                 src={inatImageUrl(img.imgUrl, "small")}
+                fallbackSrc={fallbackImage}
                 alt={t("specieDetail.photo", { number: i + 1 })}
                 className="h-full w-full object-cover"
               />

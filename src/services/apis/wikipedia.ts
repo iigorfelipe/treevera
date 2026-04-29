@@ -122,7 +122,7 @@ export const getSpecieImagesFromWikimediaCommons = async ({
   const pages = data.query?.pages;
   if (!pages) return [];
 
-  const imageExtensions = /\.(jpe?g|png|gif|webp|tiff?)$/i;
+  const imageExtensions = /\.(jpe?g|png|gif|webp)$/i;
 
   return (Object.values(pages) as Record<string, unknown>[])
     .map((page) => {

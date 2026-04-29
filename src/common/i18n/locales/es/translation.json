@@ -320,7 +320,8 @@
     "publishedIn": "Publicado en",
     "sources": "Fuentes",
     "imageNotFound": "Imagen no encontrada.",
-    "imageNote": "Las imágenes se obtienen de Wikipedia, iNaturalist y GBIF, y pueden faltar para especies con poca documentación visual.",
+    "imageUnavailableHint": "Elige otra foto en la galería de abajo.",
+    "imageNote": "Las imágenes se obtienen de <inat>iNaturalist</inat>, <commons>Wikimedia Commons</commons>, <gbif>GBIF</gbif> y <wikipedia>Wikipedia</wikipedia>, y pueden faltar para especies con poca documentación visual.",
     "viewOnGoogle": "Ver en Google Imágenes",
     "speciesImageAlt": "Imagen de la especie \"{{name}}\"",
     "imageSource": "Fuente",
@@ -456,6 +457,20 @@
     "heroTitle": "Encuentra cualquier ser vivo ya catalogado, desde bacterias hasta ballenas.",
     "searchPlaceholder": "Busca en todo el sitio (especies, listas, usuarios)",
     "popularSearches": "Búsquedas populares",
+    "journey": {
+      "search": {
+        "title": "Busca una especie",
+        "description": "Abre una página con imágenes, descripción, mapa y taxonomía."
+      },
+      "tree": {
+        "title": "Entiende el camino",
+        "description": "Ve dónde está en el árbol, desde el reino hasta el género."
+      },
+      "keep": {
+        "title": "Guarda y practica",
+        "description": "Guarda especies en listas y convierte hallazgos en desafíos."
+      }
+    },
     "kingdoms": {
       "title": "Empieza por un reino",
       "description": "Toda forma de vida pertenece a uno de estos 7 grupos. Elige uno para expandir el árbol desde allí.",
