@@ -45,6 +45,7 @@ export type NodeEntity = {
   canonicalName?: string;
   scientificName?: string;
   kingdom?: string;
+  imageUrl?: string | null;
   childrenKeys?: number[];
   expanded?: boolean;
   parentKey?: number;
@@ -56,6 +57,7 @@ export type ListTreeSpecies = {
   family: string | null;
   imageUrl: string | null;
   isFavorite: boolean;
+  isKnown: boolean;
   path: PathNode[];
   ranks: Partial<Record<Rank, PathNode>>;
 };

@@ -383,6 +383,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
               family: row.family,
               imageUrl: row.image_url,
               isFavorite: row.is_favorite,
+              isKnown: !!seenInList?.has(row.gbif_key),
               parents,
             };
           } catch {
@@ -424,6 +425,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     navigate,
     openListTreeMode,
     openingInTree,
+    seenInList,
     t,
   ]);
 

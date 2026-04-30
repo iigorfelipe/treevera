@@ -415,14 +415,13 @@
   "listTreePanel": {
     "searchPlaceholder": "Buscar en la lista",
     "favoriteFilter": "Mostrar solo favoritas",
+    "favoriteFilterShort": "Favoritas",
     "clearFilters": "Limpiar filtros",
-    "galleryLabel": "Especies de la lista",
     "noMatches": "No se encontraron especies con los filtros actuales.",
-    "mapTitle": "Conexiones de la lista",
-    "mapDescription": "Explora los grupos taxonomicos que conectan las especies de esta lista.",
-    "clearGroup": "Limpiar grupo",
-    "selectSpeciesTitle": "Elige una especie",
-    "selectSpeciesDescription": "Haz clic en una foto para resaltar su camino en el arbol y abrir los detalles aqui."
+    "guideStepSpecies": "Haz clic en una especie de la galeria o del arbol para abrir sus detalles sin salir de esta exploracion.",
+    "guideStepGroups": "Haz clic en un grupo del arbol para filtrar la galeria por esa rama.",
+    "galleryTitle": "Galeria de la lista",
+    "showingCount": "Mostrando {{visible}} de {{total}} especies"
   },
   "search": {
     "selectKingdom": "Selecciona un reino",

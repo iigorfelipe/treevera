@@ -15,6 +15,8 @@ import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 import { Loader } from "lucide-react";
 import { cn } from "@/common/utils/cn";
+import { Image } from "@/common/components/image";
+import { inatImageUrl } from "@/common/utils/image-size";
 
 export const TreeNodeLiContent = memo(
   ({ nodeKey, level }: { nodeKey: number; level: number }) => {
@@ -44,23 +46,16 @@ export const TreeNodeLiContent = memo(
 
     const handleClick = useCallback(() => {
       if (isLoading) return;
-      if (listTreeMode && node?.rank !== "SPECIES") return;
       if (isCompactMenu) requestPanelExpand();
       toggleNode(nodeKey);
-    }, [
-      isCompactMenu,
-      isLoading,
-      listTreeMode,
-      node?.rank,
-      nodeKey,
-      requestPanelExpand,
-      toggleNode,
-    ]);
+    }, [isCompactMenu, isLoading, nodeKey, requestPanelExpand, toggleNode]);
 
     if (!node) return null;
 
     const isKingdom = node.rank === "KINGDOM";
     const isSpecie = node.rank === "SPECIES";
+    const speciesThumbSrc =
+      isSpecie && node.imageUrl ? inatImageUrl(node.imageUrl, "square") : null;
 
     const kingdomColor =
       COLOR_KINGDOM_BY_NAME[
@@ -75,8 +70,7 @@ export const TreeNodeLiContent = memo(
           "flex",
           isLoading && "node-loading",
           isCompactMenu && "cursor-pointer justify-center px-1.5",
-          listTreeMode && node?.rank === "SPECIES" && "cursor-pointer",
-          listTreeMode && node?.rank !== "SPECIES" && "cursor-default",
+          listTreeMode && "cursor-pointer",
         )}
         style={
           {
@@ -110,6 +104,12 @@ export const TreeNodeLiContent = memo(
           >
             {isLoading ? (
               <Loader className="animate-spin" />
+            ) : speciesThumbSrc ? (
+              <Image
+                src={speciesThumbSrc}
+                alt=""
+                className="size-full rounded-full object-cover"
+              />
             ) : isSpecie ? (
               <span className="size-5" />
             ) : (

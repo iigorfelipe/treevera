@@ -27,6 +27,7 @@ export type ListTreePathInput = {
   family: string | null;
   imageUrl: string | null;
   isFavorite: boolean;
+  isKnown: boolean;
   parents: Taxon[];
 };
 
@@ -59,6 +60,7 @@ const toNodeEntity = (
   taxon: Taxon,
   parentKey: number | undefined,
   kingdom: Taxon["kingdom"],
+  imageUrl?: string | null,
 ): NodeEntity => ({
   key: taxon.key,
   rank: taxon.rank,
@@ -67,6 +69,7 @@ const toNodeEntity = (
   canonicalName: taxon.rank === "KINGDOM" ? undefined : getTaxonName(taxon),
   scientificName: taxon.scientificName,
   kingdom,
+  imageUrl: taxon.rank === "SPECIES" ? imageUrl : undefined,
   parentKey,
 });
 
@@ -101,7 +104,7 @@ export const buildListTree = (paths: ListTreePathInput[]): BuiltListTree => {
 
     for (const taxon of path) {
       rankMap[taxon.rank] = toPathNode(taxon);
-      const node = toNodeEntity(taxon, previousKey, kingdom);
+      const node = toNodeEntity(taxon, previousKey, kingdom, item.imageUrl);
       const existing = nodes.get(node.key);
 
       nodes.set(node.key, {
@@ -127,6 +130,7 @@ export const buildListTree = (paths: ListTreePathInput[]): BuiltListTree => {
       family: item.family,
       imageUrl: item.imageUrl,
       isFavorite: item.isFavorite,
+      isKnown: item.isKnown,
       path: pathNodes,
       ranks: rankMap,
     });

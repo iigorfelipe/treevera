@@ -55,8 +55,6 @@ export function useTreeNavigation() {
       const targetNode = allNodes[key];
       if (!targetNode) return;
 
-      if (listTreeMode && targetNode.rank !== "SPECIES") return;
-
       const idx = expandedPath.findIndex((n) => n.key === key);
       if (!listTreeMode && idx !== -1) {
         navigateToNodes(expandedPath.slice(0, idx));
@@ -78,6 +76,17 @@ export function useTreeNavigation() {
       }
 
       if (listTreeMode) {
+        if (targetNode.rank !== "SPECIES") {
+          const selectedNode = ancestors[ancestors.length - 1];
+
+          store.set(treeAtom.listTreeGroupFilter, {
+            rank: selectedNode.rank,
+            key: selectedNode.key,
+            name: selectedNode.name,
+          });
+          return;
+        }
+
         store.set(treeAtom.expandedNodes, ancestors);
         store.set(selectedSpecieKeyAtom, key);
         return;

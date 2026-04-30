@@ -415,14 +415,13 @@
   "listTreePanel": {
     "searchPlaceholder": "Search this list",
     "favoriteFilter": "Show favorites only",
+    "favoriteFilterShort": "Favorites",
     "clearFilters": "Clear filters",
-    "galleryLabel": "List species",
     "noMatches": "No species found with the current filters.",
-    "mapTitle": "List connections",
-    "mapDescription": "Explore the taxonomic groups that connect the species in this list.",
-    "clearGroup": "Clear group",
-    "selectSpeciesTitle": "Choose a species",
-    "selectSpeciesDescription": "Click a photo to highlight its path in the tree and open the details here."
+    "guideStepSpecies": "Click a species in the gallery or tree to open details without leaving this exploration.",
+    "guideStepGroups": "Click a group in the tree to filter the gallery by that branch.",
+    "galleryTitle": "List gallery",
+    "showingCount": "Showing {{visible}} of {{total}} species"
   },
   "search": {
     "selectKingdom": "Select a kingdom",

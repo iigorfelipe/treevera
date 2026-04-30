@@ -33,6 +33,16 @@ const expandedNodes = atom<PathNode[]>([]);
 
 const listTreeMode = atom<ListTreeMode | null>(null);
 
+export const selectedSpecieKeyAtom = atom<number | null>(null);
+
+type ListTreeGroupFilter = {
+  rank: Rank;
+  key: number;
+  name: string;
+} | null;
+
+const listTreeGroupFilter = atom<ListTreeGroupFilter>(null);
+
 const shortcutScrollTarget = atom<PathNode[] | null>(null);
 
 export const shortcutScrollTargetAtom = atom(
@@ -125,6 +135,11 @@ export const openListTreeModeAtom = atom(
     set(listTreeMode, nextMode);
     set(rootKeys, payload.rootKeys);
     set(expandedNodes, []);
+    set(selectedSpecieKeyAtom, null);
+    set(listTreeGroupFilter, null);
+    set(shortcutScrollTarget, null);
+    set(scrollToRank, null);
+    set(scrollToNodeKey, null);
     prevExpandedKeys = new Set<number>();
 
     set(nodesAtom, (prev) => {
@@ -164,6 +179,11 @@ export const clearListTreeModeAtom = atom(null, (get, set) => {
       : Object.keys(NAME_KINGDOM_BY_KEY).map(Number),
   );
   set(expandedNodes, []);
+  set(selectedSpecieKeyAtom, null);
+  set(listTreeGroupFilter, null);
+  set(shortcutScrollTarget, null);
+  set(scrollToRank, null);
+  set(scrollToNodeKey, null);
   prevExpandedKeys = new Set<number>();
 
   set(nodesAtom, (prev) => {
@@ -272,8 +292,19 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
   }));
 
   if (get(listTreeMode)) {
-    if (targetNode.rank !== "SPECIES") return;
+    if (targetNode.rank !== "SPECIES") {
+      const selectedNode = newPathNodes[newPathNodes.length - 1];
+
+      set(listTreeGroupFilter, {
+        rank: selectedNode.rank,
+        key: selectedNode.key,
+        name: selectedNode.name,
+      });
+      return;
+    }
+
     set(expandedNodes, newPathNodes);
+    set(selectedSpecieKeyAtom, key);
     return;
   }
 
@@ -389,8 +420,6 @@ export const scrollToNodeKeyAtom = atom(
 
 const playedStepAudioAtom = atom<Record<string, true>>({});
 
-export const selectedSpecieKeyAtom = atom<number | null>(null);
-
 const challengeCorrectPath = atom<
   Array<{ rank: string; name: string; key: number }>
 >([]);
@@ -437,6 +466,7 @@ export const treeAtom = {
   nodes: nodesAtom,
   rootKeys,
   listTreeMode,
+  listTreeGroupFilter,
   mergeNodes,
   challengeTipsOpen,
   challengeCorrectPath,
