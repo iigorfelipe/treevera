@@ -22,6 +22,7 @@ const SectionFallback = () => <div className="min-h-48 w-full" />;
 export const HomeMobile = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
+  const listTreeMode = useAtomValue(treeAtom.listTreeMode);
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
 
@@ -53,7 +54,7 @@ export const HomeMobile = () => {
   return (
     <div className="flex flex-col">
       <Header />
-      {!challenge.mode && isSpecie ? (
+      {!challenge.mode && isSpecie && !listTreeMode ? (
         <Suspense fallback={<SectionFallback />}>
           <SpecieDetail />
         </Suspense>

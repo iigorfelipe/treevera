@@ -50,9 +50,20 @@ export type NodeEntity = {
   parentKey?: number;
 };
 
+export type ListTreeSpecies = {
+  gbifKey: number;
+  canonicalName: string;
+  family: string | null;
+  imageUrl: string | null;
+  isFavorite: boolean;
+  path: PathNode[];
+  ranks: Partial<Record<Rank, PathNode>>;
+};
+
 export type ListTreeMode = {
   title: string;
   speciesCount: number;
+  species: ListTreeSpecies[];
   rootKeys: number[];
   childrenByKey: Record<number, number[]>;
   expandedKeys: number[];

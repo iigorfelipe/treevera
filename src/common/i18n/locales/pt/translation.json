@@ -412,6 +412,18 @@
     "listModeDescription": "{{count}} especies conectadas pela taxonomia",
     "exitListMode": "Sair"
   },
+  "listTreePanel": {
+    "searchPlaceholder": "Pesquisar na lista",
+    "favoriteFilter": "Mostrar apenas favoritas",
+    "clearFilters": "Limpar filtros",
+    "galleryLabel": "Especies da lista",
+    "noMatches": "Nenhuma especie encontrada com os filtros atuais.",
+    "mapTitle": "Conexoes da lista",
+    "mapDescription": "Explore os grupos taxonomicos que aproximam as especies desta lista.",
+    "clearGroup": "Limpar grupo",
+    "selectSpeciesTitle": "Escolha uma especie",
+    "selectSpeciesDescription": "Clique em uma foto para destacar o caminho na arvore e abrir os detalhes aqui."
+  },
   "search": {
     "selectKingdom": "Selecione um reino",
     "example": "Exemplo",

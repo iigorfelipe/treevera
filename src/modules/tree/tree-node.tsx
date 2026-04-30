@@ -44,9 +44,18 @@ export const TreeNodeLiContent = memo(
 
     const handleClick = useCallback(() => {
       if (isLoading) return;
+      if (listTreeMode && node?.rank !== "SPECIES") return;
       if (isCompactMenu) requestPanelExpand();
       toggleNode(nodeKey);
-    }, [isCompactMenu, isLoading, nodeKey, requestPanelExpand, toggleNode]);
+    }, [
+      isCompactMenu,
+      isLoading,
+      listTreeMode,
+      node?.rank,
+      nodeKey,
+      requestPanelExpand,
+      toggleNode,
+    ]);
 
     if (!node) return null;
 
@@ -66,6 +75,8 @@ export const TreeNodeLiContent = memo(
           "flex",
           isLoading && "node-loading",
           isCompactMenu && "cursor-pointer justify-center px-1.5",
+          listTreeMode && node?.rank === "SPECIES" && "cursor-pointer",
+          listTreeMode && node?.rank !== "SPECIES" && "cursor-default",
         )}
         style={
           {

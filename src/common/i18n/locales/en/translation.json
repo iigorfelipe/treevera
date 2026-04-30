@@ -412,6 +412,18 @@
     "listModeDescription": "{{count}} species connected by taxonomy",
     "exitListMode": "Exit"
   },
+  "listTreePanel": {
+    "searchPlaceholder": "Search this list",
+    "favoriteFilter": "Show favorites only",
+    "clearFilters": "Clear filters",
+    "galleryLabel": "List species",
+    "noMatches": "No species found with the current filters.",
+    "mapTitle": "List connections",
+    "mapDescription": "Explore the taxonomic groups that connect the species in this list.",
+    "clearGroup": "Clear group",
+    "selectSpeciesTitle": "Choose a species",
+    "selectSpeciesDescription": "Click a photo to highlight its path in the tree and open the details here."
+  },
   "search": {
     "selectKingdom": "Select a kingdom",
     "example": "Example",

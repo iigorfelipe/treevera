@@ -12,7 +12,11 @@ import {
   SkeletonTaxonomy,
   SkeletonText,
 } from "@/modules/specie-detail/skeletons";
-import { selectedSpecieKeyAtom, treeAtom } from "@/store/tree";
+import {
+  selectedSpecieKeyAtom,
+  treeAtom,
+  updateListTreeSpeciesFavoriteAtom,
+} from "@/store/tree";
 import { useAtomValue, useSetAtom } from "jotai";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import type { UserSeenSpeciesRow } from "@/common/utils/supabase/user-seen-species";
@@ -102,6 +106,9 @@ export const SpecieDetail = ({
   const selectedKey = useAtomValue(selectedSpecieKeyAtom);
   const setSelectedKey = useSetAtom(selectedSpecieKeyAtom);
   const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
+  const updateListTreeSpeciesFavorite = useSetAtom(
+    updateListTreeSpeciesFavoriteAtom,
+  );
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
 
   const session = useAtomValue(authStore.session);
@@ -226,6 +233,7 @@ export const SpecieDetail = ({
             ? optimisticSpecie
             : old,
     );
+    updateListTreeSpeciesFavorite({ gbifKey: specieKey, isFavorite: newIsFav });
 
     try {
       if (newIsFav && !isInGallery) {
@@ -263,6 +271,10 @@ export const SpecieDetail = ({
     } catch (error) {
       console.error("Error toggling favorite specie:", error);
       queryClient.setQueryData(seenSpecieKey, previousSpecie ?? null);
+      updateListTreeSpeciesFavorite({
+        gbifKey: specieKey,
+        isFavorite: previousSpecie?.is_favorite ?? false,
+      });
     } finally {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],

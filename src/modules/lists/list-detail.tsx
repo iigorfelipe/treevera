@@ -380,6 +380,9 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
             return {
               speciesKey: row.gbif_key,
               canonicalName: row.canonical_name,
+              family: row.family,
+              imageUrl: row.image_url,
+              isFavorite: row.is_favorite,
               parents,
             };
           } catch {
@@ -399,6 +402,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
       openListTreeMode({
         title: list.title,
         speciesCount: tree.speciesCount,
+        species: tree.species,
         rootKeys: tree.rootKeys,
         childrenByKey: tree.childrenByKey,
         expandedKeys: tree.expandedKeys,

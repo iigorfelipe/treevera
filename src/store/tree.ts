@@ -115,6 +115,7 @@ export const openListTreeModeAtom = atom(
     const nextMode: ListTreeMode = {
       title: payload.title,
       speciesCount: payload.speciesCount,
+      species: payload.species,
       rootKeys: payload.rootKeys,
       childrenByKey: payload.childrenByKey,
       expandedKeys: payload.expandedKeys,
@@ -175,6 +176,27 @@ export const clearListTreeModeAtom = atom(null, (get, set) => {
     return next;
   });
 });
+
+export const updateListTreeSpeciesFavoriteAtom = atom(
+  null,
+  (
+    get,
+    set,
+    payload: { gbifKey: number; isFavorite: boolean },
+  ) => {
+    const mode = get(listTreeMode);
+    if (!mode) return;
+
+    set(listTreeMode, {
+      ...mode,
+      species: mode.species.map((item) =>
+        item.gbifKey === payload.gbifKey
+          ? { ...item, isFavorite: payload.isFavorite }
+          : item,
+      ),
+    });
+  },
+);
 
 export const nodeAtomFamily = atomFamily((key: number) =>
   atom(
@@ -250,16 +272,7 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
   }));
 
   if (get(listTreeMode)) {
-    if (targetNode.rank !== "SPECIES") {
-      set(nodesAtom, (prev) => ({
-        ...prev,
-        [key]: {
-          ...prev[key],
-          expanded: !prev[key]?.expanded,
-        },
-      }));
-    }
-
+    if (targetNode.rank !== "SPECIES") return;
     set(expandedNodes, newPathNodes);
     return;
   }

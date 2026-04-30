@@ -50,6 +50,7 @@ const TREE_PANEL_SNAP_COLLAPSE_WIDTH = 395;
 export const HomeDesktop = () => {
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
+  const listTreeMode = useAtomValue(treeAtom.listTreeMode);
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
   const treePanelRef = useRef<PanelImperativeHandle | null>(null);
@@ -166,7 +167,7 @@ export const HomeDesktop = () => {
             )}
             {!isCompleted &&
               !challenge.mode &&
-              (isSpecie ? (
+              (!listTreeMode && isSpecie ? (
                 <Suspense fallback={<PanelFallback />}>
                   <SpecieDetail />
                 </Suspense>

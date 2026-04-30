@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom, useStore } from "jotai";
 import {
+  selectedSpecieKeyAtom,
   treeAtom,
   shortcutScrollTargetAtom,
 } from "@/store/tree";
@@ -49,12 +50,15 @@ export function useTreeNavigation() {
     (key: number) => {
       const allNodes = store.get(treeAtom.nodes);
       const expandedPath = store.get(treeAtom.expandedNodes);
+      const listTreeMode = store.get(treeAtom.listTreeMode);
 
       const targetNode = allNodes[key];
       if (!targetNode) return;
 
+      if (listTreeMode && targetNode.rank !== "SPECIES") return;
+
       const idx = expandedPath.findIndex((n) => n.key === key);
-      if (idx !== -1) {
+      if (!listTreeMode && idx !== -1) {
         navigateToNodes(expandedPath.slice(0, idx));
         return;
       }
@@ -71,6 +75,12 @@ export function useTreeNavigation() {
               : cur.canonicalName || cur.scientificName || "",
         });
         cur = cur.parentKey ? allNodes[cur.parentKey] : undefined!;
+      }
+
+      if (listTreeMode) {
+        store.set(treeAtom.expandedNodes, ancestors);
+        store.set(selectedSpecieKeyAtom, key);
+        return;
       }
 
       navigateToNodes(ancestors);

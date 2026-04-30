@@ -1,5 +1,9 @@
 import type { Rank, Taxon } from "@/common/types/api";
-import type { NodeEntity } from "@/common/types/tree-atoms";
+import type {
+  ListTreeSpecies,
+  NodeEntity,
+  PathNode,
+} from "@/common/types/tree-atoms";
 import {
   COLOR_KINGDOM_BY_KEY,
   NAME_KINGDOM_BY_KEY,
@@ -20,6 +24,9 @@ const LIST_TREE_RANK_SET = new Set<Rank>(LIST_TREE_RANKS);
 export type ListTreePathInput = {
   speciesKey: number;
   canonicalName: string | null;
+  family: string | null;
+  imageUrl: string | null;
+  isFavorite: boolean;
   parents: Taxon[];
 };
 
@@ -29,6 +36,7 @@ export type BuiltListTree = {
   childrenByKey: Record<number, number[]>;
   expandedKeys: number[];
   speciesCount: number;
+  species: ListTreeSpecies[];
 };
 
 const isValidTaxon = (taxon: Taxon | undefined): taxon is Taxon =>
@@ -40,6 +48,12 @@ const addUnique = (items: number[], value: number) => {
 
 const getTaxonName = (taxon: Taxon) =>
   taxon.canonicalName || taxon.scientificName || NAME_KINGDOM_BY_KEY[taxon.key];
+
+const toPathNode = (taxon: Taxon): PathNode => ({
+  key: taxon.key,
+  rank: taxon.rank,
+  name: getTaxonName(taxon) ?? "",
+});
 
 const toNodeEntity = (
   taxon: Taxon,
@@ -61,7 +75,7 @@ export const buildListTree = (paths: ListTreePathInput[]): BuiltListTree => {
   const rootKeys: number[] = [];
   const expandedKeys = new Set<number>();
   const childrenByKey: Record<number, number[]> = {};
-  let speciesCount = 0;
+  const species: ListTreeSpecies[] = [];
 
   for (const item of paths) {
     const parents = item.parents.filter(isValidTaxon);
@@ -81,9 +95,12 @@ export const buildListTree = (paths: ListTreePathInput[]): BuiltListTree => {
     };
 
     const path = [...parents, speciesNode].filter(isValidTaxon);
+    const pathNodes = path.map(toPathNode);
+    const rankMap: Partial<Record<Rank, PathNode>> = {};
     let previousKey: number | undefined;
 
     for (const taxon of path) {
+      rankMap[taxon.rank] = toPathNode(taxon);
       const node = toNodeEntity(taxon, previousKey, kingdom);
       const existing = nodes.get(node.key);
 
@@ -104,7 +121,15 @@ export const buildListTree = (paths: ListTreePathInput[]): BuiltListTree => {
       previousKey = node.key;
     }
 
-    speciesCount++;
+    species.push({
+      gbifKey: item.speciesKey,
+      canonicalName: item.canonicalName ?? speciesNode.scientificName,
+      family: item.family,
+      imageUrl: item.imageUrl,
+      isFavorite: item.isFavorite,
+      path: pathNodes,
+      ranks: rankMap,
+    });
   }
 
   return {
@@ -112,6 +137,7 @@ export const buildListTree = (paths: ListTreePathInput[]): BuiltListTree => {
     rootKeys,
     childrenByKey,
     expandedKeys: Array.from(expandedKeys),
-    speciesCount,
+    speciesCount: species.length,
+    species,
   };
 };
