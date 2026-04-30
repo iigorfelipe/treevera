@@ -90,7 +90,7 @@ export const TreeNodeLiContent = memo(
       >
         {!isCompactMenu && !isKingdom && (
           <div
-            className="z-50 mt-1.5 flex cursor-pointer items-center justify-center rounded-full p-px text-white"
+            className="z-50 mt-1.5 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-px text-white"
             style={{
               backgroundColor: kingdomColor,
               width: TREE_TOGGLE_BUTTON_DIAMETER_PX,
