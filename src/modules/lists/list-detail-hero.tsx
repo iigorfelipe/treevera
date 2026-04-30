@@ -1,6 +1,8 @@
 import {
   ImageOff,
+  ListTree,
   Lock,
+  Loader2,
   MoreVertical,
   Pencil,
   Share2,
@@ -38,6 +40,8 @@ type ListDetailHeroProps = {
   onDelete?: () => void;
   speciesFilter?: SpeciesFilter;
   onFilterChange?: (filter: SpeciesFilter) => void;
+  onOpenInTree?: () => void;
+  openingInTree?: boolean;
 };
 
 export const ListDetailHero = ({
@@ -47,6 +51,8 @@ export const ListDetailHero = ({
   onDelete,
   speciesFilter = "all",
   onFilterChange,
+  onOpenInTree,
+  openingInTree = false,
 }: ListDetailHeroProps) => {
   const { t } = useTranslation();
 
@@ -180,7 +186,7 @@ export const ListDetailHero = ({
                   listSlug={listSlug}
                 />
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   className="flex h-8 min-w-0 gap-2 px-2.5"
                   onClick={handleShare}
@@ -227,10 +233,32 @@ export const ListDetailHero = ({
 
         <div className="flex flex-col gap-4 py-5">
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <h1 className="min-w-0 text-xl font-bold sm:text-2xl">
-              {list.title}
-            </h1>
-
+            <div className="flex justify-between">
+              <h1 className="min-w-0 text-xl font-bold sm:text-2xl">
+                {list.title}
+              </h1>
+              {onOpenInTree && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="flex h-8 min-w-0 gap-2 px-2.5"
+                  onClick={onOpenInTree}
+                  disabled={openingInTree || list.species_count === 0}
+                  aria-label={t("lists.openInTree")}
+                >
+                  {openingInTree ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <ListTree className="size-4" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {openingInTree
+                      ? "Construindo árvore..."
+                      : t("lists.openInTree")}
+                  </span>
+                </Button>
+              )}
+            </div>
             {list.description && (
               <p className="text-muted-foreground line-clamp-3 text-sm sm:line-clamp-2">
                 {list.description}

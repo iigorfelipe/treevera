@@ -9,8 +9,8 @@ import {
 } from "@/common/constants/tree";
 import { memo, useCallback, useEffect } from "react";
 import { useGetChildren } from "@/hooks/queries/useGetChildren";
-import { useAtom, useSetAtom } from "jotai";
-import { nodeAtomFamily, setNodeChildrenAtom } from "@/store/tree";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { nodeAtomFamily, setNodeChildrenAtom, treeAtom } from "@/store/tree";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 import { Loader } from "lucide-react";
@@ -20,6 +20,7 @@ export const TreeNodeLiContent = memo(
   ({ nodeKey, level }: { nodeKey: number; level: number }) => {
     const [node] = useAtom(nodeAtomFamily(nodeKey));
     const setNodeChildren = useSetAtom(setNodeChildrenAtom);
+    const listTreeMode = useAtomValue(treeAtom.listTreeMode);
     const { toggleNode } = useTreeNavigation();
     const { isCompactMenu, requestPanelExpand } = useTreePanelLayout();
 
@@ -27,7 +28,7 @@ export const TreeNodeLiContent = memo(
 
     const { data, isLoading } = useGetChildren({
       parentKey: node?.key,
-      expanded: !!isExpanded,
+      expanded: !!isExpanded && !listTreeMode,
       numDescendants: node?.numDescendants,
       parentRank: node?.rank,
     });

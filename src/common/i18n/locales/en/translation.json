@@ -406,7 +406,11 @@
     "searchBannerPlaceholder": "Taxon name...",
     "searchBannerButton": "Search",
     "searchBannerHint": "Type the taxon name you're looking for",
-    "searchBannerNoResults": "No results found"
+    "searchBannerNoResults": "No results found",
+    "listModeLabel": "List tree:",
+    "listModeTitle": "List tree: {{title}}",
+    "listModeDescription": "{{count}} species connected by taxonomy",
+    "exitListMode": "Exit"
   },
   "search": {
     "selectKingdom": "Select a kingdom",
@@ -704,6 +708,12 @@
     "listUpdated": "List updated!",
     "listDeleted": "List deleted!",
     "knownSpecies": "known species",
+    "openInTree": "Open list in tree",
+    "openInTreeShort": "Tree",
+    "openInTreeEmpty": "Add species to the list before opening it in the tree.",
+    "openInTreeReady": "{{count}} species opened in the tree.",
+    "openInTreeLimited": "This phase opened {{count}} species to keep the experience fast.",
+    "openInTreeError": "Could not build this list tree.",
     "filterAll": "All",
     "filterKnown": "Known",
     "filterUnknown": "Unknown",

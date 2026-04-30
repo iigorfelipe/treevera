@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useTranslation } from "react-i18next";
+import { ListTree, X } from "lucide-react";
 
-import { treeAtom } from "@/store/tree";
+import { clearListTreeModeAtom, treeAtom } from "@/store/tree";
 import { TreeNodeLiContent } from "./tree-node";
 import { EmptyNodeInfoCard } from "./empty-node-info";
 import { SearchBannerNode } from "./search-banner-node";
@@ -19,6 +21,7 @@ import { useShortcutScroll } from "./hooks/use-shortcut-scroll";
 import { usePrefetchExpandedChildren } from "./hooks/usePrefetchExpandedChildren";
 import { Challenges } from "@/app/challenges";
 import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
+import { Button } from "@/common/components/ui/button";
 import {
   COLOR_KINGDOM_BY_NAME,
   TREE_CONNECTOR_HORIZONTAL_LENGTH_PX,
@@ -33,6 +36,7 @@ const CONNECTOR_HALF_THICKNESS = Math.floor(TREE_CONNECTOR_LINE_WIDTH_PX / 2);
 const NON_KINGDOM_ROW_HEIGHT = 34;
 
 export const VirtualTree = () => {
+  const { t } = useTranslation();
   useExpandedSync();
   useChallengeAudio();
   usePrefetchExpandedChildren();
@@ -40,6 +44,8 @@ export const VirtualTree = () => {
   const parentRef = useRef<HTMLDivElement>(null);
   const nodes = useAtomValue(treeAtom.nodes);
   const roots = useAtomValue(treeAtom.rootKeys);
+  const listTreeMode = useAtomValue(treeAtom.listTreeMode);
+  const clearListTreeMode = useSetAtom(clearListTreeModeAtom);
   const challengeMode = useAtomValue(treeAtom.challenge).mode;
   const tipsOpen = useAtomValue(treeAtom.challengeTipsOpen);
   const scrollToRank = useAtomValue(treeAtom.scrollToRank);
@@ -55,7 +61,8 @@ export const VirtualTree = () => {
     roots,
     parentRef,
     isCompactMenu,
-    !challengeMode,
+    !challengeMode && !listTreeMode,
+    listTreeMode?.childrenByKey,
   );
 
   useEffect(() => {
@@ -110,7 +117,37 @@ export const VirtualTree = () => {
         <div className="mb-4 px-4 pt-2">
           {challengeMode && isTablet && <Challenges />}
 
-          {!challengeMode && <Search />}
+          {!challengeMode && listTreeMode && (
+            <div className="border-border bg-card/60 flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <ListTree className="text-primary size-4 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-muted-foreground text-xs">
+                    {t("tree.listModeLabel")}
+                  </p>
+                  <p className="text-foreground line-clamp-2 text-sm leading-snug font-medium">
+                    {listTreeMode.title}
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 shrink-0 px-2"
+                onClick={() => clearListTreeMode()}
+                aria-label={t("tree.exitListMode")}
+              >
+                <X className="size-4" />
+                <span className="hidden sm:inline">
+                  {t("tree.exitListMode")}
+                </span>
+              </Button>
+            </div>
+          )}
+
+          {!challengeMode && !listTreeMode && <Search />}
         </div>
       )}
 

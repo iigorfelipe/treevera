@@ -406,7 +406,11 @@
     "searchBannerPlaceholder": "Nombre del taxón...",
     "searchBannerButton": "Buscar",
     "searchBannerHint": "Escribe el nombre del taxón que buscas",
-    "searchBannerNoResults": "Sin resultados"
+    "searchBannerNoResults": "Sin resultados",
+    "listModeLabel": "Arbol de la lista:",
+    "listModeTitle": "Arbol de la lista: {{title}}",
+    "listModeDescription": "{{count}} especies conectadas por la taxonomia",
+    "exitListMode": "Salir"
   },
   "search": {
     "selectKingdom": "Selecciona un reino",
@@ -704,6 +708,12 @@
     "listUpdated": "¡Lista actualizada!",
     "listDeleted": "¡Lista eliminada!",
     "knownSpecies": "especies conocidas",
+    "openInTree": "Abrir lista en el arbol",
+    "openInTreeShort": "Arbol",
+    "openInTreeEmpty": "Agrega especies a la lista antes de abrirla en el arbol.",
+    "openInTreeReady": "{{count}} especies abiertas en el arbol.",
+    "openInTreeLimited": "Esta fase abrio {{count}} especies para mantener la experiencia rapida.",
+    "openInTreeError": "No fue posible montar el arbol de esta lista.",
     "filterAll": "Todas",
     "filterKnown": "Conocidas",
     "filterUnknown": "Desconocidas",

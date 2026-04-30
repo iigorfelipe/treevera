@@ -9,6 +9,7 @@ import type {
   AnimateState,
   Challenge,
   ExploreInfo,
+  ListTreeMode,
   NodeEntity,
   PathNode,
 } from "@/common/types/tree-atoms";
@@ -29,6 +30,8 @@ const nodesAtom = atom<Record<number, NodeEntity>>({});
 const rootKeys = atom<number[]>([]);
 
 const expandedNodes = atom<PathNode[]>([]);
+
+const listTreeMode = atom<ListTreeMode | null>(null);
 
 const shortcutScrollTarget = atom<PathNode[] | null>(null);
 
@@ -100,6 +103,79 @@ export const setExpandedPathAtom = atom(
   },
 );
 
+type OpenListTreeModePayload = Omit<ListTreeMode, "previousRootKeys"> & {
+  nodes: NodeEntity[];
+};
+
+export const openListTreeModeAtom = atom(
+  null,
+  (get, set, payload: OpenListTreeModePayload) => {
+    const currentMode = get(listTreeMode);
+    const previousRootKeys = currentMode?.previousRootKeys ?? get(rootKeys);
+    const nextMode: ListTreeMode = {
+      title: payload.title,
+      speciesCount: payload.speciesCount,
+      rootKeys: payload.rootKeys,
+      childrenByKey: payload.childrenByKey,
+      expandedKeys: payload.expandedKeys,
+      previousRootKeys,
+    };
+
+    set(listTreeMode, nextMode);
+    set(rootKeys, payload.rootKeys);
+    set(expandedNodes, []);
+    prevExpandedKeys = new Set<number>();
+
+    set(nodesAtom, (prev) => {
+      const next = { ...prev };
+
+      for (const key of Object.keys(next)) {
+        const numericKey = Number(key);
+        if (next[numericKey]?.expanded) {
+          next[numericKey] = { ...next[numericKey], expanded: false };
+        }
+      }
+
+      for (const node of payload.nodes) {
+        const existing = next[node.key];
+        next[node.key] = {
+          ...existing,
+          ...node,
+          childrenKeys: existing?.childrenKeys,
+          expanded: payload.expandedKeys.includes(node.key),
+        };
+      }
+
+      return next;
+    });
+  },
+);
+
+export const clearListTreeModeAtom = atom(null, (get, set) => {
+  const mode = get(listTreeMode);
+  if (!mode) return;
+
+  set(listTreeMode, null);
+  set(
+    rootKeys,
+    mode.previousRootKeys.length
+      ? mode.previousRootKeys
+      : Object.keys(NAME_KINGDOM_BY_KEY).map(Number),
+  );
+  set(expandedNodes, []);
+  prevExpandedKeys = new Set<number>();
+
+  set(nodesAtom, (prev) => {
+    const next = { ...prev };
+
+    for (const key of mode.expandedKeys) {
+      if (next[key]) next[key] = { ...next[key], expanded: false };
+    }
+
+    return next;
+  });
+});
+
 export const nodeAtomFamily = atomFamily((key: number) =>
   atom(
     (get) => get(nodesAtom)[key],
@@ -154,14 +230,6 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
 
   if (!targetNode) return;
 
-  const expandedPath = get(expandedNodes);
-  const pathIndex = expandedPath.findIndex((n) => n.key === key);
-
-  if (pathIndex !== -1) {
-    set(expandedNodes, expandedPath.slice(0, pathIndex));
-    return;
-  }
-
   const ancestorPath: NodeEntity[] = [];
   let currentNode: NodeEntity | undefined = targetNode;
 
@@ -181,12 +249,37 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
         : node.canonicalName || node.scientificName || "",
   }));
 
+  if (get(listTreeMode)) {
+    if (targetNode.rank !== "SPECIES") {
+      set(nodesAtom, (prev) => ({
+        ...prev,
+        [key]: {
+          ...prev[key],
+          expanded: !prev[key]?.expanded,
+        },
+      }));
+    }
+
+    set(expandedNodes, newPathNodes);
+    return;
+  }
+
+  const expandedPath = get(expandedNodes);
+  const pathIndex = expandedPath.findIndex((n) => n.key === key);
+
+  if (pathIndex !== -1) {
+    set(expandedNodes, expandedPath.slice(0, pathIndex));
+    return;
+  }
+
   set(expandedNodes, newPathNodes);
 });
 
 let prevExpandedKeys = new Set<number>();
 
 export const syncExpandedWithNodesAtom = atom(null, (get, set) => {
+  if (get(listTreeMode)) return;
+
   const pathNodes = get(expandedNodes);
 
   const nextExpandedKeys = new Set(
@@ -330,6 +423,7 @@ export const treeAtom = {
   feedbackAudio: playedStepAudioAtom,
   nodes: nodesAtom,
   rootKeys,
+  listTreeMode,
   mergeNodes,
   challengeTipsOpen,
   challengeCorrectPath,

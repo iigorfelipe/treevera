@@ -31,7 +31,13 @@ export const useVirtualTree = (
   parentRef: RefObject<HTMLDivElement | null>,
   isCompactMenu = false,
   showSearchBanner = true,
+  childrenByKey?: Record<number, number[]>,
 ) => {
+  const getChildrenKeys = useCallback(
+    (node: NodeEntity) => childrenByKey?.[node.key] ?? node.childrenKeys,
+    [childrenByKey],
+  );
+
   const flattenTree = useCallback(
     (
       nodes: Record<number, NodeEntity>,
@@ -46,8 +52,10 @@ export const useVirtualTree = (
 
         result.push({ key, level });
 
-        if (node.expanded && node.childrenKeys?.length) {
-          const children = flattenTree(nodes, node.childrenKeys, level + 1);
+        const childKeys = getChildrenKeys(node);
+
+        if (node.expanded && childKeys?.length) {
+          const children = flattenTree(nodes, childKeys, level + 1);
           for (let i = 0; i < children.length; i++) result.push(children[i]);
 
           if (!isCompactMenu && showSearchBanner && node.rank !== "KINGDOM") {
@@ -76,7 +84,7 @@ export const useVirtualTree = (
 
       return result;
     },
-    [isCompactMenu, showSearchBanner],
+    [getChildrenKeys, isCompactMenu, showSearchBanner],
   );
 
   const flattened = useMemo(() => {
@@ -144,12 +152,12 @@ export const useVirtualTree = (
       const { key: parentKey } = flattened[index];
       const parentNode = nodes[parentKey];
       if (!parentNode) continue;
-      if (!parentNode.childrenKeys?.length) continue;
+      const childKeys = getChildrenKeys(parentNode);
+      if (!childKeys?.length) continue;
       if (!parentNode.expanded) continue;
 
-      const firstChildKey = parentNode.childrenKeys[0];
-      const lastChildKey =
-        parentNode.childrenKeys[parentNode.childrenKeys.length - 1];
+      const firstChildKey = childKeys[0];
+      const lastChildKey = childKeys[childKeys.length - 1];
 
       const firstChildIndex = indexByKey.get(firstChildKey);
       const lastChildIndex = indexByKey.get(lastChildKey);
@@ -190,7 +198,7 @@ export const useVirtualTree = (
     }
 
     return result;
-  }, [flattened, getRowSize, isCompactMenu, nodes, positions]);
+  }, [flattened, getChildrenKeys, getRowSize, isCompactMenu, nodes, positions]);
 
   return {
     flattened,

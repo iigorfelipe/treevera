@@ -50,6 +50,15 @@ export type NodeEntity = {
   parentKey?: number;
 };
 
+export type ListTreeMode = {
+  title: string;
+  speciesCount: number;
+  rootKeys: number[];
+  childrenByKey: Record<number, number[]>;
+  expandedKeys: number[];
+  previousRootKeys: number[];
+};
+
 export type ExploreInfo = {
   kingdomKey: number;
   kingdomName: Kingdom;

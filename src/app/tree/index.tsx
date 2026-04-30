@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useGetKingdoms } from "@/hooks/queries/useGetKingdoms";
 import { treeAtom } from "@/store/tree";
 import { TreeState } from "@/modules/tree/tree-state";
@@ -10,10 +10,13 @@ export const Tree = () => {
   const { data: kingdoms, isLoading, isError } = useGetKingdoms();
   const mergeNodes = useSetAtom(treeAtom.mergeNodes);
   const setRootKeys = useSetAtom(treeAtom.rootKeys);
+  const listTreeMode = useAtomValue(treeAtom.listTreeMode);
 
   useTreeUrl();
 
   useEffect(() => {
+    if (listTreeMode) return;
+
     if (kingdoms && kingdoms.length > 0) {
       mergeNodes(
         kingdoms.map((kingdom) => ({
@@ -22,7 +25,7 @@ export const Tree = () => {
       );
       setRootKeys(kingdoms.map((k) => k.key));
     }
-  }, [kingdoms, mergeNodes, setRootKeys]);
+  }, [kingdoms, listTreeMode, mergeNodes, setRootKeys]);
 
   if (isLoading) return <TreeState type="loading" />;
   if (isError) return <TreeState type="error" />;

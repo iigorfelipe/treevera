@@ -7,7 +7,7 @@ import {
 } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { Images, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,6 +26,8 @@ import { ListSpeciesGrid } from "./list-species-grid";
 import { ListEditDialog } from "./list-edit-dialog";
 import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
 import { getListSlugParam } from "@/common/utils/list-url";
+import { fetchListSpecies } from "@/common/utils/supabase/lists";
+import { buildListTree } from "@/common/utils/tree/list-tree";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +40,44 @@ import {
   SUGGESTIONS_BY_KINGDOM,
   useAnimatedPlaceholder,
 } from "@/modules/tree/search/use-animated-placeholder";
+import { getParents } from "@/services/apis/gbif";
+import { openListTreeModeAtom } from "@/store/tree";
+import type { ListSpeciesRow } from "@/common/types/lists";
+
+const LIST_TREE_SPECIES_LIMIT = 120;
+const LIST_TREE_CONCURRENCY = 6;
+
+const uniqueSpeciesRows = (rows: ListSpeciesRow[]) => {
+  const seen = new Set<number>();
+  return rows.filter((row) => {
+    if (!Number.isFinite(row.gbif_key) || seen.has(row.gbif_key)) return false;
+    seen.add(row.gbif_key);
+    return true;
+  });
+};
+
+const mapWithConcurrency = async <T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>,
+) => {
+  const results = new Array<R>(items.length);
+  let index = 0;
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    async () => {
+      while (index < items.length) {
+        const currentIndex = index;
+        index += 1;
+        results[currentIndex] = await mapper(items[currentIndex]);
+      }
+    },
+  );
+
+  await Promise.all(workers);
+  return results;
+};
 
 type ListDetailProps = {
   username: string;
@@ -192,6 +232,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userDb = useAtomValue(authStore.userDb);
+  const openListTreeMode = useSetAtom(openListTreeModeAtom);
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -199,6 +240,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     number | null
   >(null);
   const [speciesFilter, setSpeciesFilter] = useState<SpeciesFilter>("all");
+  const [openingInTree, setOpeningInTree] = useState(false);
 
   const { data: list, isLoading: loadingDetail } = useGetListDetail(
     username,
@@ -298,6 +340,89 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
     );
   };
 
+  const getSpeciesRowsForTree = useCallback(async () => {
+    if (!list) return [];
+
+    const desiredLimit = Math.min(
+      list.species_count || allSpecies.length,
+      LIST_TREE_SPECIES_LIMIT,
+    );
+
+    if (allSpecies.length >= desiredLimit) {
+      return uniqueSpeciesRows(allSpecies.slice(0, desiredLimit));
+    }
+
+    const { rows } = await fetchListSpecies(list.id, desiredLimit, 0);
+    return uniqueSpeciesRows(
+      (rows.length ? rows : allSpecies).slice(0, desiredLimit),
+    );
+  }, [allSpecies, list]);
+
+  const handleOpenInTree = useCallback(async () => {
+    if (!list || openingInTree) return;
+
+    if (list.species_count === 0) {
+      toast(t("lists.openInTreeEmpty"));
+      return;
+    }
+
+    setOpeningInTree(true);
+
+    try {
+      const speciesRows = await getSpeciesRowsForTree();
+
+      const paths = await mapWithConcurrency(
+        speciesRows,
+        LIST_TREE_CONCURRENCY,
+        async (row) => {
+          try {
+            const parents = await getParents(row.gbif_key);
+            return {
+              speciesKey: row.gbif_key,
+              canonicalName: row.canonical_name,
+              parents,
+            };
+          } catch {
+            return null;
+          }
+        },
+      );
+
+      const listTreePaths = paths.filter((path) => path !== null);
+      const tree = buildListTree(listTreePaths);
+
+      if (tree.speciesCount === 0 || tree.rootKeys.length === 0) {
+        toast.error(t("lists.openInTreeError"));
+        return;
+      }
+
+      openListTreeMode({
+        title: list.title,
+        speciesCount: tree.speciesCount,
+        rootKeys: tree.rootKeys,
+        childrenByKey: tree.childrenByKey,
+        expandedKeys: tree.expandedKeys,
+        nodes: tree.nodes,
+      });
+
+      navigate({ to: "/tree" });
+      toast.success(t("lists.openInTreeReady", { count: tree.speciesCount }));
+
+      if (list.species_count > tree.speciesCount) {
+        toast(t("lists.openInTreeLimited", { count: tree.speciesCount }));
+      }
+    } finally {
+      setOpeningInTree(false);
+    }
+  }, [
+    getSpeciesRowsForTree,
+    list,
+    navigate,
+    openListTreeMode,
+    openingInTree,
+    t,
+  ]);
+
   if (loadingDetail) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -330,6 +455,8 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
           onDelete={() => setDeleteConfirmOpen(true)}
           speciesFilter={speciesFilter}
           onFilterChange={setSpeciesFilter}
+          onOpenInTree={handleOpenInTree}
+          openingInTree={openingInTree}
         />
 
         {isSpeciesInitialLoading ? (
