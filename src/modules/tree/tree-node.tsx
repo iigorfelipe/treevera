@@ -54,6 +54,12 @@ export const TreeNodeLiContent = memo(
 
     const isKingdom = node.rank === "KINGDOM";
     const isSpecie = node.rank === "SPECIES";
+    const isListModeSpecies = !!listTreeMode && isSpecie;
+    const markerDiameter = isListModeSpecies
+      ? 30
+      : TREE_TOGGLE_BUTTON_DIAMETER_PX;
+    const markerOffset = (markerDiameter - TREE_TOGGLE_BUTTON_DIAMETER_PX) / 2;
+    const markerHorizontalNudge = isListModeSpecies ? 5 : 0;
     const speciesThumbSrc =
       isSpecie && node.imageUrl ? inatImageUrl(node.imageUrl, "square") : null;
 
@@ -90,12 +96,19 @@ export const TreeNodeLiContent = memo(
       >
         {!isCompactMenu && !isKingdom && (
           <div
-            className="z-50 mt-1.5 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-px text-white"
+            className={cn(
+              "z-50 flex shrink-0 cursor-pointer items-center justify-center rounded-full text-white",
+              !isListModeSpecies && "p-px",
+            )}
             style={{
               backgroundColor: kingdomColor,
-              width: TREE_TOGGLE_BUTTON_DIAMETER_PX,
-              height: TREE_TOGGLE_BUTTON_DIAMETER_PX,
-              marginLeft: TREE_TOGGLE_BUTTON_OFFSET_X_PX,
+              width: markerDiameter,
+              height: markerDiameter,
+              marginTop: 6 - markerOffset,
+              marginLeft:
+                TREE_TOGGLE_BUTTON_OFFSET_X_PX -
+                markerOffset +
+                markerHorizontalNudge,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

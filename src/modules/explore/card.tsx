@@ -133,7 +133,7 @@ export const CardInfo = () => {
       </p>
       <div className="flex flex-wrap gap-2">
         {shortcuts
-          .filter(({ nodes }) => nodes[0].key === selectedData.kingdomKey)
+          .filter(({ nodes }) => nodes[0]?.key === selectedData.kingdomKey)
           .map(({ name, nodes }, i) => (
             <button
               key={i}
