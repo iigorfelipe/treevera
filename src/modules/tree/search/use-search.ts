@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { getSpecieDetail } from "@/services/apis/gbif";
-import { searchTaxaByUserQuery } from "@/services/apis/species-search";
+import {
+  isNavigableTreeTaxon,
+  resolveTaxaBackboneLineage,
+  searchBackboneTaxaByUserQuery,
+} from "@/services/apis/species-search";
 import type { Rank, Taxon } from "@/common/types/api";
 import { EXCLUDED_RANKS } from "@/common/utils/tree/children";
 import { useNavigateToTaxon } from "@/hooks/use-navigate-to-taxon";
@@ -27,81 +31,6 @@ const detectGbifKey = (q: string): number | null => {
     return n > 0 ? n : null;
   }
   return null;
-};
-
-const dedupeGenusSpecies = (list: Taxon[], tokens: string[]): Taxon[] => {
-  const speciesMap = new Map<string, Taxon>();
-  const genusMap = new Map<string, Taxon>();
-
-  list.forEach((r) => {
-    const name = ((r.canonicalName || r.scientificName) ?? "").trim();
-    if (!name) return;
-    const parts = name.toLowerCase().split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) {
-      const speciesKey = `${parts[0]} ${parts[1]}`;
-      const existing = speciesMap.get(speciesKey);
-      if (!existing || existing.rank !== "SPECIES")
-        speciesMap.set(speciesKey, r);
-    } else if (parts.length === 1) {
-      const genusKey = parts[0];
-      const existing = genusMap.get(genusKey);
-      if (!existing || existing.rank !== "GENUS") genusMap.set(genusKey, r);
-    }
-  });
-
-  const firstToken = tokens[0] ?? "";
-  const results: Taxon[] = [];
-
-  if (tokens.length === 1 && firstToken) {
-    for (const [spk, tax] of speciesMap.entries()) {
-      const parts = spk.split(" ");
-      if (parts[1] === firstToken) results.push(tax);
-    }
-
-    if (genusMap.has(firstToken)) {
-      results.unshift(genusMap.get(firstToken)!);
-    } else {
-      for (const v of genusMap.values()) {
-        if (String(v.genus ?? "").toLowerCase() === firstToken) {
-          results.unshift(v);
-          break;
-        }
-      }
-    }
-
-    if (results.length > 0) return results.slice(0, 10);
-  }
-
-  if (firstToken && genusMap.has(firstToken)) {
-    results.push(genusMap.get(firstToken)!);
-  } else if (firstToken) {
-    for (const v of genusMap.values()) {
-      if (String(v.genus ?? "").toLowerCase() === firstToken) {
-        results.push(v);
-        break;
-      }
-    }
-  }
-
-  for (const [spk, tax] of speciesMap.entries()) {
-    if (spk.startsWith(firstToken + " ")) {
-      results.push(tax);
-      break;
-    }
-  }
-
-  if (results.length === 0) {
-    if (genusMap.size > 0) {
-      const g = genusMap.values().next().value;
-      if (g) results.push(g);
-    }
-    if (speciesMap.size > 0) {
-      const s = speciesMap.values().next().value;
-      if (s) results.push(s);
-    }
-  }
-
-  return results;
 };
 
 export function useSearch() {
@@ -186,6 +115,7 @@ export function useSearch() {
 
           const taxon: Taxon = {
             key: nub,
+            nubKey: nub,
             scientificName: (detail.scientificName || "") as string,
             canonicalName: (detail.canonicalName ||
               detail.scientificName ||
@@ -200,107 +130,26 @@ export function useSearch() {
             genus: detail.genus,
           };
 
-          setResults([taxon]);
+          const [resolvedTaxon] = await resolveTaxaBackboneLineage([taxon]);
+          const resultTaxon = resolvedTaxon ?? taxon;
+          if (!isNavigableTreeTaxon(resultTaxon)) {
+            setError(t("search.rankNotInTree"));
+            setResults(null);
+            return;
+          }
+
+          setResults([resultTaxon]);
           return;
         }
 
         // #region Text search
-        const data = await searchTaxaByUserQuery(
+        const data = await searchBackboneTaxaByUserQuery(
           trimmed,
           kingdom || undefined,
           rank || undefined,
           i18n.resolvedLanguage ?? i18n.language,
         );
-        const all = (data ?? []) as Taxon[];
-
-        const filtered = all.filter((r) => {
-          const det = r as unknown as Record<string, unknown>;
-          const nub = det["nubKey"] as number | undefined;
-          const hasNub = typeof nub === "number" && nub > 0;
-          const rankOk = rank ? r.rank === rank : !EXCLUDED_RANKS.has(r.rank);
-          if (!kingdom) return Boolean(hasNub && rankOk);
-          const k = String(r.kingdom ?? "").toLowerCase();
-          const kingdomOk =
-            k === String(kingdom ?? "").toLowerCase() ||
-            (k === "metazoa" &&
-              String(kingdom ?? "").toLowerCase() === "animalia");
-          return Boolean(hasNub && kingdomOk && rankOk);
-        });
-
-        const qLower = trimmed.toLowerCase();
-        const tokens = qLower.split(/\s+/).filter(Boolean);
-        const dedupeByTaxon = (list: Taxon[]) => {
-          const seen = new Set<string>();
-          return list.filter((taxon) => {
-            const d = taxon as unknown as Record<string, unknown>;
-            const key =
-              d["nubKey"] ??
-              taxon.key ??
-              taxon.canonicalName ??
-              taxon.scientificName;
-            if (!key) return false;
-
-            const normalizedKey = String(key).toLowerCase();
-            if (seen.has(normalizedKey)) return false;
-            seen.add(normalizedKey);
-            return true;
-          });
-        };
-
-        const dedupeFiltered = (list: Taxon[]) => {
-          if (rank && rank !== "GENUS" && rank !== "SPECIES") {
-            return dedupeByTaxon(list);
-          }
-
-          if (tokens.length >= 2) {
-            const exact = list.filter((r) => {
-              const name = (
-                (r.canonicalName || r.scientificName) ??
-                ""
-              ).toLowerCase();
-              return name === qLower;
-            });
-            const chosen = exact.length
-              ? exact
-              : list.filter((r) => {
-                  const name = (
-                    (r.canonicalName || r.scientificName) ??
-                    ""
-                  ).toLowerCase();
-                  return tokens.every((tok) => name.includes(tok));
-                });
-            return dedupeGenusSpecies(chosen, tokens);
-          } else {
-            const exactSpecies = list.filter(
-              (r) =>
-                ((r.canonicalName || r.scientificName) ?? "").toLowerCase() ===
-                  qLower && r.rank === "SPECIES",
-            );
-            const chosen = exactSpecies.length
-              ? [
-                  ...exactSpecies,
-                  ...list.filter((r) => !exactSpecies.includes(r)),
-                ]
-              : list;
-            return dedupeGenusSpecies(chosen, tokens);
-          }
-        };
-
-        if (!kingdom) {
-          const byKingdom = new Map<string, Taxon[]>();
-          for (const r of filtered) {
-            const k = String(r.kingdom ?? "unknown").toLowerCase();
-            if (!byKingdom.has(k)) byKingdom.set(k, []);
-            byKingdom.get(k)!.push(r);
-          }
-          const combined: Taxon[] = [];
-          for (const group of byKingdom.values()) {
-            combined.push(...dedupeFiltered(group));
-          }
-          setResults(combined);
-        } else {
-          setResults(dedupeFiltered(filtered));
-        }
+        setResults(data);
       } catch (e) {
         console.error(e);
         setError(t("search.gbifError"));

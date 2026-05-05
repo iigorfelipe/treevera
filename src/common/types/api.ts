@@ -49,6 +49,7 @@ export type Kingdom =
 
 export interface Taxon {
   key: number;
+  nubKey?: number;
   scientificName: string;
   rank: Rank;
   kingdom: Kingdom;
@@ -72,8 +73,12 @@ export type VernacularName = {
 };
 
 export type SpecieDetail = {
+  key?: number;
+  nubKey?: number;
+  usageKey?: number;
   canonicalName: string;
   scientificName: string;
+  rank?: Rank;
   kingdom: Kingdom;
   phylum: string;
   class: string;
@@ -84,6 +89,7 @@ export type SpecieDetail = {
   authorship: string;
   publishedIn: string;
   title: string;
+  numDescendants?: number;
 };
 
 export type CustomChallengeTaxonomy = {

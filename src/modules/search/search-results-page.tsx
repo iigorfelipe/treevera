@@ -4,10 +4,9 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight, List, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { searchTaxaByUserQuery } from "@/services/apis/species-search";
+import { searchBackboneTaxaByUserQuery } from "@/services/apis/species-search";
 import { fetchPublicLists } from "@/common/utils/supabase/lists";
 import { searchUsers } from "@/common/utils/supabase/search";
-import { processTaxaResults } from "@/common/utils/tree/search-taxa";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
 import { capitalizar } from "@/common/utils/string";
 import { getRankIcon } from "@/common/utils/tree/ranks";
@@ -350,7 +349,7 @@ export function SearchResultsPage({ query }: { query: string }) {
           language,
         ],
         queryFn: () =>
-          searchTaxaByUserQuery(
+          searchBackboneTaxaByUserQuery(
             decoded,
             activeKingdom || undefined,
             activeRank || undefined,
@@ -374,12 +373,7 @@ export function SearchResultsPage({ query }: { query: string }) {
     ],
   });
 
-  const taxa = processTaxaResults(
-    (taxaQuery.data as Taxon[]) ?? [],
-    decoded,
-    activeRank || undefined,
-    activeKingdom || undefined,
-  );
+  const taxa = (taxaQuery.data as Taxon[]) ?? [];
   const lists = listsQuery.data?.rows ?? [];
   const users = usersQuery.data ?? [];
 

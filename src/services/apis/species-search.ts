@@ -1,6 +1,8 @@
 import type { Taxon } from "@/common/types/api";
-import { getSpeciesMatch, searchTaxa } from "./gbif";
+import { getSpeciesMatch, getSpecieDetail, searchTaxa } from "./gbif";
 import { getWikiSpecieDetail } from "./wikipedia";
+import { processTaxaResults } from "@/common/utils/tree/search-taxa";
+import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
 
 const WIKIPEDIA_LANGUAGES = ["pt", "en", "es"] as const;
 const SPECIES_RANK_ITEM = "Q7432";
@@ -38,6 +40,98 @@ type WikipediaSearchResponse = {
     }>;
   };
 };
+
+const backboneTaxonCache = new Map<number, Promise<Taxon | null>>();
+
+function getBackboneKey(taxon: Taxon) {
+  return taxon.nubKey ?? taxon.key;
+}
+
+export function isNavigableTreeTaxon(taxon: Taxon) {
+  const key = getBackboneKey(taxon);
+  const kingdom = String(taxon.kingdom ?? "").toLowerCase();
+
+  return Boolean(key && kingdom in KEY_KINGDOM_BY_NAME);
+}
+
+function dedupeByBackboneKey(taxa: Taxon[]) {
+  const seen = new Set<number>();
+
+  return taxa.filter((taxon) => {
+    const key = getBackboneKey(taxon);
+    if (!key || seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function taxonFromBackboneDetail(detail: Taxon, fallback: Taxon): Taxon {
+  const rank = detail.rank ?? fallback.rank;
+  const canonicalName =
+    detail.canonicalName || fallback.canonicalName || detail.scientificName;
+  const scientificName =
+    detail.scientificName || fallback.scientificName || canonicalName;
+
+  const next: Taxon = {
+    ...fallback,
+    key: detail.key ?? detail.nubKey ?? fallback.nubKey ?? fallback.key,
+    nubKey: detail.key ?? detail.nubKey ?? fallback.nubKey ?? fallback.key,
+    scientificName,
+    canonicalName,
+    rank,
+    kingdom: detail.kingdom || fallback.kingdom,
+    numDescendants: detail.numDescendants ?? fallback.numDescendants ?? 0,
+    phylum: detail.phylum || fallback.phylum || "",
+    class: detail.class || fallback.class,
+    order: detail.order || fallback.order,
+    family: detail.family || fallback.family,
+    genus: detail.genus || fallback.genus,
+  };
+
+  if (canonicalName) {
+    if (rank === "KINGDOM" && !next.kingdom) {
+      next.kingdom = canonicalName as Taxon["kingdom"];
+    } else if (rank === "PHYLUM" && !next.phylum) {
+      next.phylum = canonicalName;
+    } else if (rank === "CLASS" && !next.class) {
+      next.class = canonicalName;
+    } else if (rank === "ORDER" && !next.order) {
+      next.order = canonicalName;
+    } else if (rank === "FAMILY" && !next.family) {
+      next.family = canonicalName;
+    } else if (rank === "GENUS" && !next.genus) {
+      next.genus = canonicalName;
+    }
+  }
+
+  return next;
+}
+
+async function getBackboneTaxon(taxon: Taxon) {
+  const backboneKey = getBackboneKey(taxon);
+  if (!backboneKey) return taxon;
+
+  const cached =
+    backboneTaxonCache.get(backboneKey) ??
+    getSpecieDetail(backboneKey)
+      .then((detail) => detail as Taxon)
+      .catch(() => {
+        backboneTaxonCache.delete(backboneKey);
+        return null;
+      });
+
+  if (!backboneTaxonCache.has(backboneKey)) {
+    backboneTaxonCache.set(backboneKey, cached);
+  }
+
+  const detail = await cached;
+  return detail ? taxonFromBackboneDetail(detail, taxon) : taxon;
+}
+
+export async function resolveTaxaBackboneLineage(taxa: Taxon[]) {
+  return Promise.all(taxa.map((taxon) => getBackboneTaxon(taxon)));
+}
 
 function getLanguageOrder(preferredLanguage?: string) {
   const preferred = preferredLanguage?.toLowerCase().split("-")[0];
@@ -226,4 +320,23 @@ export async function searchTaxaByUserQuery(
   if (isHyphenatedCommonNameQuery(query)) return [];
 
   return directMatches;
+}
+
+export async function searchBackboneTaxaByUserQuery(
+  query: string,
+  kingdom?: string,
+  rank?: Taxon["rank"],
+  preferredLanguage?: string,
+): Promise<Taxon[]> {
+  const raw = await searchTaxaByUserQuery(
+    query,
+    kingdom,
+    rank,
+    preferredLanguage,
+  );
+  const navigableRaw = processTaxaResults(raw, query, rank, kingdom);
+  const resolved = await resolveTaxaBackboneLineage(navigableRaw);
+  const navigableResolved = processTaxaResults(resolved, query, rank, kingdom);
+
+  return dedupeByBackboneKey(navigableResolved).filter(isNavigableTreeTaxon);
 }
