@@ -424,7 +424,14 @@
     "guideStepSpecies": "Click a species in the gallery or tree to open details without leaving this exploration.",
     "guideStepGroups": "Click a group in the tree to filter the gallery by that branch.",
     "galleryTitle": "List gallery",
-    "showingCount": "Showing {{visible}} of {{total}} species"
+    "showingCount": "Showing {{visible}} of {{total}} species",
+    "branchRank": "{{rank}} branch",
+    "branchSpecies": "Species in branch",
+    "branchKnowledgeTitle": "Progress in this branch",
+    "branchKnowledgeValue": "{{percent}}% known",
+    "branchGroupsTitle": "Main subgroups",
+    "branchGroupTitle": "Filter by {{rank}}: {{name}}",
+    "branchEmpty": "No list species appear in this branch."
   },
   "search": {
     "selectKingdom": "Select a kingdom",

@@ -295,6 +295,8 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
     if (targetNode.rank !== "SPECIES") {
       const selectedNode = newPathNodes[newPathNodes.length - 1];
 
+      set(expandedNodes, newPathNodes);
+      set(selectedSpecieKeyAtom, null);
       set(listTreeGroupFilter, {
         rank: selectedNode.rank,
         key: selectedNode.key,

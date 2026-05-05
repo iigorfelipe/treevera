@@ -10,12 +10,14 @@ import {
 } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
+  CheckCircle2,
   Heart,
   ImageOff,
   Layers,
   MousePointerClick,
   Search,
-  X
+  Shapes,
+  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -47,6 +49,14 @@ type GroupFilter = {
 type KnowledgeFilter = "all" | "known" | "unknown";
 
 const EMPTY_LIST_TREE_SPECIES: ListTreeSpecies[] = [];
+const BRANCH_CHILDREN_LIMIT = 6;
+
+type BranchChildGroup = {
+  rank: Rank;
+  key: number;
+  name: string;
+  count: number;
+};
 
 const normalizeText = (value: string) =>
   value
@@ -79,6 +89,35 @@ const speciesMatchesGroup = (
 ) => {
   if (!groupFilter) return true;
   return species.ranks[groupFilter.rank]?.key === groupFilter.key;
+};
+
+const getBranchChildGroups = (
+  species: ListTreeSpecies[],
+  groupFilter: NonNullable<GroupFilter>,
+) => {
+  const groups = new Map<number, BranchChildGroup>();
+
+  for (const item of species) {
+    const branchIndex = item.path.findIndex(
+      (node) => node.key === groupFilter.key,
+    );
+    const child = branchIndex >= 0 ? item.path[branchIndex + 1] : undefined;
+
+    if (!child || child.rank === "SPECIES") continue;
+
+    const current = groups.get(child.key);
+    groups.set(child.key, {
+      rank: child.rank,
+      key: child.key,
+      name: child.name,
+      count: (current?.count ?? 0) + 1,
+    });
+  }
+
+  return Array.from(groups.values()).sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    return a.name.localeCompare(b.name);
+  });
 };
 
 const DetailFallback = () => (
@@ -145,6 +184,36 @@ export const ListTreePanel = () => {
     activeKey != null
       ? species.find((item) => item.gbifKey === activeKey)
       : undefined;
+
+  const branchSpecies = useMemo(
+    () =>
+      groupFilter
+        ? species.filter((item) => speciesMatchesGroup(item, groupFilter))
+        : [],
+    [groupFilter, species],
+  );
+  const branchKnownCount = useMemo(
+    () => branchSpecies.filter((item) => item.isKnown).length,
+    [branchSpecies],
+  );
+  const branchFavoriteCount = useMemo(
+    () => branchSpecies.filter((item) => item.isFavorite).length,
+    [branchSpecies],
+  );
+  const branchKnowledgePercent =
+    branchSpecies.length > 0
+      ? Math.round((branchKnownCount / branchSpecies.length) * 100)
+      : 0;
+  const branchChildGroups = useMemo(
+    () =>
+      groupFilter
+        ? getBranchChildGroups(branchSpecies, groupFilter).slice(
+            0,
+            BRANCH_CHILDREN_LIMIT,
+          )
+        : [],
+    [branchSpecies, groupFilter],
+  );
 
   const hasFilters =
     !!query || favoriteOnly || knowledgeFilter !== "all" || !!groupFilter;
@@ -362,6 +431,133 @@ export const ListTreePanel = () => {
             <Suspense fallback={<DetailFallback />}>
               <SpecieDetail embedded showBackHeader={false} />
             </Suspense>
+          ) : groupFilter ? (
+            <div className="border-border bg-card rounded-xl border p-4">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-muted-foreground text-xs font-medium">
+                      {t("listTreePanel.branchRank", {
+                        rank: t(`ranks.${groupFilter.rank}`),
+                      })}
+                    </p>
+                    <h2 className="truncate text-lg font-semibold">
+                      {groupFilter.name}
+                    </h2>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 cursor-pointer px-2 text-xs"
+                    onClick={() => setGroupFilter(null)}
+                  >
+                    {t("listTreePanel.clearFilters")}
+                  </Button>
+                </div>
+
+                {branchSpecies.length > 0 ? (
+                  <>
+                    <div className="grid gap-2 @[640px]/list-tree-panel:grid-cols-4">
+                      <div className="rounded-lg border px-3 py-2">
+                        <p className="text-xl font-semibold">
+                          {branchSpecies.length}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {t("listTreePanel.branchSpecies")}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border px-3 py-2">
+                        <p className="text-xl font-semibold">
+                          {branchKnownCount}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {t("lists.filterKnown")}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border px-3 py-2">
+                        <p className="text-xl font-semibold">
+                          {branchSpecies.length - branchKnownCount}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {t("lists.filterUnknown")}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border px-3 py-2">
+                        <p className="text-xl font-semibold">
+                          {branchFavoriteCount}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {t("listTreePanel.favoriteFilterShort")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="text-muted-foreground size-4" />
+                          <p className="text-sm font-medium">
+                            {t("listTreePanel.branchKnowledgeTitle")}
+                          </p>
+                        </div>
+                        <p className="text-muted-foreground text-xs">
+                          {t("listTreePanel.branchKnowledgeValue", {
+                            percent: branchKnowledgePercent,
+                          })}
+                        </p>
+                      </div>
+                      <div className="bg-muted h-2 overflow-hidden rounded-full">
+                        <div
+                          className="bg-primary h-full rounded-full transition-all"
+                          style={{ width: `${branchKnowledgePercent}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {branchChildGroups.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Shapes className="text-muted-foreground size-4" />
+                          <p className="text-sm font-medium">
+                            {t("listTreePanel.branchGroupsTitle")}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {branchChildGroups.map((group) => (
+                            <button
+                              key={group.key}
+                              type="button"
+                              onClick={() =>
+                                setGroupFilter({
+                                  rank: group.rank,
+                                  key: group.key,
+                                  name: group.name,
+                                })
+                              }
+                              className="hover:bg-muted/70 inline-flex max-w-full cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors"
+                              title={t("listTreePanel.branchGroupTitle", {
+                                rank: t(`ranks.${group.rank}`),
+                                name: group.name,
+                              })}
+                            >
+                              <span className="truncate">{group.name}</span>
+                              <span className="text-muted-foreground shrink-0">
+                                {group.count}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-muted-foreground text-sm">
+                    {t("listTreePanel.branchEmpty")}
+                  </p>
+                )}
+              </div>
+            </div>
           ) : (
             <div className="border-border bg-card rounded-xl border p-4">
               <div className="flex gap-3">

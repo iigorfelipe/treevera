@@ -424,7 +424,14 @@
     "guideStepSpecies": "Clique em uma espécie na galeria ou na árvore para abrir os detalhes sem sair desta exploração.",
     "guideStepGroups": "Clique em um grupo na árvore para filtrar a galeria por aquele ramo.",
     "galleryTitle": "Galeria da lista",
-    "showingCount": "Exibindo {{visible}} de {{total}} espécies"
+    "showingCount": "Exibindo {{visible}} de {{total}} espécies",
+    "branchRank": "Ramo de {{rank}}",
+    "branchSpecies": "Espécies no ramo",
+    "branchKnowledgeTitle": "Progresso neste ramo",
+    "branchKnowledgeValue": "{{percent}}% conhecidas",
+    "branchGroupsTitle": "Subgrupos principais",
+    "branchGroupTitle": "Filtrar por {{rank}}: {{name}}",
+    "branchEmpty": "Nenhuma espécie da lista aparece neste ramo."
   },
   "search": {
     "selectKingdom": "Selecione um reino",
