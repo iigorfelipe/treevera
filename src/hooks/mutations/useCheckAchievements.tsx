@@ -32,9 +32,6 @@ export const useCheckAchievements = () => {
       queryKey: [QUERY_KEYS.user_achievements_key, userId],
     });
     void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_activities_key, userId],
-    });
-    void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.achievement_progress_key, userId],
     });
 
@@ -65,11 +62,15 @@ export const useCheckAchievements = () => {
         { duration: 6000 },
       );
 
-      void insertActivity(
+      await insertActivity(
         userId,
         t("achievements.activityTitle", { name: achievementName }),
         achievementDescription,
       );
     }
+
+    void queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.user_activities_key, userId],
+    });
   };
 };

@@ -13,11 +13,11 @@ export const updateUserShortcut = async (
     game_info: { ...user.game_info, shortcuts: newShortcuts },
   };
 
-  void supabase
-    .rpc("update_user_shortcuts", { p_shortcuts: newShortcuts })
-    .then(({ error }) => {
-      if (error) console.error("Error updating shortcuts:", error);
-    });
+  const { error } = await supabase.rpc("update_user_shortcuts", {
+    p_shortcuts: newShortcuts,
+  });
+
+  if (error) console.error("Error updating shortcuts:", error);
 
   return updatedUser;
 };

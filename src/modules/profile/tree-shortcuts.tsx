@@ -5,6 +5,7 @@ import { getRankIcon } from "@/common/utils/tree/ranks";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { authStore } from "@/store/auth/atoms";
 import { useAtom } from "jotai";
+import { useQueryClient } from "@tanstack/react-query";
 import { Zap, Pencil, X, Check } from "lucide-react";
 import { useState, useRef, useEffect, Fragment } from "react";
 import { KEY_KINGDOM_BY_NAME } from "@/common/constants/tree";
@@ -12,6 +13,7 @@ import type { Kingdom } from "@/common/types/api";
 import type { PathNode } from "@/common/types/tree-atoms";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { useTranslation } from "react-i18next";
+import { invalidateUserPublicProfileQuery } from "@/hooks/queries/cache-invalidation";
 
 export const TreeShortcuts = ({
   shortcuts: shortcutsProp,
@@ -23,6 +25,7 @@ export const TreeShortcuts = ({
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const { navigateToNodes } = useTreeNavigation();
+  const queryClient = useQueryClient();
 
   const [editName, setEditName] = useState<{
     isEdit: boolean;
@@ -111,7 +114,10 @@ export const TreeShortcuts = ({
         };
       });
 
-      if (userUpdated) setUserDb(userUpdated);
+      if (userUpdated) {
+        setUserDb(userUpdated);
+        invalidateUserPublicProfileQuery(queryClient, userDb.username);
+      }
     })();
   };
 
@@ -137,7 +143,10 @@ export const TreeShortcuts = ({
         };
       });
 
-      if (userUpdated) setUserDb(userUpdated);
+      if (userUpdated) {
+        setUserDb(userUpdated);
+        invalidateUserPublicProfileQuery(queryClient, userDb.username);
+      }
     })();
     cancelEdit();
   };

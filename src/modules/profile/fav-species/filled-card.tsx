@@ -13,7 +13,7 @@ import {
   type GallerySpeciesRow,
 } from "@/common/utils/supabase/user-seen-species";
 import { authStore } from "@/store/auth/atoms";
-import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { invalidateCurrentUserSpeciesQueries } from "@/hooks/queries/cache-invalidation";
 import { useRecoverableSpeciesImage } from "@/modules/species-gallery/use-recoverable-species-image";
 
 export const FilledFavCard = ({
@@ -91,7 +91,8 @@ export const FilledFavCard = ({
       return;
     }
 
-    const isOwnProfile = !!userDb && (!ownerUsername || ownerUsername === userDb.username);
+    const isOwnProfile =
+      !!userDb && (!ownerUsername || ownerUsername === userDb.username);
     if (!isOwnProfile) return;
 
     persistedImageRef.current = image.imgUrl;
@@ -102,11 +103,11 @@ export const FilledFavCard = ({
       author: image.author,
       license: image.licenseCode,
     });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_seen_species_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.favorite_species_page_key],
+    invalidateCurrentUserSpeciesQueries(queryClient, {
+      userId: userDb.id,
+      username: userDb.username,
+      gbifKey: specieKey,
+      includeAchievementProgress: false,
     });
   }, [
     familyName,

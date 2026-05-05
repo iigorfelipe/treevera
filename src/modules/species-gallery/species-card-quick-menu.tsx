@@ -43,6 +43,10 @@ import { useGetParents } from "@/hooks/queries/useGetParents";
 import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import type { NodeEntity, PathNode } from "@/common/types/tree-atoms";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
+import {
+  invalidateCurrentUserSpeciesQueries,
+  invalidateListProjectionQueries,
+} from "@/hooks/queries/cache-invalidation";
 import { useGetSpecieGallery } from "@/hooks/queries/useGetSpecieGallery";
 import { useGetSeenSpecieByKey } from "@/hooks/queries/useGetUserSeenSpecies";
 import type { GallerySpeciesRow } from "@/common/utils/supabase/user-seen-species";
@@ -186,29 +190,13 @@ export const SpeciesCardQuickMenu = ({
       : true;
 
   const invalidateSpeciesMembership = () => {
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_seen_species_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.seen_specie_by_key_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.favorite_species_page_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.specie_gallery_key],
+    invalidateCurrentUserSpeciesQueries(queryClient, {
+      userId: userDb?.id,
+      username: userDb?.username,
+      gbifKey: species.gbif_key,
     });
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.list_species_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_seen_in_list_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.achievement_progress_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.public_profile_key],
     });
   };
 
@@ -228,17 +216,16 @@ export const SpeciesCardQuickMenu = ({
           family: species.family,
         },
       );
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_seen_species_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.seen_specie_by_key_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.favorite_species_page_key],
+      invalidateCurrentUserSpeciesQueries(queryClient, {
+        userId: userDb?.id,
+        username: userDb?.username,
+        gbifKey: species.gbif_key,
       });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.species_fav_count_key, species.gbif_key],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.species_favoriters_key, species.gbif_key],
       });
     } finally {
       setFavPending(false);
@@ -290,6 +277,9 @@ export const SpeciesCardQuickMenu = ({
         if (previousFav) {
           void queryClient.invalidateQueries({
             queryKey: [QUERY_KEYS.species_fav_count_key, species.gbif_key],
+          });
+          void queryClient.invalidateQueries({
+            queryKey: [QUERY_KEYS.species_favoriters_key, species.gbif_key],
           });
         }
       }
@@ -352,7 +342,7 @@ export const SpeciesCardQuickMenu = ({
         license: img.licenseCode,
       });
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.list_species_key],
+        queryKey: [QUERY_KEYS.list_species_key, listId],
       });
     } else {
       await updatePreferredImage(userDb!.id, species.gbif_key, img.imgUrl, {
@@ -362,11 +352,11 @@ export const SpeciesCardQuickMenu = ({
         author: img.author,
         license: img.licenseCode,
       });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_seen_species_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.seen_specie_by_key_key],
+      invalidateCurrentUserSpeciesQueries(queryClient, {
+        userId: userDb?.id,
+        username: userDb?.username,
+        gbifKey: species.gbif_key,
+        includeAchievementProgress: false,
       });
     }
     setCurrentImageUrl(img.imgUrl);
@@ -380,9 +370,7 @@ export const SpeciesCardQuickMenu = ({
     void queryClient.invalidateQueries({
       queryKey: [QUERY_KEYS.list_detail_key, listUsername, listSlug],
     });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_lists_key],
-    });
+    invalidateListProjectionQueries(queryClient);
     toast.success(t("lists.listCoverUpdated"));
   };
 

@@ -3,6 +3,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
+  type QueryClient,
 } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
@@ -29,8 +30,32 @@ import {
 } from "@/common/utils/supabase/lists";
 import { getListSlugParam } from "@/common/utils/list-url";
 import type { ListWithCreator } from "@/common/types/lists";
+import {
+  invalidateListProjectionQueries,
+  invalidateListSummaryQueries,
+} from "./cache-invalidation";
 
 const PAGE_SIZE = 50;
+
+const updateCachedListSpeciesCount = (
+  queryClient: QueryClient,
+  listId: string,
+  speciesCount?: number | null,
+) => {
+  if (speciesCount == null) return;
+
+  queryClient.setQueriesData<ListWithCreator | null>(
+    { queryKey: [QUERY_KEYS.list_detail_key] },
+    (current) =>
+      current?.id === listId
+        ? {
+            ...current,
+            species_count: speciesCount,
+            updated_at: new Date().toISOString(),
+          }
+        : current,
+  );
+};
 
 export function useGetUserLists(userId: string | undefined, limit: number) {
   return useQuery({
@@ -163,12 +188,7 @@ export function useToggleListLike(
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: detailKey });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.public_lists_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_liked_lists_key],
-      });
+      invalidateListSummaryQueries(queryClient);
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_likers_key],
       });
@@ -186,12 +206,7 @@ export function useCreateList() {
       is_public?: boolean;
     }) => createList(params.title, params.description, params.is_public),
     onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_lists_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.public_lists_key],
-      });
+      invalidateListSummaryQueries(queryClient);
     },
   });
 }
@@ -237,12 +252,7 @@ export function useUpdateList(listId: string) {
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_detail_key],
       });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_lists_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.public_lists_key],
-      });
+      invalidateListProjectionQueries(queryClient);
     },
   });
 }
@@ -253,11 +263,12 @@ export function useDeleteList() {
   return useMutation({
     mutationFn: (listId: string) => deleteList(listId),
     onSuccess: () => {
+      invalidateListProjectionQueries(queryClient);
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_lists_key],
+        queryKey: [QUERY_KEYS.list_detail_key],
       });
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.public_lists_key],
+        queryKey: [QUERY_KEYS.list_species_key],
       });
     },
   });
@@ -279,16 +290,15 @@ export function useAddSpeciesToList(listId: string) {
         license?: string | null;
       };
     }) => addSpeciesToList(listId, gbifKey, image),
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      updateCachedListSpeciesCount(queryClient, listId, data?.species_count);
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_species_key, listId],
       });
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.list_detail_key, listId],
+        queryKey: [QUERY_KEYS.list_detail_key],
       });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.my_lists_picker_key],
-      });
+      invalidateListSummaryQueries(queryClient);
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.lists_with_species_key, variables.gbifKey],
       });
@@ -301,16 +311,15 @@ export function useRemoveSpeciesFromList(listId: string) {
 
   return useMutation({
     mutationFn: (gbifKey: number) => removeSpeciesFromList(listId, gbifKey),
-    onSuccess: (_data, gbifKey) => {
+    onSuccess: (data, gbifKey) => {
+      updateCachedListSpeciesCount(queryClient, listId, data?.species_count);
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.list_species_key, listId],
       });
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.list_detail_key, listId],
+        queryKey: [QUERY_KEYS.list_detail_key],
       });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.my_lists_picker_key],
-      });
+      invalidateListSummaryQueries(queryClient);
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.lists_with_species_key, gbifKey],
       });

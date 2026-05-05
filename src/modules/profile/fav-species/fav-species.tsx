@@ -9,6 +9,7 @@ import type { FavSpecies } from "@/common/types/user";
 import { updateTopFavSpecies } from "@/common/utils/supabase/update-top-fav-species";
 import { authStore } from "@/store/auth/atoms";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
   PointerSensor,
@@ -37,6 +38,7 @@ import {
 } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useCheckAchievements } from "@/hooks/mutations/useCheckAchievements";
 import { getSpeciesSlugParam } from "@/common/utils/species-url";
+import { invalidateUserPublicProfileQuery } from "@/hooks/queries/cache-invalidation";
 
 export const FavoriteSpecies = ({
   favSpecies,
@@ -50,6 +52,7 @@ export const FavoriteSpecies = ({
   const { t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const checkAchievements = useCheckAchievements();
   const [editMode, setEditMode] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -203,7 +206,10 @@ export const FavoriteSpecies = ({
     const updatedUser = await updateTopFavSpecies(userDb, () =>
       materialized.filter((_, i) => i !== index),
     );
-    if (updatedUser) setUserDb(updatedUser);
+    if (updatedUser) {
+      setUserDb(updatedUser);
+      invalidateUserPublicProfileQuery(queryClient, userDb.username);
+    }
   };
 
   const handleSelect = async (data: FavSpecies) => {
@@ -227,6 +233,7 @@ export const FavoriteSpecies = ({
 
     if (updatedUser) {
       setUserDb(updatedUser);
+      invalidateUserPublicProfileQuery(queryClient, userDb.username);
       void checkAchievements();
     }
     setReplacingIndex(null);
@@ -247,7 +254,10 @@ export const FavoriteSpecies = ({
     );
 
     const updatedUser = await updateTopFavSpecies(userDb, () => materialized);
-    if (updatedUser) setUserDb(updatedUser);
+    if (updatedUser) {
+      setUserDb(updatedUser);
+      invalidateUserPublicProfileQuery(queryClient, userDb.username);
+    }
   };
 
   return (

@@ -49,6 +49,7 @@ import {
 } from "@/hooks/queries/useGetUserSeenSpecies";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { invalidateCurrentUserSpeciesQueries } from "@/hooks/queries/cache-invalidation";
 import { authStore } from "@/store/auth/atoms";
 
 const OccurrenceMap = lazy(() =>
@@ -259,7 +260,7 @@ export const SpecieDetail = ({
       void checkAchievements();
 
       if (newIsFav) {
-        void updateFavActivity({
+        await updateFavActivity({
           userId,
           speciesName: canonicalName ?? "",
           isFav: newIsFav,
@@ -276,16 +277,15 @@ export const SpecieDetail = ({
         isFavorite: previousSpecie?.is_favorite ?? false,
       });
     } finally {
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.seen_specie_by_key_key, userId, specieKey],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_seen_species_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.favorite_species_page_key],
+      invalidateCurrentUserSpeciesQueries(queryClient, {
+        userId,
+        username: userDb?.username,
+        gbifKey: specieKey,
       });
       invalidateSpeciesFavCount(specieKey);
+      void queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.species_favoriters_key, specieKey],
+      });
     }
   };
 

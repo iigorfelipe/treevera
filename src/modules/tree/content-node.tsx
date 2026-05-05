@@ -11,6 +11,7 @@ import {
 import { capitalizar } from "@/common/utils/string";
 import { Dna, Route, DnaOff, Info } from "lucide-react";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Shortcuts } from "@/common/types/user";
 import { updateUserShortcut } from "@/common/utils/supabase/add_shortcut";
 import { treeAtom, removeHighlightedKeyAtom } from "@/store/tree";
@@ -21,10 +22,12 @@ import { authStore } from "@/store/auth/atoms";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { COLOR_KINGDOM_BY_NAME } from "@/common/constants/tree";
+import { invalidateUserPublicProfileQuery } from "@/hooks/queries/cache-invalidation";
 
 export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
   const { i18n, t } = useTranslation();
   const [userDb, setUserDb] = useAtom(authStore.userDb);
+  const queryClient = useQueryClient();
   const [scientificNameOpen, setScientificNameOpen] = useState(false);
   const showRankBadge = useAtomValue(showRankBadgeAtom);
   const { isCompactMenu } = useTreePanelLayout();
@@ -97,9 +100,20 @@ export const ContentNode = memo(({ node }: { node: NodeEntity }) => {
         ],
       };
     }).then((updatedUser) => {
-      if (updatedUser) setUserDb(updatedUser);
+      if (updatedUser) {
+        setUserDb(updatedUser);
+        invalidateUserPublicProfileQuery(queryClient, userDb.username);
+      }
     });
-  }, [userDb, challengeInProgress, taxonRank, store, node, setUserDb]);
+  }, [
+    userDb,
+    challengeInProgress,
+    taxonRank,
+    store,
+    node,
+    setUserDb,
+    queryClient,
+  ]);
 
   const displayName = node.canonicalName || node.scientificName;
   const showInfoIcon =

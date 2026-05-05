@@ -16,7 +16,7 @@ import {
   type GallerySpeciesRow,
 } from "@/common/utils/supabase/user-seen-species";
 import { getSpeciesSlugParam } from "@/common/utils/species-url";
-import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { invalidateCurrentUserSpeciesQueries } from "@/hooks/queries/cache-invalidation";
 import { useRecoverableSpeciesImage } from "@/modules/species-gallery/use-recoverable-species-image";
 
 const RecentSpeciesCard = ({
@@ -105,7 +105,8 @@ const RecentSpeciesCard = ({
       return;
     }
 
-    const isOwnProfile = !!userDb && (!ownerUsername || ownerUsername === userDb.username);
+    const isOwnProfile =
+      !!userDb && (!ownerUsername || ownerUsername === userDb.username);
     if (!isOwnProfile || isInGallery === false) return;
 
     persistedImageRef.current = image.imgUrl;
@@ -116,11 +117,11 @@ const RecentSpeciesCard = ({
       author: image.author,
       license: image.licenseCode,
     });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.user_seen_species_key],
-    });
-    void queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.favorite_species_page_key],
+    invalidateCurrentUserSpeciesQueries(queryClient, {
+      userId: userDb.id,
+      username: userDb.username,
+      gbifKey,
+      includeAchievementProgress: false,
     });
   }, [
     family,

@@ -10,6 +10,7 @@ import { updateListSpeciesImage } from "@/common/utils/supabase/lists";
 import { inatImageUrl, buildAttributionText } from "@/common/utils/image-size";
 import { authStore } from "@/store/auth/atoms";
 import { QUERY_KEYS } from "@/hooks/queries/keys";
+import { invalidateCurrentUserSpeciesQueries } from "@/hooks/queries/cache-invalidation";
 import { SpeciesCardQuickMenu } from "./species-card-quick-menu";
 import { useRecoverableSpeciesImage } from "./use-recoverable-species-image";
 
@@ -85,7 +86,7 @@ export const SpeciesCard = ({
         license: image.licenseCode,
       });
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.list_species_key],
+        queryKey: [QUERY_KEYS.list_species_key, listId],
       });
       return;
     }
@@ -98,14 +99,11 @@ export const SpeciesCard = ({
         author: image.author,
         license: image.licenseCode,
       });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.user_seen_species_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.seen_specie_by_key_key],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.favorite_species_page_key],
+      invalidateCurrentUserSpeciesQueries(queryClient, {
+        userId: userDb.id,
+        username: userDb.username,
+        gbifKey: species.gbif_key,
+        includeAchievementProgress: false,
       });
     }
   }, [

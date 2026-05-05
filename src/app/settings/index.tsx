@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   Volume2,
@@ -45,6 +46,7 @@ import { updateName } from "@/common/utils/supabase/update-name";
 import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
 import { AvatarModal } from "@/common/components/avatar-modal";
 import { useDocumentTitle } from "@/hooks/use-document-title";
+import { invalidateUserIdentityQueries } from "@/hooks/queries/cache-invalidation";
 
 const Toggle = ({
   checked,
@@ -171,6 +173,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
   const navigate = useNavigate();
   const isAuthenticated = useAtomValue(authStore.isAuthenticated);
   const [userDb, setUserDb] = useAtom(authStore.userDb);
+  const queryClient = useQueryClient();
   const { logout, isLoggingOut } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -193,6 +196,13 @@ function AccountSection({ flat }: { flat?: boolean }) {
 
   const handleAvatarClick = () => fileInputRef.current?.click();
 
+  const invalidateAccountCaches = (
+    username = userDb?.username,
+    previousUsername?: string,
+  ) => {
+    invalidateUserIdentityQueries(queryClient, username, previousUsername);
+  };
+
   const handleAvatarFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -203,6 +213,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
     try {
       const url = await uploadAvatar(userDb.id, file);
       setUserDb({ ...userDb, avatar_url: url });
+      invalidateAccountCaches();
     } catch {
       //
     } finally {
@@ -216,6 +227,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
     try {
       await removeAvatar(userDb.id);
       setUserDb({ ...userDb, avatar_url: null });
+      invalidateAccountCaches();
     } catch {
       //
     } finally {
@@ -243,6 +255,7 @@ function AccountSection({ flat }: { flat?: boolean }) {
       const trimmed = nameInput.trim();
       await updateName(userDb.id, trimmed);
       setUserDb({ ...userDb, name: trimmed });
+      invalidateAccountCaches();
       setEditingName(false);
     } catch {
       setNameError(t("settings.account.saveError"));
@@ -298,8 +311,10 @@ function AccountSection({ flat }: { flat?: boolean }) {
     setSavingUsername(true);
     setSaveError(null);
     try {
+      const previousUsername = userDb.username;
       await updateUsername(userDb.id, usernameInput);
       setUserDb({ ...userDb, username: usernameInput });
+      invalidateAccountCaches(usernameInput, previousUsername);
       setEditingUsername(false);
       setUsernameStatus("idle");
     } catch {
