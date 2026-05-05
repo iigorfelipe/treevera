@@ -1,5 +1,6 @@
 import { supabase } from "./client";
 import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 import type {
   ListWithCreator,
   ListPreview,
@@ -113,16 +114,52 @@ export async function fetchListDetail(
   if (detail) return detail;
 
   const search = slug.replace(/-/g, " ").trim();
-  if (!search) return null;
+  if (!search) return fetchOwnListDetailByTitleSlug(username, slug);
 
   const { rows } = await fetchPublicLists(20, 0, "recent", search);
   const candidate = rows.find(
-    (list) => list.user_username === username && slugify(list.title) === slug,
+    (list) =>
+      list.user_username === username &&
+      (list.title === slug ||
+        slugify(list.title) === slug ||
+        getListSlugParam(list) === slug),
   );
 
-  if (!candidate?.slug || candidate.slug === slug) return null;
+  if (!candidate?.slug || candidate.slug === slug) {
+    return fetchOwnListDetailByTitleSlug(username, slug);
+  }
 
   return fetchListDetailByStoredSlug(username, candidate.slug);
+}
+
+async function fetchOwnListDetailByTitleSlug(
+  username: string,
+  slug: string,
+): Promise<ListWithCreator | null> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) return null;
+
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("username")
+    .eq("id", session.user.id)
+    .maybeSingle();
+  if (error || user?.username !== username) return null;
+
+  const { rows } = await fetchUserLists(session.user.id, 100, 0);
+  const candidate = rows.find(
+    (list) =>
+      list.title === slug ||
+      slugify(list.title) === slug ||
+      getListSlugParam(list) === slug,
+  );
+
+  const storedSlug = candidate?.slug?.trim();
+  if (!storedSlug || storedSlug === slug) return null;
+
+  return fetchListDetailByStoredSlug(username, storedSlug);
 }
 
 async function fetchListDetailByStoredSlug(
@@ -257,12 +294,15 @@ export async function createList(
     } = await supabase.auth.getSession();
     if (!session) throw new Error("Not authenticated");
 
+    const listId = crypto.randomUUID();
+
     const { data, error } = await supabase
       .from("lists")
       .insert({
+        id: listId,
         user_id: session.user.id,
         title,
-        slug: slugify(title),
+        slug: getListSlugParam(title, null, listId),
         description: description || null,
         is_public: isPublic,
       })
@@ -288,7 +328,7 @@ export async function updateList(
     };
 
     if (updates.title) {
-      payload.slug = slugify(updates.title);
+      payload.slug = getListSlugParam(updates.title, null, listId);
     }
 
     const { error } = await supabase

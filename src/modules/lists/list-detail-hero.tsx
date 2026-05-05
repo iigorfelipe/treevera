@@ -59,7 +59,7 @@ export const ListDetailHero = ({
   const knownCount = list.known_count ?? 0;
   const totalCount = list.species_count;
   const pct = totalCount > 0 ? (knownCount / totalCount) * 100 : 0;
-  const listSlug = getListSlugParam(list.title);
+  const listSlug = getListSlugParam(list);
 
   const handleShare = async () => {
     const url = getAppUrl(`/${list.user_username}/lists/${listSlug}`);

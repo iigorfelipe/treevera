@@ -18,7 +18,7 @@ type ListCompactCardProps = {
 export const ListCompactCard = ({ list }: ListCompactCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const listSlug = getListSlugParam(list.title);
+  const listSlug = getListSlugParam(list);
 
   const handleOpenList = () => {
     navigate({

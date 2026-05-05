@@ -37,7 +37,7 @@ import { useTreeNavigation } from "@/hooks/use-tree-navigation";
 import { authStore } from "@/store/auth/atoms";
 import { treeAtom } from "@/store/tree";
 import { getSpeciesSlugParam } from "@/common/utils/species-url";
-import { slugify } from "@/common/utils/slugify";
+import { getListSlugParam } from "@/common/utils/list-url";
 
 const getLocalDateKey = (date = new Date()) => {
   const y = date.getFullYear();
@@ -265,12 +265,15 @@ const FeaturedListsHomeSection = () => {
     setCreateOpen(true);
   };
 
-  const handleListCreated = (_listId: string, title: string) => {
+  const handleListCreated = (listId: string, title: string) => {
     setCreateOpen(false);
     if (userDb?.username) {
       void navigate({
         to: "/$username/lists/$listSlug",
-        params: { username: userDb.username, listSlug: slugify(title) },
+        params: {
+          username: userDb.username,
+          listSlug: getListSlugParam(title, null, listId),
+        },
       });
     }
   };

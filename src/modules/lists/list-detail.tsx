@@ -251,7 +251,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
   useEffect(() => {
     if (!list) return;
 
-    const canonicalSlug = getListSlugParam(list.title);
+    const canonicalSlug = getListSlugParam(list);
     if (canonicalSlug === listSlug) return;
     if (!list.is_public && list.slug !== canonicalSlug) return;
 
@@ -327,7 +327,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
         onSuccess: () => {
           setEditOpen(false);
           toast.success(t("lists.listUpdated"));
-          const newSlug = getListSlugParam(title);
+          const newSlug = getListSlugParam(title, null, list?.id);
           if (newSlug !== listSlug) {
             navigate({
               to: "/$username/lists/$listSlug",
@@ -487,7 +487,7 @@ export const ListDetail = ({ username, listSlug }: ListDetailProps) => {
             onRemove={(gbifKey) => setRemoveSpeciesGbifKey(gbifKey)}
             listId={list.id}
             listUsername={list.user_username}
-            listSlug={getListSlugParam(list.title)}
+            listSlug={getListSlugParam(list)}
           />
         )}
       </div>

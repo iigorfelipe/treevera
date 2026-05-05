@@ -27,6 +27,7 @@ import {
   fetchFeaturedLists,
   setFeaturedLists,
 } from "@/common/utils/supabase/lists";
+import { getListSlugParam } from "@/common/utils/list-url";
 import type { ListWithCreator } from "@/common/types/lists";
 
 const PAGE_SIZE = 50;
@@ -199,14 +200,42 @@ export function useUpdateList(listId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (updates: {
+    mutationFn: async (updates: {
       title?: string;
       description?: string;
       is_public?: boolean;
-    }) => updateList(listId, updates),
-    onSuccess: () => {
+    }) => {
+      const updated = await updateList(listId, updates);
+      if (!updated) throw new Error("Failed to update list");
+      return updated;
+    },
+    onSuccess: (_updated, updates) => {
+      queryClient.setQueriesData<ListWithCreator | null>(
+        { queryKey: [QUERY_KEYS.list_detail_key] },
+        (current) => {
+          if (!current || current.id !== listId) return current;
+
+          return {
+            ...current,
+            ...(updates.title !== undefined
+              ? {
+                  title: updates.title,
+                  slug: getListSlugParam(updates.title, null, listId),
+                }
+              : {}),
+            ...(updates.description !== undefined
+              ? { description: updates.description ?? null }
+              : {}),
+            ...(updates.is_public !== undefined
+              ? { is_public: updates.is_public }
+              : {}),
+            updated_at: new Date().toISOString(),
+          };
+        },
+      );
+
       void queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.list_detail_key, listId],
+        queryKey: [QUERY_KEYS.list_detail_key],
       });
       void queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.user_lists_key],

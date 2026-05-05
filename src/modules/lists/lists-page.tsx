@@ -176,12 +176,15 @@ export const ListsPage = () => {
     pickerFetchNextPage,
   ]);
 
-  const handleListCreated = (_listId: string, title: string) => {
+  const handleListCreated = (listId: string, title: string) => {
     setCreateOpen(false);
     if (userDb?.username) {
       navigate({
         to: "/$username/lists/$listSlug",
-        params: { username: userDb.username, listSlug: getListSlugParam(title) },
+        params: {
+          username: userDb.username,
+          listSlug: getListSlugParam(title, null, listId),
+        },
       });
     }
   };

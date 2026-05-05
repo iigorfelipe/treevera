@@ -74,7 +74,7 @@ const MySpeciesListCard = ({
   username: string;
 }) => {
   const { t } = useTranslation();
-  const listSlug = getListSlugParam(list.title);
+  const listSlug = getListSlugParam(list.title, null, list.id);
 
   return (
     <Link

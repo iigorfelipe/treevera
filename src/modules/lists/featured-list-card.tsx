@@ -24,7 +24,7 @@ export const FeaturedListCard = ({
 }: FeaturedListCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const listSlug = getListSlugParam(list.title);
+  const listSlug = getListSlugParam(list);
   const isDark = tone === "dark";
   const isTransparent = tone === "transparent";
 

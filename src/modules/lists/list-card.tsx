@@ -29,7 +29,7 @@ type ListCardProps = {
 export const ListCard = ({ list }: ListCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const listSlug = getListSlugParam(list.title);
+  const listSlug = getListSlugParam(list);
 
   return (
     <div

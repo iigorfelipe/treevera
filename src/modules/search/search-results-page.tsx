@@ -203,7 +203,7 @@ function TaxaResults({ taxa }: { taxa: Taxon[] }) {
 
 function ListRow({ list }: { list: ListWithCreator }) {
   const { t } = useTranslation();
-  const listSlug = getListSlugParam(list.title);
+  const listSlug = getListSlugParam(list);
 
   return (
     <Link
