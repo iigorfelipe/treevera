@@ -119,9 +119,30 @@ export const FavoriteSpecies = ({
 
   if (!isOwner) {
     const emptyCount = Math.max(0, 4 - (favSpecies?.length ?? 0));
+    const handleOpenFavoritesGallery = () => {
+      if (!profileOwnerUsername) return;
+
+      navigate({
+        to: "/$username/species-gallery",
+        params: { username: profileOwnerUsername },
+        search: { favorites: "true" },
+      });
+    };
+
     return (
       <div className="space-y-3">
-        <h2 className="border-b pb-1">{t("favSpecies.title")}</h2>
+        <div className="flex justify-between border-b pb-1">
+          <h2>{t("favSpecies.title")}</h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground h-7 px-2 text-xs"
+            disabled={!profileOwnerUsername}
+            onClick={handleOpenFavoritesGallery}
+          >
+            {t("lists.viewAll")}
+          </Button>
+        </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {favSpecies?.map((f) => (
             <FilledFavCard

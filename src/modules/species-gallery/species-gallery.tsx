@@ -48,9 +48,11 @@ const useNumColumns = () => {
 export const SpeciesGallery = ({
   userId,
   backUsername,
+  initialFavoritesOnly = false,
 }: {
   userId?: string;
   backUsername?: string;
+  initialFavoritesOnly?: boolean;
 } = {}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -58,7 +60,9 @@ export const SpeciesGallery = ({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(
+    initialFavoritesOnly,
+  );
 
   useEffect(() => {
     const trimmed = searchQuery.trim();
@@ -66,6 +70,10 @@ export const SpeciesGallery = ({
     const id = setTimeout(() => setDebouncedSearch(trimmed), 400);
     return () => clearTimeout(id);
   }, [searchQuery]);
+
+  useEffect(() => {
+    setShowOnlyFavorites(initialFavoritesOnly);
+  }, [initialFavoritesOnly]);
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [photosFirst, setPhotosFirst] = useState(true);
 

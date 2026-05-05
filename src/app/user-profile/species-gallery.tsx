@@ -1,22 +1,47 @@
-import { useParams } from "@tanstack/react-router";
+import { useParams, useSearch } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { authStore } from "@/store/auth/atoms";
 import { useGetPublicProfile } from "@/hooks/queries/useGetPublicProfile";
 import { SpeciesGallery } from "@/modules/species-gallery/species-gallery";
 import { Loader2 } from "lucide-react";
 
+type GallerySearch = {
+  favorites?: boolean | string;
+};
+
+const isFavoritesSearchActive = (favorites?: boolean | string) =>
+  favorites === true || favorites === "true" || favorites === "1";
+
 export function SpeciesGalleryPageRouter() {
   const { username } = useParams({ strict: false }) as { username: string };
+  const search = useSearch({ strict: false }) as GallerySearch;
   const userDb = useAtomValue(authStore.userDb);
+  const initialFavoritesOnly = isFavoritesSearchActive(search.favorites);
 
   if (userDb?.username === username) {
-    return <SpeciesGallery backUsername={username} />;
+    return (
+      <SpeciesGallery
+        backUsername={username}
+        initialFavoritesOnly={initialFavoritesOnly}
+      />
+    );
   }
 
-  return <PublicSpeciesGalleryInner username={username} />;
+  return (
+    <PublicSpeciesGalleryInner
+      username={username}
+      initialFavoritesOnly={initialFavoritesOnly}
+    />
+  );
 }
 
-function PublicSpeciesGalleryInner({ username }: { username: string }) {
+function PublicSpeciesGalleryInner({
+  username,
+  initialFavoritesOnly,
+}: {
+  username: string;
+  initialFavoritesOnly: boolean;
+}) {
   const { data, isLoading } = useGetPublicProfile(username);
 
   if (isLoading) {
@@ -29,5 +54,11 @@ function PublicSpeciesGalleryInner({ username }: { username: string }) {
 
   if (!data) return null;
 
-  return <SpeciesGallery userId={data.id} backUsername={data.username} />;
+  return (
+    <SpeciesGallery
+      userId={data.id}
+      backUsername={data.username}
+      initialFavoritesOnly={initialFavoritesOnly}
+    />
+  );
 }
