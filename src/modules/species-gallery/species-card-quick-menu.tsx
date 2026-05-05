@@ -4,6 +4,7 @@ import {
   MoreVertical,
   ListPlus,
   Heart,
+  Copy,
   Share2,
   ListTree,
   Images,
@@ -322,6 +323,18 @@ export const SpeciesCardQuickMenu = ({
     }
   };
 
+  const handleCopyScientificName = async () => {
+    const name = species.canonical_name?.trim();
+    if (!name) return;
+
+    try {
+      await navigator.clipboard.writeText(name);
+      toast(t("gallery.scientificNameCopied"));
+    } catch {
+      toast.error(t("gallery.copyScientificNameError"));
+    }
+  };
+
   const handleViewInTree = () => {
     setViewInTreePending(true);
   };
@@ -470,6 +483,15 @@ export const SpeciesCardQuickMenu = ({
           <DropdownMenuItem onClick={handleShare} className={menuItemClass}>
             <Share2 className={menuIconClass} />
             {t("specieDetail.shareLabel")}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => void handleCopyScientificName()}
+            disabled={!species.canonical_name?.trim()}
+            className={menuItemClass}
+          >
+            <Copy className={menuIconClass} />
+            {t("gallery.copyScientificName")}
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={handleViewInTree} className={menuItemClass}>

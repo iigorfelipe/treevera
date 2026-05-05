@@ -295,7 +295,10 @@
     "removedFromGallery": "Espécie removida da galeria.",
     "removeSpeciesConfirm": "Tem certeza que deseja remover esta espécie da galeria?",
     "galleryUpdateError": "Não foi possível atualizar a galeria.",
-    "quickActions": "Ações rápidas"
+    "quickActions": "Ações rápidas",
+    "copyScientificName": "Copiar nome científico",
+    "scientificNameCopied": "Nome científico copiado!",
+    "copyScientificNameError": "Não foi possível copiar o nome científico."
   },
   "specieDetail": {
     "notFound": "Nenhum dado foi encontrado",
