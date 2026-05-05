@@ -420,11 +420,11 @@
     "favoriteFilter": "Mostrar apenas favoritas",
     "favoriteFilterShort": "Favoritos",
     "clearFilters": "Limpar filtros",
-    "noMatches": "Nenhuma especie encontrada com os filtros atuais.",
-    "guideStepSpecies": "Clique em uma especie na galeria ou na arvore para abrir os detalhes sem sair desta exploracao.",
-    "guideStepGroups": "Clique em um grupo na arvore para filtrar a galeria por aquele ramo.",
+    "noMatches": "Nenhuma espécie encontrada com os filtros atuais.",
+    "guideStepSpecies": "Clique em uma espécie na galeria ou na árvore para abrir os detalhes sem sair desta exploração.",
+    "guideStepGroups": "Clique em um grupo na árvore para filtrar a galeria por aquele ramo.",
     "galleryTitle": "Galeria da lista",
-    "showingCount": "Exibindo {{visible}} de {{total}} especies"
+    "showingCount": "Exibindo {{visible}} de {{total}} espécies"
   },
   "search": {
     "selectKingdom": "Selecione um reino",
