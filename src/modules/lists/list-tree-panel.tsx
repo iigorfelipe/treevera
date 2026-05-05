@@ -127,7 +127,6 @@ const DetailFallback = () => (
 export const ListTreePanel = () => {
   const { t } = useTranslation();
   const listTreeMode = useAtomValue(treeAtom.listTreeMode);
-  const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const selectedSpecieKey = useAtomValue(selectedSpecieKeyAtom);
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
   const setExpandedPath = useSetAtom(setExpandedPathAtom);
@@ -169,16 +168,10 @@ export const ListTreePanel = () => {
     [favoriteOnly, groupFilter, knowledgeFilter, normalizedQuery, species],
   );
 
-  const treeSpecieKey = expandedNodes.find(
-    (node) => node.rank === "SPECIES",
-  )?.key;
-
   const activeKey =
-    selectedSpecieKey && speciesKeys.has(selectedSpecieKey)
+    selectedSpecieKey != null && speciesKeys.has(selectedSpecieKey)
       ? selectedSpecieKey
-      : treeSpecieKey && speciesKeys.has(treeSpecieKey)
-        ? treeSpecieKey
-        : null;
+      : null;
 
   const activeSpecies =
     activeKey != null
@@ -220,12 +213,13 @@ export const ListTreePanel = () => {
 
   const selectSpecies = useCallback(
     (item: ListTreeSpecies) => {
+      setGroupFilter(null);
       setSelectedSpecieKey(item.gbifKey);
       setExpandedPath(item.path);
       scrollToNodeKey(item.gbifKey);
       setDetailScrollRequest((value) => value + 1);
     },
-    [scrollToNodeKey, setExpandedPath, setSelectedSpecieKey],
+    [scrollToNodeKey, setExpandedPath, setGroupFilter, setSelectedSpecieKey],
   );
 
   useEffect(() => {
@@ -247,6 +241,18 @@ export const ListTreePanel = () => {
     setKnowledgeFilter("all");
     setGroupFilter(null);
   }, [setGroupFilter]);
+
+  const selectBranchGroup = useCallback(
+    (group: BranchChildGroup) => {
+      setSelectedSpecieKey(null);
+      setGroupFilter({
+        rank: group.rank,
+        key: group.key,
+        name: group.name,
+      });
+    },
+    [setGroupFilter, setSelectedSpecieKey],
+  );
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -528,13 +534,7 @@ export const ListTreePanel = () => {
                             <button
                               key={group.key}
                               type="button"
-                              onClick={() =>
-                                setGroupFilter({
-                                  rank: group.rank,
-                                  key: group.key,
-                                  name: group.name,
-                                })
-                              }
+                              onClick={() => selectBranchGroup(group)}
                               className="hover:bg-muted/70 inline-flex max-w-full cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors"
                               title={t("listTreePanel.branchGroupTitle", {
                                 rank: t(`ranks.${group.rank}`),

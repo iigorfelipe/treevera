@@ -79,6 +79,8 @@ export function useTreeNavigation() {
         if (targetNode.rank !== "SPECIES") {
           const selectedNode = ancestors[ancestors.length - 1];
 
+          store.set(treeAtom.expandedNodes, ancestors);
+          store.set(selectedSpecieKeyAtom, null);
           store.set(treeAtom.listTreeGroupFilter, {
             rank: selectedNode.rank,
             key: selectedNode.key,
@@ -87,6 +89,7 @@ export function useTreeNavigation() {
           return;
         }
 
+        store.set(treeAtom.listTreeGroupFilter, null);
         store.set(treeAtom.expandedNodes, ancestors);
         store.set(selectedSpecieKeyAtom, key);
         return;

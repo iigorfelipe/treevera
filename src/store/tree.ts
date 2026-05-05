@@ -306,6 +306,7 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
     }
 
     set(expandedNodes, newPathNodes);
+    set(listTreeGroupFilter, null);
     set(selectedSpecieKeyAtom, key);
     return;
   }
