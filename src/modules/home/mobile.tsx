@@ -1,10 +1,12 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { lazy, Suspense, useEffect } from "react";
+import { useLocation } from "@tanstack/react-router";
 
 import { Header } from "@/modules/header";
 import { treeAtom, selectedSpecieKeyAtom } from "@/store/tree";
 import { Tree } from "@/app/tree";
 import { ExploreInfo } from "@/app/details/explore-info";
+import { HomeInitialPanel } from "@/modules/home/initial-panel";
 
 const SpecieDetail = lazy(() =>
   import("@/app/details/specie-detail").then((m) => ({
@@ -20,13 +22,23 @@ const ChallengeCompletedOverlay = lazy(() =>
 const SectionFallback = () => <div className="min-h-48 w-full" />;
 
 export const HomeMobile = () => {
+  const location = useLocation();
   const expandedNodes = useAtomValue(treeAtom.expandedNodes);
   const challenge = useAtomValue(treeAtom.challenge);
   const listTreeMode = useAtomValue(treeAtom.listTreeMode);
   const setSelectedSpecieKey = useSetAtom(selectedSpecieKeyAtom);
+  const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
   const isSpecie = expandedNodes.find((node) => node.rank === "SPECIES");
 
   const isCompleted = challenge.status === "COMPLETED";
+  const isHomeRoute = location.pathname === "/";
+  const isTreeRoute = location.pathname.startsWith("/tree");
+  const isChallengeRoute = location.pathname.startsWith("/challenges");
+  const shouldShowTree =
+    isTreeRoute ||
+    isChallengeRoute ||
+    Boolean(challenge.mode) ||
+    Boolean(listTreeMode);
 
   useEffect(() => {
     if (isCompleted && challenge.speciesKey) {
@@ -34,6 +46,19 @@ export const HomeMobile = () => {
       return () => setSelectedSpecieKey(null);
     }
   }, [isCompleted, challenge.speciesKey, setSelectedSpecieKey]);
+
+  useEffect(() => {
+    if (!isHomeRoute || challenge.mode || listTreeMode) return;
+
+    setExpandedNodes([]);
+    setSelectedSpecieKey(null);
+  }, [
+    challenge.mode,
+    isHomeRoute,
+    listTreeMode,
+    setExpandedNodes,
+    setSelectedSpecieKey,
+  ]);
 
   if (isCompleted) {
     return (
@@ -51,6 +76,15 @@ export const HomeMobile = () => {
     );
   }
 
+  if (!shouldShowTree) {
+    return (
+      <div className="flex flex-col">
+        <Header />
+        <HomeInitialPanel />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col">
       <Header />
@@ -61,7 +95,7 @@ export const HomeMobile = () => {
       ) : (
         <>
           <Tree />
-          {!challenge.mode && <ExploreInfo />}
+          {!challenge.mode && listTreeMode && <ExploreInfo />}
         </>
       )}
     </div>

@@ -23,6 +23,7 @@ import {
 import type { PathNode } from "@/common/types/tree-atoms";
 import { cn } from "@/common/utils/cn";
 import { inatImageUrl } from "@/common/utils/image-size";
+import { capitalizar } from "@/common/utils/string";
 import { DailyDateNav } from "@/modules/challenge/daily/daily-date-nav";
 import { Timer } from "@/modules/challenge/components/timer";
 import { FeaturedListCard } from "@/modules/lists/featured-list-card";
@@ -171,6 +172,7 @@ const WelcomePanel = () => {
 const KingdomsSection = () => {
   const { t } = useTranslation();
   const exploreInfos = useAtomValue(treeAtom.exploreInfos);
+  const nodes = useAtomValue(treeAtom.nodes);
   const { navigateToNodes, toggleNode } = useTreeNavigation();
   const scrollThenNavigate = useScrollThenNavigate();
   const [activeKingdomKey, setActiveKingdomKey] = useState(
@@ -179,9 +181,25 @@ const KingdomsSection = () => {
 
   const selectKingdom = useCallback(
     (kingdomKey: number) => {
-      scrollThenNavigate(() => toggleNode(kingdomKey));
+      scrollThenNavigate(() => {
+        if (nodes[kingdomKey]) {
+          toggleNode(kingdomKey);
+          return;
+        }
+
+        const kingdomName = NAME_KINGDOM_BY_KEY[kingdomKey];
+        if (!kingdomName) return;
+
+        navigateToNodes([
+          {
+            key: kingdomKey,
+            rank: "KINGDOM",
+            name: capitalizar(kingdomName),
+          },
+        ]);
+      });
     },
-    [scrollThenNavigate, toggleNode],
+    [navigateToNodes, nodes, scrollThenNavigate, toggleNode],
   );
 
   const selectGroup = useCallback(
@@ -556,7 +574,7 @@ const DailyChallengeHomeSection = () => {
                   playsInline
                   preload="metadata"
                   aria-label={t("homeInitial.dailyChallenge.pathHint")}
-                  className="aspect-[472/316] w-full object-cover"
+                  className="aspect-472/316 w-full object-cover"
                 />
               </div>
             </div>
@@ -569,7 +587,7 @@ const DailyChallengeHomeSection = () => {
                 />
               </div>
 
-              <div className="bg-muted relative aspect-[4/3] overflow-hidden rounded-lg border">
+              <div className="bg-muted relative aspect-4/3 overflow-hidden rounded-lg border">
                 {isImageLoading ? (
                   <div className="bg-muted-foreground/10 h-full w-full animate-pulse" />
                 ) : challengeImageSrc ? (
