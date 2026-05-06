@@ -3,9 +3,9 @@ import { Image } from "@/common/components/image";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { ChevronRight, Search } from "lucide-react";
-import { setFocusSearchAtom, treeAtom } from "@/store/tree";
+import { resetTreeHomeAtom, setFocusSearchAtom, treeAtom } from "@/store/tree";
 import { ConfirmDialog } from "@/common/components/ui/confirm-dialog";
 
 import { Menu } from "./menu";
@@ -19,8 +19,8 @@ export const Header = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [challenge, setChallenge] = useAtom(treeAtom.challenge);
-  const setExpandedNodes = useSetAtom(treeAtom.expandedNodes);
+  const challenge = useAtomValue(treeAtom.challenge);
+  const resetTreeHome = useSetAtom(resetTreeHomeAtom);
   const setFocusSearch = useSetAtom(setFocusSearchAtom);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -28,12 +28,14 @@ export const Header = ({
     if (challenge.status === "IN_PROGRESS") {
       e.preventDefault();
       setConfirmOpen(true);
+      return;
     }
+
+    resetTreeHome();
   };
 
   const handleConfirmLeave = () => {
-    setChallenge({ mode: null, status: "NOT_STARTED" });
-    setExpandedNodes([]);
+    resetTreeHome();
     void navigate({ to: "/" });
   };
 

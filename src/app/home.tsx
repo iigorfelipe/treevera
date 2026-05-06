@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { useResponsive } from "@/hooks/use-responsive";
-import { useSetAtom } from "jotai";
-import { treeAtom } from "@/store/tree";
+import { useAtomValue, useSetAtom } from "jotai";
+import { resetTreeHomeAtom, treeAtom } from "@/store/tree";
 import { useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useDocumentTitle } from "@/hooks/use-document-title";
@@ -18,8 +18,11 @@ const HomeFallback = () => <div className="bg-background min-h-screen" />;
 export const Home = () => {
   const { t } = useTranslation();
   const { isTablet } = useResponsive();
+  const challenge = useAtomValue(treeAtom.challenge);
   const setChallenge = useSetAtom(treeAtom.challenge);
+  const resetTreeHome = useSetAtom(resetTreeHomeAtom);
   const location = useLocation();
+  const isOnHome = location.pathname === "/";
   const isOnChallenges = location.pathname.startsWith("/challenges");
   const isOnTree = location.pathname.startsWith("/tree");
 
@@ -32,6 +35,8 @@ export const Home = () => {
   );
 
   useEffect(() => {
+    if (isOnHome) return;
+
     setChallenge((prev) => {
       if (prev.status === "IN_PROGRESS" || prev.status === "COMPLETED") {
         return prev;
@@ -40,7 +45,13 @@ export const Home = () => {
         ? { mode: "UNSET", status: "NOT_STARTED" }
         : { mode: null, status: "NOT_STARTED" };
     });
-  }, [isOnChallenges, setChallenge]);
+  }, [isOnChallenges, isOnHome, setChallenge]);
+
+  useEffect(() => {
+    if (!isOnHome || challenge.status === "IN_PROGRESS") return;
+
+    resetTreeHome();
+  }, [challenge.status, isOnHome, resetTreeHome]);
 
   if (isTablet) {
     return (

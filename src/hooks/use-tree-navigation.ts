@@ -11,6 +11,10 @@ import { capitalizar } from "@/common/utils/string";
 import type { PathNode } from "@/common/types/tree-atoms";
 import { useTreePanelLayout } from "@/modules/home/tree-panel-layout";
 
+type NavigateToNodesOptions = {
+  preferMobileTreeView?: boolean;
+};
+
 export function useTreeNavigation() {
   const navigate = useNavigate();
   const store = useStore();
@@ -37,13 +41,21 @@ export function useTreeNavigation() {
   );
 
   const navigateToNodes = useCallback(
-    (nodes: PathNode[], fromShortcut = false) => {
+    (
+      nodes: PathNode[],
+      fromShortcut = false,
+      options: NavigateToNodesOptions = {},
+    ) => {
       requestPanelExpand();
       setShortcutTarget(fromShortcut ? [...nodes] : null);
+      store.set(
+        treeAtom.mobileTreeView,
+        options.preferMobileTreeView ?? false,
+      );
       const path = nodesToPath(nodes);
       navigate({ to: path, resetScroll: false });
     },
-    [navigate, nodesToPath, requestPanelExpand, setShortcutTarget],
+    [navigate, nodesToPath, requestPanelExpand, setShortcutTarget, store],
   );
 
   const toggleNode = useCallback(
@@ -86,12 +98,14 @@ export function useTreeNavigation() {
             key: selectedNode.key,
             name: selectedNode.name,
           });
+          store.set(treeAtom.mobileListTreeView, "content");
           return;
         }
 
         store.set(treeAtom.listTreeGroupFilter, null);
         store.set(treeAtom.expandedNodes, ancestors);
         store.set(selectedSpecieKeyAtom, key);
+        store.set(treeAtom.mobileListTreeView, "content");
         return;
       }
 

@@ -167,7 +167,7 @@ export const SpeciesCardQuickMenu = ({
     });
 
     injectPathNodes(entities);
-    navigateToNodes(pathNodes, true);
+    navigateToNodes(pathNodes, true, { preferMobileTreeView: true });
     setViewInTreePending(false);
   }, [viewInTreePending, parents, species, injectPathNodes, navigateToNodes]);
 

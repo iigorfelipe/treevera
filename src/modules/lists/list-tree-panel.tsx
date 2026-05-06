@@ -291,25 +291,25 @@ export const ListTreePanel = () => {
             )}
           </form>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="grid grid-cols-[2.25rem_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 @[520px]/list-tree-panel:flex @[520px]/list-tree-panel:flex-wrap">
             <Button
               type="button"
               variant={favoriteOnly ? "default" : "outline"}
-              className="h-9 cursor-pointer gap-2 px-3"
+              className="size-9 shrink-0 cursor-pointer p-0 @[520px]/list-tree-panel:h-9 @[520px]/list-tree-panel:w-auto @[520px]/list-tree-panel:px-3"
               aria-pressed={favoriteOnly}
               aria-label={t("listTreePanel.favoriteFilter")}
               title={t("listTreePanel.favoriteFilter")}
               onClick={() => setFavoriteOnly((value) => !value)}
             >
               <Heart className={cn("size-4", favoriteOnly && "fill-current")} />
-              <span className="hidden text-sm @[420px]/list-tree-panel:inline">
+              <span className="hidden text-sm @[520px]/list-tree-panel:inline">
                 {t("listTreePanel.favoriteFilterShort")}
               </span>
             </Button>
             <Button
               type="button"
               variant={knowledgeFilter === "known" ? "default" : "outline"}
-              className="h-9 cursor-pointer gap-2 px-3"
+              className="h-9 min-w-0 cursor-pointer px-2.5 text-sm @[520px]/list-tree-panel:px-3"
               aria-pressed={knowledgeFilter === "known"}
               aria-label={t("lists.filterKnown")}
               title={t("lists.filterKnown")}
@@ -319,15 +319,14 @@ export const ListTreePanel = () => {
                 )
               }
             >
-              
-              <span className="hidden text-sm @[420px]/list-tree-panel:inline">
+              <span className="truncate">
                 {t("lists.filterKnown")}
               </span>
             </Button>
             <Button
               type="button"
               variant={knowledgeFilter === "unknown" ? "default" : "outline"}
-              className="h-9 cursor-pointer gap-2 px-3"
+              className="h-9 min-w-0 cursor-pointer px-2.5 text-sm @[520px]/list-tree-panel:px-3"
               aria-pressed={knowledgeFilter === "unknown"}
               aria-label={t("lists.filterUnknown")}
               title={t("lists.filterUnknown")}
@@ -337,8 +336,7 @@ export const ListTreePanel = () => {
                 )
               }
             >
-             
-              <span className="hidden text-sm @[420px]/list-tree-panel:inline">
+              <span className="truncate">
                 {t("lists.filterUnknown")}
               </span>
             </Button>
@@ -347,9 +345,12 @@ export const ListTreePanel = () => {
               <button
                 type="button"
                 onClick={() => setGroupFilter(null)}
-                className="bg-muted hover:bg-muted/70 inline-flex max-w-full cursor-pointer items-center gap-2 rounded-full px-3 py-2 text-xs transition-colors"
+                className="bg-muted hover:bg-muted/70 col-span-full inline-flex min-h-9 w-full min-w-0 max-w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs transition-colors @[520px]/list-tree-panel:col-auto @[520px]/list-tree-panel:w-auto @[520px]/list-tree-panel:rounded-full"
+                title={`${t(`ranks.${groupFilter.rank}`)}: ${
+                  groupFilter.name
+                }`}
               >
-                <span className="truncate">
+                <span className="min-w-0 truncate">
                   {t(`ranks.${groupFilter.rank}`)}: {groupFilter.name}
                 </span>
                 <X className="size-3.5 shrink-0" />
@@ -361,7 +362,7 @@ export const ListTreePanel = () => {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-9 cursor-pointer px-2 text-xs"
+                className="col-span-full h-9 cursor-pointer px-2 text-xs @[520px]/list-tree-panel:col-auto"
                 onClick={clearFilters}
               >
                 {t("listTreePanel.clearFilters")}
@@ -451,15 +452,6 @@ export const ListTreePanel = () => {
                       {groupFilter.name}
                     </h2>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 cursor-pointer px-2 text-xs"
-                    onClick={() => setGroupFilter(null)}
-                  >
-                    {t("listTreePanel.clearFilters")}
-                  </Button>
                 </div>
 
                 {branchSpecies.length > 0 ? (

@@ -43,6 +43,9 @@ type ListTreeGroupFilter = {
 
 const listTreeGroupFilter = atom<ListTreeGroupFilter>(null);
 
+const mobileTreeView = atom(false);
+const mobileListTreeView = atom<"tree" | "content">("tree");
+
 const shortcutScrollTarget = atom<PathNode[] | null>(null);
 
 export const shortcutScrollTargetAtom = atom(
@@ -137,6 +140,7 @@ export const openListTreeModeAtom = atom(
     set(expandedNodes, []);
     set(selectedSpecieKeyAtom, null);
     set(listTreeGroupFilter, null);
+    set(mobileListTreeView, "tree");
     set(shortcutScrollTarget, null);
     set(scrollToRank, null);
     set(scrollToNodeKey, null);
@@ -181,6 +185,7 @@ export const clearListTreeModeAtom = atom(null, (get, set) => {
   set(expandedNodes, []);
   set(selectedSpecieKeyAtom, null);
   set(listTreeGroupFilter, null);
+  set(mobileListTreeView, "tree");
   set(shortcutScrollTarget, null);
   set(scrollToRank, null);
   set(scrollToNodeKey, null);
@@ -302,12 +307,14 @@ export const toggleNodeAtom = atom(null, (get, set, key: number) => {
         key: selectedNode.key,
         name: selectedNode.name,
       });
+      set(mobileListTreeView, "content");
       return;
     }
 
     set(expandedNodes, newPathNodes);
     set(listTreeGroupFilter, null);
     set(selectedSpecieKeyAtom, key);
+    set(mobileListTreeView, "content");
     return;
   }
 
@@ -455,6 +462,40 @@ const challengeFeedbackMap = atom((get) => {
   return map;
 });
 
+export const resetTreeHomeAtom = atom(null, (_get, set) => {
+  set(challenge, { mode: null, status: "NOT_STARTED" });
+  set(listTreeMode, null);
+  set(rootKeys, Object.keys(NAME_KINGDOM_BY_KEY).map(Number));
+  set(expandedNodes, []);
+  set(selectedSpecieKeyAtom, null);
+  set(listTreeGroupFilter, null);
+  set(mobileTreeView, false);
+  set(mobileListTreeView, "tree");
+  set(shortcutScrollTarget, null);
+  set(scrollToRank, null);
+  set(scrollToNodeKey, null);
+  set(challengeTipsOpen, false);
+  set(challengeCorrectPath, []);
+  set(highlightedRank, null);
+  set(highlightedKeys, new Set());
+  prevExpandedKeys = new Set<number>();
+
+  set(nodesAtom, (prev) => {
+    let changed = false;
+    const next = { ...prev };
+
+    for (const key of Object.keys(next)) {
+      const numericKey = Number(key);
+      if (next[numericKey]?.expanded) {
+        changed = true;
+        next[numericKey] = { ...next[numericKey], expanded: false };
+      }
+    }
+
+    return changed ? next : prev;
+  });
+});
+
 export const treeAtom = {
   challenge,
   exploreInfos,
@@ -470,6 +511,8 @@ export const treeAtom = {
   rootKeys,
   listTreeMode,
   listTreeGroupFilter,
+  mobileTreeView,
+  mobileListTreeView,
   mergeNodes,
   challengeTipsOpen,
   challengeCorrectPath,

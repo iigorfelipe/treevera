@@ -416,6 +416,10 @@
     "exitListMode": "Exit"
   },
   "listTreePanel": {
+    "mobileTabs": {
+      "tree": "Tree",
+      "content": "Content"
+    },
     "searchPlaceholder": "Search this list",
     "favoriteFilter": "Show favorites only",
     "favoriteFilterShort": "Favorites",

@@ -410,12 +410,16 @@
     "searchBannerButton": "Buscar",
     "searchBannerHint": "Digite o nome do táxon que procura",
     "searchBannerNoResults": "Nenhum resultado encontrado",
-    "listModeLabel": "Arvore da lista:",
-    "listModeTitle": "Arvore da lista: {{title}}",
-    "listModeDescription": "{{count}} especies conectadas pela taxonomia",
+    "listModeLabel": "Árvore da lista:",
+    "listModeTitle": "Árvore da lista: {{title}}",
+    "listModeDescription": "{{count}} espécies conectadas pela taxonomia",
     "exitListMode": "Sair"
   },
   "listTreePanel": {
+    "mobileTabs": {
+      "tree": "Árvore",
+      "content": "Conteúdo"
+    },
     "searchPlaceholder": "Pesquisar na lista",
     "favoriteFilter": "Mostrar apenas favoritas",
     "favoriteFilterShort": "Favoritos",
