@@ -486,6 +486,53 @@
     "heroTitle": "Encuentra cualquier ser vivo ya catalogado, desde bacterias hasta ballenas.",
     "searchPlaceholder": "Busca en todo el sitio (especies, listas, usuarios)",
     "popularSearches": "Búsquedas populares",
+    "taxonomyPrimer": {
+      "imageAlt": "Animal en un hábitat natural",
+      "levels": {
+        "kingdom": {
+          "title": "Reino",
+          "question": "¿Qué es un reino?",
+          "detail": "Reino es una agrupación muy amplia. Reúne grandes conjuntos de organismos con diferencias fundamentales de organización, como animales, plantas y hongos.",
+          "quote": "'desde un comienzo tan simple, formas infinitas, las más bellas y maravillosas...' - Charles Darwin"
+        },
+        "phylum": {
+          "title": "Filo",
+          "question": "¿Qué es un filo?",
+          "detail": "Filo reúne organismos que comparten un plan general de organización corporal. En animales, por ejemplo, Chordata es el filo que incluye a los vertebrados.",
+          "quote": "'como estructuras, cada una construida según un cierto plan.' - Thomas Henry Huxley"
+        },
+        "class": {
+          "title": "Clase",
+          "question": "¿Qué es una clase?",
+          "detail": "Clase es un recorte más específico dentro del filo. Acerca organismos que todavía comparten características amplias, pero con semejanzas más marcadas.",
+          "quote": "'Las afinidades de todos los seres de la misma clase a veces se han representado como un gran árbol.' - Charles Darwin"
+        },
+        "order": {
+          "title": "Orden",
+          "question": "¿Qué es un orden?",
+          "detail": "Orden organiza las clases en grupos aún más próximos. Este nivel ayuda a separar conjuntos con parentesco más estrecho.",
+          "quote": "'la disposición de los grupos dentro de cada clase, en debida subordinación y relación entre sí' - Charles Darwin"
+        },
+        "family": {
+          "title": "Familia",
+          "question": "¿Qué es una familia?",
+          "detail": "Familia reúne géneros claramente emparentados. En el caso humano, Hominidae es la familia en la que está incluido el género Homo.",
+          "quote": "'la relación de sangre entre los numerosos parientes de cualquier familia antigua y noble...' - Charles Darwin"
+        },
+        "genus": {
+          "title": "Género",
+          "question": "¿Qué es un género?",
+          "detail": "Género es una agrupación estrecha, formada por especies muy próximas entre sí. Aparece como la primera palabra del nombre científico.",
+          "quote": "'los caracteres no hacen el género, sino que el género da los caracteres' - Carl Linnaeus"
+        },
+        "species": {
+          "title": "Especie",
+          "question": "¿Qué es una especie?",
+          "detail": "Especie es el grupo más específico de la clasificación biológica. En términos simples, reúne organismos tan cercanos que, en general, pueden reproducirse entre sí y dejar descendencia fértil.",
+          "quote": "'Si no conoces los nombres de las cosas, también se pierde su conocimiento.' - Carl Linnaeus"
+        }
+      }
+    },
     "kingdoms": {
       "title": "Empieza por un reino",
       "description": "Toda forma de vida pertenece a uno de estos 7 grupos. Elige uno para expandir el árbol desde allí.",

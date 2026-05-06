@@ -16,6 +16,7 @@ import {
 import { Image } from "@/common/components/image";
 import { Button } from "@/common/components/ui/button";
 import challengePathVideo from "@/assets/videos/tutorial.mp4";
+import taxonomyPrimerImage from "@/assets/images/animalia-5.avif?url";
 import {
   KEY_KINGDOM_BY_NAME,
   NAME_KINGDOM_BY_KEY,
@@ -69,6 +70,16 @@ const POPULAR_SEARCHES = [
 const FEATURED_LIST_SKELETON_KEYS = [0, 1, 2];
 
 const DEFAULT_EXPANDED_KINGDOM_KEY = KEY_KINGDOM_BY_NAME.animalia;
+
+const TAXONOMY_PRIMER_LEVELS = [
+  "kingdom",
+  "phylum",
+  "class",
+  "order",
+  "family",
+  "genus",
+  "species",
+] as const;
 
 const getKingdomCardDescriptionKey = (kingdomKey: number) => {
   const kingdomName = NAME_KINGDOM_BY_KEY[kingdomKey];
@@ -165,6 +176,67 @@ const WelcomePanel = () => {
         </div>
         <WelcomeSearch />
       </header>
+    </section>
+  );
+};
+
+const TaxonomyPrimerSection = () => {
+  const { t } = useTranslation();
+  const [activeLevel, setActiveLevel] =
+    useState<(typeof TAXONOMY_PRIMER_LEVELS)[number]>("species");
+
+  return (
+    <section className="@container/taxonomy-primer">
+      <div className="grid overflow-hidden @[900px]/taxonomy-primer:grid-cols-[minmax(20rem,1fr)_minmax(18rem,0.78fr)]">
+        <div className="flex min-w-0 flex-col">
+          <div className="-mt-1 flex min-h-11 min-w-0 items-center gap-3 pr-4 pb-3">
+            <span className="h-px w-12 shrink-0 bg-emerald-600 dark:bg-emerald-400" />
+            <h2 className="text-foreground min-w-0 text-xl leading-tight font-semibold @[640px]/taxonomy-primer:text-4xl">
+              {t(`homeInitial.taxonomyPrimer.levels.${activeLevel}.question`)}
+            </h2>
+          </div>
+
+          <div className="bg-muted relative min-h-52 flex-1 overflow-hidden @[640px]/taxonomy-primer:min-h-60 @[900px]/taxonomy-primer:min-h-68">
+            <Image
+              src={taxonomyPrimerImage}
+              alt={t("homeInitial.taxonomyPrimer.imageAlt")}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
+        </div>
+
+        <div className="flex min-w-0 flex-col bg-emerald-800/95 text-white @[900px]/taxonomy-primer:min-h-88">
+          <div className="flex min-h-10 overflow-x-auto bg-emerald-900/35">
+            {TAXONOMY_PRIMER_LEVELS.map((level) => (
+              <button
+                key={level}
+                type="button"
+                aria-pressed={activeLevel === level}
+                onClick={() => setActiveLevel(level)}
+                className={cn(
+                  "min-w-max px-3 text-xs font-semibold transition @[1040px]/taxonomy-primer:flex-1",
+                  activeLevel === level
+                    ? "bg-emerald-600 text-white"
+                    : "text-emerald-100/75 hover:bg-emerald-700/40 hover:text-white",
+                )}
+              >
+                {t(`homeInitial.taxonomyPrimer.levels.${level}.title`)}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-1 flex-col justify-center px-5 py-6 @[640px]/taxonomy-primer:px-8 @[900px]/taxonomy-primer:py-8 @[1100px]/taxonomy-primer:px-12">
+            <p className="text-base leading-7 font-medium text-white @[1100px]/taxonomy-primer:text-lg @[1100px]/taxonomy-primer:leading-8">
+              {t(`homeInitial.taxonomyPrimer.levels.${activeLevel}.detail`)}
+            </p>
+            <blockquote className="mt-6 text-sm leading-6 text-white/85 italic @[640px]/taxonomy-primer:text-base">
+              <p>
+                {t(`homeInitial.taxonomyPrimer.levels.${activeLevel}.quote`)}
+              </p>
+            </blockquote>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };
@@ -731,6 +803,7 @@ export const HomeInitialPanel = () => (
       <FeaturedListsHomeSection />
 
       <DailyChallengeHomeSection />
+      <TaxonomyPrimerSection />
 
       {/* <FeedbackSection /> */}
     </div>

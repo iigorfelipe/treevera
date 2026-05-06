@@ -486,6 +486,53 @@
     "heroTitle": "Find any cataloged living organism, from bacteria to whales.",
     "searchPlaceholder": "Search the whole site (species, lists, users)",
     "popularSearches": "Popular searches",
+    "taxonomyPrimer": {
+      "imageAlt": "Animal in a natural habitat",
+      "levels": {
+        "kingdom": {
+          "title": "Kingdom",
+          "question": "What is a kingdom?",
+          "detail": "Kingdom is a very broad grouping. It brings together large sets of organisms with fundamental differences in organization, such as animals, plants, and fungi.",
+          "quote": "'from so simple a beginning endless forms most beautiful and most wonderful...' - Charles Darwin"
+        },
+        "phylum": {
+          "title": "Phylum",
+          "question": "What is a phylum?",
+          "detail": "Phylum groups organisms that share a general body organization plan. In animals, for example, Chordata is the phylum that includes vertebrates.",
+          "quote": "'as fabrics, each of which is built upon a certain plan.' - Thomas Henry Huxley"
+        },
+        "class": {
+          "title": "Class",
+          "question": "What is a class?",
+          "detail": "Class is a more specific grouping inside a phylum. It brings together organisms that still share broad traits, but with more noticeable similarities.",
+          "quote": "'The affinities of all the beings of the same class have sometimes been represented by a great tree.' - Charles Darwin"
+        },
+        "order": {
+          "title": "Order",
+          "question": "What is an order?",
+          "detail": "Order organizes classes into even closer groups. This level helps separate sets with a narrower relationship.",
+          "quote": "'the arrangement of the groups within each class, in due subordination and relation to each other' - Charles Darwin"
+        },
+        "family": {
+          "title": "Family",
+          "question": "What is a family?",
+          "detail": "Family brings together clearly related genera. In the human case, Hominidae is the family that contains the genus Homo.",
+          "quote": "'the blood-relationship between the numerous kindred of any ancient and noble family...' - Charles Darwin"
+        },
+        "genus": {
+          "title": "Genus",
+          "question": "What is a genus?",
+          "detail": "Genus is a narrow grouping formed by species that are very close to one another. It appears as the first word of the scientific name.",
+          "quote": "'the characters do not make the genus, but that the genus gives the characters' - Carl Linnaeus"
+        },
+        "species": {
+          "title": "Species",
+          "question": "What is a species?",
+          "detail": "Species is the most specific group in biological classification. In simple terms, it gathers organisms close enough that they can generally reproduce and leave fertile offspring.",
+          "quote": "'If you do not know the names of things, the knowledge of them is lost, too.' - Carl Linnaeus"
+        }
+      }
+    },
     "kingdoms": {
       "title": "Start with a kingdom",
       "description": "Every form of life belongs to one of these 7 groups. Choose one to expand the tree from there.",
