@@ -204,11 +204,7 @@ export const clearListTreeModeAtom = atom(null, (get, set) => {
 
 export const updateListTreeSpeciesFavoriteAtom = atom(
   null,
-  (
-    get,
-    set,
-    payload: { gbifKey: number; isFavorite: boolean },
-  ) => {
+  (get, set, payload: { gbifKey: number; isFavorite: boolean }) => {
     const mode = get(listTreeMode);
     if (!mode) return;
 
@@ -244,18 +240,60 @@ export const nodeAtomFamily = atomFamily((key: number) =>
   ),
 );
 
+function getShortcutChildForParent(path: PathNode[] | null, parentKey: number) {
+  if (!path) return null;
+
+  const parentIndex = path.findIndex((node) => node.key === parentKey);
+  if (parentIndex === -1) return null;
+
+  return path[parentIndex + 1] ?? null;
+}
+
+function pathNodeToEntity(
+  pathNode: PathNode,
+  parentKey: number,
+  path: PathNode[],
+): NodeEntity {
+  const kingdom = path[0]?.name;
+
+  return {
+    key: pathNode.key,
+    rank: pathNode.rank,
+    numDescendants: pathNode.rank === "SPECIES" ? 0 : 1,
+    canonicalName: pathNode.name || undefined,
+    kingdom,
+    parentKey,
+  };
+}
+
 export const setNodeChildrenAtom = atom(
   null,
-  (_, set, payload: { key: number; children: NodeEntity[] }) => {
+  (get, set, payload: { key: number; children: NodeEntity[] }) => {
     const { key, children } = payload;
+    const shortcutTarget = get(shortcutScrollTarget);
+    const shortcutChild = getShortcutChildForParent(shortcutTarget, key);
+
     set(nodesAtom, (prev) => {
       const next = { ...prev };
+      const childrenToApply = [...children];
 
-      children.forEach((c) => {
+      if (
+        shortcutChild &&
+        !childrenToApply.some((child) => child.key === shortcutChild.key)
+      ) {
+        const existingShortcutNode = prev[shortcutChild.key];
+        childrenToApply.push({
+          ...pathNodeToEntity(shortcutChild, key, shortcutTarget ?? []),
+          ...existingShortcutNode,
+          parentKey: key,
+        });
+      }
+
+      childrenToApply.forEach((c) => {
         next[c.key] = { ...(next[c.key] ?? {}), ...c, parentKey: key };
       });
 
-      const apiChildKeys = new Set(children.map((c) => c.key));
+      const apiChildKeys = new Set(childrenToApply.map((c) => c.key));
       const existing = prev[key]?.childrenKeys ?? [];
       const pinned = existing.filter(
         (ck) => !apiChildKeys.has(ck) && prev[ck]?.parentKey === key,
@@ -263,7 +301,7 @@ export const setNodeChildrenAtom = atom(
 
       next[key] = {
         ...(next[key] ?? {}),
-        childrenKeys: [...children.map((c) => c.key), ...pinned],
+        childrenKeys: [...childrenToApply.map((c) => c.key), ...pinned],
       };
 
       return next;
