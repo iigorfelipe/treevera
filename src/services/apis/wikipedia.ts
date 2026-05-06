@@ -106,6 +106,16 @@ function isOpenCommonsLicense(license: string): boolean {
   );
 }
 
+const SUPPORTED_COMMONS_IMAGE_EXTENSIONS = /\.(jpe?g|png|gif|webp)$/i;
+
+function getImageUrlPathname(url: string): string {
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return url.split(/[?#]/)[0];
+  }
+}
+
 export const getSpecieImagesFromWikimediaCommons = async ({
   canonicalName,
 }: Params): Promise<
@@ -122,15 +132,21 @@ export const getSpecieImagesFromWikimediaCommons = async ({
   const pages = data.query?.pages;
   if (!pages) return [];
 
-  const imageExtensions = /\.(jpe?g|png|gif|webp)$/i;
-
   return (Object.values(pages) as Record<string, unknown>[])
     .map((page) => {
       const info = (
-        page as { imageinfo?: { url: string; extmetadata?: Record<string, { value: string }> }[] }
+        page as {
+          imageinfo?: {
+            url: string;
+            extmetadata?: Record<string, { value: string }>;
+          }[];
+        }
       ).imageinfo?.[0];
       if (!info) return null;
-      if (!imageExtensions.test(info.url)) return null;
+      if (
+        !SUPPORTED_COMMONS_IMAGE_EXTENSIONS.test(getImageUrlPathname(info.url))
+      )
+        return null;
 
       const meta = info.extmetadata ?? {};
       const licenseCode =
